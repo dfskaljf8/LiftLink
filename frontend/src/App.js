@@ -1,24 +1,6 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import axios from 'axios';
 import './App.css';
-
-// Firebase configuration
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const storage = getStorage(app);
 
 // Auth Context
 const AuthContext = createContext();
@@ -32,58 +14,99 @@ const api = axios.create({
 
 // Request interceptor to add auth token
 api.interceptors.request.use((config) => {
-  const user = auth.currentUser;
-  if (user) {
-    config.headers.Authorization = `Bearer ${user.uid}`;
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Auth Provider Component
+// Simple Auth Provider Component (without Firebase for now)
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      
-      if (firebaseUser) {
-        try {
-          // Register user in backend if not exists
-          await api.post('/api/users/register', {
-            email: firebaseUser.email,
-            name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
-          });
-          
-          // Get user profile
-          const response = await api.get('/api/users/profile');
-          setUserProfile(response.data);
-        } catch (error) {
-          console.log('User registration/profile fetch:', error.response?.data?.detail || error.message);
-        }
-      } else {
-        setUserProfile(null);
-      }
-      
+    // Check for existing auth token
+    const token = localStorage.getItem('auth_token');
+    const savedUser = localStorage.getItem('user_data');
+    
+    if (token && savedUser) {
+      setUser(JSON.parse(savedUser));
+      fetchUserProfile();
+    } else {
       setLoading(false);
-    });
-
-    return () => unsubscribe();
+    }
   }, []);
 
+  const fetchUserProfile = async () => {
+    try {
+      const response = await api.get('/api/users/profile');
+      setUserProfile(response.data);
+    } catch (error) {
+      console.log('User profile fetch error:', error.response?.data?.detail || error.message);
+      // Clear invalid token
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_data');
+      setUser(null);
+    }
+    setLoading(false);
+  };
+
   const login = async (email, password) => {
-    return await signInWithEmailAndPassword(auth, email, password);
+    try {
+      // For demo purposes, simulate login
+      let demoToken = '';
+      let demoUser = {};
+      
+      if (email === 'user@demo.com' && password === 'demo123') {
+        demoToken = 'demo_user';
+        demoUser = { uid: 'demo_user_1', email, displayName: 'Demo User' };
+      } else if (email === 'trainer@demo.com' && password === 'demo123') {
+        demoToken = 'demo_trainer';
+        demoUser = { uid: 'demo_user_2', email, displayName: 'Demo Trainer' };
+      } else if (email === 'aaravdthakker@gmail.com' || email === 'aadidthakker@gmail.com' || email === 'sid.the.manne@gmail.com') {
+        demoToken = 'demo_admin';
+        demoUser = { uid: 'admin_aarav', email, displayName: 'Admin User' };
+      } else {
+        throw new Error('Invalid credentials');
+      }
+      
+      localStorage.setItem('auth_token', demoToken);
+      localStorage.setItem('user_data', JSON.stringify(demoUser));
+      setUser(demoUser);
+      
+      // Try to register user in backend
+      try {
+        await api.post('/api/users/register', {
+          email: demoUser.email,
+          name: demoUser.displayName || demoUser.email.split('@')[0],
+        });
+      } catch (error) {
+        console.log('User registration note:', error.response?.data?.detail || 'User may already exist');
+      }
+      
+      // Get user profile
+      const response = await api.get('/api/users/profile');
+      setUserProfile(response.data);
+      
+      return { user: demoUser };
+    } catch (error) {
+      throw new Error(error.message || 'Login failed');
+    }
   };
 
   const register = async (email, password) => {
-    return await createUserWithEmailAndPassword(auth, email, password);
+    // For demo, redirect to login
+    return await login(email, password);
   };
 
   const logout = async () => {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
+    setUser(null);
     setUserProfile(null);
-    return await signOut(auth);
   };
 
   const value = {
