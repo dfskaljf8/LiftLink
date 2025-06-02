@@ -14,6 +14,8 @@ class LiftLinkAPITester:
         self.trainer_id = None
         self.booking_id = None
         self.session_id = None
+        self.progress_id = None
+        self.goal_id = None
 
     def run_test(self, name, method, endpoint, expected_status, data=None, params=None):
         """Run a single API test"""
