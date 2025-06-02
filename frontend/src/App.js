@@ -1785,6 +1785,10 @@ const AuthHandler = ({ setCurrentView }) => {
         return <MyBookings />;
       case 'progress':
         return <ProgressAnalytics />;
+      case 'tree':
+        return <TreeVisualization />;
+      case 'social':
+        return <SocialTracking />;
       case 'admin':
         return <AdminDashboard />;
       case 'profile':
