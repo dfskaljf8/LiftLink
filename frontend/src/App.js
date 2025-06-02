@@ -1454,6 +1454,8 @@ const AuthHandler = ({ setCurrentView }) => {
         return <TrainerSearch />;
       case 'bookings':
         return <MyBookings />;
+      case 'progress':
+        return <ProgressAnalytics />;
       case 'admin':
         return <AdminDashboard />;
       case 'profile':
