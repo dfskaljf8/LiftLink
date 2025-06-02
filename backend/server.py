@@ -3,13 +3,17 @@ import uuid
 import asyncio
 import hashlib
 import base64
+import re
+import smtplib
+from email.mime.text import MimeText
+from email.mime.multipart import MimeMultipart
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
-from pydantic import BaseModel, Field
-from pymongo import MongoClient
+from pydantic import BaseModel, Field, EmailStr
+from pymongo import MongoClient, GEOSPHERE
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 import firebase_admin
@@ -18,6 +22,7 @@ from emergentintegrations.payments.stripe.checkout import StripeCheckout, Checko
 from dotenv import load_dotenv
 import json
 from cryptography.fernet import Fernet
+import dns.resolver
 
 # Load environment variables
 load_dotenv()
