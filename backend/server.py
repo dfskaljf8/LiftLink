@@ -35,6 +35,263 @@ import io
 # Load environment variables
 load_dotenv()
 
+# Security Configuration
+SECURITY_CONFIG = {
+    "MAX_LOGIN_ATTEMPTS": 5,
+    "LOGIN_LOCKOUT_DURATION": 300,  # 5 minutes
+    "MAX_REGISTRATION_PER_IP_HOUR": 3,
+    "MAX_MESSAGES_PER_MINUTE": 10,
+    "BANNED_COUNTRIES": [""],  # Add ISO country codes as needed
+    "HIGH_RISK_REGIONS": [""],  # Add regions that need extra verification
+    "MIN_TRAINER_AGE": 18,
+    "MAX_TRAINER_AGE": 80,
+    "SUSPICIOUS_KEYWORDS": [
+        "meet", "private", "personal", "money", "cash", "payment", 
+        "outside", "app", "whatsapp", "telegram", "phone", "number",
+        "address", "location", "home", "alone"
+    ],
+    "GROOMING_PATTERNS": [
+        "special", "secret", "don't tell", "between us", "private message",
+        "beautiful", "sexy", "cute", "photos", "pictures"
+    ]
+}
+
+# Initialize security logger
+logging.basicConfig(level=logging.INFO)
+security_logger = logging.getLogger("liftlink_security")
+
+# Rate limiting storage (in production, use Redis)
+rate_limit_storage = {}
+failed_login_attempts = {}
+
+def get_client_ip(request: Request) -> str:
+    """Get real client IP address"""
+    x_forwarded_for = request.headers.get("x-forwarded-for")
+    if x_forwarded_for:
+        return x_forwarded_for.split(",")[0].strip()
+    return request.client.host
+
+def check_rate_limit(identifier: str, limit: int, window_minutes: int = 1) -> bool:
+    """Check if request is within rate limit"""
+    current_time = time.time()
+    window_start = current_time - (window_minutes * 60)
+    
+    if identifier not in rate_limit_storage:
+        rate_limit_storage[identifier] = []
+    
+    # Remove old entries
+    rate_limit_storage[identifier] = [
+        timestamp for timestamp in rate_limit_storage[identifier] 
+        if timestamp > window_start
+    ]
+    
+    # Check if within limit
+    if len(rate_limit_storage[identifier]) >= limit:
+        return False
+    
+    # Add current request
+    rate_limit_storage[identifier].append(current_time)
+    return True
+
+def is_suspicious_content(text: str) -> Dict[str, Any]:
+    """AI-driven content analysis for suspicious patterns"""
+    suspicion_score = 0
+    flags = []
+    
+    # Check for suspicious keywords
+    text_lower = text.lower()
+    for keyword in SECURITY_CONFIG["SUSPICIOUS_KEYWORDS"]:
+        if keyword in text_lower:
+            suspicion_score += 10
+            flags.append(f"suspicious_keyword: {keyword}")
+    
+    # Check for grooming patterns
+    for pattern in SECURITY_CONFIG["GROOMING_PATTERNS"]:
+        if pattern in text_lower:
+            suspicion_score += 25
+            flags.append(f"grooming_pattern: {pattern}")
+    
+    # Text complexity analysis (predators often use simple language)
+    reading_level = textstat.flesch_reading_ease(text)
+    if reading_level > 90:  # Very easy to read
+        suspicion_score += 5
+        flags.append("simple_language")
+    
+    # Check for excessive punctuation/emojis (grooming behavior)
+    emoji_count = len([c for c in text if ord(c) > 127])
+    if emoji_count > len(text) * 0.3:
+        suspicion_score += 15
+        flags.append("excessive_emojis")
+    
+    # Check for urgency/pressure words
+    pressure_words = ["urgent", "now", "immediately", "quickly", "hurry"]
+    for word in pressure_words:
+        if word in text_lower:
+            suspicion_score += 8
+            flags.append(f"pressure_word: {word}")
+    
+    return {
+        "suspicion_score": suspicion_score,
+        "flags": flags,
+        "is_suspicious": suspicion_score > 20
+    }
+
+def verify_face_match(id_image_data: bytes, selfie_image_data: bytes) -> bool:
+    """Verify face match between ID and selfie using face_recognition"""
+    try:
+        # Load images
+        id_image = face_recognition.load_image_file(io.BytesIO(id_image_data))
+        selfie_image = face_recognition.load_image_file(io.BytesIO(selfie_image_data))
+        
+        # Get face encodings
+        id_encodings = face_recognition.face_encodings(id_image)
+        selfie_encodings = face_recognition.face_encodings(selfie_image)
+        
+        if not id_encodings or not selfie_encodings:
+            return False
+        
+        # Compare faces
+        matches = face_recognition.compare_faces([id_encodings[0]], selfie_encodings[0])
+        return matches[0]
+        
+    except Exception as e:
+        security_logger.error(f"Face verification error: {e}")
+        return False
+
+async def log_security_event(event_type: str, user_id: str, details: Dict[str, Any], severity: str = "INFO"):
+    """Log security events for audit trail"""
+    security_event = {
+        "event_id": str(uuid.uuid4()),
+        "event_type": event_type,
+        "user_id": user_id,
+        "details": details,
+        "severity": severity,
+        "timestamp": datetime.utcnow(),
+        "investigation_status": "pending" if severity in ["HIGH", "CRITICAL"] else "closed"
+    }
+    
+    await db.security_events.insert_one(security_event)
+    security_logger.info(f"Security Event [{severity}]: {event_type} - User: {user_id}")
+    
+    # Auto-flag for manual review if high severity
+    if severity in ["HIGH", "CRITICAL"]:
+        await create_manual_review_task(user_id, event_type, details)
+
+async def create_manual_review_task(user_id: str, reason: str, details: Dict[str, Any]):
+    """Create manual review task for admin"""
+    review_task = {
+        "task_id": str(uuid.uuid4()),
+        "user_id": user_id,
+        "reason": reason,
+        "details": details,
+        "status": "pending",
+        "priority": "high" if reason in ["grooming_detected", "fake_id"] else "medium",
+        "created_at": datetime.utcnow(),
+        "assigned_admin": None,
+        "resolution": None
+    }
+    
+    await db.manual_review_tasks.insert_one(review_task)
+
+def generate_encryption_keypair():
+    """Generate RSA key pair for end-to-end encryption"""
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+    public_key = private_key.public_key()
+    
+    private_pem = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+    
+    public_pem = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    )
+    
+    return private_pem.decode(), public_pem.decode()
+
+def encrypt_message(message: str, public_key_pem: str) -> str:
+    """Encrypt message with recipient's public key"""
+    public_key = serialization.load_pem_public_key(public_key_pem.encode())
+    
+    # For long messages, use hybrid encryption (RSA + AES)
+    if len(message.encode()) > 190:  # RSA limitation
+        # Generate AES key
+        aes_key = Fernet.generate_key()
+        fernet = Fernet(aes_key)
+        
+        # Encrypt message with AES
+        encrypted_message = fernet.encrypt(message.encode())
+        
+        # Encrypt AES key with RSA
+        encrypted_aes_key = public_key.encrypt(
+            aes_key,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+        
+        # Combine both
+        result = {
+            "encrypted_key": base64.b64encode(encrypted_aes_key).decode(),
+            "encrypted_message": base64.b64encode(encrypted_message).decode(),
+            "type": "hybrid"
+        }
+        return base64.b64encode(json.dumps(result).encode()).decode()
+    else:
+        # Direct RSA encryption for short messages
+        encrypted = public_key.encrypt(
+            message.encode(),
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+        return base64.b64encode(encrypted).decode()
+
+def decrypt_message(encrypted_data: str, private_key_pem: str) -> str:
+    """Decrypt message with private key"""
+    private_key = serialization.load_pem_private_key(private_key_pem.encode(), password=None)
+    
+    try:
+        # Try hybrid decryption first
+        decoded_data = json.loads(base64.b64decode(encrypted_data).decode())
+        if decoded_data.get("type") == "hybrid":
+            # Decrypt AES key
+            encrypted_aes_key = base64.b64decode(decoded_data["encrypted_key"])
+            aes_key = private_key.decrypt(
+                encrypted_aes_key,
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None
+                )
+            )
+            
+            # Decrypt message
+            fernet = Fernet(aes_key)
+            encrypted_message = base64.b64decode(decoded_data["encrypted_message"])
+            return fernet.decrypt(encrypted_message).decode()
+    except:
+        # Fall back to direct RSA decryption
+        encrypted_bytes = base64.b64decode(encrypted_data)
+        decrypted = private_key.decrypt(
+            encrypted_bytes,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+        return decrypted.decode()
+
 # Initialize encryption key (in production, store securely)
 ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", Fernet.generate_key())
 cipher_suite = Fernet(ENCRYPTION_KEY)
