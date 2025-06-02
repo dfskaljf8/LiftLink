@@ -110,7 +110,7 @@ body {
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 50% 50%, rgba(0, 255, 136, 0.2) 0%, transparent 70%);
+    radial-gradient(circle at 50% 50%, rgba(189, 213, 61, 0.2) 0%, transparent 70%);
   animation: pulse-glow 3s ease-in-out infinite;
 }
 
@@ -134,7 +134,7 @@ body {
 .logo-large {
   font-size: 5rem;
   margin-bottom: 2rem;
-  filter: drop-shadow(0 0 30px rgba(0, 255, 136, 0.5));
+  filter: drop-shadow(0 0 30px rgba(189, 213, 61, 0.5));
 }
 
 .logo-lift {
