@@ -951,15 +951,6 @@ class EmailVerificationRequest(BaseModel):
 class SocialFollowRequest(BaseModel):
     user_id: str
 
-class UserLocationUpdate(BaseModel):
-    latitude: float
-    longitude: float
-    address: Optional[str] = None
-    city: Optional[str] = None
-    state: Optional[str] = None
-    country: Optional[str] = None
-    is_public: bool = True
-
 # Authentication dependency
 async def get_current_user(token: str = Depends(security)):
     if not token:
