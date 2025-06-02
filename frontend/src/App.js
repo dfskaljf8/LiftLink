@@ -476,6 +476,18 @@ const Navigation = ({ currentView, setCurrentView }) => {
           >
             📊 Progress
           </button>
+          <button 
+            className={`nav-btn ${currentView === 'tree' ? 'active' : ''}`}
+            onClick={() => setCurrentView('tree')}
+          >
+            🌳 Tree
+          </button>
+          <button 
+            className={`nav-btn ${currentView === 'social' ? 'active' : ''}`}
+            onClick={() => setCurrentView('social')}
+          >
+            👥 Social
+          </button>
           {userProfile?.role === 'trainer' && (
             <button 
               className={`nav-btn ${currentView === 'trainer-dashboard' ? 'active' : ''}`}
