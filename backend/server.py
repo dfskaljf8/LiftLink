@@ -872,6 +872,292 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
             "confirmed_sessions": confirmed_sessions
         }
 
+# ============ TREE VISUALIZATION ENDPOINTS ============
+
+@app.post("/api/tree/create-node")
+async def create_tree_node(
+    node_type: str,
+    title: str,
+    description: str,
+    parent_node_id: Optional[str] = None,
+    position: Dict[str, float] = {"x": 0.5, "y": 0.3},
+    xp_reward: int = 0,
+    coin_reward: int = 0,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a new tree node (goal, achievement, milestone, feedback)"""
+    
+    node_id = str(uuid.uuid4())
+    
+    # Set icon and color based on node type
+    icons = {
+        "goal": "🎯",
+        "achievement": "🏆", 
+        "milestone": "📍",
+        "feedback": "💭",
+        "session": "💪",
+        "streak": "🔥"
+    }
+    
+    colors = {
+        "goal": "#BDD53D",
+        "achievement": "#FFD700",
+        "milestone": "#FF6B6B", 
+        "feedback": "#4ECDC4",
+        "session": "#45B7D1",
+        "streak": "#FFA726"
+    }
+    
+    tree_node = TreeNodeModel(
+        node_id=node_id,
+        user_id=current_user["user_id"],
+        node_type=node_type,
+        title=title,
+        description=description,
+        status="active",
+        parent_node_id=parent_node_id,
+        position=position,
+        icon=icons.get(node_type, "🎯"),
+        color=colors.get(node_type, "#BDD53D"),
+        xp_reward=xp_reward,
+        coin_reward=coin_reward
+    )
+    
+    await db.tree_nodes.insert_one(tree_node.dict())
+    
+    return {"node_id": node_id, "message": "Tree node created successfully"}
+
+@app.get("/api/tree/my-tree")
+async def get_my_tree(current_user: dict = Depends(get_current_user)):
+    """Get user's complete tree structure"""
+    
+    nodes = []
+    async for node in db.tree_nodes.find({"user_id": current_user["user_id"]}):
+        nodes.append(serialize_doc(node))
+    
+    # Build tree structure with relationships
+    tree_structure = build_tree_structure(nodes)
+    
+    # Get recent activities for tree animation
+    recent_activities = []
+    async for activity in db.social_activities.find(
+        {"user_id": current_user["user_id"]}
+    ).sort("created_at", -1).limit(5):
+        recent_activities.append(serialize_doc(activity))
+    
+    return {
+        "tree_structure": tree_structure,
+        "nodes": nodes,
+        "recent_activities": recent_activities,
+        "total_nodes": len(nodes),
+        "completed_nodes": len([n for n in nodes if n["status"] == "completed"])
+    }
+
+@app.get("/api/tree/trainer-impact")
+async def get_trainer_impact_tree(current_user: dict = Depends(get_current_user)):
+    """Get trainer's impact tree showing client progress"""
+    
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Only trainers can access impact tree")
+    
+    # Get all clients of this trainer
+    client_bookings = []
+    async for booking in db.bookings.find({"trainer_id": current_user["user_id"], "status": "confirmed"}):
+        client_bookings.append(booking)
+    
+    # Get unique client IDs
+    client_ids = list(set([booking["user_id"] for booking in client_bookings]))
+    
+    # Build impact tree data
+    impact_data = []
+    for client_id in client_ids:
+        client = await db.users.find_one({"user_id": client_id})
+        if client:
+            # Get client's progress nodes
+            client_nodes = []
+            async for node in db.tree_nodes.find({"user_id": client_id}):
+                client_nodes.append(serialize_doc(node))
+            
+            # Get client stats
+            total_sessions = await db.bookings.count_documents({
+                "user_id": client_id, 
+                "trainer_id": current_user["user_id"],
+                "status": "confirmed"
+            })
+            
+            impact_data.append({
+                "client_id": client_id,
+                "client_name": client["name"],
+                "total_sessions": total_sessions,
+                "nodes_completed": len([n for n in client_nodes if n["status"] == "completed"]),
+                "total_nodes": len(client_nodes),
+                "current_streak": client.get("consecutive_days", 0),
+                "lift_coins": client.get("lift_coins", 0),
+                "recent_achievements": [n for n in client_nodes if n["status"] == "completed"][-3:]
+            })
+    
+    return {
+        "trainer_id": current_user["user_id"],
+        "total_clients": len(client_ids),
+        "total_sessions_given": sum([client["total_sessions"] for client in impact_data]),
+        "clients_impact": impact_data,
+        "forest_health": calculate_forest_health(impact_data)
+    }
+
+@app.put("/api/tree/update-node/{node_id}")
+async def update_tree_node(
+    node_id: str,
+    status: Optional[str] = None,
+    title: Optional[str] = None,
+    description: Optional[str] = None,
+    position: Optional[Dict[str, float]] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update a tree node (complete goal, move position, etc.)"""
+    
+    node = await db.tree_nodes.find_one({"node_id": node_id})
+    if not node:
+        raise HTTPException(status_code=404, detail="Tree node not found")
+    
+    if node["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Not authorized to update this node")
+    
+    update_data = {}
+    if status:
+        update_data["status"] = status
+        if status == "completed":
+            update_data["completion_date"] = datetime.utcnow()
+            
+            # Award XP and coins for completion
+            if node["xp_reward"] > 0:
+                await award_xp(current_user["user_id"], node["xp_reward"], f"completed_{node['node_type']}")
+            if node["coin_reward"] > 0:
+                await award_coins(current_user["user_id"], node["coin_reward"], f"completed_{node['node_type']}")
+            
+            # Create social activity
+            activity = SocialActivityModel(
+                activity_id=str(uuid.uuid4()),
+                user_id=current_user["user_id"],
+                activity_type=f"{node['node_type']}_completed",
+                title=f"Completed {node['title']}",
+                description=f"Just achieved: {node['description']}",
+                metadata={"node_id": node_id, "xp_earned": node["xp_reward"], "coins_earned": node["coin_reward"]}
+            )
+            await db.social_activities.insert_one(activity.dict())
+    
+    if title:
+        update_data["title"] = title
+    if description:
+        update_data["description"] = description
+    if position:
+        update_data["position"] = position
+    
+    await db.tree_nodes.update_one(
+        {"node_id": node_id},
+        {"$set": update_data}
+    )
+    
+    return {"message": "Tree node updated successfully"}
+
+@app.post("/api/tree/add-feedback")
+async def add_trainer_feedback(
+    client_id: str,
+    title: str,
+    feedback: str,
+    session_id: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Add trainer feedback as a 'leaf' on client's tree"""
+    
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Only trainers can add feedback")
+    
+    # Create feedback node on client's tree
+    node_id = str(uuid.uuid4())
+    
+    feedback_node = TreeNodeModel(
+        node_id=node_id,
+        user_id=client_id,  # Note: This goes on the CLIENT'S tree
+        node_type="feedback",
+        title=title,
+        description=feedback,
+        status="completed",  # Feedback is always "complete"
+        position={"x": 0.8, "y": 0.9},  # Position as "leaves" on the tree
+        icon="🍃",
+        color="#4ECDC4",
+        completion_date=datetime.utcnow()
+    )
+    
+    await db.tree_nodes.insert_one(feedback_node.dict())
+    
+    # Create notification for client
+    notification = NotificationModel(
+        notification_id=str(uuid.uuid4()),
+        user_id=client_id,
+        title="New Trainer Feedback",
+        message=f"Your trainer added feedback: {title}",
+        notification_type="trainer_feedback",
+        metadata={"trainer_id": current_user["user_id"], "node_id": node_id}
+    )
+    
+    await db.notifications.insert_one(notification.dict())
+    
+    return {"node_id": node_id, "message": "Feedback added to client's tree successfully"}
+
+def build_tree_structure(nodes):
+    """Build hierarchical tree structure from flat node list"""
+    tree = {}
+    node_map = {node["node_id"]: node for node in nodes}
+    
+    # Find root nodes (no parent)
+    roots = [node for node in nodes if not node.get("parent_node_id")]
+    
+    # Build children relationships
+    for node in nodes:
+        node["children"] = []
+        for other_node in nodes:
+            if other_node.get("parent_node_id") == node["node_id"]:
+                node["children"].append(other_node)
+    
+    return {
+        "roots": roots,
+        "total_depth": calculate_tree_depth(roots),
+        "growth_points": len([n for n in nodes if n["status"] == "completed"]),
+        "active_branches": len([n for n in nodes if n["status"] == "active"])
+    }
+
+def calculate_tree_depth(roots):
+    """Calculate maximum depth of tree"""
+    max_depth = 0
+    
+    def get_depth(node, current_depth=0):
+        nonlocal max_depth
+        max_depth = max(max_depth, current_depth)
+        for child in node.get("children", []):
+            get_depth(child, current_depth + 1)
+    
+    for root in roots:
+        get_depth(root)
+    
+    return max_depth
+
+def calculate_forest_health(impact_data):
+    """Calculate overall health/growth of trainer's client forest"""
+    if not impact_data:
+        return 0
+    
+    total_score = 0
+    for client in impact_data:
+        # Score based on sessions, completed nodes, and streak
+        session_score = min(client["total_sessions"] * 2, 100)
+        completion_rate = (client["nodes_completed"] / max(client["total_nodes"], 1)) * 100
+        streak_score = min(client["current_streak"] * 5, 50)
+        
+        client_score = (session_score + completion_rate + streak_score) / 3
+        total_score += client_score
+    
+    return min(total_score / len(impact_data), 100)
+
 # ============ ID VERIFICATION ENDPOINTS ============
 
 @app.post("/api/verification/upload-id")
