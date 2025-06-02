@@ -1011,6 +1011,304 @@ async def get_verification_status(current_user: dict = Depends(get_current_user)
         "is_certified_trainer": len([c for c in certifications if c.get("verification_status") == "verified"]) > 0
     }
 
+# ============ LIFTCOINS & GAMIFICATION ENDPOINTS ============
+
+@app.post("/api/coins/daily-checkin")
+async def daily_checkin(current_user: dict = Depends(get_current_user)):
+    """Daily check-in to maintain streak and earn coins"""
+    streak = await check_daily_streak(current_user["user_id"])
+    
+    user = await db.users.find_one({"user_id": current_user["user_id"]})
+    
+    return {
+        "message": f"Daily check-in complete! Streak: {streak} days",
+        "consecutive_days": streak,
+        "lift_coins": user.get("lift_coins", 0),
+        "level": user.get("level", 1),
+        "xp_points": user.get("xp_points", 0)
+    }
+
+@app.post("/api/coins/purchase")
+async def purchase_coins(
+    package: str,  # "small", "medium", "large"
+    current_user: dict = Depends(get_current_user)
+):
+    """Purchase LiftCoins with real money"""
+    
+    packages = {
+        "small": {"coins": 250, "price": 4.99},
+        "medium": {"coins": 600, "price": 9.99},
+        "large": {"coins": 1300, "price": 19.99}
+    }
+    
+    if package not in packages:
+        raise HTTPException(status_code=400, detail="Invalid package")
+    
+    coin_amount = packages[package]["coins"]
+    price = packages[package]["price"]
+    
+    # For demo purposes, simulate successful payment
+    transaction_id = str(uuid.uuid4())
+    
+    # Award coins
+    await award_coins(
+        current_user["user_id"], 
+        coin_amount, 
+        "purchase", 
+        {"package": package, "price": price, "transaction_id": transaction_id}
+    )
+    
+    # Create purchase transaction with different type
+    transaction = LiftCoinTransactionModel(
+        transaction_id=transaction_id,
+        user_id=current_user["user_id"],
+        transaction_type="purchased",
+        amount=coin_amount,
+        reason="purchase",
+        metadata={"package": package, "price": price}
+    )
+    
+    await db.lift_coin_transactions.insert_one(transaction.dict())
+    
+    user = await db.users.find_one({"user_id": current_user["user_id"]})
+    
+    return {
+        "message": f"Successfully purchased {coin_amount} LiftCoins!",
+        "coins_purchased": coin_amount,
+        "total_coins": user.get("lift_coins", 0),
+        "transaction_id": transaction_id
+    }
+
+@app.post("/api/coins/spend")
+async def spend_coins(
+    amount: int,
+    reason: str,
+    metadata: Optional[Dict] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Spend LiftCoins on perks"""
+    
+    user = await db.users.find_one({"user_id": current_user["user_id"]})
+    current_coins = user.get("lift_coins", 0)
+    
+    if current_coins < amount:
+        raise HTTPException(status_code=400, detail="Insufficient LiftCoins")
+    
+    # Deduct coins
+    await db.users.update_one(
+        {"user_id": current_user["user_id"]},
+        {"$inc": {"lift_coins": -amount}}
+    )
+    
+    # Create spending transaction
+    transaction = LiftCoinTransactionModel(
+        transaction_id=str(uuid.uuid4()),
+        user_id=current_user["user_id"],
+        transaction_type="spent",
+        amount=-amount,
+        reason=reason,
+        metadata=metadata or {}
+    )
+    
+    await db.lift_coin_transactions.insert_one(transaction.dict())
+    
+    return {
+        "message": f"Successfully spent {amount} LiftCoins on {reason}",
+        "coins_spent": amount,
+        "remaining_coins": current_coins - amount
+    }
+
+@app.get("/api/coins/balance")
+async def get_coin_balance(current_user: dict = Depends(get_current_user)):
+    """Get user's current coin balance and transaction history"""
+    
+    user = await db.users.find_one({"user_id": current_user["user_id"]})
+    
+    # Get recent transactions
+    transactions = []
+    async for transaction in db.lift_coin_transactions.find({"user_id": current_user["user_id"]}).sort("created_at", -1).limit(20):
+        transactions.append(serialize_doc(transaction))
+    
+    # Calculate how close to $10 discount
+    current_coins = user.get("lift_coins", 0)
+    coins_needed_for_discount = max(0, 1000 - current_coins)
+    
+    return {
+        "lift_coins": current_coins,
+        "total_coins_earned": user.get("total_coins_earned", 0),
+        "level": user.get("level", 1),
+        "xp_points": user.get("xp_points", 0),
+        "badges": user.get("badges", []),
+        "consecutive_days": user.get("consecutive_days", 0),
+        "discount_progress": {
+            "current_coins": current_coins,
+            "coins_needed": coins_needed_for_discount,
+            "discount_available": current_coins >= 1000
+        },
+        "recent_transactions": transactions
+    }
+
+@app.get("/api/leaderboards/coins")
+async def get_coin_leaderboard():
+    """Get LiftCoins leaderboard (weekly)"""
+    
+    # Calculate weekly earnings (last 7 days)
+    week_ago = datetime.now() - timedelta(days=7)
+    
+    # Aggregate weekly coin earnings
+    pipeline = [
+        {
+            "$match": {
+                "created_at": {"$gte": week_ago},
+                "transaction_type": "earned"
+            }
+        },
+        {
+            "$group": {
+                "_id": "$user_id",
+                "weekly_coins": {"$sum": "$amount"}
+            }
+        },
+        {
+            "$sort": {"weekly_coins": -1}
+        },
+        {
+            "$limit": 20
+        }
+    ]
+    
+    leaderboard = []
+    async for result in db.lift_coin_transactions.aggregate(pipeline):
+        user = await db.users.find_one({"user_id": result["_id"]})
+        if user:
+            leaderboard.append({
+                "user_id": result["_id"],
+                "name": user["name"],
+                "weekly_coins": result["weekly_coins"],
+                "total_coins": user.get("total_coins_earned", 0),
+                "level": user.get("level", 1),
+                "badges": user.get("badges", [])
+            })
+    
+    return {"leaderboard": leaderboard, "period": "weekly"}
+
+@app.get("/api/leaderboards/certified-trainers")
+async def get_certified_trainers_leaderboard():
+    """Get Top Certified Trainers leaderboard"""
+    
+    # Get all verified trainers with their certification counts
+    trainers = []
+    async for trainer in db.trainers.find({"is_certified_trainer": True}):
+        # Count verified certifications
+        cert_count = await db.certifications.count_documents({
+            "trainer_id": trainer["trainer_id"],
+            "verification_status": "verified"
+        })
+        
+        # Get user info
+        user = await db.users.find_one({"user_id": trainer["trainer_id"]})
+        if user:
+            # Get recent session count (last 30 days)
+            month_ago = datetime.now() - timedelta(days=30)
+            recent_sessions = await db.bookings.count_documents({
+                "trainer_id": trainer["trainer_id"],
+                "status": "confirmed",
+                "created_at": {"$gte": month_ago}
+            })
+            
+            trainers.append({
+                "trainer_id": trainer["trainer_id"],
+                "name": user["name"],
+                "cert_count": cert_count,
+                "verified_certifications": trainer.get("verified_certifications", []),
+                "rating": trainer.get("rating", 0.0),
+                "total_sessions": trainer.get("total_sessions", 0),
+                "recent_sessions": recent_sessions,
+                "xp_points": user.get("xp_points", 0),
+                "level": user.get("level", 1),
+                "badges": user.get("badges", []),
+                "gym_name": trainer.get("gym_name", ""),
+                "specialties": trainer.get("specialties", [])
+            })
+    
+    # Sort by certification count, then by XP, then by recent activity
+    trainers.sort(key=lambda x: (x["cert_count"], x["xp_points"], x["recent_sessions"]), reverse=True)
+    
+    return {"leaderboard": trainers[:20], "total_certified_trainers": len(trainers)}
+
+@app.get("/api/rewards/available")
+async def get_available_rewards(current_user: dict = Depends(get_current_user)):
+    """Get available rewards and how to earn more coins"""
+    
+    user = await db.users.find_one({"user_id": current_user["user_id"]})
+    current_coins = user.get("lift_coins", 0)
+    
+    rewards = [
+        {
+            "id": "session_discount",
+            "name": "$10 Session Discount",
+            "description": "Get $10 off any training session",
+            "cost": 1000,
+            "available": current_coins >= 1000,
+            "icon": "💰"
+        },
+        {
+            "id": "streak_saver",
+            "name": "Streak Saver",
+            "description": "Keep your daily streak alive if you miss a day",
+            "cost": 50,
+            "available": current_coins >= 50,
+            "icon": "🔥"
+        },
+        {
+            "id": "premium_badge",
+            "name": "Premium Badge",
+            "description": "Unlock exclusive profile badge",
+            "cost": 200,
+            "available": current_coins >= 200,
+            "icon": "🏅"
+        }
+    ]
+    
+    earning_opportunities = [
+        {
+            "action": "Daily Check-in (7 days)",
+            "coins": 50,
+            "description": "Log in for 7 consecutive days",
+            "available": user.get("consecutive_days", 0) < 7
+        },
+        {
+            "action": "Complete First Session",
+            "coins": 100,
+            "description": "Book and complete your first training session",
+            "available": not user.get("first_session_completed", False)
+        },
+        {
+            "action": "Leave a Review",
+            "coins": 20,
+            "description": "Review a trainer after your session",
+            "available": True
+        },
+        {
+            "action": "Refer a Friend",
+            "coins": 200,
+            "description": "Invite someone who completes verification",
+            "available": True
+        },
+        {
+            "action": "Trainer Certification",
+            "coins": 150,
+            "description": "Upload and verify fitness certification",
+            "available": current_user.get("role") == "trainer"
+        }
+    ]
+    
+    return {
+        "available_rewards": rewards,
+        "earning_opportunities": earning_opportunities,
+        "current_coins": current_coins
+    }
+
 # ============ PROGRESS TRACKING ENDPOINTS ============
 
 @app.post("/api/progress/add")
