@@ -143,6 +143,8 @@ class TrainerProfileModel(BaseModel):
     availability: Dict[str, List[str]] = {}  # {"monday": ["09:00", "10:00"], ...}
     rating: float = 0.0
     total_sessions: int = 0
+    is_certified_trainer: bool = False
+    verified_certifications: List[str] = []  # List of verified cert types
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class BookingModel(BaseModel):
