@@ -96,11 +96,38 @@ security = HTTPBearer(auto_error=False)
 class UserModel(BaseModel):
     user_id: str
     email: str
-    role: str = "user"  # "user" or "trainer"
+    role: str = "user"  # "user" or "trainer" or "admin"
     name: str
     phone: Optional[str] = None
     location: Optional[Dict[str, float]] = None  # {"lat": float, "lng": float}
     gym: Optional[str] = None
+    date_of_birth: Optional[str] = None  # YYYY-MM-DD format
+    id_verified: bool = False
+    id_document_url: Optional[str] = None
+    id_verification_status: str = "pending"  # "pending", "verified", "rejected"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class IDVerificationModel(BaseModel):
+    verification_id: str
+    user_id: str
+    document_type: str  # "drivers_license", "passport", "national_id"
+    document_url: str
+    extracted_data: Optional[Dict[str, Any]] = {}  # Name, DOB, etc.
+    verification_status: str = "pending"  # "pending", "verified", "rejected"
+    verification_notes: Optional[str] = None
+    verified_at: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class CertificationModel(BaseModel):
+    certification_id: str
+    trainer_id: str
+    cert_type: str  # "NASM", "ACE", "ISSA", "CSCS", "Other"
+    cert_number: str
+    cert_document_url: str
+    expiration_date: Optional[datetime] = None
+    verification_status: str = "pending"  # "pending", "verified", "rejected"
+    verification_notes: Optional[str] = None
+    verified_at: Optional[datetime] = None
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class TrainerProfileModel(BaseModel):
