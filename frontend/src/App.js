@@ -553,6 +553,396 @@ const MyBookings = () => {
   );
 };
 
+// Progress Analytics Component with Advanced Data Visualization
+const ProgressAnalytics = () => {
+  const [progressData, setProgressData] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [loading, setLoading] = useState(true);
+  const [showAddProgress, setShowAddProgress] = useState(false);
+  const [newProgress, setNewProgress] = useState({
+    weight: '',
+    body_fat_percentage: '',
+    muscle_mass: '',
+    notes: ''
+  });
+
+  useEffect(() => {
+    fetchProgressData();
+    fetchAnalytics();
+    fetchLeaderboard();
+  }, []);
+
+  const fetchProgressData = async () => {
+    try {
+      const response = await api.get('/api/progress/my');
+      setProgressData(response.data);
+    } catch (error) {
+      console.error('Error fetching progress data:', error);
+    }
+  };
+
+  const fetchAnalytics = async () => {
+    try {
+      const response = await api.get('/api/progress/analytics');
+      setAnalytics(response.data);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+    }
+    setLoading(false);
+  };
+
+  const fetchLeaderboard = async () => {
+    try {
+      const response = await api.get('/api/progress/leaderboard');
+      setLeaderboard(response.data.leaderboard || []);
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
+    }
+  };
+
+  const handleAddProgress = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/api/progress/add', {
+        weight: parseFloat(newProgress.weight),
+        body_fat_percentage: newProgress.body_fat_percentage ? parseFloat(newProgress.body_fat_percentage) : null,
+        muscle_mass: newProgress.muscle_mass ? parseFloat(newProgress.muscle_mass) : null,
+        notes: newProgress.notes
+      });
+      
+      setNewProgress({ weight: '', body_fat_percentage: '', muscle_mass: '', notes: '' });
+      setShowAddProgress(false);
+      fetchProgressData();
+      fetchAnalytics();
+      alert('Progress entry added successfully!');
+    } catch (error) {
+      console.error('Error adding progress:', error);
+      alert('Error adding progress entry');
+    }
+  };
+
+  const SimpleLineChart = ({ data, dataKey, color }) => {
+    if (!data || data.length === 0) return <div className="no-data">No data available</div>;
+
+    const maxValue = Math.max(...data.map(d => d[dataKey]));
+    const minValue = Math.min(...data.map(d => d[dataKey]));
+    const range = maxValue - minValue;
+
+    return (
+      <div className="simple-chart">
+        <div className="chart-container">
+          <svg viewBox="0 0 400 200" className="chart-svg">
+            <defs>
+              <linearGradient id={`gradient-${dataKey}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+                <stop offset="100%" stopColor={color} stopOpacity="0.1" />
+              </linearGradient>
+            </defs>
+            
+            {/* Grid lines */}
+            {[0, 1, 2, 3, 4].map(i => (
+              <line
+                key={i}
+                x1="0"
+                y1={i * 40}
+                x2="400"
+                y2={i * 40}
+                stroke="rgba(255, 255, 255, 0.1)"
+                strokeWidth="1"
+              />
+            ))}
+            
+            {/* Data line */}
+            <polyline
+              fill="none"
+              stroke={color}
+              strokeWidth="3"
+              points={data.map((d, i) => {
+                const x = (i / (data.length - 1)) * 400;
+                const y = range > 0 ? 180 - ((d[dataKey] - minValue) / range) * 160 : 90;
+                return `${x},${y}`;
+              }).join(' ')}
+            />
+            
+            {/* Area fill */}
+            <polygon
+              fill={`url(#gradient-${dataKey})`}
+              points={
+                data.map((d, i) => {
+                  const x = (i / (data.length - 1)) * 400;
+                  const y = range > 0 ? 180 - ((d[dataKey] - minValue) / range) * 160 : 90;
+                  return `${x},${y}`;
+                }).join(' ') + ' 400,180 0,180'
+              }
+            />
+            
+            {/* Data points */}
+            {data.map((d, i) => {
+              const x = (i / (data.length - 1)) * 400;
+              const y = range > 0 ? 180 - ((d[dataKey] - minValue) / range) * 160 : 90;
+              return (
+                <circle
+                  key={i}
+                  cx={x}
+                  cy={y}
+                  r="4"
+                  fill={color}
+                  stroke="white"
+                  strokeWidth="2"
+                />
+              );
+            })}
+          </svg>
+        </div>
+        <div className="chart-labels">
+          <span className="chart-min">{minValue.toFixed(1)}</span>
+          <span className="chart-max">{maxValue.toFixed(1)}</span>
+        </div>
+      </div>
+    );
+  };
+
+  if (loading) return <div className="loading">Loading analytics...</div>;
+
+  return (
+    <div className="progress-analytics">
+      <div className="analytics-header">
+        <h1>🔥 Progress Analytics</h1>
+        <p>Track your transformation journey with real-time insights</p>
+        <button 
+          onClick={() => setShowAddProgress(true)}
+          className="add-progress-btn"
+        >
+          + Add Progress Entry
+        </button>
+      </div>
+
+      <div className="analytics-tabs">
+        <button 
+          className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+          onClick={() => setActiveTab('overview')}
+        >
+          📊 Overview
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'trends' ? 'active' : ''}`}
+          onClick={() => setActiveTab('trends')}
+        >
+          📈 Trends
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'leaderboard' ? 'active' : ''}`}
+          onClick={() => setActiveTab('leaderboard')}
+        >
+          🏆 Leaderboard
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
+          onClick={() => setActiveTab('history')}
+        >
+          📝 History
+        </button>
+      </div>
+
+      {showAddProgress && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>Add Progress Entry</h2>
+              <button onClick={() => setShowAddProgress(false)} className="close-btn">×</button>
+            </div>
+            <form onSubmit={handleAddProgress} className="progress-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>Weight (kg/lbs)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newProgress.weight}
+                    onChange={(e) => setNewProgress({...newProgress, weight: e.target.value})}
+                    className="form-input"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Body Fat % (optional)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newProgress.body_fat_percentage}
+                    onChange={(e) => setNewProgress({...newProgress, body_fat_percentage: e.target.value})}
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Muscle Mass (optional)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={newProgress.muscle_mass}
+                    onChange={(e) => setNewProgress({...newProgress, muscle_mass: e.target.value})}
+                    className="form-input"
+                  />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Notes</label>
+                <textarea
+                  value={newProgress.notes}
+                  onChange={(e) => setNewProgress({...newProgress, notes: e.target.value})}
+                  className="form-textarea"
+                  placeholder="How are you feeling? Any observations..."
+                />
+              </div>
+              <div className="form-actions">
+                <button type="submit" className="save-btn">Save Progress</button>
+                <button type="button" onClick={() => setShowAddProgress(false)} className="cancel-btn">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      <div className="analytics-content">
+        {activeTab === 'overview' && (
+          <div className="overview-section">
+            {progressData?.stats && (
+              <div className="stats-overview">
+                <div className="stat-card-lg">
+                  <div className="stat-icon">⚖️</div>
+                  <div className="stat-content">
+                    <div className="stat-value">{progressData.stats.total_weight_loss.toFixed(1)} kg</div>
+                    <div className="stat-label">Total Weight Loss</div>
+                    <div className="stat-change">
+                      {progressData.stats.weight_change_percentage > 0 ? '📉' : '📈'} 
+                      {Math.abs(progressData.stats.weight_change_percentage).toFixed(1)}% change
+                    </div>
+                  </div>
+                </div>
+
+                <div className="stat-card-lg">
+                  <div className="stat-icon">🎯</div>
+                  <div className="stat-content">
+                    <div className="stat-value">{progressData.stats.current_weight.toFixed(1)} kg</div>
+                    <div className="stat-label">Current Weight</div>
+                    <div className="stat-change">From {progressData.stats.starting_weight.toFixed(1)} kg</div>
+                  </div>
+                </div>
+
+                <div className="stat-card-lg">
+                  <div className="stat-icon">📅</div>
+                  <div className="stat-content">
+                    <div className="stat-value">{progressData.stats.days_tracked}</div>
+                    <div className="stat-label">Days Tracked</div>
+                    <div className="stat-change">{progressData.stats.total_entries} entries</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {analytics?.trend_direction && (
+              <div className="trend-insight">
+                <h3>Current Trend</h3>
+                <div className="trend-card">
+                  <div className="trend-icon">
+                    {analytics.trend_direction === 'losing' ? '📉' : 
+                     analytics.trend_direction === 'gaining' ? '📈' : '➡️'}
+                  </div>
+                  <div className="trend-content">
+                    <div className="trend-title">
+                      You're {analytics.trend_direction} weight
+                    </div>
+                    <div className="trend-detail">
+                      {Math.abs(analytics.recent_trend).toFixed(1)} kg change this week
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'trends' && (
+          <div className="trends-section">
+            {analytics?.weekly_data && analytics.weekly_data.length > 0 ? (
+              <div className="chart-section">
+                <h3>Weight Trend (Weekly Average)</h3>
+                <SimpleLineChart 
+                  data={analytics.weekly_data}
+                  dataKey="average_weight"
+                  color="var(--accent-primary)"
+                />
+              </div>
+            ) : (
+              <div className="no-data-message">
+                <div className="no-data-icon">📈</div>
+                <h3>No trend data yet</h3>
+                <p>Add more progress entries to see your weight trends</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'leaderboard' && (
+          <div className="leaderboard-section">
+            <h3>🏆 Weight Loss Leaderboard</h3>
+            <div className="leaderboard-list">
+              {leaderboard.map((user, index) => (
+                <div key={index} className="leaderboard-item">
+                  <div className="rank">
+                    {index + 1 <= 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`}
+                  </div>
+                  <div className="user-info">
+                    <div className="user-name">{user.user_name}</div>
+                    <div className="user-stats">
+                      {user.days_tracked} days • {user.entries_count} entries
+                    </div>
+                  </div>
+                  <div className="progress-stats">
+                    <div className="weight-loss">{user.weight_loss.toFixed(1)} kg lost</div>
+                    <div className="percentage">{user.weight_loss_percentage.toFixed(1)}%</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'history' && (
+          <div className="history-section">
+            <h3>Progress History</h3>
+            <div className="history-list">
+              {progressData?.progress_entries?.map((entry, index) => (
+                <div key={entry.progress_id} className="history-item">
+                  <div className="history-date">
+                    {new Date(entry.date_recorded).toLocaleDateString()}
+                  </div>
+                  <div className="history-content">
+                    <div className="weight-entry">
+                      <span className="weight-value">{entry.weight} kg</span>
+                      {entry.body_fat_percentage && (
+                        <span className="body-fat">{entry.body_fat_percentage}% BF</span>
+                      )}
+                    </div>
+                    {entry.notes && (
+                      <div className="entry-notes">{entry.notes}</div>
+                    )}
+                  </div>
+                  {index === 0 && <div className="latest-badge">Latest</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Admin Dashboard Component
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
