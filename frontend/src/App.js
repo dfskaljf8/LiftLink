@@ -1030,11 +1030,18 @@ const AuthHandler = ({ setCurrentView }) => {
   if (loading) {
     return (
       <div className="loading-screen">
-        <div className="logo-large">
-          <span className="logo-lift">Lift</span>
-          <span className="logo-link">Link</span>
+        <div className="logo-container">
+          <div className="logo-large">
+            <span className="logo-lift">Lift</span>
+            <span className="logo-link">Link</span>
+          </div>
+          <div className="tagline-large">Beginners to Believers</div>
+          <div className="subtitle">Your fitness journey starts here</div>
         </div>
         <div className="loading-text">Loading your fitness journey...</div>
+        <div className="loading-progress">
+          <div className="progress-bar"></div>
+        </div>
       </div>
     );
   }
@@ -1051,6 +1058,8 @@ const AuthHandler = ({ setCurrentView }) => {
         return <TrainerSearch />;
       case 'bookings':
         return <MyBookings />;
+      case 'admin':
+        return <AdminDashboard />;
       case 'profile':
         return <Profile />;
       default:
@@ -1062,8 +1071,15 @@ const AuthHandler = ({ setCurrentView }) => {
     <div className="app-container">
       <Navigation currentView={view} setCurrentView={setView} />
       <main className="main-content">
-        {renderView()}
+        <div className="view-container">
+          {renderView()}
+        </div>
       </main>
+      <div className="background-effects">
+        <div className="floating-particle"></div>
+        <div className="floating-particle"></div>
+        <div className="floating-particle"></div>
+      </div>
     </div>
   );
 };
