@@ -123,6 +123,42 @@ class UserModel(BaseModel):
     id_verified: bool = False
     id_document_url: Optional[str] = None
     id_verification_status: str = "pending"  # "pending", "verified", "rejected"
+    
+    # Gamification fields
+    xp_points: int = 0
+    level: int = 1
+    badges: List[str] = []
+    lift_coins: int = 0
+    total_coins_earned: int = 0
+    consecutive_days: int = 0
+    last_check_in: Optional[datetime] = None
+    
+    # Tracking for rewards
+    first_session_completed: bool = False
+    total_referrals: int = 0
+    total_reviews_left: int = 0
+    goals_completed: int = 0
+    
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class LiftCoinTransactionModel(BaseModel):
+    transaction_id: str
+    user_id: str
+    transaction_type: str  # "earned", "spent", "purchased"
+    amount: int  # positive for earned/purchased, negative for spent
+    reason: str  # "daily_streak", "first_session", "review", "referral", "purchase", "session_discount"
+    metadata: Optional[Dict[str, Any]] = {}
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class BadgeModel(BaseModel):
+    badge_id: str
+    name: str
+    description: str
+    icon: str
+    xp_reward: int = 0
+    coin_reward: int = 0
+    criteria: Dict[str, Any]  # Criteria for earning the badge
+    rarity: str = "common"  # "common", "rare", "epic", "legendary"
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class IDVerificationModel(BaseModel):
