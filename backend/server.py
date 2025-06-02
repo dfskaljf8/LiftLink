@@ -169,12 +169,53 @@ async def get_current_user(token: str = Depends(security)):
         raise HTTPException(status_code=401, detail="Authentication required")
     
     try:
-        # In a real app, verify Firebase token here
-        # For demo, we'll extract user_id from token
+        # For demo purposes, we'll use a simplified auth system
+        # In production, this would verify Firebase tokens
         user_id = token.credentials if token else "demo_user"
+        
+        # Handle demo users
+        if user_id in ["demo_user", "demo_trainer", "demo_admin"]:
+            # Map demo tokens to actual user IDs
+            if user_id == "demo_user":
+                user_id = "demo_user_1"
+            elif user_id == "demo_trainer":
+                user_id = "demo_user_2"
+            elif user_id == "demo_admin":
+                user_id = "admin_aarav"
+        
         user = await db.users.find_one({"user_id": user_id})
         if not user:
-            raise HTTPException(status_code=404, detail="User not found")
+            # Create demo user if not exists
+            if user_id == "demo_user_1":
+                user = {
+                    "user_id": "demo_user_1",
+                    "email": "user@demo.com",
+                    "name": "Demo User",
+                    "role": "user",
+                    "created_at": datetime.utcnow()
+                }
+                await db.users.insert_one(user)
+            elif user_id == "demo_user_2":
+                user = {
+                    "user_id": "demo_user_2", 
+                    "email": "trainer@demo.com",
+                    "name": "Demo Trainer",
+                    "role": "trainer",
+                    "created_at": datetime.utcnow()
+                }
+                await db.users.insert_one(user)
+            elif user_id == "admin_aarav":
+                user = {
+                    "user_id": "admin_aarav",
+                    "email": "aaravdthakker@gmail.com",
+                    "name": "Aarav Thakker", 
+                    "role": "admin",
+                    "created_at": datetime.utcnow()
+                }
+                await db.users.insert_one(user)
+            else:
+                raise HTTPException(status_code=404, detail="User not found")
+        
         return user
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid token")
