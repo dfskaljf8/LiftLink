@@ -1175,6 +1175,162 @@ async def check_daily_streak(user_id: str):
     
     return new_streak
 
+class UserLocationUpdate(BaseModel):
+    latitude: float
+    longitude: float
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    is_public: bool = True
+
+class KYCDocumentUpload(BaseModel):
+    document_type: str  # "government_id", "certification", "selfie"
+    document_data: str  # base64 encoded
+
+class MessageRequest(BaseModel):
+    recipient_id: str
+    content: str
+    message_type: str = "text"  # "text", "image", "session_update"
+
+class ReviewRequest(BaseModel):
+    trainer_id: str
+    rating: int  # 1-5
+    review_text: str
+    session_id: Optional[str] = None
+
+class ReportRequest(BaseModel):
+    reported_user_id: str
+    reason: str
+    description: str
+    evidence: Optional[str] = None
+
+class AdminActionRequest(BaseModel):
+    action: str  # "approve", "reject", "ban", "investigate"
+    reason: str
+    details: Optional[Dict[str, Any]] = None
+
+# Security and KYC Models
+class KYCDocumentModel(BaseModel):
+    document_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    document_type: str
+    document_data: str  # encrypted base64
+    verification_status: str = "pending"  # pending, verified, rejected
+    verification_notes: Optional[str] = None
+    verified_by: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    verified_at: Optional[datetime] = None
+
+class MessageModel(BaseModel):
+    message_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    sender_id: str
+    recipient_id: str
+    content: str  # encrypted
+    message_type: str = "text"
+    is_read: bool = False
+    suspicion_score: int = 0
+    suspicion_flags: List[str] = []
+    is_flagged: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    edited_at: Optional[datetime] = None
+    deleted_at: Optional[datetime] = None
+
+class ReviewModel(BaseModel):
+    review_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str  # reviewer
+    trainer_id: str
+    rating: int
+    review_text: str
+    session_id: Optional[str] = None
+    is_verified_client: bool = False
+    moderation_status: str = "pending"  # pending, approved, rejected
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class ReportModel(BaseModel):
+    report_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    reporter_id: str
+    reported_user_id: str
+    reason: str
+    description: str
+    evidence: Optional[str] = None
+    status: str = "pending"  # pending, investigating, resolved, dismissed
+    priority: str = "medium"  # low, medium, high, critical
+    assigned_admin: Optional[str] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    resolved_at: Optional[datetime] = None
+
+class UserBehaviorModel(BaseModel):
+    behavior_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    behavior_type: str  # "rapid_account_creation", "location_mismatch", "suspicious_messaging"
+    risk_score: int
+    details: Dict[str, Any]
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class TreeProgressionModel(BaseModel):
+    user_id: str
+    current_stage: str = "seed"  # seed, sprout, sapling, young_tree, mature_tree, ancient_tree, redwood
+    progress_points: int = 0
+    milestones_completed: List[str] = []
+    visual_upgrades: List[str] = []
+    next_stage_requirements: Dict[str, int] = {}
+
+# Tree progression system
+TREE_STAGES = {
+    "seed": {
+        "name": "🌱 Fitness Seed",
+        "description": "Just planted! Ready to grow with your first steps.",
+        "required_points": 0,
+        "icon": "🌱",
+        "color": "#90EE90"
+    },
+    "sprout": {
+        "name": "🌿 Growing Sprout", 
+        "description": "First signs of growth! You're building momentum.",
+        "required_points": 100,
+        "icon": "🌿",
+        "color": "#9ACD32"
+    },
+    "sapling": {
+        "name": "🌳 Young Sapling",
+        "description": "Strong foundation established. Consistent growth visible!",
+        "required_points": 500,
+        "icon": "🌳",
+        "color": "#228B22"
+    },
+    "young_tree": {
+        "name": "🌲 Young Tree",
+        "description": "Impressive height reached! Others look up to your progress.",
+        "required_points": 1500,
+        "icon": "🌲",
+        "color": "#006400"
+    },
+    "mature_tree": {
+        "name": "🌴 Mature Tree",
+        "description": "Fully developed and inspiring! A fitness role model.",
+        "required_points": 3000,
+        "icon": "🌴",
+        "color": "#8B4513"
+    },
+    "ancient_tree": {
+        "name": "🌳 Ancient Tree",
+        "description": "Wisdom and strength embodied. A fitness legend!",
+        "required_points": 6000,
+        "icon": "🌳",
+        "color": "#654321"
+    },
+    "redwood": {
+        "name": "🌲 Mighty Redwood",
+        "description": "The pinnacle of fitness achievement! Truly legendary status.",
+        "required_points": 10000,
+        "icon": "🌲",
+        "color": "#B22222"
+    }
+}
+
+# ============ ENHANCED SECURITY ENDPOINTS ============
+
 # ============ USER MANAGEMENT ENDPOINTS ============
 
 @app.post("/api/users/register")
