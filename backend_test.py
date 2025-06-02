@@ -560,6 +560,110 @@ def run_user_to_trainer_conversion_test(base_url):
     print(f"\n📊 User to trainer conversion tests passed: {tester.tests_passed}/{tester.tests_run}")
     return tester.tests_passed == tester.tests_run
 
+def run_progress_tracking_tests(base_url):
+    """Test the progress tracking features"""
+    tester = LiftLinkAPITester(base_url)
+    
+    print("\n===== TESTING PROGRESS TRACKING =====\n")
+    
+    # Test login
+    if not tester.test_login("user@demo.com", "demo123"):
+        print("❌ Login failed, stopping tests")
+        return False
+    
+    # Test getting user profile
+    if not tester.test_get_user_profile():
+        print("❌ Failed to get user profile, stopping tests")
+        return False
+    
+    # Test adding a progress entry
+    if not tester.test_add_progress_entry(
+        weight=80.5, 
+        body_fat_percentage=18.5, 
+        muscle_mass=65.0, 
+        notes="Feeling good after today's workout"
+    ):
+        print("❌ Failed to add progress entry")
+    
+    # Test adding another progress entry with different weight
+    if not tester.test_add_progress_entry(
+        weight=79.8, 
+        body_fat_percentage=18.2, 
+        notes="Lost some weight this week"
+    ):
+        print("❌ Failed to add second progress entry")
+    
+    # Test getting user's progress
+    if not tester.test_get_my_progress():
+        print("❌ Failed to get progress data")
+    
+    # Test getting progress analytics
+    if not tester.test_get_progress_analytics():
+        print("❌ Failed to get progress analytics")
+    
+    # Test getting progress leaderboard
+    if not tester.test_get_progress_leaderboard():
+        print("❌ Failed to get progress leaderboard")
+    
+    # Test adding a goal
+    target_date = (datetime.now() + timedelta(days=30)).isoformat()
+    if not tester.test_add_goal(
+        goal_type="weight_loss",
+        target_value=75.0,
+        target_date=target_date
+    ):
+        print("❌ Failed to add goal")
+    
+    # Test getting progress again to see the goal
+    if not tester.test_get_my_progress():
+        print("❌ Failed to get updated progress data with goal")
+    
+    print(f"\n📊 Progress tracking tests passed: {tester.tests_passed}/{tester.tests_run}")
+    return tester.tests_passed == tester.tests_run
+
+def run_admin_tests(base_url):
+    """Test the admin features"""
+    tester = LiftLinkAPITester(base_url)
+    
+    print("\n===== TESTING ADMIN FEATURES =====\n")
+    
+    # Test login as admin
+    if not tester.test_login("aaravdthakker@gmail.com", "admin123"):
+        print("❌ Admin login failed, trying alternative admin account")
+        if not tester.test_login("aadidthakker@gmail.com", "admin123"):
+            print("❌ Alternative admin login failed, trying last admin account")
+            if not tester.test_login("sid.the.manne@gmail.com", "admin123"):
+                print("❌ All admin logins failed, stopping tests")
+                return False
+    
+    # Test getting admin profile
+    if not tester.test_get_user_profile():
+        print("❌ Failed to get admin profile, stopping tests")
+        return False
+    
+    # Test getting admin dashboard stats
+    if not tester.test_admin_stats():
+        print("❌ Failed to get admin stats")
+    
+    # Test getting all users
+    if not tester.test_admin_users():
+        print("❌ Failed to get all users")
+    
+    # Test getting all trainers
+    if not tester.test_admin_trainers():
+        print("❌ Failed to get all trainers")
+    
+    # Test getting all bookings
+    if not tester.test_admin_bookings():
+        print("❌ Failed to get all bookings")
+    
+    # Test getting all transactions
+    if not tester.test_admin_transactions():
+        print("❌ Failed to get all transactions")
+    
+    print(f"\n📊 Admin tests passed: {tester.tests_passed}/{tester.tests_run}")
+    return tester.tests_passed == tester.tests_run
+
 if __name__ == "__main__":
     # Get the backend URL from the frontend .env file
     import os
