@@ -149,6 +149,14 @@ const Navigation = () => {
               🎯 Trainer Dashboard
             </button>
           )}
+          {userProfile?.role === 'admin' && (
+            <button 
+              className={`nav-btn admin ${currentView === 'admin' ? 'active' : ''}`}
+              onClick={() => setCurrentView('admin')}
+            >
+              👑 Admin Panel
+            </button>
+          )}
           <button 
             className={`nav-btn ${currentView === 'profile' ? 'active' : ''}`}
             onClick={() => setCurrentView('profile')}
