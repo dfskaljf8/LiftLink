@@ -1839,10 +1839,6 @@ body {
     gap: 0.5rem;
   }
 }
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-secondary);
   border-radius: 6px;
 }
 
