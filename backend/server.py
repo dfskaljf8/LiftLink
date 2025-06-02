@@ -150,15 +150,68 @@ class LiftCoinTransactionModel(BaseModel):
     metadata: Optional[Dict[str, Any]] = {}
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-class BadgeModel(BaseModel):
-    badge_id: str
-    name: str
+class TreeNodeModel(BaseModel):
+    node_id: str
+    user_id: str
+    node_type: str  # "goal", "achievement", "milestone", "feedback"
+    title: str
     description: str
-    icon: str
+    status: str  # "active", "completed", "locked"
+    parent_node_id: Optional[str] = None  # For branching structure
+    position: Dict[str, float]  # {"x": 0.5, "y": 0.3} relative positions
+    icon: str = "🎯"
+    color: str = "#BDD53D"
     xp_reward: int = 0
     coin_reward: int = 0
-    criteria: Dict[str, Any]  # Criteria for earning the badge
-    rarity: str = "common"  # "common", "rare", "epic", "legendary"
+    completion_date: Optional[datetime] = None
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class SocialFollowModel(BaseModel):
+    follow_id: str
+    follower_id: str  # User who is following
+    following_id: str  # User being followed
+    follow_type: str = "user"  # "user", "trainer"
+    notifications_enabled: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class SocialActivityModel(BaseModel):
+    activity_id: str
+    user_id: str
+    activity_type: str  # "goal_completed", "badge_earned", "streak_milestone", "session_completed"
+    title: str
+    description: str
+    metadata: Dict[str, Any] = {}
+    is_public: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class NotificationModel(BaseModel):
+    notification_id: str
+    user_id: str
+    title: str
+    message: str
+    notification_type: str  # "friend_activity", "achievement", "reminder"
+    is_read: bool = False
+    metadata: Dict[str, Any] = {}
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class LocationModel(BaseModel):
+    user_id: str
+    latitude: float
+    longitude: float
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    radius_km: float = 25.0  # Search radius in kilometers
+    is_public: bool = True
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class EmailVerificationModel(BaseModel):
+    verification_id: str
+    email: str
+    verification_code: str
+    is_verified: bool = False
+    expires_at: datetime
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class IDVerificationModel(BaseModel):
