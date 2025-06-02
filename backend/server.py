@@ -4,9 +4,11 @@ import asyncio
 import hashlib
 import base64
 import re
+import time
+import ipaddress
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
-from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Query
+from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Query, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, Field, EmailStr
@@ -19,7 +21,16 @@ from emergentintegrations.payments.stripe.checkout import StripeCheckout, Checko
 from dotenv import load_dotenv
 import json
 from cryptography.fernet import Fernet
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives import serialization
 import dns.resolver
+import logging
+import textstat
+import face_recognition
+import numpy as np
+from PIL import Image
+import io
 
 # Load environment variables
 load_dotenv()
