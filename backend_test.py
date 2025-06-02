@@ -683,14 +683,18 @@ if __name__ == "__main__":
     user_flow_success = run_user_flow_tests(BACKEND_URL)
     trainer_flow_success = run_trainer_flow_tests(BACKEND_URL)
     conversion_success = run_user_to_trainer_conversion_test(BACKEND_URL)
+    progress_tracking_success = run_progress_tracking_tests(BACKEND_URL)
+    admin_success = run_admin_tests(BACKEND_URL)
     
     # Print overall results
     print("\n===== TEST SUMMARY =====")
     print(f"User Flow: {'✅ PASSED' if user_flow_success else '❌ FAILED'}")
     print(f"Trainer Flow: {'✅ PASSED' if trainer_flow_success else '❌ FAILED'}")
     print(f"User to Trainer Conversion: {'✅ PASSED' if conversion_success else '❌ FAILED'}")
+    print(f"Progress Tracking: {'✅ PASSED' if progress_tracking_success else '❌ FAILED'}")
+    print(f"Admin Features: {'✅ PASSED' if admin_success else '❌ FAILED'}")
     
-    overall_success = user_flow_success and trainer_flow_success and conversion_success
+    overall_success = user_flow_success and trainer_flow_success and conversion_success and progress_tracking_success and admin_success
     print(f"\nOverall Test Result: {'✅ PASSED' if overall_success else '❌ FAILED'}")
     
     exit(0 if overall_success else 1)
