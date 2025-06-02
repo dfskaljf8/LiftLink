@@ -897,8 +897,11 @@ async def upload_certification(
     if file.content_type not in allowed_types:
         raise HTTPException(status_code=400, detail="Invalid file type. Only JPG, PNG, and PDF are allowed.")
     
-    # For demo purposes, simulate file upload
-    file_url = f"https://demo-storage.com/certifications/{current_user['user_id']}_{file.filename}"
+    # For demo purposes, simulate Firebase Storage upload
+    file_url = f"https://firebase-storage.com/certifications/{current_user['user_id']}_{cert_type}_{file.filename}"
+    
+    # Encrypt certification number
+    encrypted_cert_number = encrypt_data(cert_number)
     
     # Create certification record
     certification_id = str(uuid.uuid4())
@@ -910,18 +913,43 @@ async def upload_certification(
         except ValueError:
             raise HTTPException(status_code=400, detail="Invalid expiration date format. Use YYYY-MM-DD.")
     
+    # Calculate rewards based on certification type
+    xp_reward = 100  # Base XP for any certification
+    coin_reward = 150  # Base coins for trainer certification
+    
+    if cert_type in ["NASM", "ACE", "ACSM"]:
+        xp_reward = 150  # Premium certifications get more XP
+        coin_reward = 200
+    elif cert_type == "CSCS":
+        xp_reward = 200  # Strength and conditioning specialist
+        coin_reward = 250
+    
     certification = CertificationModel(
         certification_id=certification_id,
         trainer_id=current_user["user_id"],
         cert_type=cert_type,
-        cert_number=cert_number,
+        cert_number_encrypted=encrypted_cert_number,
         cert_document_url=file_url,
         expiration_date=exp_date,
         verification_status="verified",  # Auto-verify for demo
-        verified_at=datetime.utcnow()
+        verified_at=datetime.utcnow(),
+        xp_awarded=xp_reward,
+        coins_awarded=coin_reward
     )
     
     await db.certifications.insert_one(certification.dict())
+    
+    # Award XP and coins
+    new_xp, new_level = await award_xp(current_user["user_id"], xp_reward, f"certification_{cert_type}")
+    await award_coins(current_user["user_id"], coin_reward, f"certification_{cert_type}", {"cert_type": cert_type})
+    
+    # Award certification badge
+    badge_awarded = await award_badge(
+        current_user["user_id"], 
+        f"certified_{cert_type.lower()}", 
+        50, 
+        25
+    )
     
     # Update trainer profile
     trainer = await db.trainers.find_one({"trainer_id": current_user["user_id"]})
@@ -938,11 +966,28 @@ async def upload_certification(
             }}
         )
     
+    # Check for "Top Certified Trainer" badge (3+ certifications)
+    total_certs = await db.certifications.count_documents({
+        "trainer_id": current_user["user_id"],
+        "verification_status": "verified"
+    })
+    
+    if total_certs >= 3:
+        await award_badge(current_user["user_id"], "top_certified_trainer", 200, 100)
+    
     return {
-        "message": "Certification uploaded and verified successfully",
+        "message": "Certification uploaded and verified successfully! 🎉",
         "certification_id": certification_id,
         "status": "verified",
-        "cert_type": cert_type
+        "cert_type": cert_type,
+        "rewards": {
+            "xp_awarded": xp_reward,
+            "coins_awarded": coin_reward,
+            "new_xp_total": new_xp,
+            "new_level": new_level,
+            "badge_awarded": badge_awarded,
+            "show_confetti": True  # Trigger confetti animation
+        }
     }
 
 @app.get("/api/verification/status")
