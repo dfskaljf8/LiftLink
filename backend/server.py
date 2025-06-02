@@ -663,6 +663,84 @@ async def get_progress_leaderboard():
     
     return {"leaderboard": leaderboard[:20]}  # Top 20
 
+@app.post("/api/demo/seed-progress")
+async def seed_demo_progress():
+    """Seed demo progress data for testing (development only)"""
+    
+    # Create demo users if they don't exist
+    demo_users = [
+        {
+            "user_id": "demo_user_1",
+            "email": "user@demo.com",
+            "name": "Demo User",
+            "role": "user"
+        },
+        {
+            "user_id": "demo_user_2", 
+            "email": "trainer@demo.com",
+            "name": "Demo Trainer",
+            "role": "trainer"
+        },
+        {
+            "user_id": "demo_user_3",
+            "email": "john@demo.com", 
+            "name": "John Smith",
+            "role": "user"
+        }
+    ]
+    
+    for user in demo_users:
+        existing = await db.users.find_one({"email": user["email"]})
+        if not existing:
+            user["created_at"] = datetime.utcnow()
+            await db.users.insert_one(user)
+    
+    # Seed progress entries for multiple users
+    progress_entries = [
+        # User 1 progress (steady weight loss)
+        {"user_id": "demo_user_1", "weight": 85.0, "body_fat_percentage": 22.0, "notes": "Starting my journey", "date_recorded": datetime.utcnow() - timedelta(days=30)},
+        {"user_id": "demo_user_1", "weight": 84.2, "body_fat_percentage": 21.5, "notes": "Feeling good", "date_recorded": datetime.utcnow() - timedelta(days=23)},
+        {"user_id": "demo_user_1", "weight": 83.5, "body_fat_percentage": 21.0, "notes": "Making progress", "date_recorded": datetime.utcnow() - timedelta(days=16)},
+        {"user_id": "demo_user_1", "weight": 82.8, "body_fat_percentage": 20.5, "notes": "Diet is working", "date_recorded": datetime.utcnow() - timedelta(days=9)},
+        {"user_id": "demo_user_1", "weight": 82.0, "body_fat_percentage": 20.0, "notes": "Lost 3kg so far!", "date_recorded": datetime.utcnow() - timedelta(days=2)},
+        
+        # User 2 progress (trainer with muscle gain)
+        {"user_id": "demo_user_2", "weight": 78.0, "muscle_mass": 65.0, "notes": "Bulking phase", "date_recorded": datetime.utcnow() - timedelta(days=25)},
+        {"user_id": "demo_user_2", "weight": 79.5, "muscle_mass": 66.5, "notes": "Gaining muscle", "date_recorded": datetime.utcnow() - timedelta(days=18)},
+        {"user_id": "demo_user_2", "weight": 80.2, "muscle_mass": 67.0, "notes": "Strength increasing", "date_recorded": datetime.utcnow() - timedelta(days=11)},
+        {"user_id": "demo_user_2", "weight": 81.0, "muscle_mass": 68.0, "notes": "New PR today!", "date_recorded": datetime.utcnow() - timedelta(days=4)},
+        
+        # User 3 progress (significant weight loss)
+        {"user_id": "demo_user_3", "weight": 95.0, "body_fat_percentage": 28.0, "notes": "Need to lose weight", "date_recorded": datetime.utcnow() - timedelta(days=35)},
+        {"user_id": "demo_user_3", "weight": 92.5, "body_fat_percentage": 26.5, "notes": "Good start", "date_recorded": datetime.utcnow() - timedelta(days=28)},
+        {"user_id": "demo_user_3", "weight": 90.0, "body_fat_percentage": 25.0, "notes": "5kg down!", "date_recorded": datetime.utcnow() - timedelta(days=21)},
+        {"user_id": "demo_user_3", "weight": 87.5, "body_fat_percentage": 23.5, "notes": "Halfway there", "date_recorded": datetime.utcnow() - timedelta(days=14)},
+        {"user_id": "demo_user_3", "weight": 85.0, "body_fat_percentage": 22.0, "notes": "10kg lost!", "date_recorded": datetime.utcnow() - timedelta(days=7)},
+        {"user_id": "demo_user_3", "weight": 83.5, "body_fat_percentage": 21.0, "notes": "Feeling amazing", "date_recorded": datetime.utcnow() - timedelta(days=1)},
+    ]
+    
+    created_entries = 0
+    for entry in progress_entries:
+        entry["progress_id"] = str(uuid.uuid4())
+        entry["created_at"] = entry["date_recorded"]
+        
+        # Check if entry already exists for this user and date
+        existing = await db.progress_entries.find_one({
+            "user_id": entry["user_id"],
+            "date_recorded": {"$gte": entry["date_recorded"] - timedelta(hours=1), 
+                             "$lte": entry["date_recorded"] + timedelta(hours=1)}
+        })
+        
+        if not existing:
+            await db.progress_entries.insert_one(entry)
+            created_entries += 1
+    
+    return {
+        "message": f"Demo progress data seeded successfully",
+        "users_created": len(demo_users),
+        "progress_entries_created": created_entries
+    }
+
 # ============ ADMIN ENDPOINTS ============
 
 @app.post("/api/admin/seed-admins")
