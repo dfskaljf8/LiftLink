@@ -163,7 +163,6 @@ def verify_face_match(id_image_data: bytes, selfie_image_data: bytes) -> bool:
         return False
         
         # Compare faces
-        matches = face_recognition.compare_faces([id_encodings[0]], selfie_encodings[0])
         return matches[0]
         
     except Exception as e:
@@ -482,7 +481,6 @@ def verify_face_match(id_image_data: bytes, selfie_image_data: bytes) -> bool:
         return False
         
         # Compare faces
-        matches = face_recognition.compare_faces([id_encodings[0]], selfie_encodings[0])
         return matches[0]
         
     except Exception as e:
