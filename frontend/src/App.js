@@ -1528,6 +1528,624 @@ const AdminDashboard = () => {
   );
 };
 
+// Tree Visualization Component
+const TreeVisualization = () => {
+  const { userProfile } = useAuth();
+  const [treeData, setTreeData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showAddNode, setShowAddNode] = useState(false);
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [newNodeData, setNewNodeData] = useState({
+    node_type: 'goal',
+    title: '',
+    description: '',
+    xp_reward: 0,
+    coin_reward: 0
+  });
+
+  useEffect(() => {
+    fetchTreeData();
+  }, []);
+
+  const fetchTreeData = async () => {
+    try {
+      const endpoint = userProfile?.role === 'trainer' 
+        ? '/api/tree/trainer-impact' 
+        : '/api/tree/my-tree';
+      
+      const response = await api.get(endpoint);
+      setTreeData(response.data);
+    } catch (error) {
+      console.error('Error fetching tree data:', error);
+    }
+    setLoading(false);
+  };
+
+  const handleCreateNode = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/api/tree/create-node', {
+        ...newNodeData,
+        position: { x: Math.random() * 0.8 + 0.1, y: Math.random() * 0.8 + 0.1 }
+      });
+      
+      setNewNodeData({
+        node_type: 'goal',
+        title: '',
+        description: '',
+        xp_reward: 0,
+        coin_reward: 0
+      });
+      setShowAddNode(false);
+      fetchTreeData();
+      alert('New goal created on your tree!');
+    } catch (error) {
+      console.error('Error creating node:', error);
+      alert('Error creating tree node');
+    }
+  };
+
+  const handleCompleteNode = async (nodeId) => {
+    try {
+      await api.put(`/api/tree/update-node/${nodeId}`, {
+        status: 'completed'
+      });
+      fetchTreeData();
+      alert('🎉 Goal completed! XP and coins awarded!');
+    } catch (error) {
+      console.error('Error completing node:', error);
+      alert('Error completing goal');
+    }
+  };
+
+  const TreeNode = ({ node, x, y }) => {
+    const isCompleted = node.status === 'completed';
+    const isActive = node.status === 'active';
+    
+    return (
+      <div
+        className={`tree-node ${node.status}`}
+        style={{
+          left: `${x * 100}%`,
+          top: `${y * 100}%`,
+          backgroundColor: node.color,
+          opacity: isCompleted ? 0.8 : 1
+        }}
+        onClick={() => setSelectedNode(node)}
+      >
+        <div className="node-icon">{node.icon}</div>
+        <div className="node-title">{node.title}</div>
+        {isCompleted && <div className="completion-badge">✓</div>}
+        {isActive && (
+          <button 
+            className="complete-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCompleteNode(node.node_id);
+            }}
+          >
+            Complete
+          </button>
+        )}
+      </div>
+    );
+  };
+
+  const TrainerImpactView = () => {
+    if (!treeData) return null;
+
+    return (
+      <div className="trainer-impact-tree">
+        <div className="impact-header">
+          <h2>🌲 Your Training Impact Forest</h2>
+          <div className="forest-stats">
+            <div className="stat">
+              <span className="stat-number">{treeData.total_clients}</span>
+              <span className="stat-label">Clients Transformed</span>
+            </div>
+            <div className="stat">
+              <span className="stat-number">{treeData.total_sessions_given}</span>
+              <span className="stat-label">Sessions Given</span>
+            </div>
+            <div className="stat">
+              <span className="stat-number">{Math.round(treeData.forest_health)}%</span>
+              <span className="stat-label">Forest Health</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="clients-forest">
+          {treeData.clients_impact.map((client, index) => (
+            <div key={client.client_id} className="client-tree">
+              <div className="client-header">
+                <h3>{client.client_name}</h3>
+                <div className="client-stats">
+                  <span>{client.total_sessions} sessions</span>
+                  <span>{client.nodes_completed}/{client.total_nodes} goals</span>
+                  <span>{client.current_streak} day streak</span>
+                </div>
+              </div>
+              
+              <div className="mini-tree">
+                {client.recent_achievements.map((achievement, idx) => (
+                  <div key={idx} className="mini-achievement">
+                    {achievement.icon} {achievement.title}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  if (loading) return <div className="loading">Loading your tree...</div>;
+
+  if (userProfile?.role === 'trainer') {
+    return <TrainerImpactView />;
+  }
+
+  return (
+    <div className="tree-visualization">
+      <div className="tree-header">
+        <h1>🌳 Your Progress Tree</h1>
+        <p>Watch your fitness journey grow into a beautiful tree of achievements</p>
+        
+        <div className="tree-stats">
+          <div className="stat">
+            <span className="stat-number">{treeData?.total_nodes || 0}</span>
+            <span className="stat-label">Total Goals</span>
+          </div>
+          <div className="stat">
+            <span className="stat-number">{treeData?.completed_nodes || 0}</span>
+            <span className="stat-label">Completed</span>
+          </div>
+          <div className="stat">
+            <span className="stat-number">{treeData?.tree_structure?.growth_points || 0}</span>
+            <span className="stat-label">Growth Points</span>
+          </div>
+        </div>
+        
+        <button 
+          onClick={() => setShowAddNode(true)}
+          className="add-goal-btn"
+        >
+          + Add New Goal
+        </button>
+      </div>
+
+      <div className="tree-canvas">
+        <div className="tree-trunk"></div>
+        <div className="tree-branches">
+          {treeData?.nodes?.map((node) => (
+            <TreeNode
+              key={node.node_id}
+              node={node}
+              x={node.position.x}
+              y={node.position.y}
+            />
+          ))}
+        </div>
+        
+        {treeData?.nodes?.length === 0 && (
+          <div className="empty-tree">
+            <div className="empty-tree-icon">🌱</div>
+            <h3>Plant Your First Goal</h3>
+            <p>Your fitness tree is waiting to grow. Add your first goal to get started!</p>
+          </div>
+        )}
+      </div>
+
+      {showAddNode && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>🎯 Add New Goal</h2>
+              <button onClick={() => setShowAddNode(false)} className="close-btn">×</button>
+            </div>
+            <form onSubmit={handleCreateNode} className="node-form">
+              <div className="form-group">
+                <label>Goal Type</label>
+                <select
+                  value={newNodeData.node_type}
+                  onChange={(e) => setNewNodeData({...newNodeData, node_type: e.target.value})}
+                  className="form-select"
+                >
+                  <option value="goal">🎯 Goal</option>
+                  <option value="milestone">📍 Milestone</option>
+                  <option value="achievement">🏆 Achievement</option>
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label>Title</label>
+                <input
+                  type="text"
+                  value={newNodeData.title}
+                  onChange={(e) => setNewNodeData({...newNodeData, title: e.target.value})}
+                  className="form-input"
+                  placeholder="e.g., Lose 10 lbs, Run 5K, Bench 200 lbs"
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Description</label>
+                <textarea
+                  value={newNodeData.description}
+                  onChange={(e) => setNewNodeData({...newNodeData, description: e.target.value})}
+                  className="form-textarea"
+                  placeholder="Describe your goal and how you'll achieve it..."
+                  required
+                />
+              </div>
+              
+              <div className="form-grid">
+                <div className="form-group">
+                  <label>XP Reward</label>
+                  <input
+                    type="number"
+                    value={newNodeData.xp_reward}
+                    onChange={(e) => setNewNodeData({...newNodeData, xp_reward: parseInt(e.target.value)})}
+                    className="form-input"
+                    min="0"
+                    max="500"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Coin Reward</label>
+                  <input
+                    type="number"
+                    value={newNodeData.coin_reward}
+                    onChange={(e) => setNewNodeData({...newNodeData, coin_reward: parseInt(e.target.value)})}
+                    className="form-input"
+                    min="0"
+                    max="1000"
+                  />
+                </div>
+              </div>
+              
+              <div className="form-actions">
+                <button type="submit" className="save-btn">Plant Goal 🌱</button>
+                <button type="button" onClick={() => setShowAddNode(false)} className="cancel-btn">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {selectedNode && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>{selectedNode.icon} {selectedNode.title}</h2>
+              <button onClick={() => setSelectedNode(null)} className="close-btn">×</button>
+            </div>
+            <div className="node-details">
+              <p>{selectedNode.description}</p>
+              <div className="node-rewards">
+                {selectedNode.xp_reward > 0 && (
+                  <span className="reward">⚡ {selectedNode.xp_reward} XP</span>
+                )}
+                {selectedNode.coin_reward > 0 && (
+                  <span className="reward">🪙 {selectedNode.coin_reward} Coins</span>
+                )}
+              </div>
+              <div className="node-status">
+                Status: <span className={`status ${selectedNode.status}`}>
+                  {selectedNode.status === 'completed' ? '✅ Completed' : 
+                   selectedNode.status === 'active' ? '🎯 Active' : '🔒 Locked'}
+                </span>
+              </div>
+              {selectedNode.completion_date && (
+                <div className="completion-date">
+                  Completed: {new Date(selectedNode.completion_date).toLocaleDateString()}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Social Tracking Component
+const SocialTracking = () => {
+  const [activeTab, setActiveTab] = useState('feed');
+  const [socialData, setSocialData] = useState({
+    following: [],
+    followers: [],
+    feed: [],
+    leaderboards: {},
+    recommendations: []
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSocialData();
+  }, []);
+
+  const fetchSocialData = async () => {
+    try {
+      const [followingRes, followersRes, feedRes, leaderboardsRes, recommendationsRes] = 
+        await Promise.all([
+          api.get('/api/social/following'),
+          api.get('/api/social/followers'),
+          api.get('/api/social/feed'),
+          api.get('/api/social/leaderboards'),
+          api.get('/api/social/recommendations')
+        ]);
+
+      setSocialData({
+        following: followingRes.data.following,
+        followers: followersRes.data.followers,
+        feed: feedRes.data.activities,
+        leaderboards: leaderboardsRes.data,
+        recommendations: recommendationsRes.data.recommendations
+      });
+    } catch (error) {
+      console.error('Error fetching social data:', error);
+    }
+    setLoading(false);
+  };
+
+  const handleFollow = async (userId) => {
+    try {
+      await api.post('/api/social/follow', { user_id: userId });
+      fetchSocialData();
+      alert('Successfully followed user!');
+    } catch (error) {
+      console.error('Error following user:', error);
+      alert('Error following user');
+    }
+  };
+
+  const handleUnfollow = async (userId) => {
+    try {
+      await api.delete(`/api/social/unfollow/${userId}`);
+      fetchSocialData();
+      alert('Unfollowed user');
+    } catch (error) {
+      console.error('Error unfollowing user:', error);
+      alert('Error unfollowing user');
+    }
+  };
+
+  if (loading) return <div className="loading">Loading social data...</div>;
+
+  return (
+    <div className="social-tracking">
+      <div className="social-header">
+        <h1>👥 Social Fitness</h1>
+        <p>Connect, compete, and celebrate progress together</p>
+      </div>
+
+      <div className="social-tabs">
+        <button 
+          className={`tab-btn ${activeTab === 'feed' ? 'active' : ''}`}
+          onClick={() => setActiveTab('feed')}
+        >
+          📱 Feed
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'leaderboards' ? 'active' : ''}`}
+          onClick={() => setActiveTab('leaderboards')}
+        >
+          🏆 Leaderboards
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'following' ? 'active' : ''}`}
+          onClick={() => setActiveTab('following')}
+        >
+          👥 Following ({socialData.following.length})
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'recommendations' ? 'active' : ''}`}
+          onClick={() => setActiveTab('recommendations')}
+        >
+          🔍 Discover
+        </button>
+      </div>
+
+      <div className="social-content">
+        {activeTab === 'feed' && (
+          <div className="social-feed">
+            <h2>Recent Activity</h2>
+            {socialData.feed.length === 0 ? (
+              <div className="empty-feed">
+                <div className="empty-icon">📱</div>
+                <h3>No Activity Yet</h3>
+                <p>Follow some friends to see their progress here!</p>
+              </div>
+            ) : (
+              <div className="activity-list">
+                {socialData.feed.map((activity) => (
+                  <div key={activity.activity_id} className="activity-item">
+                    <div className="activity-user">
+                      <div className="user-avatar">
+                        {activity.user_name?.charAt(0) || '👤'}
+                      </div>
+                      <div className="user-info">
+                        <strong>{activity.user_name}</strong>
+                        <span className="user-level">Level {activity.user_level}</span>
+                      </div>
+                    </div>
+                    <div className="activity-content">
+                      <h4>{activity.title}</h4>
+                      <p>{activity.description}</p>
+                      {activity.metadata?.xp_earned && (
+                        <div className="activity-rewards">
+                          <span className="xp-reward">⚡ +{activity.metadata.xp_earned} XP</span>
+                          {activity.metadata?.coins_earned && (
+                            <span className="coin-reward">🪙 +{activity.metadata.coins_earned}</span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div className="activity-time">
+                      {new Date(activity.created_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'leaderboards' && (
+          <div className="leaderboards">
+            <div className="leaderboard-section">
+              <h3>🔥 Longest Streaks</h3>
+              <div className="leaderboard-list">
+                {socialData.leaderboards.streak_leaders?.map((user, index) => (
+                  <div key={user.user_id} className="leaderboard-item">
+                    <div className="rank">
+                      {index + 1 <= 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`}
+                    </div>
+                    <div className="user-info">
+                      <strong>{user.name}</strong>
+                      <span>Level {user.level}</span>
+                    </div>
+                    <div className="streak-count">
+                      {user.streak} days 🔥
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="leaderboard-section">
+              <h3>🪙 Top Coin Earners</h3>
+              <div className="leaderboard-list">
+                {socialData.leaderboards.coin_leaders?.map((user, index) => (
+                  <div key={user.user_id} className="leaderboard-item">
+                    <div className="rank">
+                      {index + 1 <= 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`}
+                    </div>
+                    <div className="user-info">
+                      <strong>{user.name}</strong>
+                      <span>Level {user.level}</span>
+                    </div>
+                    <div className="coin-count">
+                      {user.total_coins} 🪙
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="leaderboard-section">
+              <h3>🏋️‍♂️ Top Trainers This Month</h3>
+              <div className="leaderboard-list">
+                {socialData.leaderboards.trainer_leaders?.map((trainer, index) => (
+                  <div key={trainer.trainer_id} className="leaderboard-item">
+                    <div className="rank">
+                      {index + 1 <= 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`}
+                    </div>
+                    <div className="user-info">
+                      <strong>{trainer.name}</strong>
+                      <span>{trainer.gym}</span>
+                    </div>
+                    <div className="session-count">
+                      {trainer.sessions_this_month} sessions
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'following' && (
+          <div className="following-section">
+            <h2>Following ({socialData.following.length})</h2>
+            <div className="user-list">
+              {socialData.following.map((user) => (
+                <div key={user.user_id} className="user-card">
+                  <div className="user-avatar">
+                    {user.name?.charAt(0) || '👤'}
+                  </div>
+                  <div className="user-info">
+                    <h4>{user.name}</h4>
+                    <span className="user-role">
+                      {user.role === 'trainer' ? '🏋️‍♂️ Trainer' : '💪 Member'}
+                    </span>
+                    <div className="user-stats">
+                      <span>🔥 {user.current_streak} days</span>
+                      <span>🪙 {user.lift_coins}</span>
+                      <span>⚡ Level {user.level}</span>
+                    </div>
+                  </div>
+                  <div className="user-actions">
+                    <button 
+                      onClick={() => handleUnfollow(user.user_id)}
+                      className="unfollow-btn"
+                    >
+                      Unfollow
+                    </button>
+                  </div>
+                  
+                  {user.recent_activities?.length > 0 && (
+                    <div className="recent-activity">
+                      <h5>Recent Activity:</h5>
+                      {user.recent_activities.slice(0, 2).map((activity, idx) => (
+                        <div key={idx} className="mini-activity">
+                          {activity.title}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'recommendations' && (
+          <div className="recommendations-section">
+            <h2>🔍 Discover New Connections</h2>
+            <div className="user-list">
+              {socialData.recommendations.map((user) => (
+                <div key={user.user_id} className="user-card">
+                  <div className="user-avatar">
+                    {user.name?.charAt(0) || '👤'}
+                  </div>
+                  <div className="user-info">
+                    <h4>{user.name}</h4>
+                    <span className="user-role">
+                      {user.role === 'trainer' ? '🏋️‍♂️ Trainer' : '💪 Member'}
+                    </span>
+                    <div className="recommendation-reason">
+                      {user.reason === 'nearby_user' && `📍 ${user.distance_km}km away`}
+                      {user.reason === 'shared_trainer' && `🏋️‍♂️ Trains with ${user.shared_trainer}`}
+                    </div>
+                    <div className="user-stats">
+                      <span>🔥 {user.streak} days</span>
+                      {user.gym && <span>🏢 {user.gym}</span>}
+                    </div>
+                  </div>
+                  <div className="user-actions">
+                    <button 
+                      onClick={() => handleFollow(user.user_id)}
+                      className="follow-btn"
+                    >
+                      Follow
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 // Profile Component
 const Profile = () => {
   const { userProfile, user } = useAuth();
