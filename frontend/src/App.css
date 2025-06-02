@@ -1839,8 +1839,6 @@ body {
     gap: 0.5rem;
   }
 }
-  border-radius: 6px;
-}
 
 ::-webkit-scrollbar-thumb {
   background: var(--gradient-primary);
