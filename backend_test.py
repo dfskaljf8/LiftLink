@@ -252,6 +252,198 @@ class LiftLinkAPITester:
             print(f"Dashboard stats: {json.dumps(response, indent=2)}")
         
         return success
+        
+    def test_add_progress_entry(self, weight, body_fat_percentage=None, muscle_mass=None, notes=None):
+        """Test adding a progress entry"""
+        progress_data = {
+            "weight": weight,
+            "body_fat_percentage": body_fat_percentage,
+            "muscle_mass": muscle_mass,
+            "notes": notes
+        }
+        
+        success, response = self.run_test(
+            "Add Progress Entry",
+            "POST",
+            "api/progress/add",
+            200,
+            data=progress_data
+        )
+        
+        if success and 'progress_id' in response:
+            self.progress_id = response['progress_id']
+            print(f"Progress entry added with ID: {self.progress_id}")
+        
+        return success
+        
+    def test_get_my_progress(self):
+        """Test getting user's progress entries"""
+        success, response = self.run_test(
+            "Get My Progress",
+            "GET",
+            "api/progress/my",
+            200
+        )
+        
+        if success:
+            entries = response.get('progress_entries', [])
+            stats = response.get('stats', {})
+            goals = response.get('goals', [])
+            
+            print(f"Found {len(entries)} progress entries")
+            print(f"Progress stats: {json.dumps(stats, indent=2)}")
+            print(f"Found {len(goals)} goals")
+            
+            if entries:
+                print(f"Latest progress entry: {json.dumps(entries[0], indent=2)}")
+        
+        return success
+        
+    def test_get_progress_analytics(self):
+        """Test getting progress analytics"""
+        success, response = self.run_test(
+            "Get Progress Analytics",
+            "GET",
+            "api/progress/analytics",
+            200
+        )
+        
+        if success:
+            weekly_data = response.get('weekly_data', [])
+            trend_direction = response.get('trend_direction')
+            recent_trend = response.get('recent_trend')
+            
+            print(f"Found {len(weekly_data)} weekly data points")
+            print(f"Trend direction: {trend_direction}")
+            print(f"Recent trend: {recent_trend}")
+        
+        return success
+        
+    def test_get_progress_leaderboard(self):
+        """Test getting progress leaderboard"""
+        success, response = self.run_test(
+            "Get Progress Leaderboard",
+            "GET",
+            "api/progress/leaderboard",
+            200
+        )
+        
+        if success:
+            leaderboard = response.get('leaderboard', [])
+            print(f"Found {len(leaderboard)} users on leaderboard")
+            
+            if leaderboard:
+                print(f"Top user: {json.dumps(leaderboard[0], indent=2)}")
+        
+        return success
+        
+    def test_add_goal(self, goal_type, target_value, target_date):
+        """Test adding a fitness goal"""
+        goal_data = {
+            "goal_type": goal_type,
+            "target_value": target_value,
+            "target_date": target_date
+        }
+        
+        success, response = self.run_test(
+            "Add Goal",
+            "POST",
+            "api/goals/add",
+            200,
+            data=goal_data
+        )
+        
+        if success and 'goal_id' in response:
+            self.goal_id = response['goal_id']
+            print(f"Goal added with ID: {self.goal_id}")
+        
+        return success
+        
+    def test_admin_stats(self):
+        """Test getting admin dashboard statistics"""
+        success, response = self.run_test(
+            "Get Admin Stats",
+            "GET",
+            "api/admin/stats",
+            200
+        )
+        
+        if success:
+            print(f"Admin stats: {json.dumps(response, indent=2)}")
+        
+        return success
+        
+    def test_admin_users(self):
+        """Test getting all users (admin only)"""
+        success, response = self.run_test(
+            "Get All Users",
+            "GET",
+            "api/admin/users",
+            200
+        )
+        
+        if success:
+            users = response.get('users', [])
+            print(f"Found {len(users)} users")
+            
+            if users:
+                print(f"First user: {json.dumps(users[0], indent=2)}")
+        
+        return success
+        
+    def test_admin_trainers(self):
+        """Test getting all trainers (admin only)"""
+        success, response = self.run_test(
+            "Get All Trainers",
+            "GET",
+            "api/admin/trainers",
+            200
+        )
+        
+        if success:
+            trainers = response.get('trainers', [])
+            print(f"Found {len(trainers)} trainers")
+            
+            if trainers:
+                print(f"First trainer: {json.dumps(trainers[0], indent=2)}")
+        
+        return success
+        
+    def test_admin_bookings(self):
+        """Test getting all bookings (admin only)"""
+        success, response = self.run_test(
+            "Get All Bookings",
+            "GET",
+            "api/admin/bookings",
+            200
+        )
+        
+        if success:
+            bookings = response.get('bookings', [])
+            print(f"Found {len(bookings)} bookings")
+            
+            if bookings:
+                print(f"First booking: {json.dumps(bookings[0], indent=2)}")
+        
+        return success
+        
+    def test_admin_transactions(self):
+        """Test getting all transactions (admin only)"""
+        success, response = self.run_test(
+            "Get All Transactions",
+            "GET",
+            "api/admin/transactions",
+            200
+        )
+        
+        if success:
+            transactions = response.get('transactions', [])
+            print(f"Found {len(transactions)} transactions")
+            
+            if transactions:
+                print(f"First transaction: {json.dumps(transactions[0], indent=2)}")
+        
+        return success
 
 def run_user_flow_tests(base_url):
     """Run tests for the regular user flow"""
