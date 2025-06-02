@@ -1477,7 +1477,7 @@ const AuthHandler = ({ setCurrentView }) => {
   const renderView = () => {
     switch (view) {
       case 'home':
-        return <HomeDashboard />;
+        return <HomeDashboard setCurrentView={setView} />;
       case 'trainers':
         return <TrainerSearch />;
       case 'bookings':
@@ -1489,7 +1489,7 @@ const AuthHandler = ({ setCurrentView }) => {
       case 'profile':
         return <Profile />;
       default:
-        return <HomeDashboard />;
+        return <HomeDashboard setCurrentView={setView} />;
     }
   };
 
