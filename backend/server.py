@@ -650,7 +650,7 @@ async def get_progress_analytics(current_user: dict = Depends(get_current_user))
     # Get all progress entries
     progress_entries = []
     async for entry in db.progress_entries.find({"user_id": current_user["user_id"]}).sort("date_recorded", 1):
-        progress_entries.append(entry)
+        progress_entries.append(serialize_doc(entry))
     
     if not progress_entries:
         return {"message": "No progress data available"}
@@ -660,31 +660,33 @@ async def get_progress_analytics(current_user: dict = Depends(get_current_user))
     current_week = []
     
     for entry in progress_entries:
+        entry_date = datetime.fromisoformat(entry["date_recorded"]) if isinstance(entry["date_recorded"], str) else entry["date_recorded"]
         if not current_week:
-            current_week = [entry]
+            current_week = [{"weight": entry["weight"], "date_recorded": entry_date}]
         else:
             # Check if entry is within 7 days of the first entry in current week
-            days_diff = (entry["date_recorded"] - current_week[0]["date_recorded"]).days
+            first_date = current_week[0]["date_recorded"]
+            days_diff = (entry_date - first_date).days
             if days_diff <= 7:
-                current_week.append(entry)
+                current_week.append({"weight": entry["weight"], "date_recorded": entry_date})
             else:
                 # Process current week and start new week
                 if current_week:
                     avg_weight = sum(e["weight"] for e in current_week) / len(current_week)
                     week_start = current_week[0]["date_recorded"]
                     weekly_data.append({
-                        "week_start": week_start,
+                        "week_start": week_start.isoformat(),
                         "average_weight": avg_weight,
                         "entries_count": len(current_week)
                     })
-                current_week = [entry]
+                current_week = [{"weight": entry["weight"], "date_recorded": entry_date}]
     
     # Process last week
     if current_week:
         avg_weight = sum(e["weight"] for e in current_week) / len(current_week)
         week_start = current_week[0]["date_recorded"]
         weekly_data.append({
-            "week_start": week_start,
+            "week_start": week_start.isoformat(),
             "average_weight": avg_weight,
             "entries_count": len(current_week)
         })
@@ -697,11 +699,14 @@ async def get_progress_analytics(current_user: dict = Depends(get_current_user))
         recent_trend = 0
         trend_direction = "maintaining"
     
+    first_date = datetime.fromisoformat(progress_entries[0]["date_recorded"]) if isinstance(progress_entries[0]["date_recorded"], str) else progress_entries[0]["date_recorded"]
+    last_date = datetime.fromisoformat(progress_entries[-1]["date_recorded"]) if isinstance(progress_entries[-1]["date_recorded"], str) else progress_entries[-1]["date_recorded"]
+    
     return {
         "weekly_data": weekly_data,
         "recent_trend": recent_trend,
         "trend_direction": trend_direction,
-        "total_progress_days": (progress_entries[-1]["date_recorded"] - progress_entries[0]["date_recorded"]).days
+        "total_progress_days": (last_date - first_date).days
     }
 
 @app.get("/api/progress/leaderboard")
