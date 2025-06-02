@@ -147,6 +147,12 @@ stripe_checkout = StripeCheckout(api_key=os.getenv("STRIPE_SECRET_KEY"))
 # FastAPI app
 app = FastAPI(title="LiftLink API", version="1.0.0")
 
+# Setup database indexes on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database indexes and setup"""
+    await setup_geospatial_indexes()
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
