@@ -388,11 +388,27 @@ class CertificationRequest(BaseModel):
     expiration_date: Optional[str] = None  # YYYY-MM-DD format
 
 class UserRegistrationRequest(BaseModel):
-    email: str
+    email: EmailStr
     name: str
     phone: Optional[str] = None
     location: Optional[Dict[str, float]] = None
     gym: Optional[str] = None
+
+class EmailVerificationRequest(BaseModel):
+    email: EmailStr
+    verification_code: str
+
+class SocialFollowRequest(BaseModel):
+    user_id: str
+
+class UserLocationUpdate(BaseModel):
+    latitude: float
+    longitude: float
+    address: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    is_public: bool = True
 
 # Authentication dependency
 async def get_current_user(token: str = Depends(security)):
