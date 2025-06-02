@@ -220,6 +220,15 @@ class GoalRequest(BaseModel):
     target_value: float
     target_date: str  # ISO format
 
+class IDVerificationRequest(BaseModel):
+    document_type: str
+    date_of_birth: str  # YYYY-MM-DD format
+
+class CertificationRequest(BaseModel):
+    cert_type: str
+    cert_number: str
+    expiration_date: Optional[str] = None  # YYYY-MM-DD format
+
 class UserRegistrationRequest(BaseModel):
     email: str
     name: str
