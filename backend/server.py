@@ -590,6 +590,155 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
             "confirmed_sessions": confirmed_sessions
         }
 
+# ============ ID VERIFICATION ENDPOINTS ============
+
+@app.post("/api/verification/upload-id")
+async def upload_id_document(
+    document_type: str,
+    date_of_birth: str,
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Upload ID document for age verification"""
+    
+    # Validate file type
+    allowed_types = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf']
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Invalid file type. Only JPG, PNG, and PDF are allowed.")
+    
+    # Calculate age from date of birth
+    try:
+        birth_date = datetime.strptime(date_of_birth, "%Y-%m-%d")
+        today = datetime.now()
+        age = today.year - birth_date.year - ((today.month, today.day) < (birth_date.month, birth_date.day))
+        
+        if age < 18:
+            raise HTTPException(status_code=400, detail="You must be 18 or older to use this platform.")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.")
+    
+    # For demo purposes, simulate file upload
+    file_url = f"https://demo-storage.com/id_docs/{current_user['user_id']}_{file.filename}"
+    
+    # Create verification record
+    verification_id = str(uuid.uuid4())
+    verification = IDVerificationModel(
+        verification_id=verification_id,
+        user_id=current_user["user_id"],
+        document_type=document_type,
+        document_url=file_url,
+        extracted_data={"date_of_birth": date_of_birth, "age": age},
+        verification_status="verified"  # Auto-verify for demo
+    )
+    
+    await db.id_verifications.insert_one(verification.dict())
+    
+    # Update user profile
+    await db.users.update_one(
+        {"user_id": current_user["user_id"]},
+        {"$set": {
+            "date_of_birth": date_of_birth,
+            "id_verified": True,
+            "id_verification_status": "verified",
+            "id_document_url": file_url
+        }}
+    )
+    
+    return {
+        "message": "ID verification successful",
+        "verification_id": verification_id,
+        "status": "verified",
+        "age": age
+    }
+
+@app.post("/api/verification/upload-certification")
+async def upload_certification(
+    cert_type: str,
+    cert_number: str,
+    expiration_date: Optional[str] = None,
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """Upload trainer certification for verification"""
+    
+    # Check if user is a trainer
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Only trainers can upload certifications")
+    
+    # Validate file type
+    allowed_types = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf']
+    if file.content_type not in allowed_types:
+        raise HTTPException(status_code=400, detail="Invalid file type. Only JPG, PNG, and PDF are allowed.")
+    
+    # For demo purposes, simulate file upload
+    file_url = f"https://demo-storage.com/certifications/{current_user['user_id']}_{file.filename}"
+    
+    # Create certification record
+    certification_id = str(uuid.uuid4())
+    
+    exp_date = None
+    if expiration_date:
+        try:
+            exp_date = datetime.strptime(expiration_date, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid expiration date format. Use YYYY-MM-DD.")
+    
+    certification = CertificationModel(
+        certification_id=certification_id,
+        trainer_id=current_user["user_id"],
+        cert_type=cert_type,
+        cert_number=cert_number,
+        cert_document_url=file_url,
+        expiration_date=exp_date,
+        verification_status="verified",  # Auto-verify for demo
+        verified_at=datetime.utcnow()
+    )
+    
+    await db.certifications.insert_one(certification.dict())
+    
+    # Update trainer profile
+    trainer = await db.trainers.find_one({"trainer_id": current_user["user_id"]})
+    if trainer:
+        verified_certs = trainer.get("verified_certifications", [])
+        if cert_type not in verified_certs:
+            verified_certs.append(cert_type)
+        
+        await db.trainers.update_one(
+            {"trainer_id": current_user["user_id"]},
+            {"$set": {
+                "is_certified_trainer": True,
+                "verified_certifications": verified_certs
+            }}
+        )
+    
+    return {
+        "message": "Certification uploaded and verified successfully",
+        "certification_id": certification_id,
+        "status": "verified",
+        "cert_type": cert_type
+    }
+
+@app.get("/api/verification/status")
+async def get_verification_status(current_user: dict = Depends(get_current_user)):
+    """Get user's verification status"""
+    
+    # Get ID verification status
+    id_verification = await db.id_verifications.find_one({"user_id": current_user["user_id"]})
+    
+    # Get certifications if trainer
+    certifications = []
+    if current_user.get("role") == "trainer":
+        async for cert in db.certifications.find({"trainer_id": current_user["user_id"]}):
+            certifications.append(serialize_doc(cert))
+    
+    return {
+        "id_verified": current_user.get("id_verified", False),
+        "id_verification_status": current_user.get("id_verification_status", "pending"),
+        "id_verification": serialize_doc(id_verification) if id_verification else None,
+        "certifications": certifications,
+        "is_certified_trainer": len([c for c in certifications if c.get("verification_status") == "verified"]) > 0
+    }
+
 # ============ PROGRESS TRACKING ENDPOINTS ============
 
 @app.post("/api/progress/add")
