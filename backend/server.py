@@ -53,7 +53,7 @@ def serialize_doc(doc):
         result = {}
         for key, value in doc.items():
             if key == '_id' and isinstance(value, ObjectId):
-                continue  # Skip _id field
+                result[key] = str(value)  # Convert ObjectId to string
             elif isinstance(value, ObjectId):
                 result[key] = str(value)
             elif isinstance(value, datetime):
@@ -65,6 +65,8 @@ def serialize_doc(doc):
             else:
                 result[key] = value
         return result
+    elif isinstance(doc, ObjectId):
+        return str(doc)  # Convert ObjectId to string
     return doc
 
 # Load environment variables
