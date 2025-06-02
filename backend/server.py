@@ -9,10 +9,45 @@ from fastapi.security import HTTPBearer
 from pydantic import BaseModel, Field
 from pymongo import MongoClient
 from motor.motor_asyncio import AsyncIOMotorClient
+from bson import ObjectId
 import firebase_admin
 from firebase_admin import credentials, auth, storage
 from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 from dotenv import load_dotenv
+import json
+
+# Custom JSON encoder for MongoDB ObjectId
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        if isinstance(o, datetime):
+            return o.isoformat()
+        return super().default(o)
+
+# Helper function to convert ObjectId to string in documents
+def serialize_doc(doc):
+    if doc is None:
+        return None
+    if isinstance(doc, list):
+        return [serialize_doc(item) for item in doc]
+    if isinstance(doc, dict):
+        result = {}
+        for key, value in doc.items():
+            if key == '_id' and isinstance(value, ObjectId):
+                continue  # Skip _id field
+            elif isinstance(value, ObjectId):
+                result[key] = str(value)
+            elif isinstance(value, datetime):
+                result[key] = value.isoformat()
+            elif isinstance(value, dict):
+                result[key] = serialize_doc(value)
+            elif isinstance(value, list):
+                result[key] = serialize_doc(value)
+            else:
+                result[key] = value
+        return result
+    return doc
 
 # Load environment variables
 load_dotenv()
