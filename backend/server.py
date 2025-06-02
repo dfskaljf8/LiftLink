@@ -586,12 +586,12 @@ async def get_my_progress(current_user: dict = Depends(get_current_user)):
     
     progress_entries = []
     async for entry in db.progress_entries.find({"user_id": current_user["user_id"]}).sort("date_recorded", -1):
-        progress_entries.append(entry)
+        progress_entries.append(serialize_doc(entry))
     
     # Get user's goals
     goals = []
     async for goal in db.goals.find({"user_id": current_user["user_id"]}):
-        goals.append(goal)
+        goals.append(serialize_doc(goal))
     
     # Calculate progress stats
     if progress_entries:
@@ -607,7 +607,7 @@ async def get_my_progress(current_user: dict = Depends(get_current_user)):
             "weight_change_percentage": weight_change_percentage,
             "current_weight": latest_entry["weight"],
             "starting_weight": first_entry["weight"],
-            "days_tracked": (latest_entry["date_recorded"] - first_entry["date_recorded"]).days
+            "days_tracked": (datetime.fromisoformat(latest_entry["date_recorded"]) - datetime.fromisoformat(first_entry["date_recorded"])).days
         }
     else:
         stats = {
