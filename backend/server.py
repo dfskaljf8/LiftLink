@@ -176,12 +176,14 @@ class CertificationModel(BaseModel):
     certification_id: str
     trainer_id: str
     cert_type: str  # "NASM", "ACE", "ISSA", "CSCS", "Other"
-    cert_number: str
-    cert_document_url: str
+    cert_number_encrypted: str  # Encrypted certification number
+    cert_document_url: str  # Firebase Storage URL
     expiration_date: Optional[datetime] = None
     verification_status: str = "pending"  # "pending", "verified", "rejected"
     verification_notes: Optional[str] = None
     verified_at: Optional[datetime] = None
+    xp_awarded: int = 0
+    coins_awarded: int = 0
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 class TrainerProfileModel(BaseModel):
