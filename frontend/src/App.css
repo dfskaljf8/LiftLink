@@ -2450,7 +2450,299 @@ body {
   }
 }
 
-/* ============ FINAL RESPONSIVE ADJUSTMENTS ============ */
+/* ============ VERIFICATION STYLES ============ */
+.verification-container, .certification-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background: var(--bg-primary);
+}
+
+.verification-card, .certification-card {
+  background: var(--gradient-glass);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 3rem;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: var(--shadow-elevated);
+  animation: slideInUp 0.8s var(--ease-out-quart);
+}
+
+.verification-header, .certification-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.verification-header h2, .certification-header h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+.verification-header p, .certification-header p {
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+}
+
+.age-requirement {
+  display: flex;
+  justify-content: center;
+}
+
+.requirement-badge {
+  background: var(--gradient-primary);
+  color: var(--bg-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.verification-form, .certification-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.form-select {
+  width: 100%;
+  padding: 1.25rem;
+  background: var(--bg-glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s var(--ease-out-quart);
+  backdrop-filter: blur(10px);
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-glow);
+  background: var(--bg-glass-strong);
+}
+
+.form-select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.file-upload-area {
+  position: relative;
+}
+
+.file-input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.file-upload-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 2rem;
+  background: var(--bg-glass);
+  border: 2px dashed var(--glass-border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-out-quart);
+  text-align: center;
+}
+
+.file-upload-label:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-glass-strong);
+  transform: translateY(-2px);
+}
+
+.upload-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+.upload-text {
+  color: var(--text-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.upload-hint {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.verification-note {
+  background: rgba(189, 213, 61, 0.1);
+  border: 1px solid var(--accent-primary);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.verification-note p {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.verify-btn, .upload-cert-btn {
+  width: 100%;
+  padding: 1.5rem;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: 16px;
+  color: var(--bg-primary);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-out-quart);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.verify-btn:hover, .upload-cert-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-glow-strong);
+}
+
+.verify-btn:disabled, .upload-cert-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.agreement-section {
+  background: var(--bg-glass);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--glass-border);
+}
+
+.agreement-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  cursor: pointer;
+  position: relative;
+}
+
+.agreement-checkbox input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.checkmark {
+  width: 24px;
+  height: 24px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--glass-border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s var(--ease-out-quart);
+  flex-shrink: 0;
+}
+
+.agreement-checkbox input[type="checkbox"]:checked + .checkmark {
+  background: var(--gradient-primary);
+  border-color: var(--accent-primary);
+}
+
+.agreement-checkbox input[type="checkbox"]:checked + .checkmark::after {
+  content: '✓';
+  color: var(--bg-primary);
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.agreement-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.verification-info {
+  background: var(--bg-glass);
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--glass-border);
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-icon {
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+}
+
+/* ============ CERTIFIED BADGE STYLES ============ */
+.certified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--gradient-primary);
+  color: var(--bg-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-glow);
+}
+
+.certified-badge .badge-icon {
+  font-size: 1rem;
+}
+
+.trainer-card .certified-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+}
+
+.certified-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.certified-filter input[type="checkbox"] {
+  accent-color: var(--accent-primary);
+}
 @media (max-width: 480px) {
   .demo-buttons {
     flex-direction: column;
