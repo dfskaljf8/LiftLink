@@ -1062,28 +1062,22 @@ const ProgressAnalytics = () => {
 
       <div className="analytics-tabs">
         <button 
-          className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-          onClick={() => setActiveTab('overview')}
+          className={`tab-btn ${activeTab === 'progress' ? 'active' : ''}`}
+          onClick={() => setActiveTab('progress')}
         >
-          📊 Overview
+          📊 Progress
         </button>
         <button 
-          className={`tab-btn ${activeTab === 'trends' ? 'active' : ''}`}
-          onClick={() => setActiveTab('trends')}
+          className={`tab-btn ${activeTab === 'tree' ? 'active' : ''}`}
+          onClick={() => setActiveTab('tree')}
         >
-          📈 Trends
+          🌳 My Tree
         </button>
         <button 
-          className={`tab-btn ${activeTab === 'leaderboard' ? 'active' : ''}`}
-          onClick={() => setActiveTab('leaderboard')}
+          className={`tab-btn ${activeTab === 'social' ? 'active' : ''}`}
+          onClick={() => setActiveTab('social')}
         >
-          🏆 Leaderboard
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'history' ? 'active' : ''}`}
-          onClick={() => setActiveTab('history')}
-        >
-          📝 History
+          👥 Social
         </button>
       </div>
 
