@@ -130,9 +130,8 @@ const useAuth = () => {
 };
 
 // Navigation Component
-const Navigation = () => {
+const Navigation = ({ currentView, setCurrentView }) => {
   const { user, userProfile, logout } = useAuth();
-  const [currentView, setCurrentView] = useState('home');
 
   return (
     <nav className="navbar">
