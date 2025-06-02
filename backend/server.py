@@ -442,12 +442,215 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
             "confirmed_sessions": confirmed_sessions
         }
 
+# ============ ADMIN ENDPOINTS ============
+
+@app.post("/api/admin/seed-admins")
+async def seed_admin_users():
+    """Seed admin users for the platform"""
+    admin_users = [
+        {
+            "user_id": "admin_aarav",
+            "email": "aaravdthakker@gmail.com",
+            "name": "Aarav Thakker",
+            "role": "admin"
+        },
+        {
+            "user_id": "admin_aadi", 
+            "email": "aadidthakker@gmail.com",
+            "name": "Aadi Thakker",
+            "role": "admin"
+        },
+        {
+            "user_id": "admin_sid",
+            "email": "sid.the.manne@gmail.com", 
+            "name": "Siddharth Manne",
+            "role": "admin"
+        }
+    ]
+    
+    created_count = 0
+    for admin_user in admin_users:
+        # Check if admin already exists
+        existing = await db.users.find_one({"email": admin_user["email"]})
+        if not existing:
+            admin_user["created_at"] = datetime.utcnow()
+            await db.users.insert_one(admin_user)
+            created_count += 1
+    
+    return {"message": f"Created {created_count} admin users", "admins": admin_users}
+
+@app.get("/api/admin/stats")
+async def get_admin_dashboard_stats(current_user: dict = Depends(get_current_user)):
+    """Get comprehensive admin dashboard statistics"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    # Get platform statistics
+    total_users = await db.users.count_documents({})
+    total_trainers = await db.users.count_documents({"role": "trainer"})
+    total_admins = await db.users.count_documents({"role": "admin"})
+    total_bookings = await db.bookings.count_documents({})
+    confirmed_bookings = await db.bookings.count_documents({"status": "confirmed"})
+    
+    # Calculate total platform revenue (10% of all confirmed bookings)
+    revenue_pipeline = [
+        {"$match": {"status": "confirmed"}},
+        {"$group": {"_id": None, "total": {"$sum": "$platform_fee"}}}
+    ]
+    revenue_result = await db.bookings.aggregate(revenue_pipeline).to_list(1)
+    total_platform_revenue = revenue_result[0]["total"] if revenue_result else 0
+    
+    # Get recent bookings
+    recent_bookings = []
+    async for booking in db.bookings.find({}).sort("created_at", -1).limit(5):
+        # Get user and trainer info
+        user = await db.users.find_one({"user_id": booking["user_id"]})
+        trainer = await db.users.find_one({"user_id": booking["trainer_id"]})
+        
+        booking["user_name"] = user["name"] if user else "Unknown"
+        booking["trainer_name"] = trainer["name"] if trainer else "Unknown"
+        recent_bookings.append(booking)
+    
+    return {
+        "total_users": total_users,
+        "total_trainers": total_trainers,
+        "total_admins": total_admins,
+        "total_bookings": total_bookings,
+        "confirmed_bookings": confirmed_bookings,
+        "total_platform_revenue": total_platform_revenue,
+        "recent_bookings": recent_bookings
+    }
+
+@app.get("/api/admin/users")
+async def get_all_users(current_user: dict = Depends(get_current_user)):
+    """Get all users with pagination"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    users = []
+    async for user in db.users.find({}).sort("created_at", -1).limit(50):
+        # Get trainer info if user is a trainer
+        if user.get("role") == "trainer":
+            trainer = await db.trainers.find_one({"trainer_id": user["user_id"]})
+            user["trainer_info"] = trainer
+        users.append(user)
+    
+    return {"users": users}
+
+@app.get("/api/admin/trainers")
+async def get_all_trainers(current_user: dict = Depends(get_current_user)):
+    """Get all trainers with their profiles"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    trainers = []
+    async for trainer in db.trainers.find({}).sort("created_at", -1):
+        # Get user info
+        user = await db.users.find_one({"user_id": trainer["trainer_id"]})
+        trainer["user_info"] = user
+        
+        # Get booking stats
+        total_bookings = await db.bookings.count_documents({"trainer_id": trainer["trainer_id"]})
+        confirmed_bookings = await db.bookings.count_documents({"trainer_id": trainer["trainer_id"], "status": "confirmed"})
+        
+        trainer["booking_stats"] = {
+            "total_bookings": total_bookings,
+            "confirmed_bookings": confirmed_bookings
+        }
+        
+        trainers.append(trainer)
+    
+    return {"trainers": trainers}
+
+@app.get("/api/admin/bookings")
+async def get_all_bookings(current_user: dict = Depends(get_current_user)):
+    """Get all bookings with user and trainer info"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    bookings = []
+    async for booking in db.bookings.find({}).sort("created_at", -1).limit(100):
+        # Get user and trainer info
+        user = await db.users.find_one({"user_id": booking["user_id"]})
+        trainer = await db.users.find_one({"user_id": booking["trainer_id"]})
+        
+        booking["user_name"] = user["name"] if user else "Unknown"
+        booking["user_email"] = user["email"] if user else "Unknown"
+        booking["trainer_name"] = trainer["name"] if trainer else "Unknown"
+        booking["trainer_email"] = trainer["email"] if trainer else "Unknown"
+        
+        bookings.append(booking)
+    
+    return {"bookings": bookings}
+
+@app.get("/api/admin/transactions")
+async def get_all_transactions(current_user: dict = Depends(get_current_user)):
+    """Get all payment transactions"""
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    
+    transactions = []
+    async for transaction in db.payment_transactions.find({}).sort("created_at", -1).limit(100):
+        # Get user info
+        user = await db.users.find_one({"user_id": transaction["user_id"]})
+        transaction["user_name"] = user["name"] if user else "Unknown"
+        transaction["user_email"] = user["email"] if user else "Unknown"
+        
+        # Get booking info if exists
+        if transaction.get("booking_id"):
+            booking = await db.bookings.find_one({"booking_id": transaction["booking_id"]})
+            if booking:
+                trainer = await db.users.find_one({"user_id": booking["trainer_id"]})
+                transaction["booking_info"] = {
+                    "session_date": booking["session_date"],
+                    "trainer_name": trainer["name"] if trainer else "Unknown"
+                }
+        
+        transactions.append(transaction)
+    
+    return {"transactions": transactions}
+
 # ============ HEALTH CHECK ============
 
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint"""
     return {"status": "healthy", "timestamp": datetime.utcnow()}
+
+# Initialize admin users on startup
+@app.on_event("startup")
+async def startup_event():
+    """Initialize admin users on startup"""
+    try:
+        admin_users = [
+            {
+                "user_id": "admin_aarav",
+                "email": "aaravdthakker@gmail.com",
+                "name": "Aarav Thakker",
+                "role": "admin"
+            },
+            {
+                "user_id": "admin_aadi", 
+                "email": "aadidthakker@gmail.com",
+                "name": "Aadi Thakker",
+                "role": "admin"
+            },
+            {
+                "user_id": "admin_sid",
+                "email": "sid.the.manne@gmail.com", 
+                "name": "Siddharth Manne",
+                "role": "admin"
+            }
+        ]
+        
+        for admin_user in admin_users:
+            existing = await db.users.find_one({"email": admin_user["email"]})
+            if not existing:
+                admin_user["created_at"] = datetime.utcnow()
+                await db.users.insert_one(admin_user)
+                print(f"Created admin user: {admin_user['name']}")
+    except Exception as e:
+        print(f"Error creating admin users: {e}")
 
 if __name__ == "__main__":
     import uvicorn
