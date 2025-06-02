@@ -304,7 +304,7 @@ const LoginForm = () => {
 };
 
 // Home Dashboard Component
-const HomeDashboard = () => {
+const HomeDashboard = ({ setCurrentView }) => {
   const { userProfile } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -369,10 +369,16 @@ const HomeDashboard = () => {
       <div className="quick-actions">
         <h2>Quick Actions</h2>
         <div className="action-buttons">
-          <button className="action-btn primary">
+          <button 
+            className="action-btn primary"
+            onClick={() => setCurrentView(userProfile?.role === 'trainer' ? 'trainer-dashboard' : 'trainers')}
+          >
             {userProfile?.role === 'trainer' ? '📅 Manage Schedule' : '💪 Find Trainers'}
           </button>
-          <button className="action-btn secondary">
+          <button 
+            className="action-btn secondary"
+            onClick={() => setCurrentView(userProfile?.role === 'trainer' ? 'bookings' : 'progress')}
+          >
             {userProfile?.role === 'trainer' ? '👥 View Clients' : '📊 Track Progress'}
           </button>
         </div>
