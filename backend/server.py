@@ -107,6 +107,28 @@ class PaymentTransactionModel(BaseModel):
     metadata: Dict[str, Any] = {}
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+class ProgressEntryModel(BaseModel):
+    progress_id: str
+    user_id: str
+    weight: float  # in kg or lbs
+    body_fat_percentage: Optional[float] = None
+    muscle_mass: Optional[float] = None
+    measurements: Optional[Dict[str, float]] = {}  # {"chest": 100, "waist": 80, etc.}
+    progress_photos: List[str] = []  # URLs to progress photos
+    notes: Optional[str] = None
+    date_recorded: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+class GoalModel(BaseModel):
+    goal_id: str
+    user_id: str
+    goal_type: str  # "weight_loss", "muscle_gain", "strength", etc.
+    target_value: float
+    current_value: float
+    target_date: datetime
+    is_achieved: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
 # Request/Response Models
 class TrainerRegistrationRequest(BaseModel):
     bio: str
