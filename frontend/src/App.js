@@ -1,54 +1,825 @@
-import { useEffect } from "react";
-import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import React, { useState, useEffect, createContext, useContext } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import axios from 'axios';
+import './App.css';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+// Firebase configuration
+const firebaseConfig = {
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID
+};
 
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const storage = getStorage(app);
+
+// Auth Context
+const AuthContext = createContext();
+
+// API configuration
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+});
+
+// Request interceptor to add auth token
+api.interceptors.request.use((config) => {
+  const user = auth.currentUser;
+  if (user) {
+    config.headers.Authorization = `Bearer ${user.uid}`;
+  }
+  return config;
+});
+
+// Auth Provider Component
+const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
-    helloWorldApi();
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setUser(firebaseUser);
+      
+      if (firebaseUser) {
+        try {
+          // Register user in backend if not exists
+          await api.post('/api/users/register', {
+            email: firebaseUser.email,
+            name: firebaseUser.displayName || firebaseUser.email.split('@')[0],
+          });
+          
+          // Get user profile
+          const response = await api.get('/api/users/profile');
+          setUserProfile(response.data);
+        } catch (error) {
+          console.log('User registration/profile fetch:', error.response?.data?.detail || error.message);
+        }
+      } else {
+        setUserProfile(null);
+      }
+      
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
+  const login = async (email, password) => {
+    return await signInWithEmailAndPassword(auth, email, password);
+  };
+
+  const register = async (email, password) => {
+    return await createUserWithEmailAndPassword(auth, email, password);
+  };
+
+  const logout = async () => {
+    setUserProfile(null);
+    return await signOut(auth);
+  };
+
+  const value = {
+    user,
+    userProfile,
+    login,
+    register,
+    logout,
+    loading
+  };
+
   return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+const useAuth = () => {
+  return useContext(AuthContext);
+};
+
+// Navigation Component
+const Navigation = () => {
+  const { user, userProfile, logout } = useAuth();
+  const [currentView, setCurrentView] = useState('home');
+
+  return (
+    <nav className="navbar">
+      <div className="nav-brand">
+        <div className="logo">
+          <span className="logo-lift">Lift</span>
+          <span className="logo-link">Link</span>
+        </div>
+        <span className="tagline">Beginners to Believers</span>
+      </div>
+      
+      {user && (
+        <div className="nav-links">
+          <button 
+            className={`nav-btn ${currentView === 'home' ? 'active' : ''}`}
+            onClick={() => setCurrentView('home')}
+          >
+            🏠 Home
+          </button>
+          <button 
+            className={`nav-btn ${currentView === 'trainers' ? 'active' : ''}`}
+            onClick={() => setCurrentView('trainers')}
+          >
+            💪 Find Trainers
+          </button>
+          <button 
+            className={`nav-btn ${currentView === 'bookings' ? 'active' : ''}`}
+            onClick={() => setCurrentView('bookings')}
+          >
+            📅 My Bookings
+          </button>
+          {userProfile?.role === 'trainer' && (
+            <button 
+              className={`nav-btn ${currentView === 'trainer-dashboard' ? 'active' : ''}`}
+              onClick={() => setCurrentView('trainer-dashboard')}
+            >
+              🎯 Trainer Dashboard
+            </button>
+          )}
+          <button 
+            className={`nav-btn ${currentView === 'profile' ? 'active' : ''}`}
+            onClick={() => setCurrentView('profile')}
+          >
+            👤 Profile
+          </button>
+          <button className="nav-btn logout" onClick={logout}>
+            🚪 Logout
+          </button>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+// Login Component
+const LoginForm = () => {
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login, register } = useAuth();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      if (isLogin) {
+        await login(email, password);
+      } else {
+        await register(email, password);
+      }
+    } catch (error) {
+      setError(error.message);
+    }
+    
+    setLoading(false);
+  };
+
+  return (
+    <div className="login-container">
+      <div className="login-card">
+        <div className="login-header">
+          <div className="logo-large">
+            <span className="logo-lift">Lift</span>
+            <span className="logo-link">Link</span>
+          </div>
+          <p className="tagline-large">Beginners to Believers</p>
+          <p className="subtitle">Your fitness journey starts here</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-group">
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="form-input"
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="form-input"
+            />
+          </div>
+          
+          {error && <div className="error-message">{error}</div>}
+          
+          <button type="submit" disabled={loading} className="submit-btn">
+            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
+          </button>
+          
+          <div className="form-toggle">
+            <span>
+              {isLogin ? "Don't have an account? " : "Already have an account? "}
+              <button 
+                type="button" 
+                onClick={() => setIsLogin(!isLogin)}
+                className="toggle-btn"
+              >
+                {isLogin ? 'Sign Up' : 'Sign In'}
+              </button>
+            </span>
+          </div>
+        </form>
+
+        <div className="demo-section">
+          <p className="demo-text">🚀 Quick Demo Access:</p>
+          <div className="demo-buttons">
+            <button 
+              onClick={() => {setEmail('user@demo.com'); setPassword('demo123')}}
+              className="demo-btn"
+            >
+              Demo User
+            </button>
+            <button 
+              onClick={() => {setEmail('trainer@demo.com'); setPassword('demo123')}}
+              className="demo-btn"
+            >
+              Demo Trainer
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-function App() {
+// Home Dashboard Component
+const HomeDashboard = () => {
+  const { userProfile } = useAuth();
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      const response = await api.get('/api/dashboard/stats');
+      setStats(response.data);
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+    setLoading(false);
+  };
+
+  if (loading) return <div className="loading">Loading dashboard...</div>;
+
   return (
-    <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+    <div className="dashboard">
+      <div className="dashboard-header">
+        <h1>Welcome back! 💪</h1>
+        <p>Ready to crush your fitness goals?</p>
+      </div>
+
+      <div className="stats-grid">
+        {userProfile?.role === 'trainer' ? (
+          <>
+            <div className="stat-card">
+              <div className="stat-number">{stats?.total_bookings || 0}</div>
+              <div className="stat-label">Total Bookings</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">{stats?.confirmed_bookings || 0}</div>
+              <div className="stat-label">Confirmed Sessions</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">${stats?.total_earnings?.toFixed(2) || '0.00'}</div>
+              <div className="stat-label">Total Earnings</div>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="stat-card">
+              <div className="stat-number">{stats?.total_bookings || 0}</div>
+              <div className="stat-label">Sessions Booked</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">{stats?.confirmed_sessions || 0}</div>
+              <div className="stat-label">Sessions Completed</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-number">🔥</div>
+              <div className="stat-label">Current Streak</div>
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="quick-actions">
+        <h2>Quick Actions</h2>
+        <div className="action-buttons">
+          <button className="action-btn primary">
+            {userProfile?.role === 'trainer' ? '📅 Manage Schedule' : '💪 Find Trainers'}
+          </button>
+          <button className="action-btn secondary">
+            {userProfile?.role === 'trainer' ? '👥 View Clients' : '📊 Track Progress'}
+          </button>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+// Trainer Search Component
+const TrainerSearch = () => {
+  const [trainers, setTrainers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    specialty: '',
+    maxRate: '',
+    gym: ''
+  });
+
+  useEffect(() => {
+    fetchTrainers();
+  }, [filters]);
+
+  const fetchTrainers = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (filters.specialty) params.append('specialty', filters.specialty);
+      if (filters.maxRate) params.append('max_rate', filters.maxRate);
+      if (filters.gym) params.append('gym', filters.gym);
+
+      const response = await api.get(`/api/trainers/search?${params}`);
+      setTrainers(response.data.trainers);
+    } catch (error) {
+      console.error('Error fetching trainers:', error);
+    }
+    setLoading(false);
+  };
+
+  const handleBooking = async (trainer) => {
+    try {
+      const sessionDate = new Date();
+      sessionDate.setDate(sessionDate.getDate() + 1); // Tomorrow
+      sessionDate.setHours(10, 0, 0, 0); // 10 AM
+
+      const response = await api.post('/api/bookings/create', {
+        trainer_id: trainer.trainer_id,
+        session_date: sessionDate.toISOString(),
+        duration_hours: 1.0
+      });
+
+      // Create payment session
+      const paymentResponse = await api.post(`/api/payments/create-session?booking_id=${response.data.booking_id}`);
+      
+      // Redirect to Stripe checkout
+      window.location.href = paymentResponse.data.checkout_url;
+    } catch (error) {
+      console.error('Error creating booking:', error);
+      alert('Error creating booking. Please try again.');
+    }
+  };
+
+  return (
+    <div className="trainer-search">
+      <div className="search-header">
+        <h1>Find Your Perfect Trainer 🎯</h1>
+        <p>Connect with certified trainers in your area</p>
+      </div>
+
+      <div className="filters">
+        <div className="filter-group">
+          <select
+            value={filters.specialty}
+            onChange={(e) => setFilters({...filters, specialty: e.target.value})}
+            className="filter-select"
+          >
+            <option value="">All Specialties</option>
+            <option value="Weight Training">Weight Training</option>
+            <option value="Cardio">Cardio</option>
+            <option value="Yoga">Yoga</option>
+            <option value="CrossFit">CrossFit</option>
+            <option value="Personal Training">Personal Training</option>
+          </select>
+        </div>
+        <div className="filter-group">
+          <input
+            type="number"
+            placeholder="Max hourly rate"
+            value={filters.maxRate}
+            onChange={(e) => setFilters({...filters, maxRate: e.target.value})}
+            className="filter-input"
+          />
+        </div>
+        <div className="filter-group">
+          <input
+            type="text"
+            placeholder="Gym name"
+            value={filters.gym}
+            onChange={(e) => setFilters({...filters, gym: e.target.value})}
+            className="filter-input"
+          />
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="loading">Finding trainers...</div>
+      ) : (
+        <div className="trainers-grid">
+          {trainers.length === 0 ? (
+            <div className="no-trainers">
+              <p>No trainers found. Try adjusting your filters.</p>
+            </div>
+          ) : (
+            trainers.map((trainer) => (
+              <div key={trainer.trainer_id} className="trainer-card">
+                <div className="trainer-avatar">
+                  {trainer.trainer_name?.charAt(0) || '👤'}
+                </div>
+                <div className="trainer-info">
+                  <h3>{trainer.trainer_name}</h3>
+                  <p className="trainer-gym">📍 {trainer.gym_name}</p>
+                  <p className="trainer-bio">{trainer.bio}</p>
+                  <div className="trainer-specialties">
+                    {trainer.specialties.map((specialty, index) => (
+                      <span key={index} className="specialty-tag">
+                        {specialty}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="trainer-details">
+                    <span className="trainer-rate">${trainer.hourly_rate}/hr</span>
+                    <span className="trainer-experience">{trainer.experience_years} years exp</span>
+                  </div>
+                  <button
+                    onClick={() => handleBooking(trainer)}
+                    className="book-btn"
+                  >
+                    Book Session 🔥
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Bookings Component
+const MyBookings = () => {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
+  const fetchBookings = async () => {
+    try {
+      const response = await api.get('/api/bookings/my');
+      setBookings(response.data.bookings);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    }
+    setLoading(false);
+  };
+
+  if (loading) return <div className="loading">Loading bookings...</div>;
+
+  return (
+    <div className="bookings">
+      <div className="bookings-header">
+        <h1>My Bookings 📅</h1>
+        <p>Track your training sessions</p>
+      </div>
+
+      {bookings.length === 0 ? (
+        <div className="no-bookings">
+          <p>No bookings yet. Book your first session!</p>
+        </div>
+      ) : (
+        <div className="bookings-list">
+          {bookings.map((booking) => (
+            <div key={booking.booking_id} className="booking-card">
+              <div className="booking-header">
+                <h3>
+                  {booking.trainer_name || booking.client_name}
+                  <span className={`status-badge ${booking.status}`}>
+                    {booking.status}
+                  </span>
+                </h3>
+                <p className="booking-date">
+                  {new Date(booking.session_date).toLocaleDateString()} at{' '}
+                  {new Date(booking.session_date).toLocaleTimeString()}
+                </p>
+              </div>
+              <div className="booking-details">
+                <p>📍 {booking.gym_name || 'Gym location'}</p>
+                <p>⏱️ {booking.duration_hours} hour(s)</p>
+                <p>💰 ${booking.total_amount.toFixed(2)}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Profile Component
+const Profile = () => {
+  const { userProfile, user } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isTrainerRegistration, setIsTrainerRegistration] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: '',
+    phone: '',
+    gym: ''
+  });
+  const [trainerData, setTrainerData] = useState({
+    bio: '',
+    specialties: [],
+    hourly_rate: '',
+    gym_name: '',
+    experience_years: '',
+    certifications: []
+  });
+
+  useEffect(() => {
+    if (userProfile) {
+      setProfileData({
+        name: userProfile.name || '',
+        phone: userProfile.phone || '',
+        gym: userProfile.gym || ''
+      });
+    }
+  }, [userProfile]);
+
+  const handleProfileUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      await api.put('/api/users/profile', profileData);
+      setIsEditing(false);
+      alert('Profile updated successfully!');
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      alert('Error updating profile');
+    }
+  };
+
+  const handleTrainerRegistration = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/api/trainers/register', {
+        ...trainerData,
+        specialties: trainerData.specialties.filter(s => s.trim()),
+        hourly_rate: parseFloat(trainerData.hourly_rate),
+        experience_years: parseInt(trainerData.experience_years),
+        location: { lat: 40.7128, lng: -74.0060 } // Default to NYC
+      });
+      setIsTrainerRegistration(false);
+      alert('Trainer registration successful!');
+      window.location.reload();
+    } catch (error) {
+      console.error('Error registering trainer:', error);
+      alert('Error registering as trainer');
+    }
+  };
+
+  return (
+    <div className="profile">
+      <div className="profile-header">
+        <div className="profile-avatar">
+          {userProfile?.name?.charAt(0) || '👤'}
+        </div>
+        <div className="profile-info">
+          <h1>{userProfile?.name}</h1>
+          <p>{user?.email}</p>
+          <span className={`role-badge ${userProfile?.role || 'user'}`}>
+            {userProfile?.role === 'trainer' ? '🏋️‍♂️ Trainer' : '💪 Member'}
+          </span>
+        </div>
+      </div>
+
+      <div className="profile-content">
+        {isEditing ? (
+          <form onSubmit={handleProfileUpdate} className="profile-form">
+            <h2>Edit Profile</h2>
+            <div className="form-group">
+              <label>Name</label>
+              <input
+                type="text"
+                value={profileData.name}
+                onChange={(e) => setProfileData({...profileData, name: e.target.value})}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Phone</label>
+              <input
+                type="tel"
+                value={profileData.phone}
+                onChange={(e) => setProfileData({...profileData, phone: e.target.value})}
+                className="form-input"
+              />
+            </div>
+            <div className="form-group">
+              <label>Gym</label>
+              <input
+                type="text"
+                value={profileData.gym}
+                onChange={(e) => setProfileData({...profileData, gym: e.target.value})}
+                className="form-input"
+              />
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="save-btn">Save Changes</button>
+              <button type="button" onClick={() => setIsEditing(false)} className="cancel-btn">
+                Cancel
+              </button>
+            </div>
+          </form>
+        ) : isTrainerRegistration ? (
+          <form onSubmit={handleTrainerRegistration} className="trainer-form">
+            <h2>Become a Trainer 🎯</h2>
+            <div className="form-group">
+              <label>Bio</label>
+              <textarea
+                value={trainerData.bio}
+                onChange={(e) => setTrainerData({...trainerData, bio: e.target.value})}
+                className="form-textarea"
+                placeholder="Tell us about your training philosophy..."
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Specialties (comma separated)</label>
+              <input
+                type="text"
+                value={trainerData.specialties.join(', ')}
+                onChange={(e) => setTrainerData({...trainerData, specialties: e.target.value.split(',').map(s => s.trim())})}
+                className="form-input"
+                placeholder="Weight Training, Cardio, Yoga..."
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Hourly Rate ($)</label>
+              <input
+                type="number"
+                value={trainerData.hourly_rate}
+                onChange={(e) => setTrainerData({...trainerData, hourly_rate: e.target.value})}
+                className="form-input"
+                placeholder="50"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Gym Name</label>
+              <input
+                type="text"
+                value={trainerData.gym_name}
+                onChange={(e) => setTrainerData({...trainerData, gym_name: e.target.value})}
+                className="form-input"
+                placeholder="Your gym name"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label>Years of Experience</label>
+              <input
+                type="number"
+                value={trainerData.experience_years}
+                onChange={(e) => setTrainerData({...trainerData, experience_years: e.target.value})}
+                className="form-input"
+                placeholder="5"
+                required
+              />
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="save-btn">Register as Trainer</button>
+              <button type="button" onClick={() => setIsTrainerRegistration(false)} className="cancel-btn">
+                Cancel
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="profile-display">
+            <div className="profile-section">
+              <h2>Personal Information</h2>
+              <div className="info-grid">
+                <div className="info-item">
+                  <label>Name</label>
+                  <span>{userProfile?.name || 'Not set'}</span>
+                </div>
+                <div className="info-item">
+                  <label>Email</label>
+                  <span>{user?.email}</span>
+                </div>
+                <div className="info-item">
+                  <label>Phone</label>
+                  <span>{userProfile?.phone || 'Not set'}</span>
+                </div>
+                <div className="info-item">
+                  <label>Gym</label>
+                  <span>{userProfile?.gym || 'Not set'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="profile-actions">
+              <button onClick={() => setIsEditing(true)} className="edit-btn">
+                Edit Profile
+              </button>
+              {userProfile?.role !== 'trainer' && (
+                <button onClick={() => setIsTrainerRegistration(true)} className="trainer-btn">
+                  Become a Trainer 🚀
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Main App Component
+const App = () => {
+  const [currentView, setCurrentView] = useState('home');
+
+  return (
+    <AuthProvider>
+      <div className="app">
+        <AuthHandler setCurrentView={setCurrentView} />
+      </div>
+    </AuthProvider>
+  );
+};
+
+// Auth Handler Component
+const AuthHandler = ({ setCurrentView }) => {
+  const { user, loading } = useAuth();
+  const [view, setView] = useState('home');
+
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="logo-large">
+          <span className="logo-lift">Lift</span>
+          <span className="logo-link">Link</span>
+        </div>
+        <div className="loading-text">Loading your fitness journey...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <LoginForm />;
+  }
+
+  const renderView = () => {
+    switch (view) {
+      case 'home':
+        return <HomeDashboard />;
+      case 'trainers':
+        return <TrainerSearch />;
+      case 'bookings':
+        return <MyBookings />;
+      case 'profile':
+        return <Profile />;
+      default:
+        return <HomeDashboard />;
+    }
+  };
+
+  return (
+    <div className="app-container">
+      <Navigation currentView={view} setCurrentView={setView} />
+      <main className="main-content">
+        {renderView()}
+      </main>
+    </div>
+  );
+};
 
 export default App;

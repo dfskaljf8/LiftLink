@@ -1,38 +1,1009 @@
-.App {
-    text-align: center;
+/* LiftLink - Dark Theme with Neon Green Accents */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+:root {
+  /* Dark theme colors matching logo */
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #2a2a2a;
+  
+  /* Neon green accents from logo */
+  --accent-primary: #c4ff00;
+  --accent-secondary: #9dd600;
+  --accent-glow: rgba(196, 255, 0, 0.3);
+  
+  /* White text */
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --text-muted: #888888;
+  
+  /* Status colors */
+  --success: #00ff88;
+  --warning: #ff8800;
+  --error: #ff4444;
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  --gradient-dark: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+  
+  /* Shadows and glows */
+  --glow-sm: 0 0 10px var(--accent-glow);
+  --glow-md: 0 0 20px var(--accent-glow);
+  --glow-lg: 0 0 30px var(--accent-glow);
+  --shadow-dark: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
+.app {
+  min-height: 100vh;
+  background: radial-gradient(circle at 20% 80%, rgba(196, 255, 0, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(196, 255, 0, 0.1) 0%, transparent 50%),
+              var(--bg-primary);
+}
+
+/* ============ LOADING SCREEN ============ */
+.loading-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg-primary);
+}
+
+.loading-text {
+  margin-top: 2rem;
+  color: var(--text-secondary);
+  font-size: 1.1rem;
+  animation: pulse 2s infinite;
+}
+
+/* ============ LOGO STYLES ============ */
+.logo, .logo-large {
+  font-family: 'Arial Black', sans-serif;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.8rem;
+}
+
+.logo-large {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.logo-lift {
+  color: var(--text-primary);
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.logo-link {
+  color: var(--accent-primary);
+  text-shadow: var(--glow-md);
+}
+
+.tagline {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-left: 1rem;
+}
+
+.tagline-large {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.subtitle {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+/* ============ NAVIGATION ============ */
+.navbar {
+  background: rgba(26, 26, 26, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--bg-tertiary);
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.nav-btn {
+  background: transparent;
+  border: 1px solid var(--bg-tertiary);
+  color: var(--text-secondary);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.nav-btn:hover {
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+  box-shadow: var(--glow-sm);
+}
+
+.nav-btn.active {
+  background: var(--gradient-primary);
+  color: var(--bg-primary);
+  border-color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.nav-btn.logout {
+  border-color: var(--error);
+  color: var(--error);
+}
+
+.nav-btn.logout:hover {
+  background: var(--error);
+  color: white;
+}
+
+/* ============ LOGIN FORM ============ */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.login-card {
+  background: var(--gradient-dark);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: 20px;
+  padding: 3rem;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: var(--shadow-dark);
+  text-align: center;
+}
+
+.login-header {
+  margin-bottom: 2rem;
+}
+
+.login-form {
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 1rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: 12px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: var(--glow-sm);
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: 12px;
+  color: var(--bg-primary);
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.submit-btn:hover {
+  box-shadow: var(--glow-md);
+  transform: translateY(-2px);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.form-toggle {
+  color: var(--text-secondary);
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: var(--accent-primary);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.demo-section {
+  border-top: 1px solid var(--bg-tertiary);
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.demo-text {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.demo-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.demo-btn {
+  flex: 1;
+  padding: 0.5rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent-primary);
+  color: var(--accent-primary);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.demo-btn:hover {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+/* ============ MAIN LAYOUT ============ */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ============ DASHBOARD ============ */
+.dashboard {
+  animation: fadeIn 0.6s ease;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.stat-card {
+  background: var(--gradient-dark);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: 16px;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow: var(--glow-sm);
+  transform: translateY(-5px);
+}
+
+.stat-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+  margin-bottom: 0.5rem;
+  text-shadow: var(--glow-sm);
+}
+
+.stat-label {
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.quick-actions {
+  text-align: center;
+}
+
+.quick-actions h2 {
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 200px;
+}
+
+.action-btn.primary {
+  background: var(--gradient-primary);
+  color: var(--bg-primary);
+}
+
+.action-btn.primary:hover {
+  box-shadow: var(--glow-md);
+  transform: translateY(-2px);
+}
+
+.action-btn.secondary {
+  background: transparent;
+  color: var(--accent-primary);
+  border: 1px solid var(--accent-primary);
+}
+
+.action-btn.secondary:hover {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+/* ============ TRAINER SEARCH ============ */
+.trainer-search {
+  animation: fadeIn 0.6s ease;
+}
+
+.search-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.search-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.filter-group {
+  min-width: 200px;
+}
+
+.filter-select, .filter-input {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.filter-select:focus, .filter-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: var(--glow-sm);
+}
+
+.trainers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+}
+
+.trainer-card {
+  background: var(--gradient-dark);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.trainer-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow: var(--glow-sm);
+  transform: translateY(-5px);
+}
+
+.trainer-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.trainer-info h3 {
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+  font-size: 1.3rem;
+}
+
+.trainer-gym {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.trainer-bio {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.trainer-specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.specialty-tag {
+  background: rgba(196, 255, 0, 0.1);
+  color: var(--accent-primary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  border: 1px solid rgba(196, 255, 0, 0.3);
+}
+
+.trainer-details {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.trainer-rate {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+.book-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: 10px;
+  color: var(--bg-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.book-btn:hover {
+  box-shadow: var(--glow-md);
+  transform: translateY(-2px);
+}
+
+/* ============ BOOKINGS ============ */
+.bookings {
+  animation: fadeIn 0.6s ease;
+}
+
+.bookings-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.bookings-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.booking-card {
+  background: var(--gradient-dark);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.booking-card:hover {
+  border-color: var(--accent-primary);
+  box-shadow: var(--glow-sm);
+}
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.booking-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-primary);
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.pending {
+  background: rgba(255, 136, 0, 0.2);
+  color: var(--warning);
+  border: 1px solid var(--warning);
+}
+
+.status-badge.confirmed {
+  background: rgba(0, 255, 136, 0.2);
+  color: var(--success);
+  border: 1px solid var(--success);
+}
+
+.booking-date {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.booking-details {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  color: var(--text-secondary);
+}
+
+/* ============ PROFILE ============ */
+.profile {
+  animation: fadeIn 0.6s ease;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: var(--gradient-dark);
+  border-radius: 16px;
+  border: 1px solid var(--bg-tertiary);
+}
+
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  box-shadow: var(--glow-md);
+}
+
+.profile-info h1 {
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.profile-info p {
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+.role-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.role-badge.trainer {
+  background: rgba(196, 255, 0, 0.2);
+  color: var(--accent-primary);
+  border: 1px solid var(--accent-primary);
+}
+
+.role-badge.user {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  border: 1px solid var(--text-muted);
+}
+
+.profile-content {
+  background: var(--gradient-dark);
+  border-radius: 16px;
+  border: 1px solid var(--bg-tertiary);
+  padding: 2rem;
+}
+
+.profile-section h2 {
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--bg-tertiary);
+  padding-bottom: 0.5rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.info-item label {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.info-item span {
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.edit-btn, .trainer-btn, .save-btn, .cancel-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+}
+
+.edit-btn {
+  background: var(--gradient-primary);
+  color: var(--bg-primary);
+}
+
+.edit-btn:hover {
+  box-shadow: var(--glow-md);
+  transform: translateY(-2px);
+}
+
+.trainer-btn {
+  background: transparent;
+  color: var(--accent-primary);
+  border: 1px solid var(--accent-primary);
+}
+
+.trainer-btn:hover {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+.save-btn {
+  background: var(--success);
+  color: white;
+}
+
+.cancel-btn {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--bg-tertiary);
+}
+
+/* ============ FORMS ============ */
+.profile-form, .trainer-form {
+  max-width: 600px;
+}
+
+.profile-form h2, .trainer-form h2 {
+  margin-bottom: 2rem;
+  color: var(--text-primary);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.form-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 1rem;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--bg-tertiary);
+  border-radius: 10px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: var(--glow-sm);
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* ============ UTILITY CLASSES ============ */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.error-message {
+  color: var(--error);
+  text-align: center;
+  padding: 1rem;
+  background: rgba(255, 68, 68, 0.1);
+  border: 1px solid var(--error);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.no-trainers, .no-bookings {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+}
+
+/* ============ ANIMATIONS ============ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: var(--glow-sm);
+  }
+  50% {
+    box-shadow: var(--glow-md);
+  }
+}
+
+/* ============ RESPONSIVE DESIGN ============ */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .main-content {
+    padding: 1rem;
+  }
+
+  .dashboard-header h1, .search-header h1, .bookings-header h1 {
+    font-size: 2rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filters {
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+  }
+
+  .trainers-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .booking-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .booking-details {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 }
 
-.App-link {
-    color: #61dafb;
+@media (max-width: 480px) {
+  .logo {
+    font-size: 1.5rem;
+  }
+
+  .logo-large {
+    font-size: 3rem;
+  }
+
+  .tagline {
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  .login-card {
+    padding: 2rem;
+  }
+
+  .trainer-card, .booking-card, .profile-content {
+    padding: 1rem;
+  }
+
+  .demo-buttons {
+    flex-direction: column;
+  }
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+/* ============ SCROLLBAR STYLING ============ */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-secondary);
+}
+
+/* ============ SELECTION STYLING ============ */
+::selection {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+::-moz-selection {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
 }
