@@ -321,6 +321,16 @@ async def get_current_user(token: str = Depends(security)):
                     "email": "user@demo.com",
                     "name": "Demo User",
                     "role": "user",
+                    "xp_points": 0,
+                    "level": 1,
+                    "badges": [],
+                    "lift_coins": 0,
+                    "total_coins_earned": 0,
+                    "consecutive_days": 0,
+                    "first_session_completed": False,
+                    "total_referrals": 0,
+                    "total_reviews_left": 0,
+                    "goals_completed": 0,
                     "created_at": datetime.utcnow()
                 }
                 await db.users.insert_one(user)
@@ -330,6 +340,16 @@ async def get_current_user(token: str = Depends(security)):
                     "email": "trainer@demo.com",
                     "name": "Demo Trainer",
                     "role": "trainer",
+                    "xp_points": 200,
+                    "level": 3,
+                    "badges": ["verified_trainer", "first_certification"],
+                    "lift_coins": 350,
+                    "total_coins_earned": 500,
+                    "consecutive_days": 5,
+                    "first_session_completed": True,
+                    "total_referrals": 2,
+                    "total_reviews_left": 8,
+                    "goals_completed": 3,
                     "created_at": datetime.utcnow()
                 }
                 await db.users.insert_one(user)
@@ -339,6 +359,12 @@ async def get_current_user(token: str = Depends(security)):
                     "email": "aaravdthakker@gmail.com",
                     "name": "Aarav Thakker", 
                     "role": "admin",
+                    "xp_points": 1000,
+                    "level": 10,
+                    "badges": ["admin", "platform_founder"],
+                    "lift_coins": 5000,
+                    "total_coins_earned": 5000,
+                    "consecutive_days": 30,
                     "created_at": datetime.utcnow()
                 }
                 await db.users.insert_one(user)
@@ -348,6 +374,138 @@ async def get_current_user(token: str = Depends(security)):
         return user
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+# Gamification helper functions
+async def award_coins(user_id: str, amount: int, reason: str, metadata: Dict = None):
+    """Award LiftCoins to a user and create transaction record"""
+    if metadata is None:
+        metadata = {}
+    
+    # Update user's coin balance
+    await db.users.update_one(
+        {"user_id": user_id},
+        {"$inc": {"lift_coins": amount, "total_coins_earned": amount}}
+    )
+    
+    # Create transaction record
+    transaction = LiftCoinTransactionModel(
+        transaction_id=str(uuid.uuid4()),
+        user_id=user_id,
+        transaction_type="earned",
+        amount=amount,
+        reason=reason,
+        metadata=metadata
+    )
+    
+    await db.lift_coin_transactions.insert_one(transaction.dict())
+    return amount
+
+async def award_xp(user_id: str, amount: int, reason: str):
+    """Award XP to a user and check for level up"""
+    user = await db.users.find_one({"user_id": user_id})
+    if not user:
+        return
+    
+    new_xp = user.get("xp_points", 0) + amount
+    new_level = calculate_level(new_xp)
+    
+    update_data = {"xp_points": new_xp}
+    if new_level > user.get("level", 1):
+        update_data["level"] = new_level
+        # Award bonus coins for level up
+        bonus_coins = new_level * 10
+        await award_coins(user_id, bonus_coins, f"level_up_to_{new_level}")
+    
+    await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": update_data}
+    )
+    
+    return new_xp, new_level
+
+def calculate_level(xp: int) -> int:
+    """Calculate user level based on XP (exponential growth)"""
+    if xp < 100:
+        return 1
+    elif xp < 300:
+        return 2
+    elif xp < 600:
+        return 3
+    elif xp < 1000:
+        return 4
+    elif xp < 1500:
+        return 5
+    else:
+        return min(50, 5 + (xp - 1500) // 300)
+
+async def award_badge(user_id: str, badge_id: str, xp_reward: int = 0, coin_reward: int = 0):
+    """Award a badge to a user"""
+    user = await db.users.find_one({"user_id": user_id})
+    if not user:
+        return False
+    
+    current_badges = user.get("badges", [])
+    if badge_id not in current_badges:
+        current_badges.append(badge_id)
+        
+        await db.users.update_one(
+            {"user_id": user_id},
+            {"$set": {"badges": current_badges}}
+        )
+        
+        # Award XP and coins for the badge
+        if xp_reward > 0:
+            await award_xp(user_id, xp_reward, f"badge_{badge_id}")
+        if coin_reward > 0:
+            await award_coins(user_id, coin_reward, f"badge_{badge_id}")
+        
+        return True
+    return False
+
+async def check_daily_streak(user_id: str):
+    """Check and update daily streak, award coins if applicable"""
+    user = await db.users.find_one({"user_id": user_id})
+    if not user:
+        return 0
+    
+    today = datetime.now().date()
+    last_check_in = user.get("last_check_in")
+    
+    if last_check_in:
+        last_date = last_check_in.date() if isinstance(last_check_in, datetime) else datetime.fromisoformat(last_check_in).date()
+        days_diff = (today - last_date).days
+        
+        if days_diff == 1:
+            # Consecutive day
+            new_streak = user.get("consecutive_days", 0) + 1
+        elif days_diff == 0:
+            # Same day, no change
+            return user.get("consecutive_days", 0)
+        else:
+            # Streak broken
+            new_streak = 1
+    else:
+        # First check-in
+        new_streak = 1
+    
+    # Update streak and last check-in
+    await db.users.update_one(
+        {"user_id": user_id},
+        {"$set": {
+            "consecutive_days": new_streak,
+            "last_check_in": datetime.now()
+        }}
+    )
+    
+    # Award coins for 7-day streak
+    if new_streak == 7:
+        await award_coins(user_id, 50, "weekly_streak", {"streak_days": 7})
+        await award_badge(user_id, "weekly_warrior", 25, 10)
+    elif new_streak == 30:
+        await award_coins(user_id, 200, "monthly_streak", {"streak_days": 30})
+        await award_badge(user_id, "consistency_champion", 100, 50)
+    
+    return new_streak
 
 # ============ USER MANAGEMENT ENDPOINTS ============
 
