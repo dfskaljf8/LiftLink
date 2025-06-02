@@ -629,20 +629,555 @@ async def check_daily_streak(user_id: str):
 
 @app.post("/api/users/register")
 async def register_user(user_data: UserRegistrationRequest):
-    """Register a new user"""
+    """Register a new user with email verification"""
+    
+    # Validate email format
+    if not validate_email_format(user_data.email):
+        raise HTTPException(status_code=400, detail="Invalid email format")
+    
+    # Check if email domain exists
+    if not check_email_domain_exists(user_data.email):
+        raise HTTPException(status_code=400, detail="Email domain does not exist")
+    
+    # Check if user already exists
+    existing_user = await db.users.find_one({"email": user_data.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="User with this email already exists")
+    
+    # Generate verification code
+    verification_code = generate_verification_code()
+    
+    # Send verification email
+    email_sent = await send_verification_email(user_data.email, verification_code)
+    if not email_sent:
+        raise HTTPException(status_code=500, detail="Failed to send verification email")
+    
+    # Store verification record (expires in 10 minutes)
+    verification_record = EmailVerificationModel(
+        verification_id=str(uuid.uuid4()),
+        email=user_data.email,
+        verification_code=verification_code,
+        expires_at=datetime.utcnow() + timedelta(minutes=10)
+    )
+    
+    await db.email_verifications.insert_one(verification_record.dict())
+    
+    # Temporarily store user data for completion after verification
+    temp_user_data = user_data.dict()
+    temp_user_data["verification_id"] = verification_record.verification_id
+    
+    await db.temp_users.insert_one(temp_user_data)
+    
+    return {
+        "message": "Verification code sent to email. Please verify to complete registration.",
+        "verification_id": verification_record.verification_id
+    }
+
+@app.post("/api/users/verify-email")
+async def verify_email(verification_data: EmailVerificationRequest):
+    """Verify email and complete user registration"""
+    
+    # Find verification record
+    verification = await db.email_verifications.find_one({
+        "email": verification_data.email,
+        "verification_code": verification_data.verification_code,
+        "is_verified": False
+    })
+    
+    if not verification:
+        raise HTTPException(status_code=400, detail="Invalid verification code")
+    
+    # Check if verification has expired
+    if datetime.utcnow() > verification["expires_at"]:
+        raise HTTPException(status_code=400, detail="Verification code has expired")
+    
+    # Mark as verified
+    await db.email_verifications.update_one(
+        {"verification_id": verification["verification_id"]},
+        {"$set": {"is_verified": True, "verified_at": datetime.utcnow()}}
+    )
+    
+    # Get temporary user data
+    temp_user = await db.temp_users.find_one({"verification_id": verification["verification_id"]})
+    if not temp_user:
+        raise HTTPException(status_code=400, detail="User data not found")
+    
+    # Create actual user
     user_id = str(uuid.uuid4())
     
     user = UserModel(
         user_id=user_id,
-        email=user_data.email,
-        name=user_data.name,
-        phone=user_data.phone,
-        location=user_data.location,
-        gym=user_data.gym
+        email=temp_user["email"],
+        name=temp_user["name"],
+        phone=temp_user.get("phone"),
+        location=temp_user.get("location"),
+        gym=temp_user.get("gym")
     )
     
     await db.users.insert_one(user.dict())
-    return {"user_id": user_id, "message": "User registered successfully"}
+    
+    # Clean up temporary data
+    await db.temp_users.delete_one({"verification_id": verification["verification_id"]})
+    
+    # Create welcome tree nodes for new user
+    await create_welcome_tree_nodes(user_id)
+    
+    return {"user_id": user_id, "message": "Email verified and user registered successfully"}
+
+async def create_welcome_tree_nodes(user_id: str):
+    """Create initial welcome tree nodes for new users"""
+    
+    # Root goal: Get Started
+    root_node = TreeNodeModel(
+        node_id=str(uuid.uuid4()),
+        user_id=user_id,
+        node_type="goal",
+        title="Welcome to LiftLink! 🎉",
+        description="Complete your first fitness goal",
+        status="active",
+        position={"x": 0.5, "y": 0.1},
+        icon="🌱",
+        color="#BDD53D",
+        xp_reward=50,
+        coin_reward=100
+    )
+    
+    # First milestone: Complete Profile
+    profile_node = TreeNodeModel(
+        node_id=str(uuid.uuid4()),
+        user_id=user_id,
+        node_type="milestone",
+        title="Complete Your Profile",
+        description="Add your fitness goals and preferences",
+        status="active",
+        parent_node_id=root_node.node_id,
+        position={"x": 0.3, "y": 0.3},
+        icon="👤",
+        color="#FF6B6B",
+        xp_reward=25,
+        coin_reward=50
+    )
+    
+    # Second milestone: First Session
+    session_node = TreeNodeModel(
+        node_id=str(uuid.uuid4()),
+        user_id=user_id,
+        node_type="milestone",
+        title="Book Your First Session",
+        description="Find a trainer and book your first workout",
+        status="active",
+        parent_node_id=root_node.node_id,
+        position={"x": 0.7, "y": 0.3},
+        icon="💪",
+        color="#45B7D1",
+        xp_reward=100,
+        coin_reward=200
+    )
+    
+    # Insert all nodes
+    await db.tree_nodes.insert_many([
+        root_node.dict(),
+        profile_node.dict(),
+        session_node.dict()
+    ])
+
+# ============ LOCATION SERVICES ENDPOINTS ============
+
+@app.put("/api/users/location")
+async def update_user_location(
+    location_data: UserLocationUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    """Update user's location for matching"""
+    
+    # Update user location
+    location_update = {
+        "location": {
+            "type": "Point",
+            "coordinates": [location_data.longitude, location_data.latitude]
+        },
+        "address": location_data.address,
+        "city": location_data.city,
+        "state": location_data.state,
+        "country": location_data.country,
+        "location_updated_at": datetime.utcnow()
+    }
+    
+    await db.users.update_one(
+        {"user_id": current_user["user_id"]},
+        {"$set": location_update}
+    )
+    
+    # If user is a trainer, update trainer location too
+    if current_user.get("role") == "trainer":
+        await db.trainers.update_one(
+            {"trainer_id": current_user["user_id"]},
+            {"$set": {
+                "location": {
+                    "type": "Point", 
+                    "coordinates": [location_data.longitude, location_data.latitude]
+                }
+            }}
+        )
+    
+    return {"message": "Location updated successfully"}
+
+@app.get("/api/trainers/search")
+async def search_trainers(
+    lat: Optional[float] = Query(None),
+    lng: Optional[float] = Query(None),
+    radius: Optional[float] = Query(25),  # km
+    specialty: Optional[str] = Query(None),
+    max_rate: Optional[float] = Query(None),
+    gym: Optional[str] = Query(None),
+    certified_only: Optional[bool] = Query(False)
+):
+    """Search for trainers based on location and filters with geospatial queries"""
+    
+    query = {}
+    
+    # Add non-location filters
+    if specialty:
+        query["specialties"] = {"$in": [specialty]}
+    if max_rate:
+        query["hourly_rate"] = {"$lte": max_rate}
+    if gym:
+        query["gym_name"] = {"$regex": gym, "$options": "i"}
+    if certified_only:
+        query["is_certified_trainer"] = True
+    
+    # Location-based search using MongoDB geospatial queries
+    if lat and lng:
+        query["location"] = {
+            "$near": {
+                "$geometry": {
+                    "type": "Point",
+                    "coordinates": [lng, lat]
+                },
+                "$maxDistance": radius * 1000  # Convert km to meters
+            }
+        }
+    
+    trainers = []
+    async for trainer in db.trainers.find(query).limit(50):
+        # Get user info
+        user = await db.users.find_one({"user_id": trainer["trainer_id"]})
+        trainer["trainer_name"] = user["name"] if user else "Unknown"
+        
+        # Calculate distance if location provided
+        if lat and lng and trainer.get("location"):
+            distance = calculate_distance(
+                lat, lng,
+                trainer["location"]["coordinates"][1],
+                trainer["location"]["coordinates"][0]
+            )
+            trainer["distance_km"] = round(distance, 1)
+        
+        # Get certifications
+        certifications = []
+        async for cert in db.certifications.find({"trainer_id": trainer["trainer_id"], "verification_status": "verified"}):
+            certifications.append(serialize_doc(cert))
+        
+        trainer["certifications"] = certifications
+        trainer["verified_certifications"] = trainer.get("verified_certifications", [])
+        trainer["is_certified_trainer"] = trainer.get("is_certified_trainer", False)
+        
+        trainers.append(serialize_doc(trainer))
+    
+    # Sort by distance if location provided
+    if lat and lng:
+        trainers.sort(key=lambda x: x.get("distance_km", float('inf')))
+    
+    return {"trainers": trainers}
+
+def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate distance between two points using Haversine formula"""
+    import math
+    
+    # Convert to radians
+    lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+    
+    # Haversine formula
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = math.sin(dlat/2)**2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlon/2)**2
+    c = 2 * math.asin(math.sqrt(a))
+    
+    # Radius of earth in kilometers
+    r = 6371
+    
+    return c * r
+
+# ============ SOCIAL TRACKING ENDPOINTS ============
+
+@app.post("/api/social/follow")
+async def follow_user(
+    follow_data: SocialFollowRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Follow another user"""
+    
+    if follow_data.user_id == current_user["user_id"]:
+        raise HTTPException(status_code=400, detail="Cannot follow yourself")
+    
+    # Check if target user exists
+    target_user = await db.users.find_one({"user_id": follow_data.user_id})
+    if not target_user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check if already following
+    existing_follow = await db.social_follows.find_one({
+        "follower_id": current_user["user_id"],
+        "following_id": follow_data.user_id
+    })
+    
+    if existing_follow:
+        raise HTTPException(status_code=400, detail="Already following this user")
+    
+    # Create follow relationship
+    follow = SocialFollowModel(
+        follow_id=str(uuid.uuid4()),
+        follower_id=current_user["user_id"],
+        following_id=follow_data.user_id,
+        follow_type=target_user.get("role", "user")
+    )
+    
+    await db.social_follows.insert_one(follow.dict())
+    
+    # Create notification for followed user
+    notification = NotificationModel(
+        notification_id=str(uuid.uuid4()),
+        user_id=follow_data.user_id,
+        title="New Follower",
+        message=f"{current_user['name']} started following you",
+        notification_type="new_follower",
+        metadata={"follower_id": current_user["user_id"]}
+    )
+    
+    await db.notifications.insert_one(notification.dict())
+    
+    return {"message": "Successfully followed user"}
+
+@app.delete("/api/social/unfollow/{user_id}")
+async def unfollow_user(
+    user_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Unfollow a user"""
+    
+    result = await db.social_follows.delete_one({
+        "follower_id": current_user["user_id"],
+        "following_id": user_id
+    })
+    
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Follow relationship not found")
+    
+    return {"message": "Successfully unfollowed user"}
+
+@app.get("/api/social/following")
+async def get_following(current_user: dict = Depends(get_current_user)):
+    """Get list of users current user is following"""
+    
+    following = []
+    async for follow in db.social_follows.find({"follower_id": current_user["user_id"]}):
+        user = await db.users.find_one({"user_id": follow["following_id"]})
+        if user:
+            # Get recent activity
+            recent_activities = []
+            async for activity in db.social_activities.find(
+                {"user_id": follow["following_id"]}
+            ).sort("created_at", -1).limit(3):
+                recent_activities.append(serialize_doc(activity))
+            
+            following.append({
+                "user_id": user["user_id"],
+                "name": user["name"],
+                "role": user.get("role", "user"),
+                "current_streak": user.get("consecutive_days", 0),
+                "lift_coins": user.get("lift_coins", 0),
+                "level": user.get("level", 1),
+                "badges": user.get("badges", []),
+                "recent_activities": recent_activities,
+                "followed_at": follow["created_at"]
+            })
+    
+    return {"following": following}
+
+@app.get("/api/social/followers")
+async def get_followers(current_user: dict = Depends(get_current_user)):
+    """Get list of users following current user"""
+    
+    followers = []
+    async for follow in db.social_follows.find({"following_id": current_user["user_id"]}):
+        user = await db.users.find_one({"user_id": follow["follower_id"]})
+        if user:
+            followers.append({
+                "user_id": user["user_id"],
+                "name": user["name"],
+                "role": user.get("role", "user"),
+                "current_streak": user.get("consecutive_days", 0),
+                "lift_coins": user.get("lift_coins", 0),
+                "level": user.get("level", 1),
+                "followed_at": follow["created_at"]
+            })
+    
+    return {"followers": followers}
+
+@app.get("/api/social/leaderboards")
+async def get_social_leaderboards():
+    """Get various leaderboards for social motivation"""
+    
+    # Longest streaks leaderboard
+    streak_leaders = []
+    async for user in db.users.find().sort("consecutive_days", -1).limit(10):
+        if user.get("consecutive_days", 0) > 0:
+            streak_leaders.append({
+                "user_id": user["user_id"],
+                "name": user["name"],
+                "streak": user.get("consecutive_days", 0),
+                "level": user.get("level", 1)
+            })
+    
+    # Most LiftCoins leaderboard
+    coin_leaders = []
+    async for user in db.users.find().sort("total_coins_earned", -1).limit(10):
+        if user.get("total_coins_earned", 0) > 0:
+            coin_leaders.append({
+                "user_id": user["user_id"],
+                "name": user["name"],
+                "total_coins": user.get("total_coins_earned", 0),
+                "current_coins": user.get("lift_coins", 0),
+                "level": user.get("level", 1)
+            })
+    
+    # Most sessions this month (for trainers)
+    trainer_leaders = []
+    start_of_month = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    async for trainer in db.trainers.find():
+        sessions_this_month = await db.bookings.count_documents({
+            "trainer_id": trainer["trainer_id"],
+            "status": "confirmed",
+            "created_at": {"$gte": start_of_month}
+        })
+        
+        if sessions_this_month > 0:
+            user = await db.users.find_one({"user_id": trainer["trainer_id"]})
+            if user:
+                trainer_leaders.append({
+                    "trainer_id": trainer["trainer_id"],
+                    "name": user["name"],
+                    "sessions_this_month": sessions_this_month,
+                    "gym": trainer.get("gym_name", ""),
+                    "specialties": trainer.get("specialties", [])
+                })
+    
+    trainer_leaders.sort(key=lambda x: x["sessions_this_month"], reverse=True)
+    trainer_leaders = trainer_leaders[:10]
+    
+    return {
+        "streak_leaders": streak_leaders,
+        "coin_leaders": coin_leaders,
+        "trainer_leaders": trainer_leaders,
+        "updated_at": datetime.utcnow()
+    }
+
+@app.get("/api/social/feed")
+async def get_social_feed(
+    limit: int = Query(20, le=50),
+    current_user: dict = Depends(get_current_user)
+):
+    """Get social activity feed from followed users"""
+    
+    # Get users current user is following
+    following_ids = []
+    async for follow in db.social_follows.find({"follower_id": current_user["user_id"]}):
+        following_ids.append(follow["following_id"])
+    
+    # Include current user's activities too
+    following_ids.append(current_user["user_id"])
+    
+    # Get recent activities from followed users
+    activities = []
+    async for activity in db.social_activities.find(
+        {"user_id": {"$in": following_ids}}
+    ).sort("created_at", -1).limit(limit):
+        
+        # Get user info
+        user = await db.users.find_one({"user_id": activity["user_id"]})
+        activity_data = serialize_doc(activity)
+        activity_data["user_name"] = user["name"] if user else "Unknown"
+        activity_data["user_level"] = user.get("level", 1) if user else 1
+        
+        activities.append(activity_data)
+    
+    return {"activities": activities, "total_count": len(activities)}
+
+@app.get("/api/social/recommendations")
+async def get_follow_recommendations(
+    current_user: dict = Depends(get_current_user)
+):
+    """Get user follow recommendations based on location, goals, and mutual connections"""
+    
+    # Get current user's following list
+    current_following = []
+    async for follow in db.social_follows.find({"follower_id": current_user["user_id"]}):
+        current_following.append(follow["following_id"])
+    
+    recommendations = []
+    
+    # Location-based recommendations
+    if current_user.get("location"):
+        user_location = current_user["location"]
+        async for user in db.users.find({
+            "user_id": {"$nin": current_following + [current_user["user_id"]]},
+            "location": {
+                "$near": {
+                    "$geometry": user_location,
+                    "$maxDistance": 50000  # 50km radius
+                }
+            }
+        }).limit(5):
+            recommendations.append({
+                "user_id": user["user_id"],
+                "name": user["name"],
+                "reason": "nearby_user",
+                "distance_km": calculate_distance(
+                    user_location["coordinates"][1], user_location["coordinates"][0],
+                    user["location"]["coordinates"][1], user["location"]["coordinates"][0]
+                ) if user.get("location") else None,
+                "role": user.get("role", "user"),
+                "gym": user.get("gym"),
+                "streak": user.get("consecutive_days", 0)
+            })
+    
+    # Mutual trainer recommendations
+    if current_user.get("role") == "user":
+        # Find other clients of the same trainers
+        user_trainers = []
+        async for booking in db.bookings.find({"user_id": current_user["user_id"], "status": "confirmed"}):
+            user_trainers.append(booking["trainer_id"])
+        
+        for trainer_id in user_trainers[:3]:  # Limit to avoid too many queries
+            async for booking in db.bookings.find({
+                "trainer_id": trainer_id,
+                "user_id": {"$nin": current_following + [current_user["user_id"]]},
+                "status": "confirmed"
+            }).limit(3):
+                
+                other_client = await db.users.find_one({"user_id": booking["user_id"]})
+                if other_client and other_client["user_id"] not in [r["user_id"] for r in recommendations]:
+                    trainer = await db.users.find_one({"user_id": trainer_id})
+                    recommendations.append({
+                        "user_id": other_client["user_id"],
+                        "name": other_client["name"],
+                        "reason": "shared_trainer",
+                        "shared_trainer": trainer["name"] if trainer else "Unknown",
+                        "role": other_client.get("role", "user"),
+                        "streak": other_client.get("consecutive_days", 0)
+                    })
+    
+    return {"recommendations": recommendations[:10]}  # Limit to 10 recommendations
 
 @app.get("/api/users/profile")
 async def get_user_profile(current_user: dict = Depends(get_current_user)):
