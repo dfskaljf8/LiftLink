@@ -363,7 +363,8 @@ async def search_trainers(
     radius: Optional[float] = Query(50),  # km
     specialty: Optional[str] = Query(None),
     max_rate: Optional[float] = Query(None),
-    gym: Optional[str] = Query(None)
+    gym: Optional[str] = Query(None),
+    certified_only: Optional[bool] = Query(False)
 ):
     """Search for trainers based on location and filters"""
     
@@ -376,6 +377,8 @@ async def search_trainers(
         query["hourly_rate"] = {"$lte": max_rate}
     if gym:
         query["gym_name"] = {"$regex": gym, "$options": "i"}
+    if certified_only:
+        query["is_certified_trainer"] = True
     
     # Location-based search (simplified - in production would use geospatial queries)
     if lat and lng:
@@ -388,7 +391,17 @@ async def search_trainers(
         # Get user info
         user = await db.users.find_one({"user_id": trainer["trainer_id"]})
         trainer["trainer_name"] = user["name"] if user else "Unknown"
-        trainers.append(trainer)
+        
+        # Get certifications
+        certifications = []
+        async for cert in db.certifications.find({"trainer_id": trainer["trainer_id"], "verification_status": "verified"}):
+            certifications.append(serialize_doc(cert))
+        
+        trainer["certifications"] = certifications
+        trainer["verified_certifications"] = trainer.get("verified_certifications", [])
+        trainer["is_certified_trainer"] = trainer.get("is_certified_trainer", False)
+        
+        trainers.append(serialize_doc(trainer))
     
     return {"trainers": trainers}
 
