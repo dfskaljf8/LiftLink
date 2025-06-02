@@ -1,4 +1,4 @@
-/* LiftLink - Advanced Futuristic UI Design */
+/* LiftLink - Pure Black & #BDD53D Color Scheme */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
@@ -9,40 +9,44 @@
 }
 
 :root {
-  /* Dark futuristic theme */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #1a1a2e;
-  --bg-tertiary: #16213e;
-  --bg-glass: rgba(255, 255, 255, 0.05);
-  --bg-glass-strong: rgba(255, 255, 255, 0.1);
+  /* Pure black and bright green theme */
+  --bg-primary: #000000;
+  --bg-secondary: #111111;
+  --bg-tertiary: #222222;
+  --bg-glass: rgba(189, 213, 61, 0.05);
+  --bg-glass-strong: rgba(189, 213, 61, 0.1);
   
-  /* Neon accents with enhanced glow */
-  --accent-primary: #00ff88;
-  --accent-secondary: #0066ff;
-  --accent-tertiary: #ff0080;
-  --accent-gold: #ffd700;
+  /* Primary accent color */
+  --accent-primary: #BDD53D;
+  --accent-secondary: #A8C230;
+  --accent-tertiary: #94AF23;
   
   /* Glass morphism colors */
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --glass-shadow: rgba(0, 0, 0, 0.3);
+  --glass-border: rgba(189, 213, 61, 0.2);
+  --glass-shadow: rgba(0, 0, 0, 0.8);
   
   /* Text colors */
   --text-primary: #ffffff;
-  --text-secondary: #b8c1ec;
-  --text-muted: #6b7394;
+  --text-secondary: #cccccc;
+  --text-muted: #888888;
   --text-accent: var(--accent-primary);
+  
+  /* Status colors using green variations */
+  --success: #BDD53D;
+  --warning: #A8C230;
+  --error: #ff4444;
   
   /* Gradients */
   --gradient-primary: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   --gradient-secondary: linear-gradient(135deg, var(--accent-secondary), var(--accent-tertiary));
-  --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+  --gradient-glass: linear-gradient(135deg, rgba(189,213,61,0.1), rgba(189,213,61,0.05));
   --gradient-dark: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
   
   /* Shadows and effects */
-  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.3);
-  --shadow-neon: 0 0 20px var(--accent-primary);
-  --shadow-glow: 0 0 40px rgba(0, 255, 136, 0.3);
-  --shadow-elevated: 0 20px 40px rgba(0, 0, 0, 0.4);
+  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(189, 213, 61, 0.3);
+  --shadow-glow-strong: 0 0 40px rgba(189, 213, 61, 0.5);
+  --shadow-elevated: 0 20px 40px rgba(0, 0, 0, 0.6);
   
   /* Animation curves */
   --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
@@ -63,9 +67,8 @@ body {
 .app {
   min-height: 100vh;
   background: 
-    radial-gradient(circle at 20% 80%, rgba(0, 255, 136, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(0, 102, 255, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 40% 40%, rgba(255, 0, 128, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(189, 213, 61, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(189, 213, 61, 0.08) 0%, transparent 50%),
     var(--bg-primary);
   background-attachment: fixed;
 }
@@ -83,7 +86,7 @@ body {
   background: var(--bg-glass-strong);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(30px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(189, 213, 61, 0.3);
   box-shadow: var(--shadow-elevated);
 }
 
