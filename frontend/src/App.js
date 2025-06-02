@@ -141,6 +141,12 @@ const Navigation = () => {
           >
             📅 My Bookings
           </button>
+          <button 
+            className={`nav-btn ${currentView === 'progress' ? 'active' : ''}`}
+            onClick={() => setCurrentView('progress')}
+          >
+            📊 Progress
+          </button>
           {userProfile?.role === 'trainer' && (
             <button 
               className={`nav-btn ${currentView === 'trainer-dashboard' ? 'active' : ''}`}
