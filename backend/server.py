@@ -1,6 +1,8 @@
 import os
 import uuid
 import asyncio
+import hashlib
+import base64
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Query
@@ -15,6 +17,22 @@ from firebase_admin import credentials, auth, storage
 from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 from dotenv import load_dotenv
 import json
+from cryptography.fernet import Fernet
+
+# Load environment variables
+load_dotenv()
+
+# Initialize encryption key (in production, store securely)
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY", Fernet.generate_key())
+cipher_suite = Fernet(ENCRYPTION_KEY)
+
+def encrypt_data(data: str) -> str:
+    """Encrypt sensitive data"""
+    return cipher_suite.encrypt(data.encode()).decode()
+
+def decrypt_data(encrypted_data: str) -> str:
+    """Decrypt sensitive data"""
+    return cipher_suite.decrypt(encrypted_data.encode()).decode()
 
 # Custom JSON encoder for MongoDB ObjectId
 class JSONEncoder(json.JSONEncoder):
