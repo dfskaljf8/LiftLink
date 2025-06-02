@@ -129,6 +129,313 @@ const useAuth = () => {
   return useContext(AuthContext);
 };
 
+// ID Verification Component
+const IDVerification = ({ onVerified }) => {
+  const [documentType, setDocumentType] = useState('drivers_license');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        setError('Please upload a valid file (JPG, PNG, or PDF)');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        setError('File size must be less than 10MB');
+        return;
+      }
+      setSelectedFile(file);
+      setError('');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      if (!selectedFile) {
+        throw new Error('Please select a file to upload');
+      }
+
+      // Calculate age for client-side validation
+      const birthDate = new Date(dateOfBirth);
+      const today = new Date();
+      const age = today.getFullYear() - birthDate.getFullYear() - 
+        ((today.getMonth(), today.getDate()) < (birthDate.getMonth(), birthDate.getDate()) ? 1 : 0);
+      
+      if (age < 18) {
+        throw new Error('You must be 18 or older to use this platform');
+      }
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('document_type', documentType);
+      formData.append('date_of_birth', dateOfBirth);
+
+      const response = await api.post('/api/verification/upload-id', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      alert(`ID Verification successful! Age verified: ${response.data.age} years old`);
+      onVerified();
+    } catch (error) {
+      setError(error.response?.data?.detail || error.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="verification-container">
+      <div className="verification-card">
+        <div className="verification-header">
+          <h2>🔐 Age Verification Required</h2>
+          <p>Please verify your age by uploading a valid ID document</p>
+          <div className="age-requirement">
+            <span className="requirement-badge">18+ Only</span>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="verification-form">
+          <div className="form-group">
+            <label>Document Type</label>
+            <select
+              value={documentType}
+              onChange={(e) => setDocumentType(e.target.value)}
+              className="form-select"
+              required
+            >
+              <option value="drivers_license">Driver's License</option>
+              <option value="passport">Passport</option>
+              <option value="national_id">National ID</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Date of Birth</label>
+            <input
+              type="date"
+              value={dateOfBirth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
+              className="form-input"
+              required
+              max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Upload ID Document</label>
+            <div className="file-upload-area">
+              <input
+                type="file"
+                onChange={handleFileChange}
+                accept="image/*,application/pdf"
+                className="file-input"
+                id="id-upload"
+                required
+              />
+              <label htmlFor="id-upload" className="file-upload-label">
+                <div className="upload-icon">📄</div>
+                <div className="upload-text">
+                  {selectedFile ? selectedFile.name : 'Click to upload ID document'}
+                </div>
+                <div className="upload-hint">JPG, PNG, or PDF (max 10MB)</div>
+              </label>
+            </div>
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <div className="verification-note">
+            <p>🔒 Your ID information is encrypted and stored securely. We only verify your age and identity.</p>
+          </div>
+
+          <button type="submit" disabled={loading} className="verify-btn">
+            {loading ? 'Verifying...' : 'Verify Age & Identity'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Certification Upload Component
+const CertificationUpload = ({ onComplete }) => {
+  const [certType, setCertType] = useState('NASM');
+  const [certNumber, setCertNumber] = useState('');
+  const [expirationDate, setExpirationDate] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        setError('Please upload a valid file (JPG, PNG, or PDF)');
+        return;
+      }
+      setSelectedFile(file);
+      setError('');
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      if (!selectedFile) {
+        throw new Error('Please select a certification file to upload');
+      }
+      if (!agreedToTerms) {
+        throw new Error('Please agree to the certification terms');
+      }
+
+      const formData = new FormData();
+      formData.append('file', selectedFile);
+      formData.append('cert_type', certType);
+      formData.append('cert_number', certNumber);
+      if (expirationDate) {
+        formData.append('expiration_date', expirationDate);
+      }
+
+      const response = await api.post('/api/verification/upload-certification', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      alert(`${certType} certification verified successfully!`);
+      onComplete();
+    } catch (error) {
+      setError(error.response?.data?.detail || error.message);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="certification-container">
+      <div className="certification-card">
+        <div className="certification-header">
+          <h2>🏆 Upload Fitness Certification</h2>
+          <p>Verify your credentials to become a certified trainer</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="certification-form">
+          <div className="form-group">
+            <label>Certification Type</label>
+            <select
+              value={certType}
+              onChange={(e) => setCertType(e.target.value)}
+              className="form-select"
+              required
+            >
+              <option value="NASM">NASM - National Academy of Sports Medicine</option>
+              <option value="ACE">ACE - American Council on Exercise</option>
+              <option value="ISSA">ISSA - International Sports Sciences Association</option>
+              <option value="CSCS">CSCS - Certified Strength & Conditioning Specialist</option>
+              <option value="Other">Other Certification</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Certification Number/ID</label>
+            <input
+              type="text"
+              value={certNumber}
+              onChange={(e) => setCertNumber(e.target.value)}
+              className="form-input"
+              placeholder="Enter your certification number"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Expiration Date (if applicable)</label>
+            <input
+              type="date"
+              value={expirationDate}
+              onChange={(e) => setExpirationDate(e.target.value)}
+              className="form-input"
+              min={new Date().toISOString().split('T')[0]}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Upload Certification Document</label>
+            <div className="file-upload-area">
+              <input
+                type="file"
+                onChange={handleFileChange}
+                accept="image/*,application/pdf"
+                className="file-input"
+                id="cert-upload"
+                required
+              />
+              <label htmlFor="cert-upload" className="file-upload-label">
+                <div className="upload-icon">🎓</div>
+                <div className="upload-text">
+                  {selectedFile ? selectedFile.name : 'Click to upload certification'}
+                </div>
+                <div className="upload-hint">JPG, PNG, or PDF format</div>
+              </label>
+            </div>
+          </div>
+
+          <div className="agreement-section">
+            <label className="agreement-checkbox">
+              <input
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                required
+              />
+              <span className="checkmark"></span>
+              <span className="agreement-text">
+                I confirm that this certification is valid and legally obtained. 
+                I understand that false information may result in account termination.
+              </span>
+            </label>
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <div className="verification-info">
+            <div className="info-item">
+              <span className="info-icon">✅</span>
+              <span>Instant verification for recognized certifications</span>
+            </div>
+            <div className="info-item">
+              <span className="info-icon">🔍</span>
+              <span>Cross-checked against public certification databases</span>
+            </div>
+            <div className="info-item">
+              <span className="info-icon">🏅</span>
+              <span>Certified badge displayed on your trainer profile</span>
+            </div>
+          </div>
+
+          <button type="submit" disabled={loading || !agreedToTerms} className="upload-cert-btn">
+            {loading ? 'Uploading & Verifying...' : 'Upload Certification'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 // Navigation Component
 const Navigation = ({ currentView, setCurrentView }) => {
   const { user, userProfile, logout } = useAuth();
