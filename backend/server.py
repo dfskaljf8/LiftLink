@@ -476,6 +476,193 @@ async def get_dashboard_stats(current_user: dict = Depends(get_current_user)):
             "confirmed_sessions": confirmed_sessions
         }
 
+# ============ PROGRESS TRACKING ENDPOINTS ============
+
+@app.post("/api/progress/add")
+async def add_progress_entry(progress_data: ProgressEntryRequest, current_user: dict = Depends(get_current_user)):
+    """Add a new progress entry for the user"""
+    
+    progress_id = str(uuid.uuid4())
+    
+    progress_entry = ProgressEntryModel(
+        progress_id=progress_id,
+        user_id=current_user["user_id"],
+        weight=progress_data.weight,
+        body_fat_percentage=progress_data.body_fat_percentage,
+        muscle_mass=progress_data.muscle_mass,
+        measurements=progress_data.measurements,
+        notes=progress_data.notes
+    )
+    
+    await db.progress_entries.insert_one(progress_entry.dict())
+    
+    # Update user's current weight in their profile
+    await db.users.update_one(
+        {"user_id": current_user["user_id"]},
+        {"$set": {"current_weight": progress_data.weight, "last_weigh_in": datetime.utcnow()}}
+    )
+    
+    return {"progress_id": progress_id, "message": "Progress entry added successfully"}
+
+@app.get("/api/progress/my")
+async def get_my_progress(current_user: dict = Depends(get_current_user)):
+    """Get current user's progress entries"""
+    
+    progress_entries = []
+    async for entry in db.progress_entries.find({"user_id": current_user["user_id"]}).sort("date_recorded", -1):
+        progress_entries.append(entry)
+    
+    # Get user's goals
+    goals = []
+    async for goal in db.goals.find({"user_id": current_user["user_id"]}):
+        goals.append(goal)
+    
+    # Calculate progress stats
+    if progress_entries:
+        latest_entry = progress_entries[0]
+        first_entry = progress_entries[-1]
+        
+        total_weight_loss = first_entry["weight"] - latest_entry["weight"]
+        weight_change_percentage = (total_weight_loss / first_entry["weight"]) * 100 if first_entry["weight"] > 0 else 0
+        
+        stats = {
+            "total_entries": len(progress_entries),
+            "total_weight_loss": total_weight_loss,
+            "weight_change_percentage": weight_change_percentage,
+            "current_weight": latest_entry["weight"],
+            "starting_weight": first_entry["weight"],
+            "days_tracked": (latest_entry["date_recorded"] - first_entry["date_recorded"]).days
+        }
+    else:
+        stats = {
+            "total_entries": 0,
+            "total_weight_loss": 0,
+            "weight_change_percentage": 0,
+            "current_weight": 0,
+            "starting_weight": 0,
+            "days_tracked": 0
+        }
+    
+    return {
+        "progress_entries": progress_entries,
+        "goals": goals,
+        "stats": stats
+    }
+
+@app.post("/api/goals/add")
+async def add_goal(goal_data: GoalRequest, current_user: dict = Depends(get_current_user)):
+    """Add a new goal for the user"""
+    
+    goal_id = str(uuid.uuid4())
+    
+    goal = GoalModel(
+        goal_id=goal_id,
+        user_id=current_user["user_id"],
+        goal_type=goal_data.goal_type,
+        target_value=goal_data.target_value,
+        current_value=0,  # Will be updated based on progress entries
+        target_date=datetime.fromisoformat(goal_data.target_date)
+    )
+    
+    await db.goals.insert_one(goal.dict())
+    return {"goal_id": goal_id, "message": "Goal added successfully"}
+
+@app.get("/api/progress/analytics")
+async def get_progress_analytics(current_user: dict = Depends(get_current_user)):
+    """Get detailed analytics for user's progress"""
+    
+    # Get all progress entries
+    progress_entries = []
+    async for entry in db.progress_entries.find({"user_id": current_user["user_id"]}).sort("date_recorded", 1):
+        progress_entries.append(entry)
+    
+    if not progress_entries:
+        return {"message": "No progress data available"}
+    
+    # Calculate weekly averages
+    weekly_data = []
+    current_week = []
+    
+    for entry in progress_entries:
+        if not current_week:
+            current_week = [entry]
+        else:
+            # Check if entry is within 7 days of the first entry in current week
+            days_diff = (entry["date_recorded"] - current_week[0]["date_recorded"]).days
+            if days_diff <= 7:
+                current_week.append(entry)
+            else:
+                # Process current week and start new week
+                if current_week:
+                    avg_weight = sum(e["weight"] for e in current_week) / len(current_week)
+                    week_start = current_week[0]["date_recorded"]
+                    weekly_data.append({
+                        "week_start": week_start,
+                        "average_weight": avg_weight,
+                        "entries_count": len(current_week)
+                    })
+                current_week = [entry]
+    
+    # Process last week
+    if current_week:
+        avg_weight = sum(e["weight"] for e in current_week) / len(current_week)
+        week_start = current_week[0]["date_recorded"]
+        weekly_data.append({
+            "week_start": week_start,
+            "average_weight": avg_weight,
+            "entries_count": len(current_week)
+        })
+    
+    # Calculate trends
+    if len(weekly_data) >= 2:
+        recent_trend = weekly_data[-1]["average_weight"] - weekly_data[-2]["average_weight"]
+        trend_direction = "losing" if recent_trend < 0 else "gaining" if recent_trend > 0 else "maintaining"
+    else:
+        recent_trend = 0
+        trend_direction = "maintaining"
+    
+    return {
+        "weekly_data": weekly_data,
+        "recent_trend": recent_trend,
+        "trend_direction": trend_direction,
+        "total_progress_days": (progress_entries[-1]["date_recorded"] - progress_entries[0]["date_recorded"]).days
+    }
+
+@app.get("/api/progress/leaderboard")
+async def get_progress_leaderboard():
+    """Get leaderboard of users with best progress (anonymized)"""
+    
+    # Get all users with progress
+    leaderboard = []
+    
+    async for user in db.users.find({}).limit(50):
+        # Get user's progress entries
+        progress_entries = []
+        async for entry in db.progress_entries.find({"user_id": user["user_id"]}).sort("date_recorded", 1):
+            progress_entries.append(entry)
+        
+        if len(progress_entries) >= 2:
+            first_entry = progress_entries[0]
+            latest_entry = progress_entries[-1]
+            
+            weight_loss = first_entry["weight"] - latest_entry["weight"]
+            weight_loss_percentage = (weight_loss / first_entry["weight"]) * 100 if first_entry["weight"] > 0 else 0
+            days_tracked = (latest_entry["date_recorded"] - first_entry["date_recorded"]).days
+            
+            if weight_loss > 0 and days_tracked > 0:  # Only include actual weight loss
+                leaderboard.append({
+                    "user_name": user["name"],
+                    "weight_loss": weight_loss,
+                    "weight_loss_percentage": weight_loss_percentage,
+                    "days_tracked": days_tracked,
+                    "entries_count": len(progress_entries)
+                })
+    
+    # Sort by weight loss percentage
+    leaderboard.sort(key=lambda x: x["weight_loss_percentage"], reverse=True)
+    
+    return {"leaderboard": leaderboard[:20]}  # Top 20
+
 # ============ ADMIN ENDPOINTS ============
 
 @app.post("/api/admin/seed-admins")
