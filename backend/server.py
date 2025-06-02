@@ -27,7 +27,7 @@ from cryptography.hazmat.primitives import serialization
 import dns.resolver
 import logging
 import textstat
-import face_recognition
+# import face_recognition  # Commented out for now - requires complex deps
 import numpy as np
 from PIL import Image
 import io
