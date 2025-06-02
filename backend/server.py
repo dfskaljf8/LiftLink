@@ -144,6 +144,18 @@ class BookingRequest(BaseModel):
     session_date: str  # ISO format
     duration_hours: float
 
+class ProgressEntryRequest(BaseModel):
+    weight: float
+    body_fat_percentage: Optional[float] = None
+    muscle_mass: Optional[float] = None
+    measurements: Optional[Dict[str, float]] = {}
+    notes: Optional[str] = None
+
+class GoalRequest(BaseModel):
+    goal_type: str
+    target_value: float
+    target_date: str  # ISO format
+
 class UserRegistrationRequest(BaseModel):
     email: str
     name: str
