@@ -95,9 +95,51 @@ if not firebase_admin._apps:
     except Exception as e:
         print(f"Firebase init error (continuing without admin SDK): {e}")
 
-# Initialize MongoDB
+# Email verification helper functions
+def validate_email_format(email: str) -> bool:
+    """Validate email format"""
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
+
+def check_email_domain_exists(email: str) -> bool:
+    """Check if email domain exists (has MX record)"""
+    try:
+        domain = email.split('@')[1]
+        dns.resolver.resolve(domain, 'MX')
+        return True
+    except:
+        return False
+
+def generate_verification_code() -> str:
+    """Generate 6-digit verification code"""
+    import random
+    return str(random.randint(100000, 999999))
+
+async def send_verification_email(email: str, code: str) -> bool:
+    """Send verification email (simplified for demo)"""
+    # In production, you would use a real email service
+    # For now, we'll just log the code and return True
+    print(f"VERIFICATION CODE for {email}: {code}")
+    
+    # In production, you'd use something like:
+    # - SendGrid API
+    # - AWS SES  
+    # - SMTP server
+    
+    return True
+
+# Initialize MongoDB with geospatial indexing
 mongo_client = AsyncIOMotorClient(os.getenv("MONGO_URL"))
 db = mongo_client[os.getenv("DB_NAME", "liftlink_db")]
+
+# Create geospatial indexes for location-based features
+async def setup_geospatial_indexes():
+    """Set up geospatial indexes for location-based matching"""
+    try:
+        await db.users.create_index([("location", GEOSPHERE)])
+        await db.trainers.create_index([("location", GEOSPHERE)])
+    except Exception as e:
+        print(f"Geospatial index setup (continuing without): {e}")
 
 # Initialize Stripe
 stripe_checkout = StripeCheckout(api_key=os.getenv("STRIPE_SECRET_KEY"))
