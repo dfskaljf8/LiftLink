@@ -4,9 +4,6 @@ import asyncio
 import hashlib
 import base64
 import re
-import smtplib
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 from fastapi import FastAPI, HTTPException, Depends, UploadFile, File, Query
