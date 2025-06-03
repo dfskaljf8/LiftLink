@@ -163,11 +163,6 @@ def verify_face_match(id_image_data: bytes, selfie_image_data: bytes) -> bool:
         return False
         
         # Compare faces
-        return matches[0]
-        
-    except Exception as e:
-        security_logger.error(f"Face verification error: {e}")
-        return False
 
 async def log_security_event(event_type: str, user_id: str, details: Dict[str, Any], severity: str = "INFO"):
     """Log security events for audit trail"""
@@ -486,11 +481,6 @@ def verify_face_match(id_image_data: bytes, selfie_image_data: bytes) -> bool:
     except Exception as e:
         security_logger.error(f"Face verification error: {e}")
         return False
-
-async def log_security_event(event_type: str, user_id: str, details: Dict[str, Any], severity: str = "INFO"):
-    """Log security events for audit trail"""
-    security_event = {
-        "event_id": str(uuid.uuid4()),
         "event_type": event_type,
         "user_id": user_id,
         "details": details,
