@@ -2176,13 +2176,23 @@ const TreeVisualization = () => {
   );
 };
 
-// Social Tracking Component
+// Elite Connections Component (Replacing Social)
 const SocialTracking = () => {
-  const [activeTab, setActiveTab] = useState('feed');
-  const [socialData, setSocialData] = useState({
-    following: [],
-    followers: [],
-    feed: [],
+  const [connectionData, setConnectionData] = useState({
+    innerCircle: [
+      { id: 1, name: 'Marcus Kane', status: 'Currently training', streak: 28, prs: 12, totalLifts: '2.4K' },
+      { id: 2, name: 'Sarah Chen', status: 'Rest day', streak: 21, prs: 8, totalLifts: '1.8K' },
+      { id: 3, name: 'Alex Rivera', status: 'Post-workout', streak: 45, prs: 15, totalLifts: '3.1K' },
+      { id: 4, name: 'Jordan Blake', status: 'Pre-workout', streak: 12, prs: 6, totalLifts: '1.2K' },
+      { id: 5, name: 'Riley Stone', status: 'Currently training', streak: 33, prs: 10, totalLifts: '2.7K' }
+    ],
+    realtimeActivity: [
+      { member: 'Marcus Kane', action: 'deadlifted 405 lbs', time: '2 min ago', avatar: 'M' },
+      { member: 'Alex Rivera', action: 'completed 5K run', time: '8 min ago', avatar: 'A' },
+      { member: 'Sarah Chen', action: 'hit new squat PR', time: '23 min ago', avatar: 'S' },
+      { member: 'Riley Stone', action: 'started leg day', time: '35 min ago', avatar: 'R' }
+    ]
+  });
     leaderboards: {},
     recommendations: []
   });
