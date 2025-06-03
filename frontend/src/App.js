@@ -6233,7 +6233,7 @@ const App = () => {
                 {currentView === 'home' && <ModernHomeScreen setCurrentView={setCurrentView} user={userProfile} />}
                 {currentView === 'search' && <MobileTrainerSearch setCurrentView={setCurrentView} />}
                 {currentView === 'trainer-profile' && <ModernProProfileScreen setCurrentView={setCurrentView} />}
-                {currentView === 'bookings' && <ModernBookingsScreen setCurrentView={setCurrentView} user={userProfile} />}
+                {currentView === 'bookings' && <MobileBookings setCurrentView={setCurrentView} user={userProfile} />}
                 {currentView === 'messages' && <ModernMessagesScreen setCurrentView={setCurrentView} user={userProfile} />}
                 {currentView === 'profile' && <ModernProfileScreen setCurrentView={setCurrentView} user={userProfile} />}
                 
