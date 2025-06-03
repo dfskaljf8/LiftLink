@@ -2890,7 +2890,7 @@ const Profile = () => {
               <label>Specialties (comma separated)</label>
               <input
                 type="text"
-                value={trainerData.specialties.join(', ')}
+                value={(trainerData.specialties || []).join(', ')}
                 onChange={(e) => setTrainerData({...trainerData, specialties: e.target.value.split(',').map(s => s.trim())})}
                 className="form-input"
                 placeholder="Weight Training, Cardio, Yoga..."
