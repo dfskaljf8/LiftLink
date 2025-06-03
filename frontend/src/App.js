@@ -115,8 +115,6 @@ const MarketplaceAudio = {
         message: { freq: 660, duration: 0.15 },
         error: { freq: 300, duration: 0.3 },
         click: { freq: 850, duration: 0.12 },
-        hover: { freq: 600, duration: 0.08 },
-        click: { freq: 850, duration: 0.12 },
         hover: { freq: 600, duration: 0.08 }
       };
       
