@@ -1527,29 +1527,6 @@ const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
-  // Simulate mobile loading sequence
-  useEffect(() => {
-    if (loading) {
-      const interval = setInterval(() => {
-        setLoadingProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            return 100;
-          }
-          return prev + 2;
-        });
-      }, 50);
-      
-      setTimeout(() => {
-        setLoading(false);
-        MobileTacticalAudio.playSound('success');
-        MobileHaptics.success();
-      }, 3000);
-      
-      return () => clearInterval(interval);
-    }
-  }, [loading]);
-
   const fetchUserProfile = async () => {
     try {
       const response = await api.get('/api/users/profile');
@@ -1572,6 +1549,11 @@ const AuthProvider = ({ children }) => {
       setUser(JSON.parse(savedUser));
       fetchUserProfile();
     }
+    
+    // Simplified loading - no 3 second delay
+    setTimeout(() => {
+      setLoading(false);
+    }, 100);
   }, []);
 
   const login = async (email, password) => {
