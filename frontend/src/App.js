@@ -5831,8 +5831,8 @@ const AppContent = () => {
   );
 };
 
-// User Messages Interface Component (Adonis-inspired)
-const UserMessagesInterface = ({ setCurrentView, user }) => {
+// Modern Messages Screen Component (Adonis-inspired)
+const ModernMessagesScreen = ({ setCurrentView, user }) => {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
 
