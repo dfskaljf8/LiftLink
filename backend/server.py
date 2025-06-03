@@ -163,6 +163,11 @@ def verify_face_match(id_image_data: bytes, selfie_image_data: bytes) -> bool:
         return False
         
         # Compare faces
+        return matches[0]
+        
+    except Exception as e:
+        security_logger.error(f"Face verification error: {e}")
+        return False
 
 async def log_security_event(event_type: str, user_id: str, details: Dict[str, Any], severity: str = "INFO"):
     """Log security events for audit trail"""
@@ -481,6 +486,11 @@ def verify_face_match(id_image_data: bytes, selfie_image_data: bytes) -> bool:
     except Exception as e:
         security_logger.error(f"Face verification error: {e}")
         return False
+
+async def log_security_event(event_type: str, user_id: str, details: Dict[str, Any], severity: str = "INFO"):
+    """Log security events for audit trail"""
+    security_event = {
+        "event_id": str(uuid.uuid4()),
         "event_type": event_type,
         "user_id": user_id,
         "details": details,
@@ -1130,7 +1140,7 @@ async def check_daily_streak(user_id: str):
             new_streak = user.get("consecutive_days", 0) + 1
         elif days_diff == 0:
             # Same day, no change
-            return serialize_doc(user).get("consecutive_days", 0)
+            return user.get("consecutive_days", 0)
         else:
             # Streak broken
             new_streak = 1
