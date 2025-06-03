@@ -683,14 +683,14 @@ const RegistrationForm = ({ onToggle }) => {
       {error && <div className="error-message">{error}</div>}
       
       <button type="submit" disabled={loading} className="elite-submit-btn">
-        {loading ? 'PROCESSING REQUEST...' : 'REQUEST ACCESS'}
+        {loading ? 'CREATING ACCOUNT...' : 'SIGN UP'}
       </button>
       
       <div className="form-toggle">
         <span>
-          Have clearance?{' '}
+          Already have an account?{' '}
           <button type="button" onClick={onToggle} className="toggle-btn">
-            Authorize Access
+            Log In
           </button>
         </span>
       </div>
