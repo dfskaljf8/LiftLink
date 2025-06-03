@@ -535,15 +535,18 @@ const Navigation = ({ currentView, setCurrentView }) => {
           {navItems.map((item) => (
             <button
               key={item.key}
-              className={`nav-item ${currentView === item.key ? 'active' : ''}`}
+              className={`nav-btn ${currentView === item.key ? 'active' : ''}`}
               onClick={() => {
-                setCurrentView(item.key);
-                setSidebarOpen(false); // Close sidebar on mobile after navigation
+                if (item.key === 'logout') {
+                  logout();
+                } else {
+                  setCurrentView(item.key);
+                  setSidebarOpen(false); // Close sidebar on mobile after navigation
+                }
               }}
             >
               <span className="nav-icon">{item.icon}</span>
               <span className="nav-label">{item.label}</span>
-              {currentView === item.key && <div className="nav-indicator"></div>}
             </button>
           ))}
         </nav>
