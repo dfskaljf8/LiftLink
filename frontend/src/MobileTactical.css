@@ -543,10 +543,10 @@ body {
   gap: var(--space-sm);
   min-height: var(--touch-target-large);
   padding: 0 var(--space-lg);
-  background: rgba(154, 205, 50, 0.1);
-  border: 2px solid var(--neon-primary);
+  background: rgba(107, 142, 90, 0.1);
+  border: 2px solid var(--primary);
   border-radius: var(--radius-lg);
-  color: var(--neon-primary);
+  color: var(--primary);
   font-family: 'Orbitron', monospace;
   font-size: var(--text-base);
   font-weight: 600;
@@ -569,7 +569,7 @@ body {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(154, 205, 50, 0.3), transparent);
+  background: linear-gradient(90deg, transparent, rgba(107, 142, 90, 0.3), transparent);
   transition: left var(--duration-slow) var(--ease-mobile);
 }
 
@@ -578,31 +578,31 @@ body {
 }
 
 .mobile-btn:active {
-  background: var(--neon-primary);
-  color: var(--bg-command);
+  background: var(--primary);
+  color: var(--text-inverse);
   transform: scale(0.98);
-  box-shadow: 0 0 20px rgba(154, 205, 50, 0.5);
+  box-shadow: var(--shadow-glow-strong);
 }
 
 .mobile-btn.secondary {
-  background: rgba(0, 212, 255, 0.1);
-  border-color: var(--neon-secondary);
-  color: var(--neon-secondary);
+  background: rgba(74, 144, 164, 0.1);
+  border-color: var(--secondary);
+  color: var(--secondary);
 }
 
 .mobile-btn.secondary:active {
-  background: var(--neon-secondary);
-  color: var(--bg-command);
+  background: var(--secondary);
+  color: var(--text-inverse);
 }
 
 .mobile-btn.danger {
-  background: rgba(255, 0, 102, 0.1);
-  border-color: var(--neon-danger);
-  color: var(--neon-danger);
+  background: rgba(184, 84, 80, 0.1);
+  border-color: var(--danger);
+  color: var(--danger);
 }
 
 .mobile-btn.danger:active {
-  background: var(--neon-danger);
+  background: var(--danger);
   color: white;
 }
 
