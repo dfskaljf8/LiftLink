@@ -373,7 +373,7 @@ const MobileBottomNav = ({ currentView, setCurrentView, userProfile }) => {
   );
 };
 
-// Mobile Auth Forms
+// Mobile Auth Forms - Simple Language
 const MobileAuthForm = ({ isLogin, onToggle }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -391,7 +391,7 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
       MobileTacticalAudio.playSound('tap');
       
       if (!isLogin && password !== confirmPassword) {
-        setError('SECURITY CODES DO NOT MATCH');
+        setError('Passwords don\'t match. Please try again.');
         setLoading(false);
         MobileTacticalAudio.playSound('error');
         return;
@@ -406,7 +406,16 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
       MobileTacticalAudio.playSound('success');
       MobileHaptics.success();
     } catch (error) {
-      setError(error.message);
+      // Friendly error messages
+      let friendlyError = 'Something went wrong. Please try again.';
+      
+      if (error.message.includes('ACCESS DENIED') || error.message.includes('Invalid credentials')) {
+        friendlyError = 'We couldn\'t log you in. Check your email and password and try again.';
+      } else if (error.message.includes('register') || error.message.includes('sign up')) {
+        friendlyError = 'We couldn\'t create your account. Please try again.';
+      }
+      
+      setError(friendlyError);
       MobileTacticalAudio.playSound('error');
       MobileHaptics.error();
     }
@@ -421,10 +430,10 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
         
         <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '400px', marginTop: '2rem' }}>
           <div className="mobile-form-group">
-            <label className="mobile-form-label">OPERATOR ID</label>
+            <label className="mobile-form-label">Email</label>
             <input
               type="email"
-              placeholder="Enter access credentials"
+              placeholder="Your email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -434,10 +443,10 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
           </div>
 
           <div className="mobile-form-group">
-            <label className="mobile-form-label">SECURITY CODE</label>
+            <label className="mobile-form-label">Password</label>
             <input
               type="password"
-              placeholder={isLogin ? "Enter authorization code" : "Create authorization code"}
+              placeholder={isLogin ? "Your password" : "Create a password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
@@ -448,10 +457,10 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
 
           {!isLogin && (
             <div className="mobile-form-group">
-              <label className="mobile-form-label">CONFIRM CODE</label>
+              <label className="mobile-form-label">Confirm Password</label>
               <input
                 type="password"
-                placeholder="Verify authorization code"
+                placeholder="Type your password again"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
@@ -485,15 +494,15 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
               <div className="loading-spinner" style={{ width: '20px', height: '20px', margin: '0' }}></div>
             ) : (
               <>
-                <span className="btn-icon">{isLogin ? '🔓' : '🛡️'}</span>
-                {isLogin ? 'INITIATE ACCESS' : 'REQUEST CLEARANCE'}
+                <span className="btn-icon">{isLogin ? '🚀' : '✨'}</span>
+                {isLogin ? 'Log In' : 'Sign Up'}
               </>
             )}
           </button>
           
           <div style={{ textAlign: 'center' }}>
             <span style={{ color: '#00d4ff', fontSize: '14px' }}>
-              {isLogin ? 'Need clearance authorization?' : 'Already have clearance?'}{' '}
+              {isLogin ? 'Don\'t have an account?' : 'Already have an account?'}{' '}
             </span>
             <button 
               type="button" 
@@ -509,7 +518,7 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
               }}
               onTouchStart={() => MobileHaptics.light()}
             >
-              {isLogin ? 'REQUEST ACCESS' : 'ACCESS SYSTEM'}
+              {isLogin ? 'Sign Up' : 'Log In'}
             </button>
           </div>
         </form>
@@ -532,11 +541,11 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
             letterSpacing: '1px',
             marginBottom: '0.5rem'
           }}>
-            DEMO ACCESS CODES
+            Try the Demo
           </div>
           <div style={{ fontSize: '12px', color: '#9ACD32' }}>
-            <div style={{ marginBottom: '4px' }}>USER: user@demo.com / demo123</div>
-            <div>TRAINER: trainer@demo.com / demo123</div>
+            <div style={{ marginBottom: '4px' }}>Member: user@demo.com / demo123</div>
+            <div>Trainer: trainer@demo.com / demo123</div>
           </div>
         </div>
       </div>
