@@ -274,63 +274,151 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Simple Auth Provider Component (without Firebase for now)
+// Tactical Loading Screen Component
+const TacticalLoading = ({ progress = 0, status = "INITIALIZING SYSTEMS" }) => {
+  const [currentStatus, setCurrentStatus] = useState(status);
+  const [dots, setDots] = useState('');
+
+  useEffect(() => {
+    const statuses = [
+      "INITIALIZING TACTICAL SYSTEMS",
+      "LOADING MISSION PARAMETERS", 
+      "ESTABLISHING SECURE CONNECTION",
+      "VERIFYING OPERATOR CREDENTIALS",
+      "ACTIVATING COMMAND CENTER",
+      "MISSION READY"
+    ];
+    
+    const statusIndex = Math.floor((progress / 100) * statuses.length);
+    setCurrentStatus(statuses[Math.min(statusIndex, statuses.length - 1)]);
+    
+    const interval = setInterval(() => {
+      setDots(prev => prev.length >= 3 ? '' : prev + '.');
+    }, 500);
+    
+    return () => clearInterval(interval);
+  }, [progress]);
+
+  return (
+    <div className="tactical-loading">
+      <div className="hud-overlay">
+        <div className="hud-corners hud-corner-tl"></div>
+        <div className="hud-corners hud-corner-tr"></div>
+        <div className="hud-corners hud-corner-bl"></div>
+        <div className="hud-corners hud-corner-br"></div>
+      </div>
+      
+      <div className="loading-sequence">
+        <div className="loading-logo">
+          <div className="tactical-emblem">⚡</div>
+          <h1 className="loading-title">LIFTLINK</h1>
+          <div className="loading-subtitle">TACTICAL FITNESS COMMAND</div>
+        </div>
+        
+        <div className="loading-progress">
+          <div 
+            className="loading-bar" 
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+        
+        <div className="loading-status">
+          {currentStatus}{dots}
+        </div>
+        
+        <div className="loading-metrics">
+          <div className="metric">
+            <span className="metric-label">PROGRESS</span>
+            <span className="metric-value">{progress.toFixed(1)}%</span>
+          </div>
+          <div className="metric">
+            <span className="metric-label">STATUS</span>
+            <span className="metric-value">OPERATIONAL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Enhanced Auth Provider with Tactical Features
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+
+  // Simulate tactical loading sequence
+  useEffect(() => {
+    if (loading) {
+      const interval = setInterval(() => {
+        setLoadingProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            return 100;
+          }
+          return prev + 2;
+        });
+      }, 50);
+      
+      setTimeout(() => {
+        setLoading(false);
+        TacticalAudio.playSound('mission');
+        TacticalHaptics.success();
+      }, 3000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [loading]);
 
   const fetchUserProfile = async () => {
     try {
       const response = await api.get('/api/users/profile');
       setUserProfile(response.data);
+      TacticalAudio.playSound('success');
     } catch (error) {
       console.log('User profile fetch error:', error.response?.data?.detail || error.message);
-      // Clear invalid token
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user_data');
       setUser(null);
+      TacticalAudio.playSound('error');
     }
-    setLoading(false);
   };
 
   useEffect(() => {
-    // Check for existing auth token
     const token = localStorage.getItem('auth_token');
     const savedUser = localStorage.getItem('user_data');
     
     if (token && savedUser) {
       setUser(JSON.parse(savedUser));
       fetchUserProfile();
-    } else {
-      setLoading(false);
     }
-  }, []);  // fetchUserProfile doesn't need to be in deps since it doesn't use external state
+  }, []);
 
   const login = async (email, password) => {
     try {
-      // For demo purposes, simulate login
+      TacticalAudio.playSound('click');
+      
       let demoToken = '';
       let demoUser = {};
       
       if (email === 'user@demo.com' && password === 'demo123') {
         demoToken = 'demo_user';
-        demoUser = { uid: 'demo_user_1', email, displayName: 'Demo User' };
+        demoUser = { uid: 'demo_user_1', email, displayName: 'Operator Alpha' };
       } else if (email === 'trainer@demo.com' && password === 'demo123') {
         demoToken = 'demo_trainer';
-        demoUser = { uid: 'demo_user_2', email, displayName: 'Demo Trainer' };
+        demoUser = { uid: 'demo_user_2', email, displayName: 'Commander Beta' };
       } else if (email === 'aaravdthakker@gmail.com' || email === 'aadidthakker@gmail.com' || email === 'sid.the.manne@gmail.com') {
         demoToken = 'demo_admin';
-        demoUser = { uid: 'admin_aarav', email, displayName: 'Admin User' };
+        demoUser = { uid: 'admin_aarav', email, displayName: 'Supreme Commander' };
       } else {
-        throw new Error('Invalid credentials');
+        throw new Error('ACCESS DENIED: Invalid credentials');
       }
       
       localStorage.setItem('auth_token', demoToken);
       localStorage.setItem('user_data', JSON.stringify(demoUser));
       setUser(demoUser);
       
-      // Try to register user in backend
       try {
         await api.post('/api/users/register', {
           email: demoUser.email,
@@ -340,26 +428,31 @@ const AuthProvider = ({ children }) => {
         console.log('User registration note:', error.response?.data?.detail || 'User may already exist');
       }
       
-      // Get user profile
       const response = await api.get('/api/users/profile');
       setUserProfile(response.data);
       
+      TacticalAudio.playSound('success');
+      TacticalHaptics.success();
+      
       return { user: demoUser };
     } catch (error) {
-      throw new Error(error.message || 'Login failed');
+      TacticalAudio.playSound('error');
+      TacticalHaptics.heavy();
+      throw new Error(error.message || 'Mission failed: Login error');
     }
   };
 
   const register = async (email, password) => {
-    // For demo, redirect to login
     return await login(email, password);
   };
 
   const logout = async () => {
+    TacticalAudio.playSound('click');
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
     setUser(null);
     setUserProfile(null);
+    TacticalHaptics.medium();
   };
 
   const value = {
@@ -370,6 +463,10 @@ const AuthProvider = ({ children }) => {
     logout,
     loading
   };
+
+  if (loading) {
+    return <TacticalLoading progress={loadingProgress} />;
+  }
 
   return (
     <AuthContext.Provider value={value}>
