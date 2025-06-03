@@ -6471,48 +6471,67 @@ const AppContent = () => {
   );
 };
 
-// Main Mobile-First App Component
+// Main App Component - Modern Adonis-inspired Design
 const App = () => {
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [currentView, setCurrentView] = useState('home');
   const [isLogin, setIsLogin] = useState(true);
 
   return (
     <ThemeProvider>
       <AuthProvider>
-        <ThemeToggle />
         <AuthChecker>
           {({ user, userProfile, loading }) => {
             if (loading) {
-              return null; // Loading handled by AuthProvider
+              return (
+                <div className="mobile-app">
+                  <div className="flex items-center justify-center h-screen">
+                    <div className="text-center">
+                      <div className="logo mb-4">
+                        <div className="logo-icon">LL</div>
+                        <span>LiftLink</span>
+                      </div>
+                      <div className="text-muted">Loading your fitness journey...</div>
+                    </div>
+                  </div>
+                </div>
+              );
             }
 
             if (!user) {
-              return <MobileAuthForm isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />;
+              return (
+                <div className="mobile-app">
+                  <MobileAuthForm isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />
+                </div>
+              );
             }
 
             return (
-              <div className="mobile-tactical-app">
-                <MobileTopNav 
-                  userProfile={userProfile}
-                  onMenuToggle={() => console.log('Menu toggle')}
+              <div className="mobile-app">
+                <ModernTopNav 
+                  user={userProfile}
+                  onNotificationClick={() => console.log('Notifications')}
+                  onProfileClick={() => setCurrentView('profile')}
                 />
                 
-                <div className="mobile-main-content">
-                  {currentView === 'dashboard' && <MobileDashboard setCurrentView={setCurrentView} />}
-                  {currentView === 'trainers' && <MobileTrainerSearch />}
-                  {currentView === 'bookings' && <MobileBookings />}
-                  {currentView === 'progress' && <MobileProgress />}
-                  {currentView === 'fitnessforest' && <MobileTree />}
-                  {currentView === 'social' && <MobileSocial />}
-                  {currentView === 'profile' && <MobileProfile />}
-                  {currentView === 'trainer-dashboard' && <MobileTrainerDashboard />}
-                  {currentView === 'admin' && <MobileAdminDashboard />}
-                </div>
+                {/* Main Content */}
+                {currentView === 'home' && <ModernHomeScreen setCurrentView={setCurrentView} user={userProfile} />}
+                {currentView === 'search' && <ModernSearchScreen setCurrentView={setCurrentView} />}
+                {currentView === 'trainer-profile' && <ModernProProfileScreen setCurrentView={setCurrentView} />}
+                {currentView === 'bookings' && <ModernBookingsScreen setCurrentView={setCurrentView} user={userProfile} />}
+                {currentView === 'messages' && <ModernMessagesScreen setCurrentView={setCurrentView} user={userProfile} />}
+                {currentView === 'profile' && <ModernProfileScreen setCurrentView={setCurrentView} user={userProfile} />}
                 
-                <MobileBottomNav 
+                {/* Legacy views - still accessible but will be updated */}
+                {currentView === 'progress' && <MobileProgress />}
+                {currentView === 'fitnessforest' && <MobileTree />}
+                {currentView === 'social' && <MobileSocial />}
+                {currentView === 'trainer-dashboard' && <MobileTrainerDashboard />}
+                {currentView === 'admin' && <MobileAdminDashboard />}
+                
+                <ModernBottomNav 
                   currentView={currentView}
                   setCurrentView={setCurrentView}
-                  userProfile={userProfile}
+                  user={userProfile}
                 />
               </div>
             );
