@@ -53,22 +53,49 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: var(--bg-primary);
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--background-soft);
   color: var(--text-primary);
   line-height: 1.6;
-  overflow-x: hidden;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+  font-size: 16px;
+  transition: all 0.3s ease;
 }
 
-.app {
-  min-height: 100vh;
-  background: 
-    radial-gradient(circle at 20% 80%, rgba(189, 213, 61, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(189, 213, 61, 0.08) 0%, transparent 50%),
-    var(--bg-primary);
-  background-attachment: fixed;
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Smooth transitions for all elements */
+*, *::before, *::after {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Enhanced typography */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 2rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.125rem; }
+h6 { font-size: 1rem; }
+
+p {
+  margin-bottom: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
 }
 
 /* ============ GLASSMORPHISM UTILITIES ============ */
