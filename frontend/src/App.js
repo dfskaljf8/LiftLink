@@ -1059,6 +1059,13 @@ const TrainerSearch = () => {
                   </div>
                 </div>
               </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // Elite Payment Experience Component
 const PaymentExperience = ({ sessionData, onComplete }) => {
