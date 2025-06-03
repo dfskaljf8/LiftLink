@@ -3167,30 +3167,57 @@ const AppContent = () => {
 
   if (!user) {
     return (
-      <div className="app-container">
-        <div className="auth-container">
-          <div className="auth-background">
-            <div className="floating-shapes">
-              <div className="shape shape-1"></div>
-              <div className="shape shape-2"></div>
-              <div className="shape shape-3"></div>
+      <div className="auth-container">
+        <div className="auth-content">
+          <div className="auth-header">
+            <div className="elite-logo">
+              <span className="elite-logo-icon">💪</span>
+              <span className="elite-logo-text">LiftLink</span>
             </div>
+            <p className="elite-tagline">Elite Fitness Network</p>
           </div>
-          <div className="auth-content">
-            <div className="auth-header">
-              <div className="logo">
-                <span className="logo-icon">💪</span>
-                <span className="logo-text">LiftLink</span>
+          
+          {authMode === 'login' ? (
+            <div className="auth-form">
+              <div className="form-group">
+                <input
+                  type="email"
+                  placeholder="ACCESS EMAIL"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="elite-input"
+                />
               </div>
-              <p className="tagline">Transform Your Body, Transform Your Life</p>
+              <div className="form-group">
+                <input
+                  type="password"
+                  placeholder="SECURITY CODE"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="elite-input"
+                />
+              </div>
+              
+              {error && <div className="error-message">{error}</div>}
+              
+              <button type="submit" disabled={loading} className="elite-submit-btn" onClick={handleSubmit}>
+                {loading ? 'ACCESSING SYSTEM...' : 'AUTHORIZE ACCESS'}
+              </button>
+              
+              <div className="form-toggle">
+                <span>
+                  Need clearance?{' '}
+                  <button type="button" onClick={onToggle} className="toggle-btn">
+                    Request Access
+                  </button>
+                </span>
+              </div>
             </div>
-            
-            {authMode === 'login' ? (
-              <LoginForm onToggle={() => setAuthMode('register')} />
-            ) : (
-              <RegistrationForm onToggle={() => setAuthMode('login')} />
-            )}
-          </div>
+          ) : (
+            <RegistrationForm onToggle={onToggle} />
+          )}
         </div>
       </div>
     );
