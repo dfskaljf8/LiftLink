@@ -2182,7 +2182,7 @@ const SocialTracking = () => {
               </div>
             ) : (
               <div className="activity-list">
-                {socialData.feed.map((activity) => (
+                {(socialData.feed || []).map((activity) => (
                   <div key={activity.activity_id} className="activity-item">
                     <div className="activity-user">
                       <div className="user-avatar">
