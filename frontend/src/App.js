@@ -2311,7 +2311,7 @@ const SocialTracking = () => {
                   {user.recent_activities?.length > 0 && (
                     <div className="recent-activity">
                       <h5>Recent Activity:</h5>
-                      {user.recent_activities.slice(0, 2).map((activity, idx) => (
+                      {(user.recent_activities || []).slice(0, 2).map((activity, idx) => (
                         <div key={idx} className="mini-activity">
                           {activity.title}
                         </div>
