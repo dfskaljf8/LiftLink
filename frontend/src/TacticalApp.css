@@ -1,0 +1,828 @@
+/* =============== LIFTLINK TACTICAL COMMAND CENTER =============== */
+/* Ultra High-Tech Military-Grade Fitness Platform */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  /* =============== TACTICAL COLOR SYSTEM =============== */
+  /* Base Military Dark Palette */
+  --bg-command: #000000;              /* Command center black */
+  --bg-tactical: #0a0a0a;             /* Tactical surface */
+  --bg-stealth: #050505;              /* Stealth mode */
+  --bg-ops: #111111;                  /* Operations panel */
+  
+  /* Neon Command Colors */
+  --neon-primary: #00ff41;            /* Matrix green command */
+  --neon-secondary: #00d4ff;          /* Tactical cyan */
+  --neon-warning: #ff6b00;            /* Alert orange */
+  --neon-danger: #ff0066;             /* Critical red */
+  --neon-success: #00ff88;            /* Mission success */
+  --neon-elite: #ff00ff;              /* Elite magenta */
+  --neon-gold: #ffd700;               /* Achievement gold */
+  
+  /* Luxury Metal Gradients */
+  --metal-chrome: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --metal-titanium: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+  --metal-platinum: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  --metal-carbon: linear-gradient(135deg, #232526 0%, #414345 100%);
+  
+  /* HUD Glow Effects */
+  --glow-command: 0 0 20px var(--neon-primary), 0 0 40px var(--neon-primary), 0 0 80px var(--neon-primary);
+  --glow-tactical: 0 0 15px var(--neon-secondary), 0 0 30px var(--neon-secondary), 0 0 60px var(--neon-secondary);
+  --glow-elite: 0 0 25px var(--neon-elite), 0 0 50px var(--neon-elite), 0 0 100px var(--neon-elite);
+  --glow-gold: 0 0 20px var(--neon-gold), 0 0 40px var(--neon-gold), 0 0 80px var(--neon-gold);
+  
+  /* Glassmorphism & Blur */
+  --glass-command: rgba(0, 255, 65, 0.1);
+  --glass-tactical: rgba(0, 212, 255, 0.1);
+  --glass-dark: rgba(0, 0, 0, 0.8);
+  --blur-tactical: blur(20px);
+  --blur-command: blur(15px);
+  
+  /* Typography System */
+  --font-command: 'Orbitron', 'Space Mono', monospace;
+  --font-tactical: 'Rajdhani', 'Arial', sans-serif;
+  --font-mono: 'Space Mono', 'Courier New', monospace;
+  
+  /* Animation Curves */
+  --ease-tactical: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-command: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-stealth: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-elite: cubic-bezier(0.77, 0, 0.175, 1);
+  
+  /* 3D Transforms */
+  --transform-3d: perspective(1000px);
+  --rotate-x: rotateX(15deg);
+  --rotate-y: rotateY(15deg);
+  
+  /* Mission Spacing */
+  --space-ops: clamp(0.5rem, 2vw, 1rem);
+  --space-tactical: clamp(1rem, 3vw, 1.5rem);
+  --space-command: clamp(1.5rem, 4vw, 2rem);
+  --space-elite: clamp(2rem, 5vw, 3rem);
+}
+
+/* =============== TACTICAL ANIMATIONS =============== */
+
+@keyframes hudActivation {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(20px);
+    filter: blur(10px);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05) translateY(-5px);
+    filter: blur(2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes commandPulse {
+  0%, 100% {
+    box-shadow: var(--glow-command);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 30px var(--neon-primary), 0 0 60px var(--neon-primary), 0 0 120px var(--neon-primary);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes tacticalScan {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 100% 0;
+  }
+}
+
+@keyframes missionProgress {
+  0% {
+    width: 0%;
+    background: var(--neon-primary);
+  }
+  50% {
+    background: var(--neon-secondary);
+  }
+  100% {
+    background: var(--neon-success);
+  }
+}
+
+@keyframes rankUp {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.2) rotate(90deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.5) rotate(180deg);
+    opacity: 0.6;
+  }
+  75% {
+    transform: scale(1.8) rotate(270deg);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(2) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@keyframes hologramFlicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes dataStream {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* =============== COMMAND CENTER LAYOUT =============== */
+
+.tactical-app {
+  background: var(--bg-command);
+  min-height: 100vh;
+  font-family: var(--font-tactical);
+  color: var(--neon-primary);
+  overflow-x: hidden;
+  position: relative;
+}
+
+.tactical-app::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse at top, rgba(0, 255, 65, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(0, 212, 255, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* =============== HUD COMMAND INTERFACE =============== */
+
+.hud-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1000;
+}
+
+.hud-grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(0, 255, 65, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 65, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: dataStream 10s linear infinite;
+}
+
+.hud-corners {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--neon-primary);
+  box-shadow: var(--glow-command);
+}
+
+.hud-corner-tl {
+  top: 20px;
+  left: 20px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.hud-corner-tr {
+  top: 20px;
+  right: 20px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.hud-corner-bl {
+  bottom: 20px;
+  left: 20px;
+  border-right: none;
+  border-top: none;
+}
+
+.hud-corner-br {
+  bottom: 20px;
+  right: 20px;
+  border-left: none;
+  border-top: none;
+}
+
+/* =============== TACTICAL SIDEBAR =============== */
+
+.tactical-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  background: linear-gradient(135deg, var(--glass-dark) 0%, rgba(0, 0, 0, 0.95) 100%);
+  backdrop-filter: var(--blur-tactical);
+  border-right: 1px solid var(--neon-primary);
+  box-shadow: var(--glow-command);
+  z-index: 100;
+  transform: translateX(-100%);
+  transition: transform 0.6s var(--ease-tactical);
+  animation: hudActivation 1s var(--ease-command) forwards;
+}
+
+.tactical-sidebar.active {
+  transform: translateX(0);
+}
+
+.tactical-sidebar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--metal-carbon);
+  opacity: 0.1;
+  z-index: -1;
+}
+
+.command-header {
+  display: flex;
+  align-items: center;
+  padding: var(--space-tactical);
+  border-bottom: 1px solid rgba(0, 255, 65, 0.3);
+  position: relative;
+}
+
+.command-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-ops);
+}
+
+.logo-icon {
+  width: 50px;
+  height: 50px;
+  background: var(--metal-chrome);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  box-shadow: var(--glow-command);
+  animation: commandPulse 3s infinite;
+}
+
+.logo-text {
+  font-family: var(--font-command);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--neon-primary);
+  text-shadow: var(--glow-command);
+  letter-spacing: 2px;
+}
+
+/* =============== OPERATOR PROFILE =============== */
+
+.operator-profile {
+  padding: var(--space-tactical);
+  border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+  position: relative;
+}
+
+.operator-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--metal-chrome);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto var(--space-ops);
+  box-shadow: var(--glow-command);
+  position: relative;
+  overflow: hidden;
+}
+
+.operator-avatar::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: conic-gradient(from 0deg, var(--neon-primary), var(--neon-secondary), var(--neon-elite), var(--neon-primary));
+  border-radius: 50%;
+  z-index: -1;
+  animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.operator-info {
+  text-align: center;
+}
+
+.operator-name {
+  font-family: var(--font-command);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--neon-primary);
+  margin-bottom: 4px;
+}
+
+.operator-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--neon-secondary);
+  margin-bottom: var(--space-ops);
+}
+
+.rank-badge {
+  background: var(--metal-chrome);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: var(--glow-tactical);
+}
+
+.operator-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-ops);
+  margin-top: var(--space-ops);
+}
+
+.stat-item {
+  text-align: center;
+  padding: 8px;
+  background: rgba(0, 255, 65, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  transition: all 0.3s var(--ease-tactical);
+}
+
+.stat-item:hover {
+  background: rgba(0, 255, 65, 0.2);
+  box-shadow: var(--glow-command);
+  transform: scale(1.05);
+}
+
+.stat-value {
+  display: block;
+  font-family: var(--font-command);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--neon-primary);
+  margin-bottom: 2px;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: var(--neon-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* =============== TACTICAL NAVIGATION =============== */
+
+.tactical-nav {
+  flex: 1;
+  padding: var(--space-tactical) 0;
+}
+
+.nav-section {
+  margin-bottom: var(--space-tactical);
+}
+
+.nav-section-title {
+  font-family: var(--font-command);
+  font-size: 0.8rem;
+  color: var(--neon-secondary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  padding: 0 var(--space-tactical);
+  margin-bottom: var(--space-ops);
+  border-left: 3px solid var(--neon-primary);
+  padding-left: calc(var(--space-tactical) - 3px);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-ops);
+  padding: 12px var(--space-tactical);
+  color: var(--neon-secondary);
+  cursor: pointer;
+  transition: all 0.3s var(--ease-tactical);
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-primary), transparent);
+  transition: width 0.4s var(--ease-tactical);
+  z-index: -1;
+}
+
+.nav-item:hover::before,
+.nav-item.active::before {
+  width: 100%;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  color: var(--bg-command);
+  background: rgba(0, 255, 65, 0.1);
+  box-shadow: inset 3px 0 0 var(--neon-primary);
+  transform: translateX(8px);
+}
+
+.nav-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  transition: all 0.3s var(--ease-tactical);
+}
+
+.nav-item:hover .nav-icon,
+.nav-item.active .nav-icon {
+  transform: scale(1.2) rotate(15deg);
+  filter: drop-shadow(var(--glow-command));
+}
+
+.nav-label {
+  font-family: var(--font-tactical);
+  font-weight: 500;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.nav-notification {
+  background: var(--neon-danger);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-left: auto;
+  animation: commandPulse 2s infinite;
+}
+
+/* =============== MAIN COMMAND CENTER =============== */
+
+.main-command-center {
+  margin-left: 280px;
+  min-height: 100vh;
+  position: relative;
+  padding: var(--space-tactical);
+  background: 
+    radial-gradient(ellipse at center, rgba(0, 255, 65, 0.02) 0%, transparent 70%),
+    linear-gradient(135deg, var(--bg-command) 0%, var(--bg-tactical) 100%);
+}
+
+.command-interface {
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
+}
+
+/* =============== TACTICAL HEADER =============== */
+
+.tactical-header {
+  display: flex;
+  justify-content: between;
+  align-items: center;
+  margin-bottom: var(--space-command);
+  padding: var(--space-tactical);
+  background: var(--glass-command);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  border-radius: 16px;
+  backdrop-filter: var(--blur-command);
+  box-shadow: var(--glow-command);
+  position: relative;
+  overflow: hidden;
+}
+
+.tactical-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+  animation: tacticalScan 3s linear infinite;
+}
+
+.mission-title {
+  font-family: var(--font-command);
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--neon-primary);
+  text-shadow: var(--glow-command);
+  letter-spacing: 3px;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.mission-subtitle {
+  font-size: 1.1rem;
+  color: var(--neon-secondary);
+  margin-top: 8px;
+  letter-spacing: 1px;
+}
+
+.tactical-controls {
+  display: flex;
+  gap: var(--space-ops);
+  align-items: center;
+}
+
+/* =============== COMMAND BUTTONS =============== */
+
+.command-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: var(--glass-tactical);
+  border: 1px solid var(--neon-secondary);
+  border-radius: 12px;
+  color: var(--neon-secondary);
+  font-family: var(--font-command);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-tactical);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: var(--blur-command);
+  text-decoration: none;
+}
+
+.command-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.3), transparent);
+  transition: left 0.5s var(--ease-tactical);
+}
+
+.command-btn:hover::before {
+  left: 100%;
+}
+
+.command-btn:hover {
+  background: var(--neon-secondary);
+  color: var(--bg-command);
+  box-shadow: var(--glow-tactical);
+  transform: translateY(-2px) scale(1.05);
+  border-color: var(--neon-secondary);
+}
+
+.command-btn.primary {
+  background: var(--glass-command);
+  border-color: var(--neon-primary);
+  color: var(--neon-primary);
+}
+
+.command-btn.primary:hover {
+  background: var(--neon-primary);
+  box-shadow: var(--glow-command);
+}
+
+.command-btn.danger {
+  border-color: var(--neon-danger);
+  color: var(--neon-danger);
+}
+
+.command-btn.danger:hover {
+  background: var(--neon-danger);
+  box-shadow: 0 0 20px var(--neon-danger);
+}
+
+/* =============== STATUS INDICATORS =============== */
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 20px;
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--neon-success);
+  box-shadow: 0 0 10px var(--neon-success);
+  animation: commandPulse 2s infinite;
+}
+
+.status-indicator.warning .status-dot {
+  background: var(--neon-warning);
+  box-shadow: 0 0 10px var(--neon-warning);
+}
+
+.status-indicator.danger .status-dot {
+  background: var(--neon-danger);
+  box-shadow: 0 0 10px var(--neon-danger);
+}
+
+/* =============== RESPONSIVE TACTICAL DESIGN =============== */
+
+@media (max-width: 768px) {
+  .tactical-sidebar {
+    width: 100%;
+    transform: translateX(-100%);
+  }
+  
+  .main-command-center {
+    margin-left: 0;
+    padding: var(--space-ops);
+  }
+  
+  .mission-title {
+    font-size: 1.8rem;
+  }
+  
+  .tactical-header {
+    flex-direction: column;
+    gap: var(--space-ops);
+    text-align: center;
+  }
+  
+  .operator-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* =============== HAMBURGER MENU =============== */
+
+.tactical-hamburger {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 50px;
+  height: 50px;
+  background: var(--glass-command);
+  border: 1px solid var(--neon-primary);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 200;
+  transition: all 0.3s var(--ease-tactical);
+  backdrop-filter: var(--blur-command);
+  box-shadow: var(--glow-command);
+}
+
+.tactical-hamburger:hover {
+  transform: scale(1.1);
+  box-shadow: var(--glow-command);
+}
+
+.hamburger-line {
+  width: 24px;
+  height: 2px;
+  background: var(--neon-primary);
+  margin: 2px 0;
+  transition: all 0.3s var(--ease-tactical);
+  box-shadow: 0 0 5px var(--neon-primary);
+}
+
+.tactical-hamburger.active .hamburger-line:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+
+.tactical-hamburger.active .hamburger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.tactical-hamburger.active .hamburger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* =============== LOADING SEQUENCES =============== */
+
+.tactical-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-command);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.loading-sequence {
+  text-align: center;
+}
+
+.loading-title {
+  font-family: var(--font-command);
+  font-size: 2rem;
+  color: var(--neon-primary);
+  text-shadow: var(--glow-command);
+  margin-bottom: var(--space-tactical);
+  letter-spacing: 3px;
+  animation: hologramFlicker 2s infinite;
+}
+
+.loading-progress {
+  width: 300px;
+  height: 4px;
+  background: rgba(0, 255, 65, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: var(--space-ops);
+}
+
+.loading-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-primary), var(--neon-secondary));
+  border-radius: 2px;
+  animation: missionProgress 3s ease-out forwards;
+  box-shadow: var(--glow-command);
+}
+
+.loading-status {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--neon-secondary);
+  letter-spacing: 1px;
+}
