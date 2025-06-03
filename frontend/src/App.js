@@ -475,6 +475,85 @@ const AuthProvider = ({ children }) => {
   );
 };
 
+// Auth Checker Component
+const AuthChecker = ({ children }) => {
+  const auth = useAuth();
+  return children(auth);
+};
+
+// Tactical Component Placeholders (using existing components with tactical styling)
+const TacticalDashboard = ({ setCurrentView }) => {
+  return (
+    <div className="tactical-component">
+      <HomeDashboard setCurrentView={setCurrentView} />
+    </div>
+  );
+};
+
+const TacticalTrainerSearch = () => {
+  return (
+    <div className="tactical-component">
+      <TrainerSearch />
+    </div>
+  );
+};
+
+const TacticalBookings = () => {
+  return (
+    <div className="tactical-component">
+      <MyBookings />
+    </div>
+  );
+};
+
+const TacticalProgress = () => {
+  return (
+    <div className="tactical-component">
+      <ProgressAnalytics />
+    </div>
+  );
+};
+
+const TacticalTree = () => {
+  return (
+    <div className="tactical-component">
+      <FitnessForest />
+    </div>
+  );
+};
+
+const TacticalSocial = () => {
+  return (
+    <div className="tactical-component">
+      <SocialNetwork />
+    </div>
+  );
+};
+
+const TacticalProfile = () => {
+  return (
+    <div className="tactical-component">
+      <UserProfile />
+    </div>
+  );
+};
+
+const TacticalTrainerDashboard = () => {
+  return (
+    <div className="tactical-component">
+      <TrainerDashboard />
+    </div>
+  );
+};
+
+const TacticalAdminDashboard = () => {
+  return (
+    <div className="tactical-component">
+      <AdminDashboard />
+    </div>
+  );
+};
+
 const useAuth = () => {
   return useContext(AuthContext);
 };
