@@ -5964,7 +5964,19 @@ const App = () => {
             if (!user) {
               return (
                 <div className="mobile-app">
-                  <MobileAuthForm isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />
+                  <div className="flex items-center justify-center h-screen bg-background-primary">
+                    <div className="w-full max-w-md p-6">
+                      <div className="text-center mb-8">
+                        <div className="logo mb-4">
+                          <div className="logo-icon">LL</div>
+                          <span>LiftLink</span>
+                        </div>
+                        <h1 className="text-2xl font-bold text-primary mb-2">Welcome to LiftLink</h1>
+                        <p className="text-secondary">Your fitness journey starts here</p>
+                      </div>
+                      <MobileAuthForm isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />
+                    </div>
+                  </div>
                 </div>
               );
             }
