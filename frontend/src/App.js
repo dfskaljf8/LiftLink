@@ -7,7 +7,6 @@ import './MobileTactical.css';
 import './MarketplaceDesign.css';
 import './ThemeSystem.css';
 import './ModernDesign.css';
-import './ModernDesign.css';
 
 // LiftLink Logo Component
 const LiftLinkLogo = ({ size = "md" }) => {
