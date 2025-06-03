@@ -1130,7 +1130,7 @@ async def check_daily_streak(user_id: str):
             new_streak = user.get("consecutive_days", 0) + 1
         elif days_diff == 0:
             # Same day, no change
-            return user.get("consecutive_days", 0)
+            return serialize_doc(user).get("consecutive_days", 0)
         else:
             # Streak broken
             new_streak = 1
