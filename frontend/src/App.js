@@ -1140,8 +1140,8 @@ const TacticalNavigation = ({ currentView, setCurrentView }) => {
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
-    TacticalAudio.playSound('click');
-    TacticalHaptics.light();
+    MobileTacticalAudio.playSound('click');
+    MobileHaptics.light();
   };
 
   const handleNavigation = (key) => {
