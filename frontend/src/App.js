@@ -2328,7 +2328,7 @@ const SocialTracking = () => {
           <div className="recommendations-section">
             <h2>🔍 Discover New Connections</h2>
             <div className="user-list">
-              {socialData.recommendations.map((user) => (
+              {(socialData.recommendations || []).map((user) => (
                 <div key={user.user_id} className="user-card">
                   <div className="user-avatar">
                     {user.name?.charAt(0) || '👤'}
