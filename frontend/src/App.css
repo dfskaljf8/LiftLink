@@ -6225,6 +6225,218 @@ input::placeholder, textarea::placeholder {
   color: var(--bg-primary);
 }
 
+/* ============ MAP VIEW STYLING ============ */
+.map-view-container {
+  display: flex;
+  flex-direction: column;
+  height: 600px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.map-wrapper {
+  flex: 1;
+  position: relative;
+  background: var(--bg-primary);
+}
+
+.map-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.map-loading .loading-spinner {
+  margin-bottom: var(--space-lg);
+}
+
+.map-loading h3 {
+  margin: var(--space-md) 0 var(--space-sm);
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+  font-weight: 600;
+}
+
+.map-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  text-align: center;
+  padding: var(--space-xl);
+}
+
+.map-error .error-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-lg);
+}
+
+.map-error h3 {
+  margin: 0 0 var(--space-sm);
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+  font-weight: 600;
+}
+
+.map-error p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.map-legend {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: var(--space-md);
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  gap: var(--space-md);
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-family: var(--font-neural);
+}
+
+.legend-marker {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--border-bright);
+}
+
+.legend-marker.user-marker {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  box-shadow: var(--glow-matrix);
+}
+
+.legend-marker.trainer-marker {
+  background: #ff6b6b;
+  border-color: #ff6b6b;
+}
+
+.legend-info {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* Enhanced trainer card selected state */
+.trainer-card.selected {
+  border: 2px solid var(--accent-primary);
+  box-shadow: var(--glow-matrix);
+  transform: scale(1.02);
+}
+
+.distance-badge {
+  background: var(--accent-primary);
+  color: var(--bg-primary);
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: var(--space-sm);
+}
+
+/* Map view button styling */
+.view-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-family: var(--font-neural);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--motion-smooth);
+}
+
+.view-btn:hover {
+  background: var(--surface-elevated);
+  border-color: var(--border-bright);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.view-btn.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: var(--bg-primary);
+  box-shadow: var(--glow-matrix);
+  font-weight: 600;
+}
+
+/* Responsive map styles */
+@media (max-width: 768px) {
+  .map-view-container {
+    height: 400px;
+  }
+  
+  .map-legend {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+  
+  .legend-item {
+    font-size: 0.75rem;
+  }
+  
+  .view-options {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  
+  .view-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Google Maps info window styling override */
+.gm-style-iw {
+  background: var(--bg-primary) !important;
+  border-radius: var(--radius-md) !important;
+  border: 1px solid var(--border-bright) !important;
+}
+
+.gm-style-iw-chr {
+  background: var(--bg-primary) !important;
+}
+
+.gm-style-iw-d {
+  overflow: hidden !important;
+  border-radius: var(--radius-md) !important;
+}
+
+/* Matrix-themed map controls */
+.gm-bundled-control {
+  background: var(--bg-secondary) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.gm-bundled-control:hover {
+  background: var(--surface-elevated) !important;
+  border-color: var(--border-bright) !important;
+}
+
 /* ============ UTILITY CLASSES ============ */
 .loading {
   text-align: center;
