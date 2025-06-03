@@ -1022,13 +1022,21 @@ const TacticalNavigation = ({ currentView, setCurrentView }) => {
   );
 };
 
-// Login Component
-const LoginForm = ({ onToggle }) => {
+// Tactical Login Interface
+const TacticalLogin = ({ onToggle }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [securityLevel, setSecurityLevel] = useState(0);
   const { login } = useAuth();
+
+  // Security level animation based on input
+  useEffect(() => {
+    const emailScore = email.length > 0 ? 1 : 0;
+    const passwordScore = password.length >= 6 ? 2 : password.length > 0 ? 1 : 0;
+    setSecurityLevel(emailScore + passwordScore);
+  }, [email, password]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -1036,63 +1044,165 @@ const LoginForm = ({ onToggle }) => {
     setError('');
 
     try {
+      TacticalAudio.playSound('click');
       await login(email, password);
     } catch (error) {
       setError(error.message);
+      TacticalAudio.playSound('error');
+      TacticalHaptics.heavy();
     }
     
     setLoading(false);
   };
 
   return (
-    <div className="auth-form">
-      <div className="form-group">
-        <input
-          type="email"
-          placeholder="Email Address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="elite-input"
-        />
-      </div>
-      <div className="form-group">
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="elite-input"
-        />
+    <div className="tactical-login">
+      <div className="hud-overlay">
+        <div className="hud-corners hud-corner-tl"></div>
+        <div className="hud-corners hud-corner-tr"></div>
+        <div className="hud-corners hud-corner-bl"></div>
+        <div className="hud-corners hud-corner-br"></div>
       </div>
       
-      {error && <div className="error-message">{error}</div>}
-      
-      <button type="submit" disabled={loading} className="elite-submit-btn" onClick={handleSubmit}>
-        {loading ? 'LOGGING IN...' : 'LOG IN'}
-      </button>
-      
-      <div className="form-toggle">
-        <span>
-          Need an account?{' '}
-          <button type="button" onClick={onToggle} className="toggle-btn">
-            Sign Up
+      <div className="login-container">
+        <div className="login-header">
+          <div className="tactical-emblem">⚡</div>
+          <h1 className="login-title">LIFTLINK</h1>
+          <div className="login-subtitle">TACTICAL FITNESS COMMAND</div>
+          <div className="security-clearance">SECURITY CLEARANCE REQUIRED</div>
+        </div>
+
+        <div className="security-status">
+          <div className="security-level">
+            <span className="security-label">SECURITY LEVEL</span>
+            <div className="security-bars">
+              {[1, 2, 3].map(i => (
+                <div 
+                  key={i}
+                  className={`security-bar ${i <= securityLevel ? 'active' : ''}`}
+                ></div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="tactical-form">
+          <div className="form-field">
+            <label className="field-label">OPERATOR ID</label>
+            <input
+              type="email"
+              placeholder="Enter access credentials"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                TacticalAudio.playSound('hover');
+              }}
+              required
+              className="tactical-input"
+            />
+            <div className="field-scanner"></div>
+          </div>
+
+          <div className="form-field">
+            <label className="field-label">SECURITY CODE</label>
+            <input
+              type="password"
+              placeholder="Enter authorization code"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                TacticalAudio.playSound('hover');
+              }}
+              required
+              className="tactical-input"
+            />
+            <div className="field-scanner"></div>
+          </div>
+          
+          {error && (
+            <div className="tactical-error">
+              <div className="error-icon">⚠️</div>
+              <div className="error-message">{error}</div>
+            </div>
+          )}
+          
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className="tactical-submit"
+            onMouseEnter={() => TacticalAudio.playSound('hover')}
+          >
+            {loading ? (
+              <div className="loading-sequence">
+                <div className="loading-dots">AUTHENTICATING<span className="dots"></span></div>
+              </div>
+            ) : (
+              <>
+                <span className="submit-icon">🔓</span>
+                INITIATE ACCESS
+              </>
+            )}
           </button>
-        </span>
+          
+          <div className="auth-toggle">
+            <span className="toggle-text">
+              Need clearance authorization?{' '}
+            </span>
+            <button 
+              type="button" 
+              onClick={onToggle} 
+              className="toggle-link"
+              onMouseEnter={() => TacticalAudio.playSound('hover')}
+            >
+              REQUEST ACCESS
+            </button>
+          </div>
+        </form>
+
+        <div className="demo-credentials">
+          <div className="demo-header">DEMO ACCESS CODES</div>
+          <div className="demo-accounts">
+            <div className="demo-account">
+              <span className="account-type">USER</span>
+              <span className="account-creds">user@demo.com / demo123</span>
+            </div>
+            <div className="demo-account">
+              <span className="account-type">TRAINER</span>
+              <span className="account-creds">trainer@demo.com / demo123</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
-// Registration Form Component
-const RegistrationForm = ({ onToggle }) => {
+// Tactical Registration Interface
+const TacticalRegistration = ({ onToggle }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [securityChecks, setSecurityChecks] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    match: false
+  });
   const { register } = useAuth();
+
+  // Password security validation
+  useEffect(() => {
+    setSecurityChecks({
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      match: password === confirmPassword && password.length > 0
+    });
+  }, [password, confirmPassword]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -1100,66 +1210,146 @@ const RegistrationForm = ({ onToggle }) => {
     setError('');
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setError('SECURITY CODES DO NOT MATCH');
       setLoading(false);
+      TacticalAudio.playSound('error');
       return;
     }
 
     try {
+      TacticalAudio.playSound('click');
       await register(email, password);
     } catch (error) {
       setError(error.message);
+      TacticalAudio.playSound('error');
     }
     
     setLoading(false);
   };
 
   return (
-    <div className="auth-form">
-      <div className="form-group">
-        <input
-          type="email"
-          placeholder="Email Address"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          className="elite-input"
-        />
-      </div>
-      <div className="form-group">
-        <input
-          type="password"
-          placeholder="Create Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          className="elite-input"
-        />
-      </div>
-      <div className="form-group">
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-          className="elite-input"
-        />
+    <div className="tactical-login">
+      <div className="hud-overlay">
+        <div className="hud-corners hud-corner-tl"></div>
+        <div className="hud-corners hud-corner-tr"></div>
+        <div className="hud-corners hud-corner-bl"></div>
+        <div className="hud-corners hud-corner-br"></div>
       </div>
       
-      {error && <div className="error-message">{error}</div>}
-      
-      <button type="submit" disabled={loading} className="elite-submit-btn">
-        {loading ? 'CREATING ACCOUNT...' : 'SIGN UP'}
-      </button>
-      
-      <div className="form-toggle">
-        <span>
-          Already have an account?{' '}
-          <button type="button" onClick={onToggle} className="toggle-btn">
-            Log In
+      <div className="login-container">
+        <div className="login-header">
+          <div className="tactical-emblem">⚡</div>
+          <h1 className="login-title">LIFTLINK</h1>
+          <div className="login-subtitle">OPERATOR REGISTRATION</div>
+          <div className="security-clearance">NEW RECRUIT AUTHORIZATION</div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="tactical-form">
+          <div className="form-field">
+            <label className="field-label">OPERATOR ID</label>
+            <input
+              type="email"
+              placeholder="Create access credentials"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                TacticalAudio.playSound('hover');
+              }}
+              required
+              className="tactical-input"
+            />
+          </div>
+
+          <div className="form-field">
+            <label className="field-label">SECURITY CODE</label>
+            <input
+              type="password"
+              placeholder="Create authorization code"
+              value={password}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                TacticalAudio.playSound('hover');
+              }}
+              required
+              className="tactical-input"
+            />
+          </div>
+
+          <div className="form-field">
+            <label className="field-label">CONFIRM CODE</label>
+            <input
+              type="password"
+              placeholder="Verify authorization code"
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                TacticalAudio.playSound('hover');
+              }}
+              required
+              className="tactical-input"
+            />
+          </div>
+
+          {/* Security Requirements */}
+          <div className="security-requirements">
+            <div className="requirements-header">SECURITY REQUIREMENTS</div>
+            <div className="requirements-list">
+              {Object.entries({
+                length: '8+ characters',
+                uppercase: 'Uppercase letter',
+                lowercase: 'Lowercase letter', 
+                number: 'Number',
+                match: 'Codes match'
+              }).map(([key, label]) => (
+                <div key={key} className={`requirement ${securityChecks[key] ? 'met' : ''}`}>
+                  <span className="requirement-icon">
+                    {securityChecks[key] ? '✓' : '○'}
+                  </span>
+                  <span className="requirement-text">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {error && (
+            <div className="tactical-error">
+              <div className="error-icon">⚠️</div>
+              <div className="error-message">{error}</div>
+            </div>
+          )}
+          
+          <button 
+            type="submit" 
+            disabled={loading || !Object.values(securityChecks).every(Boolean)} 
+            className="tactical-submit"
+            onMouseEnter={() => TacticalAudio.playSound('hover')}
+          >
+            {loading ? (
+              <div className="loading-sequence">
+                <div className="loading-dots">REGISTERING<span className="dots"></span></div>
+              </div>
+            ) : (
+              <>
+                <span className="submit-icon">🛡️</span>
+                REQUEST CLEARANCE
+              </>
+            )}
           </button>
-        </span>
+          
+          <div className="auth-toggle">
+            <span className="toggle-text">
+              Already have clearance?{' '}
+            </span>
+            <button 
+              type="button" 
+              onClick={onToggle} 
+              className="toggle-link"
+              onMouseEnter={() => TacticalAudio.playSound('hover')}
+            >
+              ACCESS SYSTEM
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
