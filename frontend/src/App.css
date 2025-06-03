@@ -2000,7 +2000,6 @@ input::placeholder, textarea::placeholder {
   margin: 0;
 }
 
-/* ============ ENHANCED UTILITY CLASSES ============ */
 /* Settings Component Styles */
 .settings-container {
   max-width: 1000px;
