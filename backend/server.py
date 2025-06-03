@@ -1880,7 +1880,16 @@ async def get_follow_recommendations(
 @app.get("/api/users/profile")
 async def get_user_profile(current_user: dict = Depends(get_current_user)):
     """Get current user profile"""
-    return current_user
+    # Serialize the user object to handle ObjectId
+    user_data = serialize_doc(current_user)
+    
+    # Get additional data if user is a trainer
+    if user_data.get("role") == "trainer":
+        trainer = await db.trainers.find_one({"trainer_id": user_data["user_id"]})
+        if trainer:
+            user_data["trainer_profile"] = serialize_doc(trainer)
+    
+    return user_data
 
 @app.put("/api/users/profile")
 async def update_user_profile(user_data: UserRegistrationRequest, current_user: dict = Depends(get_current_user)):
