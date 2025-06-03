@@ -4581,7 +4581,7 @@ const Settings = () => {
 };
 
 // FitnessForest Component (renamed from TreeVisualization)
-const FitnessForest = () => {
+const FitnessForestView = () => {
   const { userProfile } = useAuth();
   const [forestData, setForestData] = useState(null);
   const [loading, setLoading] = useState(true);
