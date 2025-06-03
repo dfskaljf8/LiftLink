@@ -691,6 +691,10 @@ stripe_checkout = StripeCheckout(api_key=os.getenv("STRIPE_SECRET_KEY"))
 # FastAPI app
 app = FastAPI(title="LiftLink API", version="1.0.0")
 
+# Import security and admin endpoints
+import security_endpoints
+import admin_endpoints
+
 # Setup database indexes on startup
 @app.on_event("startup")
 async def startup_event():
