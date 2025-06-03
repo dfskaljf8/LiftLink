@@ -270,19 +270,19 @@ const LiftLinkLogo = ({ size = 'normal', className = '' }) => {
   );
 };
 
-// Mobile Loading Screen
+// Mobile Loading Screen - Simple Language  
 const MobileLoadingScreen = ({ progress = 0 }) => {
-  const [currentStatus, setCurrentStatus] = useState('INITIALIZING SYSTEMS');
+  const [currentStatus, setCurrentStatus] = useState('Getting ready...');
   const [dots, setDots] = useState('');
 
   useEffect(() => {
     const statuses = [
-      'INITIALIZING TACTICAL SYSTEMS',
-      'LOADING MISSION PARAMETERS',
-      'ESTABLISHING SECURE CONNECTION',
-      'VERIFYING OPERATOR CREDENTIALS', 
-      'ACTIVATING COMMAND CENTER',
-      'MISSION READY'
+      'Getting ready...',
+      'Loading your info...',
+      'Connecting to LiftLink...',
+      'Setting up your account...',
+      'Almost there...',
+      'Welcome to LiftLink!'
     ];
     
     const statusIndex = Math.floor((progress / 100) * statuses.length);
@@ -299,7 +299,7 @@ const MobileLoadingScreen = ({ progress = 0 }) => {
     <div className="mobile-loading">
       <LiftLinkLogo size="xl" />
       <div className="loading-spinner"></div>
-      <div className="loading-text">LIFTLINK COMMAND</div>
+      <div className="loading-text">LiftLink</div>
       <div className="loading-subtitle">{currentStatus}{dots}</div>
     </div>
   );
