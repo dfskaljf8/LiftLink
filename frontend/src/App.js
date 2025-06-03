@@ -3089,7 +3089,25 @@ const Profile = () => {
 const AppContent = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [authMode, setAuthMode] = useState('login');
-  const { user, userProfile, loading } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { user, userProfile, loading: authLoading, login } = useAuth();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      await login(email, password);
+    } catch (error) {
+      setError(error.message);
+    }
+    
+    setLoading(false);
+  };
 
   const renderCurrentView = () => {
     switch (currentView) {
