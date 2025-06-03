@@ -255,19 +255,34 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Tactical Loading Screen Component
-const TacticalLoading = ({ progress = 0, status = "INITIALIZING SYSTEMS" }) => {
-  const [currentStatus, setCurrentStatus] = useState(status);
+// LiftLink Logo Component
+const LiftLinkLogo = ({ size = 'normal', className = '' }) => {
+  const sizeClass = size === 'large' ? 'large' : size === 'xl' ? 'xl' : '';
+  
+  return (
+    <div className={`liftlink-logo ${sizeClass} ${className}`}>
+      <div className="logo-barbell"></div>
+      <div className="logo-text">
+        <span className="lift">Lift</span><span className="link">Link</span>
+      </div>
+      {size === 'xl' && <div className="logo-tagline">Beginners to Believers</div>}
+    </div>
+  );
+};
+
+// Mobile Loading Screen
+const MobileLoadingScreen = ({ progress = 0 }) => {
+  const [currentStatus, setCurrentStatus] = useState('INITIALIZING SYSTEMS');
   const [dots, setDots] = useState('');
 
   useEffect(() => {
     const statuses = [
-      "INITIALIZING TACTICAL SYSTEMS",
-      "LOADING MISSION PARAMETERS", 
-      "ESTABLISHING SECURE CONNECTION",
-      "VERIFYING OPERATOR CREDENTIALS",
-      "ACTIVATING COMMAND CENTER",
-      "MISSION READY"
+      'INITIALIZING TACTICAL SYSTEMS',
+      'LOADING MISSION PARAMETERS',
+      'ESTABLISHING SECURE CONNECTION',
+      'VERIFYING OPERATOR CREDENTIALS', 
+      'ACTIVATING COMMAND CENTER',
+      'MISSION READY'
     ];
     
     const statusIndex = Math.floor((progress / 100) * statuses.length);
@@ -281,40 +296,247 @@ const TacticalLoading = ({ progress = 0, status = "INITIALIZING SYSTEMS" }) => {
   }, [progress]);
 
   return (
-    <div className="tactical-loading">
-      <div className="hud-overlay">
-        <div className="hud-corners hud-corner-tl"></div>
-        <div className="hud-corners hud-corner-tr"></div>
-        <div className="hud-corners hud-corner-bl"></div>
-        <div className="hud-corners hud-corner-br"></div>
-      </div>
+    <div className="mobile-loading">
+      <LiftLinkLogo size="xl" />
+      <div className="loading-spinner"></div>
+      <div className="loading-text">LIFTLINK COMMAND</div>
+      <div className="loading-subtitle">{currentStatus}{dots}</div>
+    </div>
+  );
+};
+
+// Mobile Top Navigation
+const MobileTopNav = ({ onMenuToggle, userProfile }) => {
+  return (
+    <div className="mobile-nav-bar">
+      <button 
+        className="nav-menu-btn"
+        onClick={onMenuToggle}
+        onTouchStart={() => MobileHaptics.light()}
+      >
+        ☰
+      </button>
       
-      <div className="loading-sequence">
-        <div className="loading-logo">
-          <div className="tactical-emblem">⚡</div>
-          <h1 className="loading-title">LIFTLINK</h1>
-          <div className="loading-subtitle">TACTICAL FITNESS COMMAND</div>
+      <LiftLinkLogo />
+      
+      <button 
+        className="nav-profile-btn"
+        onTouchStart={() => MobileHaptics.light()}
+      >
+        {userProfile?.name?.charAt(0) || '👤'}
+      </button>
+    </div>
+  );
+};
+
+// Mobile Bottom Navigation
+const MobileBottomNav = ({ currentView, setCurrentView, userProfile }) => {
+  const navItems = [
+    { key: 'dashboard', label: 'Home', icon: '🏠' },
+    { key: 'trainers', label: 'Search', icon: '🎯' },
+    { key: 'progress', label: 'Stats', icon: '📊' },
+    { key: 'social', label: 'Squad', icon: '👥' },
+    { key: 'profile', label: 'Profile', icon: '👤' }
+  ];
+
+  // Add trainer-specific items
+  if (userProfile?.role === 'trainer') {
+    navItems[4] = { key: 'trainer-dashboard', label: 'Command', icon: '🏋️‍♂️', badge: 3 };
+  }
+
+  // Add admin items  
+  if (userProfile?.role === 'admin') {
+    navItems[4] = { key: 'admin', label: 'Control', icon: '🛡️', badge: 5 };
+  }
+
+  const handleNavigation = (key) => {
+    setCurrentView(key);
+    MobileTacticalAudio.playSound('tap');
+    MobileHaptics.light();
+  };
+
+  return (
+    <div className="mobile-bottom-nav">
+      {navItems.map((item) => (
+        <div
+          key={item.key}
+          className={`bottom-nav-item ${currentView === item.key ? 'active' : ''}`}
+          onClick={() => handleNavigation(item.key)}
+          onTouchStart={() => MobileHaptics.light()}
+        >
+          <div className="nav-item-icon">{item.icon}</div>
+          <div className="nav-item-label">{item.label}</div>
+          {item.badge && <div className="nav-item-badge">{item.badge}</div>}
         </div>
+      ))}
+    </div>
+  );
+};
+
+// Mobile Auth Forms
+const MobileAuthForm = ({ isLogin, onToggle }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login, register } = useAuth();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    try {
+      MobileTacticalAudio.playSound('tap');
+      
+      if (!isLogin && password !== confirmPassword) {
+        setError('SECURITY CODES DO NOT MATCH');
+        setLoading(false);
+        MobileTacticalAudio.playSound('error');
+        return;
+      }
+
+      if (isLogin) {
+        await login(email, password);
+      } else {
+        await register(email, password);
+      }
+      
+      MobileTacticalAudio.playSound('success');
+      MobileHaptics.success();
+    } catch (error) {
+      setError(error.message);
+      MobileTacticalAudio.playSound('error');
+      MobileHaptics.error();
+    }
+    
+    setLoading(false);
+  };
+
+  return (
+    <div className="mobile-tactical-app">
+      <div className="mobile-loading">
+        <LiftLinkLogo size="xl" />
         
-        <div className="loading-progress">
-          <div 
-            className="loading-bar" 
-            style={{ width: `${progress}%` }}
-          ></div>
-        </div>
-        
-        <div className="loading-status">
-          {currentStatus}{dots}
-        </div>
-        
-        <div className="loading-metrics">
-          <div className="metric">
-            <span className="metric-label">PROGRESS</span>
-            <span className="metric-value">{progress.toFixed(1)}%</span>
+        <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '400px', marginTop: '2rem' }}>
+          <div className="mobile-form-group">
+            <label className="mobile-form-label">OPERATOR ID</label>
+            <input
+              type="email"
+              placeholder="Enter access credentials"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="mobile-form-input"
+              onFocus={() => MobileHaptics.light()}
+            />
           </div>
-          <div className="metric">
-            <span className="metric-label">STATUS</span>
-            <span className="metric-value">OPERATIONAL</span>
+
+          <div className="mobile-form-group">
+            <label className="mobile-form-label">SECURITY CODE</label>
+            <input
+              type="password"
+              placeholder={isLogin ? "Enter authorization code" : "Create authorization code"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="mobile-form-input"
+              onFocus={() => MobileHaptics.light()}
+            />
+          </div>
+
+          {!isLogin && (
+            <div className="mobile-form-group">
+              <label className="mobile-form-label">CONFIRM CODE</label>
+              <input
+                type="password"
+                placeholder="Verify authorization code"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                className="mobile-form-input"
+                onFocus={() => MobileHaptics.light()}
+              />
+            </div>
+          )}
+          
+          {error && (
+            <div style={{ 
+              color: '#ff0066', 
+              textAlign: 'center', 
+              marginBottom: '1rem',
+              padding: '0.75rem',
+              background: 'rgba(255, 0, 102, 0.1)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255, 0, 102, 0.3)'
+            }}>
+              {error}
+            </div>
+          )}
+          
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className="mobile-btn"
+            style={{ marginBottom: '1rem' }}
+          >
+            {loading ? (
+              <div className="loading-spinner" style={{ width: '20px', height: '20px', margin: '0' }}></div>
+            ) : (
+              <>
+                <span className="btn-icon">{isLogin ? '🔓' : '🛡️'}</span>
+                {isLogin ? 'INITIATE ACCESS' : 'REQUEST CLEARANCE'}
+              </>
+            )}
+          </button>
+          
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ color: '#00d4ff', fontSize: '14px' }}>
+              {isLogin ? 'Need clearance authorization?' : 'Already have clearance?'}{' '}
+            </span>
+            <button 
+              type="button" 
+              onClick={onToggle}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#9ACD32',
+                fontSize: '14px',
+                fontWeight: '600',
+                textTransform: 'uppercase',
+                cursor: 'pointer'
+              }}
+              onTouchStart={() => MobileHaptics.light()}
+            >
+              {isLogin ? 'REQUEST ACCESS' : 'ACCESS SYSTEM'}
+            </button>
+          </div>
+        </form>
+
+        <div style={{ 
+          marginTop: '2rem', 
+          padding: '1rem', 
+          background: 'rgba(0, 0, 0, 0.6)',
+          borderRadius: '12px',
+          border: '1px solid rgba(0, 212, 255, 0.3)',
+          maxWidth: '400px',
+          width: '100%'
+        }}>
+          <div style={{ 
+            textAlign: 'center', 
+            color: '#00d4ff', 
+            fontSize: '12px', 
+            fontWeight: '600',
+            textTransform: 'uppercase',
+            letterSpacing: '1px',
+            marginBottom: '0.5rem'
+          }}>
+            DEMO ACCESS CODES
+          </div>
+          <div style={{ fontSize: '12px', color: '#9ACD32' }}>
+            <div style={{ marginBottom: '4px' }}>USER: user@demo.com / demo123</div>
+            <div>TRAINER: trainer@demo.com / demo123</div>
           </div>
         </div>
       </div>
