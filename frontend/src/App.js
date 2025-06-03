@@ -2194,25 +2194,7 @@ const SocialTracking = () => {
     ]
   });
 
-  useEffect(() => {
-    fetchSocialData();
-  }, []);
-
-  const fetchSocialData = async () => {
-    try {
-      const [followingRes, followersRes, feedRes, leaderboardsRes, recommendationsRes] = 
-        await Promise.all([
-          api.get('/api/social/following'),
-          api.get('/api/social/followers'),
-          api.get('/api/social/feed'),
-          api.get('/api/social/leaderboards'),
-          api.get('/api/social/recommendations')
-        ]);
-
-      setSocialData({
-        following: followingRes.data.following,
-        followers: followersRes.data.followers,
-        feed: feedRes.data.activities,
+  return (
         leaderboards: leaderboardsRes.data,
         recommendations: recommendationsRes.data.recommendations
       });
