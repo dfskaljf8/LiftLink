@@ -233,9 +233,214 @@ body {
   justify-content: center;
 }
 
-/* Enhanced typography */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
+/* ============ MAIN LAYOUT ============ */
+.app-container {
+  min-height: 100vh;
+  background: var(--background);
+  display: flex;
+}
+
+.main-content {
+  margin-left: 280px;
+  flex: 1;
+  padding: var(--spacing-xl);
+  animation: fadeIn 0.6s ease-out;
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ============ SLEEK TRAINER CARDS ============ */
+.trainers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: var(--spacing-xl);
+  padding: var(--spacing-lg) 0;
+}
+
+.trainer-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl);
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-smooth);
+  backdrop-filter: var(--glass-blur);
+  animation: fadeInUp 0.6s ease-out;
+  box-shadow: var(--shadow-md);
+}
+
+.trainer-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-neon);
+  transform: scaleX(0);
+  transition: var(--transition-smooth);
+  transform-origin: left;
+}
+
+.trainer-card:hover::before {
+  transform: scaleX(1);
+}
+
+.trainer-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-lg), var(--shadow-neon);
+  border-color: var(--neon-green);
+}
+
+.trainer-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+
+.trainer-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--gradient-neon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--background);
+  box-shadow: var(--shadow-neon);
+  position: relative;
+  overflow: hidden;
+}
+
+.trainer-info h3 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--foreground);
+  margin-bottom: var(--spacing-xs);
+}
+
+.trainer-info .trainer-title {
+  color: var(--neon-green);
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm);
+}
+
+.trainer-rating {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.trainer-specialties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+  margin: var(--spacing-lg) 0;
+}
+
+.specialty-tag {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--foreground);
+  backdrop-filter: blur(8px);
+  transition: var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.specialty-tag:hover {
+  background: var(--gradient-glass);
+  border-color: var(--neon-green);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.trainer-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-lg);
+  background: var(--glass-bg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--neon-green);
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: var(--spacing-xs);
+}
+
+/* ============ NEON CTA BUTTON ============ */
+.book-btn, .submit-btn {
+  width: 100%;
+  background: var(--gradient-neon);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-xl);
+  color: var(--background);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-neon);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.book-btn::before, .submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: var(--transition-fast);
+}
+
+.book-btn:hover::before, .submit-btn:hover::before {
+  left: 100%;
+}
+
+.book-btn:hover, .submit-btn:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-neon-hover);
+  filter: brightness(1.1);
+}
+
+.book-btn:active, .submit-btn:active {
+  transform: scale(0.98);
+}
   line-height: 1.4;
   color: var(--text-primary);
   margin-bottom: 1rem;
