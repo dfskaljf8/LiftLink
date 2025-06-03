@@ -254,17 +254,355 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// LiftLink Logo Component
-const LiftLinkLogo = ({ size = 'normal', className = '' }) => {
-  const sizeClass = size === 'large' ? 'large' : size === 'xl' ? 'xl' : '';
-  
-  return (
-    <div className={`liftlink-logo ${sizeClass} ${className}`}>
-      <div className="logo-barbell"></div>
-      <div className="logo-text">
-        <span className="lift">Lift</span><span className="link">Link</span>
+// LiftLink Marketplace - Instant Matching System
+const InstantMatch = () => {
+  const [isMatching, setIsMatching] = useState(false);
+  const [matchPreferences, setMatchPreferences] = useState({
+    goal: '',
+    location: '',
+    sessionType: 'in-person',
+    budget: '',
+    availability: 'today'
+  });
+  const [potentialMatches, setPotentialMatches] = useState([]);
+  const [showResults, setShowResults] = useState(false);
+
+  const goals = [
+    { id: 'weight-loss', label: 'Lose Weight', icon: '🎯', description: 'Get leaner and stronger' },
+    { id: 'muscle-gain', label: 'Build Muscle', icon: '💪', description: 'Gain size and strength' },
+    { id: 'fitness', label: 'Get Fit', icon: '⚡', description: 'Improve overall fitness' },
+    { id: 'sport', label: 'Sport Training', icon: '🏆', description: 'Train for your sport' },
+    { id: 'rehab', label: 'Rehabilitation', icon: '🩺', description: 'Recover from injury' },
+    { id: 'wellness', label: 'Wellness', icon: '🧘', description: 'Mind and body balance' }
+  ];
+
+  const sessionTypes = [
+    { id: 'in-person', label: 'In-Person', icon: '🏃', description: 'Meet at gym or location' },
+    { id: 'virtual', label: 'Virtual', icon: '💻', description: 'Online video sessions' },
+    { id: 'both', label: 'Both', icon: '🔄', description: 'Flexible options' }
+  ];
+
+  const availabilityOptions = [
+    { id: 'today', label: 'Today', urgency: 'high' },
+    { id: 'this-week', label: 'This Week', urgency: 'medium' },
+    { id: 'flexible', label: 'Flexible', urgency: 'low' }
+  ];
+
+  const handleInstantMatch = async () => {
+    setIsMatching(true);
+    MarketplaceAudio.playSound('match');
+    MarketplaceHaptics.match();
+
+    // Simulate AI matching process
+    setTimeout(() => {
+      const matches = [
+        {
+          id: 'trainer_1',
+          name: 'Sarah Chen',
+          avatar: 'SC',
+          specialty: 'Weight Loss Specialist',
+          rating: 4.9,
+          reviews: 127,
+          rate: 75,
+          availability: 'Available now',
+          distance: '1.2 miles',
+          verified: true,
+          experience: '8 years',
+          successRate: 95,
+          nextSlot: '2:00 PM today',
+          tags: ['NASM Certified', 'Nutrition Expert'],
+          matchScore: 98
+        },
+        {
+          id: 'trainer_2', 
+          name: 'Marcus Torres',
+          avatar: 'MT',
+          specialty: 'Strength & Conditioning',
+          rating: 4.8,
+          reviews: 89,
+          rate: 85,
+          availability: 'Available today',
+          distance: '0.8 miles',
+          verified: true,
+          experience: '6 years',
+          successRate: 92,
+          nextSlot: '4:00 PM today',
+          tags: ['CSCS Certified', 'Athletic Performance'],
+          matchScore: 94
+        },
+        {
+          id: 'trainer_3',
+          name: 'Jordan Kim',
+          avatar: 'JK', 
+          specialty: 'Functional Fitness',
+          rating: 4.9,
+          reviews: 156,
+          rate: 70,
+          availability: 'Available tomorrow',
+          distance: '2.1 miles',
+          verified: true,
+          experience: '5 years',
+          successRate: 97,
+          nextSlot: '10:00 AM tomorrow',
+          tags: ['CrossFit L2', 'Movement Expert'],
+          matchScore: 90
+        }
+      ];
+      
+      setPotentialMatches(matches);
+      setIsMatching(false);
+      setShowResults(true);
+    }, 2000);
+  };
+
+  const handleBookTrainer = (trainer) => {
+    MarketplaceAudio.playSound('booking');
+    MarketplaceHaptics.success();
+    alert(`Booking session with ${trainer.name}! 🎉`);
+  };
+
+  if (showResults) {
+    return (
+      <div className="instant-match-results fade-in">
+        <div className="results-header">
+          <button 
+            className="btn btn-ghost"
+            onClick={() => {
+              setShowResults(false);
+              setPotentialMatches([]);
+              MarketplaceAudio.playSound('tap');
+            }}
+          >
+            ← Back to Search
+          </button>
+          <h2>Perfect Matches Found! 🎯</h2>
+          <p>These trainers are available and match your goals</p>
+        </div>
+
+        <div className="match-results">
+          {potentialMatches.map((trainer, index) => (
+            <div key={trainer.id} className="trainer-match-card card scale-in" style={{animationDelay: `${index * 0.1}s`}}>
+              <div className="card-body">
+                <div className="trainer-match-header">
+                  <div className="trainer-basic">
+                    <div className="avatar avatar-lg">{trainer.avatar}</div>
+                    <div className="trainer-info">
+                      <h3>{trainer.name}</h3>
+                      <p>{trainer.specialty}</p>
+                      <div className="trainer-credentials">
+                        {trainer.verified && <span className="badge badge-success">✓ Verified</span>}
+                        <span className="badge badge-primary">{trainer.experience}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="match-score">
+                    <div className="score-circle">
+                      <span>{trainer.matchScore}%</span>
+                    </div>
+                    <p>Match</p>
+                  </div>
+                </div>
+
+                <div className="trainer-stats">
+                  <div className="stat">
+                    <div className="rating">
+                      <span className="rating-star">★</span>
+                      <span>{trainer.rating}</span>
+                    </div>
+                    <p>{trainer.reviews} reviews</p>
+                  </div>
+                  <div className="stat">
+                    <strong>${trainer.rate}</strong>
+                    <p>per session</p>
+                  </div>
+                  <div className="stat">
+                    <strong>{trainer.distance}</strong>
+                    <p>away</p>
+                  </div>
+                </div>
+
+                <div className="trainer-availability">
+                  <div className="availability-status">
+                    <span className="status-dot status-online"></span>
+                    <span>{trainer.availability}</span>
+                  </div>
+                  <p>Next slot: <strong>{trainer.nextSlot}</strong></p>
+                </div>
+
+                <div className="trainer-tags">
+                  {trainer.tags.map((tag, tagIndex) => (
+                    <span key={tagIndex} className="tag">{tag}</span>
+                  ))}
+                </div>
+
+                <div className="trainer-actions">
+                  <button className="btn btn-secondary">
+                    💬 Message
+                  </button>
+                  <button 
+                    className="btn btn-primary"
+                    onClick={() => handleBookTrainer(trainer)}
+                  >
+                    🚀 Book Now
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="match-footer">
+          <p>Not seeing what you want? <button className="btn btn-ghost">Adjust preferences</button></p>
+        </div>
       </div>
-      {size === 'xl' && <div className="logo-tagline">Beginners to Believers</div>}
+    );
+  }
+
+  return (
+    <div className="instant-match">
+      <div className="match-hero">
+        <h1>Find Your Perfect Trainer</h1>
+        <p>Answer a few quick questions and we'll match you with the ideal fitness pro in seconds</p>
+      </div>
+
+      <div className="match-form">
+        {/* Goal Selection */}
+        <div className="form-section">
+          <h3>What's your main goal? 🎯</h3>
+          <div className="goal-grid">
+            {goals.map((goal) => (
+              <button
+                key={goal.id}
+                className={`goal-card ${matchPreferences.goal === goal.id ? 'selected' : ''}`}
+                onClick={() => {
+                  setMatchPreferences({...matchPreferences, goal: goal.id});
+                  MarketplaceAudio.playSound('tap');
+                  MarketplaceHaptics.light();
+                }}
+              >
+                <div className="goal-icon">{goal.icon}</div>
+                <h4>{goal.label}</h4>
+                <p>{goal.description}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Session Type */}
+        <div className="form-section">
+          <h3>How would you like to train? 💪</h3>
+          <div className="session-type-grid">
+            {sessionTypes.map((type) => (
+              <button
+                key={type.id}
+                className={`session-type-card ${matchPreferences.sessionType === type.id ? 'selected' : ''}`}
+                onClick={() => {
+                  setMatchPreferences({...matchPreferences, sessionType: type.id});
+                  MarketplaceAudio.playSound('tap');
+                  MarketplaceHaptics.light();
+                }}
+              >
+                <div className="type-icon">{type.icon}</div>
+                <h4>{type.label}</h4>
+                <p>{type.description}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Budget Range */}
+        <div className="form-section">
+          <h3>What's your budget per session? 💰</h3>
+          <div className="budget-selector">
+            <input
+              type="range"
+              min="30"
+              max="200"
+              value={matchPreferences.budget || 75}
+              onChange={(e) => setMatchPreferences({...matchPreferences, budget: e.target.value})}
+              className="budget-slider"
+            />
+            <div className="budget-display">
+              <span>${matchPreferences.budget || 75} per session</span>
+            </div>
+            <div className="budget-labels">
+              <span>$30</span>
+              <span>$200+</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Availability */}
+        <div className="form-section">
+          <h3>When do you want to start? ⏰</h3>
+          <div className="availability-options">
+            {availabilityOptions.map((option) => (
+              <button
+                key={option.id}
+                className={`availability-card ${matchPreferences.availability === option.id ? 'selected' : ''} ${option.urgency}`}
+                onClick={() => {
+                  setMatchPreferences({...matchPreferences, availability: option.id});
+                  MarketplaceAudio.playSound('tap');
+                  MarketplaceHaptics.light();
+                }}
+              >
+                {option.label}
+                {option.urgency === 'high' && <span className="urgency-badge">🔥</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Location Input */}
+        <div className="form-section">
+          <h3>Where are you located? 📍</h3>
+          <input
+            type="text"
+            placeholder="Enter your zip code or city"
+            value={matchPreferences.location}
+            onChange={(e) => setMatchPreferences({...matchPreferences, location: e.target.value})}
+            className="input location-input"
+            onFocus={() => MarketplaceHaptics.light()}
+          />
+        </div>
+
+        {/* Match Button */}
+        <div className="match-action">
+          <button
+            className={`btn btn-primary btn-xl match-btn ${isMatching ? 'matching' : ''}`}
+            onClick={handleInstantMatch}
+            disabled={!matchPreferences.goal || isMatching}
+          >
+            {isMatching ? (
+              <>
+                <div className="loading-spinner"></div>
+                Finding Your Perfect Match...
+              </>
+            ) : (
+              <>
+                ⚡ Find My Trainer
+              </>
+            )}
+          </button>
+          {!matchPreferences.goal && (
+            <p className="helper-text">Please select your main goal to continue</p>
+          )}
+        </div>
+      </div>
+
+      {isMatching && (
+        <div className="matching-overlay">
+          <div className="matching-animation">
+            <div className="pulse-rings">
+              <div className="pulse-ring"></div>
+              <div className="pulse-ring"></div>
+              <div className="pulse-ring"></div>
+            </div>
+            <h3>Finding Your Perfect Match...</h3>
+            <p>Analyzing 500+ verified trainers in your area</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
