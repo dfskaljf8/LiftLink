@@ -164,15 +164,18 @@ backend:
 
   - task: "Booking and Payment System"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Stripe integration with emergentintegrations package. Booking creation, payment sessions, status tracking implemented. Need to test payment flow."
+      - working: true
+        agent: "testing"
+        comment: "Booking creation and payment session APIs are working correctly. Successfully tested creating bookings and initiating Stripe payment sessions. Payment status checking is functional."
 
   - task: "Gamification System (LiftCoins, XP, Badges)"
     implemented: true
