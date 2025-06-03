@@ -831,13 +831,13 @@ input::placeholder, textarea::placeholder {
 }
 
 .stat-card {
-  background: var(--gradient-glass);
-  backdrop-filter: blur(20px);
+  backdrop-filter: var(--glass-blur);
+  background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  border-radius: 20px;
-  padding: 2.5rem;
+  border-radius: 12px;
+  padding: 2rem;
   text-align: center;
-  transition: all 0.3s var(--ease-out-quart);
+  transition: var(--transition);
   position: relative;
   overflow: hidden;
 }
