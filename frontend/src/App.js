@@ -952,19 +952,45 @@ const HomeDashboard = ({ setCurrentView }) => {
 // Alias for main dashboard
 const Dashboard = ({ setCurrentView }) => <HomeDashboard setCurrentView={setCurrentView} />;
 
-// Trainer Search Component
+// Trainer Search Component with Map Integration
 const TrainerSearch = () => {
   const [trainers, setTrainers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid', 'list', 'map'
+  const [userLocation, setUserLocation] = useState(null);
+  const [mapCenter, setMapCenter] = useState({ lat: 40.7128, lng: -74.0060 }); // Default to NYC
+  const [selectedTrainer, setSelectedTrainer] = useState(null);
   const [filters, setFilters] = useState({
     specialty: '',
     maxRate: '',
-    gym: ''
+    gym: '',
+    experience: '',
+    rating: ''
   });
 
   useEffect(() => {
+    getUserLocation();
     fetchTrainers();
   }, [filters]);
+
+  const getUserLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const location = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          };
+          setUserLocation(location);
+          setMapCenter(location);
+        },
+        (error) => {
+          console.log('Geolocation error:', error);
+          // Keep default location
+        }
+      );
+    }
+  };
 
   const fetchTrainers = async () => {
     try {
@@ -972,6 +998,12 @@ const TrainerSearch = () => {
       if (filters.specialty) params.append('specialty', filters.specialty);
       if (filters.maxRate) params.append('max_rate', filters.maxRate);
       if (filters.gym) params.append('gym', filters.gym);
+      
+      // Add user location for distance calculation
+      if (userLocation) {
+        params.append('lat', userLocation.lat);
+        params.append('lng', userLocation.lng);
+      }
 
       const response = await api.get(`/api/trainers/search?${params}`);
       setTrainers(response.data.trainers);
@@ -1003,6 +1035,115 @@ const TrainerSearch = () => {
       alert('Error creating booking. Please try again.');
     }
   };
+
+  const handleTrainerSelect = (trainer) => {
+    setSelectedTrainer(trainer);
+    setViewMode('grid'); // Switch back to grid view to show details
+  };
+
+  const renderTrainerCard = (trainer) => (
+    <div key={trainer.trainer_id} className={`trainer-card ${selectedTrainer?.trainer_id === trainer.trainer_id ? 'selected' : ''}`}>
+      {/* Card Header */}
+      <div className="trainer-header">
+        <div className="trainer-avatar">
+          {trainer.trainer_name?.charAt(0) || '💪'}
+        </div>
+        <div className="trainer-basic-info">
+          <h3>{trainer.trainer_name}</h3>
+          <p className="trainer-title">Certified Personal Trainer</p>
+          <div className="trainer-rating">
+            <span className="stars">⭐⭐⭐⭐⭐</span>
+            <span className="rating-text">4.9 (127 reviews)</span>
+          </div>
+        </div>
+        <div className="trainer-actions">
+          <button className="favorite-btn">💜</button>
+          <button className="share-btn">📤</button>
+        </div>
+      </div>
+
+      {/* Trainer Details */}
+      <div className="trainer-body">
+        <div className="trainer-location">
+          <span className="location-icon">📍</span>
+          <span>{trainer.gym_name || 'Multiple Locations'}</span>
+          {trainer.distance_km && (
+            <span className="distance-badge">{trainer.distance_km} km away</span>
+          )}
+        </div>
+        
+        <div className="trainer-bio">
+          <p>{trainer.bio || 'Dedicated fitness professional committed to helping you achieve your goals through personalized training programs and nutritional guidance.'}</p>
+        </div>
+
+        <div className="trainer-specialties">
+          {(trainer.specialties || ['Weight Training', 'Nutrition', 'Personal Training']).map((specialty, index) => {
+            const specialtyIcons = {
+              'Weight Training': '🏋️',
+              'Cardio': '🏃',
+              'Yoga': '🧘',
+              'CrossFit': '⚡',
+              'Personal Training': '👤',
+              'Nutrition': '🥗',
+              'Sports Performance': '🏆',
+              'Rehabilitation': '🩺'
+            };
+            
+            return (
+              <span key={index} className="specialty-tag">
+                <span className="specialty-icon">{specialtyIcons[specialty] || '💪'}</span>
+                {specialty}
+              </span>
+            );
+          })}
+        </div>
+
+        <div className="trainer-stats">
+          <div className="stat">
+            <span className="stat-number">{trainer.experience_years || '5'}</span>
+            <span className="stat-label">Years Exp</span>
+          </div>
+          <div className="stat">
+            <span className="stat-number">{trainer.total_clients || '150+'}</span>
+            <span className="stat-label">Clients</span>
+          </div>
+          <div className="stat">
+            <span className="stat-number">{trainer.success_rate || '95%'}</span>
+            <span className="stat-label">Success Rate</span>
+          </div>
+        </div>
+
+        <div className="trainer-pricing">
+          <div className="pricing-info">
+            <span className="price">${trainer.hourly_rate || '75'}</span>
+            <span className="price-period">/hour</span>
+          </div>
+          <div className="pricing-details">
+            <span className="original-price">${(trainer.hourly_rate || 75) + 15}</span>
+            <span className="discount">20% off first session</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Card Footer */}
+      <div className="trainer-footer">
+        <div className="availability">
+          <span className="availability-status available">🟢 Available Today</span>
+          <span className="next-slot">Next: 2:00 PM</span>
+        </div>
+        
+        <div className="action-buttons">
+          <button className="message-btn">💬 Message</button>
+          <button 
+            className="book-btn"
+            onClick={() => handleBooking(trainer)}
+          >
+            🚀 Book Session
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="trainer-search">
@@ -1100,8 +1241,24 @@ const TrainerSearch = () => {
             <p>Showing top-rated professionals in your area</p>
           </div>
           <div className="view-options">
-            <button className="view-btn active">📋 Grid View</button>
-            <button className="view-btn">📃 List View</button>
+            <button 
+              className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
+              onClick={() => setViewMode('grid')}
+            >
+              📋 Grid View
+            </button>
+            <button 
+              className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
+              onClick={() => setViewMode('list')}
+            >
+              📃 List View
+            </button>
+            <button 
+              className={`view-btn ${viewMode === 'map' ? 'active' : ''}`}
+              onClick={() => setViewMode('map')}
+            >
+              🗺️ Map View
+            </button>
           </div>
         </div>
 
@@ -1126,108 +1283,41 @@ const TrainerSearch = () => {
             </button>
           </div>
         ) : (
-          <div className="trainers-grid">
-            {trainers.map((trainer) => (
-              <div key={trainer.trainer_id} className="trainer-card">
-                {/* Card Header */}
-                <div className="trainer-header">
-                  <div className="trainer-avatar">
-                    {trainer.trainer_name?.charAt(0) || '💪'}
-                  </div>
-                  <div className="trainer-basic-info">
-                    <h3>{trainer.trainer_name}</h3>
-                    <p className="trainer-title">Certified Personal Trainer</p>
-                    <div className="trainer-rating">
-                      <span className="stars">⭐⭐⭐⭐⭐</span>
-                      <span className="rating-text">4.9 (127 reviews)</span>
-                    </div>
-                  </div>
-                  <div className="trainer-actions">
-                    <button className="favorite-btn">💜</button>
-                    <button className="share-btn">📤</button>
-                  </div>
+          <>
+            {/* Map View */}
+            {viewMode === 'map' && (
+              <div className="map-view-container">
+                <div className="map-wrapper">
+                  <TrainerMap 
+                    trainers={trainers}
+                    center={mapCenter}
+                    userLocation={userLocation}
+                    onTrainerSelect={handleTrainerSelect}
+                  />
                 </div>
-
-                {/* Trainer Details */}
-                <div className="trainer-body">
-                  <div className="trainer-location">
-                    <span className="location-icon">📍</span>
-                    <span>{trainer.gym_name || 'Multiple Locations'}</span>
+                <div className="map-legend">
+                  <div className="legend-item">
+                    <div className="legend-marker user-marker"></div>
+                    <span>Your Location</span>
                   </div>
-                  
-                  <div className="trainer-bio">
-                    <p>{trainer.bio || 'Dedicated fitness professional committed to helping you achieve your goals through personalized training programs and nutritional guidance.'}</p>
+                  <div className="legend-item">
+                    <div className="legend-marker trainer-marker"></div>
+                    <span>Available Trainers</span>
                   </div>
-
-                  <div className="trainer-specialties">
-                    {(trainer.specialties || ['Weight Training', 'Nutrition', 'Personal Training']).map((specialty, index) => {
-                      const specialtyIcons = {
-                        'Weight Training': '🏋️',
-                        'Cardio': '🏃',
-                        'Yoga': '🧘',
-                        'CrossFit': '⚡',
-                        'Personal Training': '👤',
-                        'Nutrition': '🥗',
-                        'Sports Performance': '🏆',
-                        'Rehabilitation': '🩺'
-                      };
-                      
-                      return (
-                        <span key={index} className="specialty-tag">
-                          <span className="specialty-icon">{specialtyIcons[specialty] || '💪'}</span>
-                          {specialty}
-                        </span>
-                      );
-                    })}
-                  </div>
-
-                  <div className="trainer-stats">
-                    <div className="stat">
-                      <span className="stat-number">{trainer.experience_years || '5'}</span>
-                      <span className="stat-label">Years Exp</span>
-                    </div>
-                    <div className="stat">
-                      <span className="stat-number">{trainer.total_clients || '150+'}</span>
-                      <span className="stat-label">Clients</span>
-                    </div>
-                    <div className="stat">
-                      <span className="stat-number">{trainer.success_rate || '95%'}</span>
-                      <span className="stat-label">Success Rate</span>
-                    </div>
-                  </div>
-
-                  <div className="trainer-pricing">
-                    <div className="pricing-info">
-                      <span className="price">${trainer.hourly_rate || '75'}</span>
-                      <span className="price-period">/hour</span>
-                    </div>
-                    <div className="pricing-details">
-                      <span className="original-price">${(trainer.hourly_rate || 75) + 15}</span>
-                      <span className="discount">20% off first session</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card Footer */}
-                <div className="trainer-footer">
-                  <div className="availability">
-                    <span className="availability-status available">🟢 Available Today</span>
-                    <span className="next-slot">Next: 2:00 PM</span>
-                  </div>
-                  
-                  <div className="action-buttons">
-                    <button className="message-btn">💬 Message</button>
-                    <button 
-                      className="book-btn"
-                      onClick={() => handleBooking(trainer)}
-                    >
-                      🚀 Book Session
-                    </button>
+                  <div className="legend-item">
+                    <span className="legend-info">💡 Click on markers for trainer details</span>
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
+            )}
+
+            {/* Grid/List View */}
+            {viewMode !== 'map' && (
+              <div className={viewMode === 'grid' ? 'trainers-grid' : 'trainers-list'}>
+                {trainers.map(renderTrainerCard)}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
