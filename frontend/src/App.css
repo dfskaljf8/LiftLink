@@ -1,53 +1,19 @@
-/* LiftLink - Elite-Grade Fitness Platform */
+/* LiftLink - Modern Fitness Platform with Dynamic Theming */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap');
 
+/* Legacy Matrix Theme Support (Will be overridden by ThemeSystem.css) */
 :root {
-  /* Cyberpunk Matrix Design Language - Pitch Black + Matrix Green */
-  --bg-primary: #000000;          /* Pitch black background */
-  --bg-secondary: #000000;        /* Pure black background */
-  --bg-tertiary: #0a0a0a;         /* Ultra subtle dark */
-  --accent-primary: #00ff41;      /* Matrix green primary */
-  --accent-secondary: #00cc33;    /* Darker matrix green */
-  --accent-tertiary: #008822;     /* Deep matrix green */
-  --accent-glow: #00ff4180;       /* Matrix green with transparency */
-  --text-primary: #00ff41;        /* Matrix green text */
-  --text-secondary: #00cc33;      /* Darker matrix green text */
-  --text-muted: #008822;          /* Deep matrix green muted */
-  --text-white: #ffffff;          /* Pure white for contrast */
-  --surface: #000000;             /* Pitch black surface */
-  --surface-elevated: #0a0a0a;    /* Slightly elevated black */
-  --surface-glass: rgba(0, 0, 0, 0.95);  /* Black glass surface */
-  --surface-glow: rgba(0, 255, 65, 0.05);  /* Matrix green glow surface */
-  --border: #00ff4120;            /* Matrix green borders */
-  --border-bright: #00ff4160;     /* Brighter matrix green borders */
-  --border-glow: #00ff41;         /* Full matrix green glow border */
-  
-  /* Matrix Glow Effects */
-  --glow-matrix: 0 0 20px rgba(0, 255, 65, 0.6), 0 0 40px rgba(0, 255, 65, 0.3), 0 0 60px rgba(0, 255, 65, 0.1);
-  --glow-matrix-strong: 0 0 30px rgba(0, 255, 65, 0.8), 0 0 60px rgba(0, 255, 65, 0.4), 0 0 90px rgba(0, 255, 65, 0.2);
-  --glow-matrix-ultra: 0 0 40px rgba(0, 255, 65, 1), 0 0 80px rgba(0, 255, 65, 0.6), 0 0 120px rgba(0, 255, 65, 0.3);
-  --shadow-matrix: 0 8px 32px rgba(0, 0, 0, 0.95);
-  --shadow-floating: 0 12px 40px rgba(0, 0, 0, 0.9);
-  --shadow-neural: inset 0 1px 0 rgba(0, 255, 65, 0.1), 0 1px 0 rgba(0, 0, 0, 0.9);
-  
-  /* Matrix Gradients */
-  --gradient-matrix: linear-gradient(135deg, #000000 0%, #0a0a0a 50%, #000000 100%);
-  --gradient-matrix-glow: linear-gradient(135deg, #00ff41 0%, #00cc33 50%, #008822 100%);
-  --gradient-surface: linear-gradient(145deg, #000000 0%, #0a0a0a 50%, #000000 100%);
-  --gradient-border: linear-gradient(135deg, rgba(0, 255, 65, 0.3) 0%, rgba(0, 255, 65, 0.1) 100%);
-  --gradient-hologram: linear-gradient(135deg, 
-    rgba(0, 255, 65, 0.05) 0%, 
-    rgba(0, 255, 65, 0.15) 25%, 
-    rgba(0, 255, 65, 0.10) 50%, 
-    rgba(0, 255, 65, 0.20) 75%, 
-    rgba(0, 255, 65, 0.05) 100%);
-  
-  /* Advanced Motion Design */
+  /* Motion Design - Consistent across themes */
   --motion-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   --motion-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --motion-slow: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
   --motion-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   --motion-neural: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  /* Legacy Matrix Colors - Will be overridden by theme system */
+  --legacy-matrix-green: #00ff41;
+  --legacy-matrix-glow: 0 0 20px rgba(0, 255, 65, 0.6);
+}
   --motion-matrix: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   
   /* Typography System */
