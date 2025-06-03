@@ -6,6 +6,172 @@ import './App.css';
 // Auth Context
 const AuthContext = createContext();
 
+// Google Maps Components
+const MapComponent = ({ center, zoom, trainers, onTrainerSelect, userLocation }) => {
+  const ref = useRef(null);
+  const [map, setMap] = useState(null);
+  const [markers, setMarkers] = useState([]);
+
+  useEffect(() => {
+    if (ref.current && !map) {
+      const newMap = new window.google.maps.Map(ref.current, {
+        center,
+        zoom,
+        mapTypeControl: false,
+        fullscreenControl: false,
+        streetViewControl: false,
+        styles: [
+          {
+            "featureType": "all",
+            "elementType": "all",
+            "stylers": [
+              { "invert_lightness": true },
+              { "saturation": -100 },
+              { "lightness": 33 },
+              { "gamma": 0.5 },
+              { "hue": "#00ff88" }
+            ]
+          }
+        ]
+      });
+      setMap(newMap);
+    }
+  }, [ref, map, center, zoom]);
+
+  useEffect(() => {
+    if (map) {
+      // Clear existing markers
+      markers.forEach(marker => marker.setMap(null));
+      const newMarkers = [];
+
+      // Add user location marker
+      if (userLocation) {
+        const userMarker = new window.google.maps.Marker({
+          position: { lat: userLocation.lat, lng: userLocation.lng },
+          map,
+          title: "Your Location",
+          icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+              <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="15" fill="#00ff88" stroke="#000" stroke-width="2"/>
+                <circle cx="20" cy="20" r="5" fill="#000"/>
+              </svg>
+            `),
+            scaledSize: new window.google.maps.Size(40, 40),
+            anchor: new window.google.maps.Point(20, 20)
+          }
+        });
+        newMarkers.push(userMarker);
+      }
+
+      // Add trainer markers
+      trainers.forEach((trainer, index) => {
+        if (trainer.location && trainer.location.coordinates) {
+          const [lng, lat] = trainer.location.coordinates;
+          const marker = new window.google.maps.Marker({
+            position: { lat, lng },
+            map,
+            title: trainer.trainer_name,
+            icon: {
+              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20 0C11.2 0 4 7.2 4 16c0 12 16 24 16 24s16-12 16-24c0-8.8-7.2-16-16-16z" fill="#ff6b6b"/>
+                  <circle cx="20" cy="16" r="8" fill="#fff"/>
+                  <text x="20" y="21" text-anchor="middle" font-size="12" fill="#ff6b6b" font-weight="bold">💪</text>
+                </svg>
+              `),
+              scaledSize: new window.google.maps.Size(40, 40),
+              anchor: new window.google.maps.Point(20, 40)
+            }
+          });
+
+          const infoWindow = new window.google.maps.InfoWindow({
+            content: `
+              <div style="padding: 10px; max-width: 250px; color: #333;">
+                <h3 style="margin: 0 0 10px 0; color: #ff6b6b;">${trainer.trainer_name}</h3>
+                <p style="margin: 5px 0;"><strong>Rate:</strong> $${trainer.hourly_rate}/hour</p>
+                <p style="margin: 5px 0;"><strong>Gym:</strong> ${trainer.gym_name || 'Multiple Locations'}</p>
+                <p style="margin: 5px 0;"><strong>Specialties:</strong> ${(trainer.specialties || []).join(', ')}</p>
+                ${trainer.distance_km ? `<p style="margin: 5px 0;"><strong>Distance:</strong> ${trainer.distance_km} km away</p>` : ''}
+                <button onclick="window.selectTrainer('${trainer.trainer_id}')" 
+                        style="background: #ff6b6b; color: white; border: none; padding: 8px 16px; border-radius: 4px; margin-top: 10px; cursor: pointer;">
+                  View Details
+                </button>
+              </div>
+            `
+          });
+
+          marker.addListener('click', () => {
+            infoWindow.open(map, marker);
+          });
+
+          newMarkers.push(marker);
+        }
+      });
+
+      setMarkers(newMarkers);
+
+      // Global function for trainer selection from info window
+      window.selectTrainer = (trainerId) => {
+        const trainer = trainers.find(t => t.trainer_id === trainerId);
+        if (trainer && onTrainerSelect) {
+          onTrainerSelect(trainer);
+        }
+      };
+    }
+  }, [map, trainers, userLocation, onTrainerSelect]);
+
+  return <div ref={ref} style={{ width: '100%', height: '100%' }} />;
+};
+
+const TrainerMap = ({ trainers, center, userLocation, onTrainerSelect }) => {
+  const render = (status) => {
+    switch (status) {
+      case Status.LOADING:
+        return (
+          <div className="map-loading">
+            <div className="loading-spinner">
+              <div className="spinner"></div>
+            </div>
+            <h3>Loading Map...</h3>
+          </div>
+        );
+      case Status.FAILURE:
+        return (
+          <div className="map-error">
+            <div className="error-icon">🗺️</div>
+            <h3>Map Failed to Load</h3>
+            <p>Please check your internet connection and try again</p>
+          </div>
+        );
+      case Status.SUCCESS:
+        return (
+          <MapComponent
+            center={center}
+            zoom={13}
+            trainers={trainers}
+            onTrainerSelect={onTrainerSelect}
+            userLocation={userLocation}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Wrapper apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} render={render}>
+      <MapComponent
+        center={center}
+        zoom={13}
+        trainers={trainers}
+        onTrainerSelect={onTrainerSelect}
+        userLocation={userLocation}
+      />
+    </Wrapper>
+  );
+};
+
 // API configuration
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
 
