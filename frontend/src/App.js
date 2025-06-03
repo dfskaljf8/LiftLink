@@ -2195,14 +2195,6 @@ const SocialTracking = () => {
   });
 
   return (
-        leaderboards: leaderboardsRes.data,
-        recommendations: recommendationsRes.data.recommendations
-      });
-    } catch (error) {
-      console.error('Error fetching social data:', error);
-    }
-    setLoading(false);
-  };
 
   const handleFollow = async (userId) => {
     try {
