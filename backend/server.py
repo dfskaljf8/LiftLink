@@ -692,6 +692,11 @@ async def send_verification_email(email: str, code: str) -> bool:
 mongo_client = AsyncIOMotorClient(os.getenv("MONGO_URL"))
 db = mongo_client[os.getenv("DB_NAME", "liftlink_db")]
 
+# Initialize enhanced security and performance modules
+security_middleware = AdvancedSecurityMiddleware(mongo_client)
+performance_optimizer = PerformanceOptimizer(mongo_client)
+db_query_optimizer = DatabaseQueryOptimizer(db)
+
 # Create geospatial indexes for location-based features
 async def setup_geospatial_indexes():
     """Set up geospatial indexes for location-based matching"""
@@ -701,17 +706,29 @@ async def setup_geospatial_indexes():
     except Exception as e:
         print(f"Geospatial index setup (continuing without): {e}")
 
+async def setup_enhanced_indexes():
+    """Set up all performance-optimized indexes"""
+    await performance_optimizer.setup_database_indexes()
+
 # Initialize Stripe
 stripe_checkout = StripeCheckout(api_key=os.getenv("STRIPE_SECRET_KEY"))
 
-# FastAPI app
+# FastAPI app with enhanced middleware
 app = FastAPI(title="LiftLink API", version="1.0.0")
+
+# Add enhanced middleware
+app.add_middleware(RequestTimer)
+app.add_middleware(CompressionMiddleware, min_size=1000)
 
 # Setup database indexes on startup
 @app.on_event("startup")
 async def startup_event():
     """Initialize database indexes and setup"""
     await setup_geospatial_indexes()
+    await setup_enhanced_indexes()
+    
+    # Start background performance monitoring
+    asyncio.create_task(performance_monitoring_task())
 
 # CORS middleware
 app.add_middleware(
