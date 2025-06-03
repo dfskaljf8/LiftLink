@@ -4379,7 +4379,7 @@ const AppContent = () => {
   );
 };
 
-// Main App Component - Tactical Command Center
+// Main Mobile-First App Component
 const App = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [isLogin, setIsLogin] = useState(true);
@@ -4393,37 +4393,33 @@ const App = () => {
           }
 
           if (!user) {
-            return (
-              <div className="tactical-app">
-                {isLogin ? (
-                  <TacticalLogin onToggle={() => setIsLogin(false)} />
-                ) : (
-                  <TacticalRegistration onToggle={() => setIsLogin(true)} />
-                )}
-              </div>
-            );
+            return <MobileAuthForm isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />;
           }
 
           return (
-            <div className="tactical-app">
-              <TacticalNavigation 
-                currentView={currentView} 
-                setCurrentView={setCurrentView} 
+            <div className="mobile-tactical-app">
+              <MobileTopNav 
+                userProfile={userProfile}
+                onMenuToggle={() => console.log('Menu toggle')}
               />
               
-              <div className="main-command-center">
-                <div className="command-interface">
-                  {currentView === 'dashboard' && <TacticalDashboard setCurrentView={setCurrentView} />}
-                  {currentView === 'trainers' && <TacticalTrainerSearch />}
-                  {currentView === 'bookings' && <TacticalBookings />}
-                  {currentView === 'progress' && <TacticalProgress />}
-                  {currentView === 'fitnessforest' && <TacticalTree />}
-                  {currentView === 'social' && <TacticalSocial />}
-                  {currentView === 'profile' && <TacticalProfile />}
-                  {currentView === 'trainer-dashboard' && <TacticalTrainerDashboard />}
-                  {currentView === 'admin' && <TacticalAdminDashboard />}
-                </div>
+              <div className="mobile-main-content">
+                {currentView === 'dashboard' && <MobileDashboard setCurrentView={setCurrentView} />}
+                {currentView === 'trainers' && <MobileTrainerSearch />}
+                {currentView === 'bookings' && <MobileBookings />}
+                {currentView === 'progress' && <MobileProgress />}
+                {currentView === 'fitnessforest' && <MobileTree />}
+                {currentView === 'social' && <MobileSocial />}
+                {currentView === 'profile' && <MobileProfile />}
+                {currentView === 'trainer-dashboard' && <MobileTrainerDashboard />}
+                {currentView === 'admin' && <MobileAdminDashboard />}
               </div>
+              
+              <MobileBottomNav 
+                currentView={currentView}
+                setCurrentView={setCurrentView}
+                userProfile={userProfile}
+              />
             </div>
           );
         }}
