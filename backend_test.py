@@ -630,13 +630,9 @@ def run_admin_tests(base_url):
     print("\n===== TESTING ADMIN FEATURES =====\n")
     
     # Test login as admin
-    if not tester.test_login("aaravdthakker@gmail.com", "admin123"):
-        print("❌ Admin login failed, trying alternative admin account")
-        if not tester.test_login("aadidthakker@gmail.com", "admin123"):
-            print("❌ Alternative admin login failed, trying last admin account")
-            if not tester.test_login("sid.the.manne@gmail.com", "admin123"):
-                print("❌ All admin logins failed, stopping tests")
-                return False
+    if not tester.test_login("admin@demo.com", "demo123"):
+        print("❌ Admin login failed, stopping tests")
+        return False
     
     # Test getting admin profile
     if not tester.test_get_user_profile():
