@@ -102,7 +102,22 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Continue where we left off with LiftLink. All files are in GitHub. The app is a personal trainer-client platform with a visual progress tree, LiftCoins, trainer verification, social tracking, and payment logic. Let's keep going with feature dev."
+user_problem_statement: "Secure LiftLink from the ground up. This app must **strictly prevent abuse**, especially from traffickers, predators, scammers, and fake trainers. Build systems with:
+- Full **KYC for trainers** (government ID + certification upload, selfie verification, admin approval)
+- AI-driven **user behavior monitoring** to flag suspicious chat patterns, rapid account creation, location mismatches, or grooming-like activity
+- **Session logging + moderation tools** for reporting and banning
+- **Geo-fencing** to restrict users from high-risk regions if needed
+- **Rate limits** to prevent bot signups or message flooding
+- Backend logic that **anonymizes sensitive user data** unless flagged
+- End-to-end encryption for DMs & sessions
+- Firebase Auth with reCAPTCHA and brute-force protection
+- Admin panel with **manual review queues** and audit logs
+
+This isn't just a fitness app. It's a safe, verified ecosystem. Treat security like a top priority — because human lives may depend on it.
+
+Also include the ability to chat/message your trainers and vice-versa, ability to leave reviews, etc. enhance the social aspect of the app, because this is what makes the app take off. 
+
+Also for the tree visualization system, everyone starts as a seed and works their way up to a redwood tree."
 
 backend:
   - task: "Environment Setup and Dependencies"
