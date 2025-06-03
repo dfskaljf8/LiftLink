@@ -254,6 +254,21 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// LiftLink Logo Component
+const LiftLinkLogo = ({ size = 'normal', className = '' }) => {
+  const sizeClass = size === 'large' ? 'large' : size === 'xl' ? 'xl' : '';
+  
+  return (
+    <div className={`liftlink-logo ${sizeClass} ${className}`}>
+      <div className="logo-barbell"></div>
+      <div className="logo-text">
+        <span className="lift">Lift</span><span className="link">Link</span>
+      </div>
+      {size === 'xl' && <div className="logo-tagline">Beginners to Believers</div>}
+    </div>
+  );
+};
+
 // LiftLink Marketplace - Instant Matching System
 const InstantMatch = () => {
   const [isMatching, setIsMatching] = useState(false);
