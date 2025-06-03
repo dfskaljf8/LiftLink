@@ -2174,7 +2174,7 @@ const SocialTracking = () => {
         {activeTab === 'feed' && (
           <div className="social-feed">
             <h2>Recent Activity</h2>
-            {socialData.feed.length === 0 ? (
+            {(socialData.feed || []).length === 0 ? (
               <div className="empty-feed">
                 <div className="empty-icon">📱</div>
                 <h3>No Activity Yet</h3>
