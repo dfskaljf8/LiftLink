@@ -344,8 +344,8 @@ const AuthProvider = ({ children }) => {
       
       setTimeout(() => {
         setLoading(false);
-        TacticalAudio.playSound('mission');
-        TacticalHaptics.success();
+        MobileTacticalAudio.playSound('success');
+        MobileHaptics.success();
       }, 3000);
       
       return () => clearInterval(interval);
