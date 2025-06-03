@@ -592,7 +592,7 @@ const LoginForm = ({ onToggle }) => {
       <div className="form-group">
         <input
           type="password"
-          placeholder="SECURITY CODE"
+          placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
