@@ -763,12 +763,14 @@ input::placeholder, textarea::placeholder {
 }
 
 .submit-btn:hover, .action-btn:hover, .book-btn:hover {
-  filter: brightness(1.2);
+  transform: scale(1.02);
+  filter: brightness(1.1);
 }
 
 .submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  transform: none;
   filter: none;
 }
 
