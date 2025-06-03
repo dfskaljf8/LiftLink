@@ -2160,7 +2160,7 @@ const SocialTracking = () => {
           className={`tab-btn ${activeTab === 'following' ? 'active' : ''}`}
           onClick={() => setActiveTab('following')}
         >
-          👥 Following ({socialData.following.length})
+          👥 Following ({(socialData.following || []).length})
         </button>
         <button 
           className={`tab-btn ${activeTab === 'recommendations' ? 'active' : ''}`}
