@@ -6,7 +6,7 @@ import './TacticalApp.css';
 import './MobileTactical.css';
 
 // Mobile-First Tactical Audio System
-const MobileMobileTacticalAudio = {
+const MobileTacticalAudio = {
   audioContext: null,
   
   init() {
@@ -17,8 +17,8 @@ const MobileMobileTacticalAudio = {
   
   playSound: (type, volume = 0.1) => {
     try {
-      MobileMobileTacticalAudio.init();
-      if (!MobileMobileTacticalAudio.audioContext) return;
+      MobileTacticalAudio.init();
+      if (!MobileTacticalAudio.audioContext) return;
       
       const sounds = {
         tap: { freq: 800, duration: 0.1 },
@@ -30,20 +30,20 @@ const MobileMobileTacticalAudio = {
       
       const sound = sounds[type];
       if (sound) {
-        const oscillator = MobileMobileTacticalAudio.audioContext.createOscillator();
-        const gainNode = MobileMobileTacticalAudio.audioContext.createGain();
+        const oscillator = MobileTacticalAudio.audioContext.createOscillator();
+        const gainNode = MobileTacticalAudio.audioContext.createGain();
         
         oscillator.connect(gainNode);
-        gainNode.connect(MobileMobileTacticalAudio.audioContext.destination);
+        gainNode.connect(MobileTacticalAudio.audioContext.destination);
         
-        oscillator.frequency.setValueAtTime(sound.freq, MobileMobileTacticalAudio.audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(sound.freq, MobileTacticalAudio.audioContext.currentTime);
         oscillator.type = 'square';
         
-        gainNode.gain.setValueAtTime(volume, MobileMobileTacticalAudio.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, MobileMobileTacticalAudio.audioContext.currentTime + sound.duration);
+        gainNode.gain.setValueAtTime(volume, MobileTacticalAudio.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, MobileTacticalAudio.audioContext.currentTime + sound.duration);
         
-        oscillator.start(MobileMobileTacticalAudio.audioContext.currentTime);
-        oscillator.stop(MobileMobileTacticalAudio.audioContext.currentTime + sound.duration);
+        oscillator.start(MobileTacticalAudio.audioContext.currentTime);
+        oscillator.stop(MobileTacticalAudio.audioContext.currentTime + sound.duration);
       }
     } catch (e) {
       console.log('Audio not supported:', e);
@@ -351,7 +351,7 @@ const MobileBottomNav = ({ currentView, setCurrentView, userProfile }) => {
 
   const handleNavigation = (key) => {
     setCurrentView(key);
-    MobileMobileTacticalAudio.playSound('tap');
+    MobileTacticalAudio.playSound('tap');
     MobileHaptics.light();
   };
 
@@ -388,12 +388,12 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
     setError('');
 
     try {
-      MobileMobileTacticalAudio.playSound('tap');
+      MobileTacticalAudio.playSound('tap');
       
       if (!isLogin && password !== confirmPassword) {
         setError('SECURITY CODES DO NOT MATCH');
         setLoading(false);
-        MobileMobileTacticalAudio.playSound('error');
+        MobileTacticalAudio.playSound('error');
         return;
       }
 
@@ -403,11 +403,11 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
         await register(email, password);
       }
       
-      MobileMobileTacticalAudio.playSound('success');
+      MobileTacticalAudio.playSound('success');
       MobileHaptics.success();
     } catch (error) {
       setError(error.message);
-      MobileMobileTacticalAudio.playSound('error');
+      MobileTacticalAudio.playSound('error');
       MobileHaptics.error();
     }
     
@@ -566,7 +566,7 @@ const AuthProvider = ({ children }) => {
       
       setTimeout(() => {
         setLoading(false);
-        MobileMobileTacticalAudio.playSound('success');
+        MobileTacticalAudio.playSound('success');
         MobileHaptics.success();
       }, 3000);
       
@@ -578,13 +578,13 @@ const AuthProvider = ({ children }) => {
     try {
       const response = await api.get('/api/users/profile');
       setUserProfile(response.data);
-      MobileMobileTacticalAudio.playSound('success');
+      MobileTacticalAudio.playSound('success');
     } catch (error) {
       console.log('User profile fetch error:', error.response?.data?.detail || error.message);
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user_data');
       setUser(null);
-      MobileMobileTacticalAudio.playSound('error');
+      MobileTacticalAudio.playSound('error');
     }
   };
 
@@ -600,7 +600,7 @@ const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      MobileMobileTacticalAudio.playSound('tap');
+      MobileTacticalAudio.playSound('tap');
       
       let demoToken = '';
       let demoUser = {};
@@ -634,7 +634,7 @@ const AuthProvider = ({ children }) => {
       const response = await api.get('/api/users/profile');
       setUserProfile(response.data);
       
-      MobileMobileTacticalAudio.playSound('success');
+      MobileTacticalAudio.playSound('success');
       MobileHaptics.success();
       
       return { user: demoUser };
@@ -650,7 +650,7 @@ const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    MobileMobileTacticalAudio.playSound('click');
+    MobileTacticalAudio.playSound('click');
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
     setUser(null);
@@ -1140,7 +1140,7 @@ const TacticalNavigation = ({ currentView, setCurrentView }) => {
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
-    MobileMobileTacticalAudio.playSound('click');
+    MobileTacticalAudio.playSound('click');
     MobileHaptics.light();
   };
 
