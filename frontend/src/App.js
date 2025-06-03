@@ -652,7 +652,7 @@ const RegistrationForm = ({ onToggle }) => {
       <div className="form-group">
         <input
           type="email"
-          placeholder="ENTER EMAIL"
+          placeholder="Email Address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
