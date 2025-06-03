@@ -91,7 +91,6 @@ const GamificationEngine = {
 
 // Enhanced Auth Context with Tactical Features
 const AuthContext = createContext();
-const AuthContext = createContext();
 
 // Google Maps Components
 const MapComponent = ({ center, zoom, trainers, onTrainerSelect, userLocation }) => {
