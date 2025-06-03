@@ -3109,6 +3109,10 @@ const AppContent = () => {
     setLoading(false);
   };
 
+  const onToggle = () => {
+    setAuthMode(authMode === 'login' ? 'register' : 'login');
+  };
+
   const renderCurrentView = () => {
     switch (currentView) {
       case 'dashboard':
