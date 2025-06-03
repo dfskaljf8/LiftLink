@@ -1874,7 +1874,7 @@ const TreeVisualization = () => {
         </div>
 
         <div className="clients-forest">
-          {treeData.clients_impact.map((client, index) => (
+          {(treeData.clients_impact || []).map((client, index) => (
             <div key={client.client_id} className="client-tree">
               <div className="client-header">
                 <h3>{client.client_name}</h3>
@@ -1886,7 +1886,7 @@ const TreeVisualization = () => {
               </div>
               
               <div className="mini-tree">
-                {client.recent_achievements.map((achievement, idx) => (
+                {(client.recent_achievements || []).map((achievement, idx) => (
                   <div key={idx} className="mini-achievement">
                     {achievement.icon} {achievement.title}
                   </div>
