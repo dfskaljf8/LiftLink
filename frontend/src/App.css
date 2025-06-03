@@ -1,56 +1,142 @@
 /* LiftLink - Elite-Grade Fitness Platform */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Satoshi:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap');
 
 :root {
   /* Elite Design Language - Global Variables */
-  --bg-primary: #0a0a0a;          /* Matte black background */
-  --accent-lime: #c6ff00;         /* Soft lime green */
-  --accent-gold: #ffd700;         /* Diffused gold */
+  --bg-primary: #0a0a0a;          /* Deep black background */
+  --bg-secondary: #050505;        /* Ultra dark background */
+  --accent-lime: #00ff41;         /* Matrix green */
+  --accent-cyan: #00ffff;         /* Cyber cyan */
+  --accent-purple: #8b5cf6;       /* Neon purple */
+  --accent-gold: #ffd700;         /* Elite gold */
   --text-primary: #ffffff;        /* Pure white */
-  --text-secondary: #cccccc;      /* Cool gray */
-  --text-muted: #666666;          /* Darker gray */
+  --text-secondary: #b3b3b3;      /* Cool gray */
+  --text-muted: #555555;          /* Darker gray */
   --surface: #111111;             /* Dark surface */
   --surface-elevated: #1a1a1a;    /* Elevated surface */
+  --surface-glass: rgba(17, 17, 17, 0.8);  /* Glass surface */
   --border: #333333;              /* Subtle borders */
+  --border-glow: #00ff4155;       /* Glowing border */
   
-  /* Elite Glows and Effects */
-  --glow-lime: 0 0 20px rgba(198, 255, 0, 0.4);
-  --glow-lime-strong: 0 0 30px rgba(198, 255, 0, 0.6);
+  /* High-Tech Glows and Effects */
+  --glow-lime: 0 0 20px rgba(0, 255, 65, 0.4), 0 0 40px rgba(0, 255, 65, 0.2);
+  --glow-lime-strong: 0 0 30px rgba(0, 255, 65, 0.6), 0 0 60px rgba(0, 255, 65, 0.3);
+  --glow-cyan: 0 0 20px rgba(0, 255, 255, 0.3), 0 0 40px rgba(0, 255, 255, 0.1);
+  --glow-purple: 0 0 20px rgba(139, 92, 246, 0.3), 0 0 40px rgba(139, 92, 246, 0.1);
   --glow-gold: 0 0 15px rgba(255, 215, 0, 0.3);
-  --shadow-elite: 0 8px 32px rgba(0, 0, 0, 0.8);
-  --shadow-floating: 0 12px 40px rgba(0, 0, 0, 0.6);
+  --shadow-elite: 0 8px 32px rgba(0, 0, 0, 0.9);
+  --shadow-floating: 0 12px 40px rgba(0, 0, 0, 0.7);
+  --shadow-neural: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 0 rgba(0, 0, 0, 0.8);
   
-  /* Elite Gradients */
-  --gradient-lime: linear-gradient(135deg, #c6ff00 0%, #a8d400 100%);
-  --gradient-gold: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-  --gradient-surface: linear-gradient(145deg, #111111 0%, #1a1a1a 100%);
-  --gradient-elite: linear-gradient(135deg, #c6ff00 0%, #ffd700 100%);
+  /* Cyberpunk Gradients */
+  --gradient-lime: linear-gradient(135deg, #00ff41 0%, #00cc33 100%);
+  --gradient-cyber: linear-gradient(135deg, #00ff41 0%, #00ffff 50%, #8b5cf6 100%);
+  --gradient-neural: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #1a1a1a 100%);
+  --gradient-matrix: linear-gradient(45deg, #001100 0%, #003300 50%, #001100 100%);
+  --gradient-hologram: linear-gradient(135deg, 
+    rgba(0, 255, 65, 0.1) 0%, 
+    rgba(0, 255, 255, 0.1) 25%, 
+    rgba(139, 92, 246, 0.1) 50%, 
+    rgba(255, 215, 0, 0.1) 75%, 
+    rgba(0, 255, 65, 0.1) 100%);
   
-  /* Motion Design - 250ms standard */
-  --motion-smooth: all 0.25s ease-in-out;
-  --motion-fast: all 0.15s ease-in-out;
+  /* Enhanced Motion Design */
+  --motion-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   --motion-slow: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
   --motion-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --motion-neural: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   
-  /* Elite Typography */
-  --font-primary: 'Satoshi', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+  /* High-Tech Typography */
+  --font-primary: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', 'Monaco', monospace;
+  --font-neural: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   
   /* Spacing System */
-  --space-xs: 0.5rem;   /* 8px */
-  --space-sm: 0.75rem;  /* 12px */
-  --space-md: 1rem;     /* 16px */
-  --space-lg: 1.5rem;   /* 24px */
-  --space-xl: 2rem;     /* 32px */
-  --space-2xl: 3rem;    /* 48px */
-  --space-3xl: 4rem;    /* 64px */
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
   
   /* Elite Border Radius */
   --radius-sm: 6px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 24px;
+  --radius-neural: 8px;
   --radius-full: 9999px;
+}
+
+/* Neural Network Background Animation */
+@keyframes neuralPulse {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes matrixRain {
+  0% {
+    transform: translateY(-100vh);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+@keyframes dataFlow {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes hologramShimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes quantumGlow {
+  0%, 100% {
+    box-shadow: var(--glow-lime);
+    border-color: rgba(0, 255, 65, 0.5);
+  }
+  25% {
+    box-shadow: var(--glow-cyan);
+    border-color: rgba(0, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: var(--glow-purple);
+    border-color: rgba(139, 92, 246, 0.5);
+  }
+  75% {
+    box-shadow: var(--glow-gold);
+    border-color: rgba(255, 215, 0, 0.5);
+  }
 }
 
 /* Elite Base Styles */
