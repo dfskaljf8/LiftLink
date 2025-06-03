@@ -2978,16 +2978,16 @@ const Profile = () => {
   );
 };
 
-// Main App Component
-const App = () => {
+// Inner App Component (inside AuthProvider)
+const AppContent = () => {
   const [currentView, setCurrentView] = useState('dashboard');
   const [authMode, setAuthMode] = useState('login');
-  const { loading } = useAuth();
+  const { user, userProfile, loading } = useAuth();
 
   const renderCurrentView = () => {
     switch (currentView) {
       case 'dashboard':
-        return <Dashboard />;
+        return <Dashboard setCurrentView={setCurrentView} />;
       case 'trainers':
         return <TrainerSearch />;
       case 'bookings':
@@ -3007,70 +3007,76 @@ const App = () => {
       case 'profile':
         return <Profile />;
       default:
-        return <Dashboard />;
+        return <Dashboard setCurrentView={setCurrentView} />;
     }
   };
 
+  if (loading) {
+    return (
+      <div className="app-loading">
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <h2>LiftLink</h2>
+          <p>Building your fitness journey...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="app-container">
+        <div className="auth-container">
+          <div className="auth-background">
+            <div className="floating-shapes">
+              <div className="shape shape-1"></div>
+              <div className="shape shape-2"></div>
+              <div className="shape shape-3"></div>
+            </div>
+          </div>
+          <div className="auth-content">
+            <div className="auth-header">
+              <div className="logo">
+                <span className="logo-icon">💪</span>
+                <span className="logo-text">LiftLink</span>
+              </div>
+              <p className="tagline">Transform Your Body, Transform Your Life</p>
+            </div>
+            
+            {authMode === 'login' ? (
+              <LoginForm onToggle={() => setAuthMode('register')} />
+            ) : (
+              <RegistrationForm onToggle={() => setAuthMode('login')} />
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="app-container">
+      <Navigation currentView={currentView} setCurrentView={setCurrentView} />
+      <main className="main-content">
+        <div className="content-wrapper">
+          {renderCurrentView()}
+        </div>
+      </main>
+      <div className="background-effects">
+        <div className="floating-particle"></div>
+        <div className="floating-particle"></div>
+        <div className="floating-particle"></div>
+      </div>
+    </div>
+  );
+};
+
+// Main App Component
+const App = () => {
   return (
     <AuthProvider>
       <div className="app">
-        <AuthChecker>
-          {({ user, userProfile }) => {
-            if (loading) {
-              return (
-                <div className="app-loading">
-                  <div className="loading-spinner">
-                    <div className="spinner"></div>
-                    <h2>LiftLink</h2>
-                    <p>Building your fitness journey...</p>
-                  </div>
-                </div>
-              );
-            }
-
-            if (!user) {
-              return (
-                <div className="app-container">
-                  <div className="auth-container">
-                    <div className="auth-background">
-                      <div className="floating-shapes">
-                        <div className="shape shape-1"></div>
-                        <div className="shape shape-2"></div>
-                        <div className="shape shape-3"></div>
-                      </div>
-                    </div>
-                    <div className="auth-content">
-                      <div className="auth-header">
-                        <div className="logo">
-                          <span className="logo-icon">💪</span>
-                          <span className="logo-text">LiftLink</span>
-                        </div>
-                        <p className="tagline">Transform Your Body, Transform Your Life</p>
-                      </div>
-                      
-                      {authMode === 'login' ? (
-                        <LoginForm onToggle={() => setAuthMode('register')} />
-                      ) : (
-                        <RegistrationForm onToggle={() => setAuthMode('login')} />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-
-            return (
-              <div className="app-container">
-                <Navigation currentView={currentView} setCurrentView={setCurrentView} />
-                <main className="main-content">
-                  <div className="content-wrapper">
-                    {renderCurrentView()}
-                  </div>
-                </main>
-              </div>
-            );
-          }}
-        </AuthChecker>
+        <AppContent />
       </div>
     </AuthProvider>
   );
