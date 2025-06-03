@@ -678,12 +678,12 @@ body {
 .loading-spinner {
   width: 60px;
   height: 60px;
-  border: 4px solid rgba(154, 205, 50, 0.3);
-  border-top: 4px solid var(--neon-primary);
+  border: 4px solid rgba(107, 142, 90, 0.3);
+  border-top: 4px solid var(--primary);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin-bottom: var(--space-xl);
-  box-shadow: 0 0 20px rgba(154, 205, 50, 0.5);
+  box-shadow: var(--shadow-glow);
 }
 
 @keyframes spin {
@@ -695,7 +695,7 @@ body {
   font-family: 'Orbitron', monospace;
   font-size: var(--text-lg);
   font-weight: 600;
-  color: var(--neon-primary);
+  color: var(--primary);
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-bottom: var(--space-sm);
@@ -704,7 +704,7 @@ body {
 .loading-subtitle {
   font-family: 'Space Mono', monospace;
   font-size: var(--text-sm);
-  color: var(--neon-secondary);
+  color: var(--secondary);
   letter-spacing: 1px;
 }
 
