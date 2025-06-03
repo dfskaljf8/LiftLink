@@ -329,24 +329,24 @@ const MobileTopNav = ({ onMenuToggle, userProfile }) => {
   );
 };
 
-// Mobile Bottom Navigation
+// Mobile Bottom Navigation - Simple Language
 const MobileBottomNav = ({ currentView, setCurrentView, userProfile }) => {
   const navItems = [
     { key: 'dashboard', label: 'Home', icon: '🏠' },
-    { key: 'trainers', label: 'Search', icon: '🎯' },
-    { key: 'progress', label: 'Stats', icon: '📊' },
-    { key: 'social', label: 'Squad', icon: '👥' },
+    { key: 'trainers', label: 'Trainers', icon: '🎯' },
+    { key: 'progress', label: 'Progress', icon: '📊' },
+    { key: 'social', label: 'Friends', icon: '👥' },
     { key: 'profile', label: 'Profile', icon: '👤' }
   ];
 
   // Add trainer-specific items
   if (userProfile?.role === 'trainer') {
-    navItems[4] = { key: 'trainer-dashboard', label: 'Command', icon: '🏋️‍♂️', badge: 3 };
+    navItems[4] = { key: 'trainer-dashboard', label: 'My Clients', icon: '🏋️‍♂️', badge: 3 };
   }
 
   // Add admin items  
   if (userProfile?.role === 'admin') {
-    navItems[4] = { key: 'admin', label: 'Control', icon: '🛡️', badge: 5 };
+    navItems[4] = { key: 'admin', label: 'Settings', icon: '🛡️', badge: 5 };
   }
 
   const handleNavigation = (key) => {
