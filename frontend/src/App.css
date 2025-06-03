@@ -734,12 +734,13 @@ input::placeholder, textarea::placeholder {
 }
 
 .submit-btn, .action-btn, .book-btn, .edit-btn, .trainer-btn, .save-btn {
-  background: var(--primary);
-  color: var(--background);
-  border-radius: 6px;
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--foreground);
+  border-radius: 8px;
   font-weight: 600;
-  padding: 0.6rem 1.2rem;
-  border: none;
+  backdrop-filter: blur(8px);
+  padding: 0.6rem 1.4rem;
   cursor: pointer;
   transition: var(--transition);
   margin-bottom: 1rem;
