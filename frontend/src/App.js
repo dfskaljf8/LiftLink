@@ -168,7 +168,8 @@ const IDVerification = ({ onVerified }) => {
       const birthDate = new Date(dateOfBirth);
       const today = new Date();
       const age = today.getFullYear() - birthDate.getFullYear() - 
-        ((today.getMonth(), today.getDate()) < (birthDate.getMonth(), birthDate.getDate()) ? 1 : 0);
+        ((today.getMonth() < birthDate.getMonth()) || 
+         (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate()) ? 1 : 0);
       
       if (age < 18) {
         throw new Error('You must be 18 or older to use this platform');
