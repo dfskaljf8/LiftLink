@@ -615,13 +615,13 @@ const LoginForm = ({ onToggle }) => {
           
           <div className="form-toggle">
             <span>
-              {isLogin ? "Don't have an account? " : "Already have an account? "}
+              Don't have an account?{' '}
               <button 
                 type="button" 
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={onToggle}
                 className="toggle-btn"
               >
-                {isLogin ? 'Sign Up' : 'Sign In'}
+                Sign Up
               </button>
             </span>
           </div>
