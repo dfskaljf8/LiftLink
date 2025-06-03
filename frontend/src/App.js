@@ -362,7 +362,7 @@ const AuthProvider = ({ children }) => {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user_data');
       setUser(null);
-      TacticalAudio.playSound('error');
+      MobileTacticalAudio.playSound('error');
     }
   };
 
