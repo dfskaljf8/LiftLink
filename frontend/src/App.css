@@ -2,21 +2,25 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Elite Design Language - Global Variables */
-  --bg-primary: #0a0a0a;          /* Deep black background */
-  --bg-secondary: #050505;        /* Ultra dark background */
-  --accent-lime: #00ff41;         /* Matrix green */
-  --accent-cyan: #00ffff;         /* Cyber cyan */
-  --accent-purple: #8b5cf6;       /* Neon purple */
-  --accent-gold: #ffd700;         /* Elite gold */
-  --text-primary: #ffffff;        /* Pure white */
-  --text-secondary: #b3b3b3;      /* Cool gray */
-  --text-muted: #555555;          /* Darker gray */
-  --surface: #111111;             /* Dark surface */
-  --surface-elevated: #1a1a1a;    /* Elevated surface */
-  --surface-glass: rgba(17, 17, 17, 0.8);  /* Glass surface */
-  --border: #333333;              /* Subtle borders */
-  --border-glow: #00ff4155;       /* Glowing border */
+  /* Cyberpunk Matrix Design Language - Pitch Black + Matrix Green */
+  --bg-primary: #000000;          /* Pitch black background */
+  --bg-secondary: #000000;        /* Pure black background */
+  --bg-tertiary: #0a0a0a;         /* Ultra subtle dark */
+  --accent-primary: #00ff41;      /* Matrix green primary */
+  --accent-secondary: #00cc33;    /* Darker matrix green */
+  --accent-tertiary: #008822;     /* Deep matrix green */
+  --accent-glow: #00ff4180;       /* Matrix green with transparency */
+  --text-primary: #00ff41;        /* Matrix green text */
+  --text-secondary: #00cc33;      /* Darker matrix green text */
+  --text-muted: #008822;          /* Deep matrix green muted */
+  --text-white: #ffffff;          /* Pure white for contrast */
+  --surface: #000000;             /* Pitch black surface */
+  --surface-elevated: #0a0a0a;    /* Slightly elevated black */
+  --surface-glass: rgba(0, 0, 0, 0.95);  /* Black glass surface */
+  --surface-glow: rgba(0, 255, 65, 0.05);  /* Matrix green glow surface */
+  --border: #00ff4120;            /* Matrix green borders */
+  --border-bright: #00ff4160;     /* Brighter matrix green borders */
+  --border-glow: #00ff41;         /* Full matrix green glow border */
   
   /* High-Tech Glows and Effects */
   --glow-lime: 0 0 20px rgba(0, 255, 65, 0.4), 0 0 40px rgba(0, 255, 65, 0.2);
