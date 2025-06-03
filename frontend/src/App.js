@@ -113,9 +113,7 @@ const MarketplaceAudio = {
         match: { freq: 880, duration: 0.3 },
         booking: { freq: 1000, duration: 0.2 },
         message: { freq: 660, duration: 0.15 },
-        error: { freq: 300, duration: 0.3 },
-        click: { freq: 850, duration: 0.12 },
-        hover: { freq: 600, duration: 0.08 }
+        error: { freq: 300, duration: 0.3 }
       };
       
       const sound = sounds[type];
