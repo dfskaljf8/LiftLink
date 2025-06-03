@@ -697,6 +697,592 @@
   box-shadow: 0 0 10px var(--neon-danger);
 }
 
+/* =============== TACTICAL CSS EXTENSIONS =============== */
+
+/* Mission Status Display */
+.mission-status {
+  padding: var(--space-tactical);
+  border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+  margin-bottom: var(--space-ops);
+}
+
+.status-header {
+  font-family: var(--font-command);
+  font-size: 0.8rem;
+  color: var(--neon-secondary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: var(--space-ops);
+  border-left: 3px solid var(--neon-secondary);
+  padding-left: calc(var(--space-ops) - 3px);
+}
+
+.status-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-ops);
+}
+
+.status-metric {
+  text-align: center;
+  padding: 8px;
+  background: rgba(0, 212, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.metric-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--neon-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+}
+
+.metric-value {
+  font-family: var(--font-command);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--neon-secondary);
+}
+
+/* Navigation Priority Indicators */
+.nav-priority {
+  background: var(--metal-chrome);
+  color: var(--bg-command);
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-left: auto;
+  min-width: 50px;
+  text-align: center;
+}
+
+.priority-alpha {
+  background: var(--neon-danger);
+  box-shadow: 0 0 10px var(--neon-danger);
+}
+
+.priority-bravo {
+  background: var(--neon-warning);
+  box-shadow: 0 0 10px var(--neon-warning);
+}
+
+.priority-charlie {
+  background: var(--neon-secondary);
+  box-shadow: 0 0 10px var(--neon-secondary);
+}
+
+.priority-delta {
+  background: var(--neon-primary);
+  box-shadow: 0 0 10px var(--neon-primary);
+}
+
+.priority-omega {
+  background: var(--neon-elite);
+  box-shadow: 0 0 10px var(--neon-elite);
+}
+
+/* Tactical Login System */
+.tactical-login {
+  min-height: 100vh;
+  background: var(--bg-command);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.tactical-login::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse at center, rgba(0, 255, 65, 0.05) 0%, transparent 70%),
+    linear-gradient(135deg, var(--bg-command) 0%, var(--bg-tactical) 100%);
+  z-index: 0;
+}
+
+.login-container {
+  max-width: 450px;
+  width: 100%;
+  padding: var(--space-command);
+  background: var(--glass-command);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  border-radius: 16px;
+  backdrop-filter: var(--blur-command);
+  box-shadow: var(--glow-command);
+  position: relative;
+  z-index: 10;
+  animation: hudActivation 1s var(--ease-command) forwards;
+}
+
+.login-header {
+  text-align: center;
+  margin-bottom: var(--space-command);
+}
+
+.tactical-emblem {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-tactical);
+  background: var(--metal-chrome);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  box-shadow: var(--glow-command);
+  animation: commandPulse 3s infinite;
+}
+
+.login-title {
+  font-family: var(--font-command);
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--neon-primary);
+  text-shadow: var(--glow-command);
+  letter-spacing: 4px;
+  margin: 0;
+}
+
+.login-subtitle {
+  font-family: var(--font-tactical);
+  font-size: 1rem;
+  color: var(--neon-secondary);
+  letter-spacing: 2px;
+  margin: 8px 0;
+  text-transform: uppercase;
+}
+
+.security-clearance {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--neon-warning);
+  background: rgba(255, 107, 0, 0.1);
+  border: 1px solid rgba(255, 107, 0, 0.3);
+  border-radius: 20px;
+  padding: 6px 16px;
+  display: inline-block;
+  margin-top: var(--space-ops);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Security Status */
+.security-status {
+  margin-bottom: var(--space-tactical);
+  padding: var(--space-ops);
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 65, 0.2);
+}
+
+.security-level {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.security-label {
+  font-family: var(--font-command);
+  font-size: 0.8rem;
+  color: var(--neon-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.security-bars {
+  display: flex;
+  gap: 4px;
+}
+
+.security-bar {
+  width: 20px;
+  height: 6px;
+  background: rgba(0, 255, 65, 0.2);
+  border-radius: 3px;
+  transition: all 0.3s var(--ease-tactical);
+}
+
+.security-bar.active {
+  background: var(--neon-primary);
+  box-shadow: 0 0 10px var(--neon-primary);
+}
+
+/* Tactical Form Fields */
+.tactical-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-tactical);
+}
+
+.form-field {
+  position: relative;
+}
+
+.field-label {
+  font-family: var(--font-command);
+  font-size: 0.8rem;
+  color: var(--neon-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.tactical-input {
+  width: 100%;
+  padding: 16px 20px;
+  background: rgba(0, 0, 0, 0.8);
+  border: 2px solid rgba(0, 255, 65, 0.3);
+  border-radius: 12px;
+  color: var(--neon-primary);
+  font-family: var(--font-tactical);
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s var(--ease-tactical);
+  backdrop-filter: var(--blur-command);
+}
+
+.tactical-input:focus {
+  outline: none;
+  border-color: var(--neon-primary);
+  box-shadow: var(--glow-command);
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.tactical-input::placeholder {
+  color: rgba(0, 255, 65, 0.5);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.field-scanner {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--neon-primary);
+  transition: width 0.3s var(--ease-tactical);
+  box-shadow: 0 0 10px var(--neon-primary);
+}
+
+.tactical-input:focus + .field-scanner {
+  width: 100%;
+}
+
+/* Tactical Buttons */
+.tactical-submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 18px 32px;
+  background: var(--glass-command);
+  border: 2px solid var(--neon-primary);
+  border-radius: 12px;
+  color: var(--neon-primary);
+  font-family: var(--font-command);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-tactical);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: var(--blur-command);
+  margin-top: var(--space-ops);
+}
+
+.tactical-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.3), transparent);
+  transition: left 0.5s var(--ease-tactical);
+}
+
+.tactical-submit:hover::before {
+  left: 100%;
+}
+
+.tactical-submit:hover {
+  background: var(--neon-primary);
+  color: var(--bg-command);
+  box-shadow: var(--glow-command);
+  transform: translateY(-2px) scale(1.05);
+  border-color: var(--neon-primary);
+}
+
+.tactical-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.submit-icon {
+  font-size: 1.2rem;
+}
+
+/* Loading Animations */
+.loading-sequence {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.loading-dots::after {
+  content: '';
+  animation: loading-dots 1.5s infinite;
+}
+
+@keyframes loading-dots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+  100% { content: ''; }
+}
+
+/* Auth Toggle */
+.auth-toggle {
+  text-align: center;
+  margin-top: var(--space-tactical);
+  padding-top: var(--space-tactical);
+  border-top: 1px solid rgba(0, 255, 65, 0.2);
+}
+
+.toggle-text {
+  color: var(--neon-secondary);
+  font-family: var(--font-tactical);
+  font-size: 0.9rem;
+}
+
+.toggle-link {
+  background: none;
+  border: none;
+  color: var(--neon-primary);
+  font-family: var(--font-command);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s var(--ease-tactical);
+}
+
+.toggle-link:hover {
+  color: var(--neon-secondary);
+  text-shadow: 0 0 10px var(--neon-secondary);
+}
+
+/* Tactical Error Messages */
+.tactical-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 0, 102, 0.1);
+  border: 1px solid rgba(255, 0, 102, 0.3);
+  border-radius: 8px;
+  color: var(--neon-danger);
+  font-family: var(--font-tactical);
+  font-weight: 500;
+  margin-top: var(--space-ops);
+}
+
+.error-icon {
+  font-size: 1.2rem;
+  filter: drop-shadow(0 0 5px var(--neon-danger));
+}
+
+.error-message {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Demo Credentials */
+.demo-credentials {
+  margin-top: var(--space-command);
+  padding: var(--space-tactical);
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 12px;
+  backdrop-filter: var(--blur-command);
+}
+
+.demo-header {
+  font-family: var(--font-command);
+  font-size: 0.8rem;
+  color: var(--neon-secondary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: var(--space-ops);
+  text-align: center;
+}
+
+.demo-accounts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.demo-account {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(0, 212, 255, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.account-type {
+  font-family: var(--font-command);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--neon-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.account-creds {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--neon-primary);
+}
+
+/* Security Requirements */
+.security-requirements {
+  padding: var(--space-tactical);
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 255, 65, 0.2);
+  border-radius: 12px;
+  margin-top: var(--space-ops);
+}
+
+.requirements-header {
+  font-family: var(--font-command);
+  font-size: 0.8rem;
+  color: var(--neon-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: var(--space-ops);
+  text-align: center;
+}
+
+.requirements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.requirement {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background: rgba(255, 0, 102, 0.1);
+  border: 1px solid rgba(255, 0, 102, 0.3);
+  border-radius: 6px;
+  transition: all 0.3s var(--ease-tactical);
+}
+
+.requirement.met {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: rgba(0, 255, 136, 0.3);
+}
+
+.requirement-icon {
+  font-family: var(--font-command);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--neon-danger);
+}
+
+.requirement.met .requirement-icon {
+  color: var(--neon-success);
+}
+
+.requirement-text {
+  font-family: var(--font-tactical);
+  font-size: 0.8rem;
+  color: var(--neon-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Loading Screen Enhancements */
+.loading-logo {
+  text-align: center;
+  margin-bottom: var(--space-command);
+}
+
+.tactical-emblem {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto var(--space-tactical);
+  background: var(--metal-chrome);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  box-shadow: var(--glow-command);
+  animation: commandPulse 2s infinite;
+}
+
+.loading-subtitle {
+  font-family: var(--font-tactical);
+  font-size: 1.2rem;
+  color: var(--neon-secondary);
+  letter-spacing: 3px;
+  margin-top: 12px;
+  text-transform: uppercase;
+}
+
+.loading-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-tactical);
+  margin-top: var(--space-command);
+}
+
+.metric {
+  text-align: center;
+  padding: var(--space-tactical);
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  border-radius: 12px;
+  backdrop-filter: var(--blur-command);
+}
+
+/* Main App Layout */
+.tactical-app {
+  background: var(--bg-command);
+  min-height: 100vh;
+  font-family: var(--font-tactical);
+  color: var(--neon-primary);
+  overflow-x: hidden;
+  position: relative;
+}
+
 /* =============== RESPONSIVE TACTICAL DESIGN =============== */
 
 @media (max-width: 768px) {
