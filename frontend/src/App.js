@@ -1585,7 +1585,7 @@ const AdminDashboard = () => {
                     </div>
                   </div>
                   <div className="trainer-specialties">
-                    {trainer.specialties?.map((specialty, index) => (
+                    {(trainer.specialties || []).map((specialty, index) => (
                       <span key={index} className="specialty-tag">{specialty}</span>
                     ))}
                   </div>
