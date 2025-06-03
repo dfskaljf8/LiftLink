@@ -2166,7 +2166,402 @@ const SocialTracking = () => {
   );
 };
 
-// Profile Component
+// Settings Component
+const Settings = () => {
+  const { logout } = useAuth();
+  
+  return (
+    <div className="settings-container fade-in-up">
+      <div className="settings-header">
+        <h1>⚙️ Settings</h1>
+        <p className="text-secondary">Manage your account preferences and settings</p>
+      </div>
+
+      <div className="settings-grid">
+        <div className="settings-card card">
+          <div className="card-header">
+            <h3 className="card-title">Account</h3>
+            <p className="card-subtitle">Manage your account settings</p>
+          </div>
+          <div className="card-body">
+            <div className="settings-group">
+              <button 
+                onClick={logout}
+                className="settings-btn logout-btn"
+              >
+                <span className="btn-icon">🚪</span>
+                <div className="btn-content">
+                  <span className="btn-title">Logout</span>
+                  <span className="btn-subtitle">Sign out of your account</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div className="settings-card card">
+          <div className="card-header">
+            <h3 className="card-title">Privacy & Legal</h3>
+            <p className="card-subtitle">Review our policies and terms</p>
+          </div>
+          <div className="card-body">
+            <div className="settings-group">
+              <div className="settings-item">
+                <span className="item-icon">📄</span>
+                <div className="item-content">
+                  <span className="item-title">Terms & Conditions</span>
+                  <span className="item-subtitle">Review our terms of service</span>
+                </div>
+                <button className="item-action btn-soft">View</button>
+              </div>
+              
+              <div className="settings-item">
+                <span className="item-icon">🔒</span>
+                <div className="item-content">
+                  <span className="item-title">Privacy Policy</span>
+                  <span className="item-subtitle">Understand how we protect your data</span>
+                </div>
+                <button className="item-action btn-soft">View</button>
+              </div>
+              
+              <div className="settings-item">
+                <span className="item-icon">🛡️</span>
+                <div className="item-content">
+                  <span className="item-title">Safety Guidelines</span>
+                  <span className="item-subtitle">Learn about our safety measures</span>
+                </div>
+                <button className="item-action btn-soft">View</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="settings-card card">
+          <div className="card-header">
+            <h3 className="card-title">App Information</h3>
+            <p className="card-subtitle">Learn more about LiftLink</p>
+          </div>
+          <div className="card-body">
+            <div className="settings-group">
+              <div className="app-info">
+                <div className="app-logo">
+                  <span className="logo-icon">💪</span>
+                  <span className="logo-text">LiftLink</span>
+                </div>
+                <p className="app-tagline">Transform Your Body, Transform Your Life</p>
+                <div className="app-version">Version 2.0.0</div>
+              </div>
+              
+              <div className="faith-message">
+                <h4>Our Mission</h4>
+                <p>
+                  LiftLink is built on the foundation of hope, growth, and community. 
+                  We believe that every fitness journey is a path of personal transformation, 
+                  guided by faith and supported by others who share the same vision of becoming 
+                  the best version of ourselves.
+                </p>
+                <p>
+                  "She is clothed with strength and dignity; she can laugh at the days to come." 
+                  - Proverbs 31:25
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// FitnessForest Component (renamed from TreeVisualization)
+const FitnessForest = () => {
+  const { userProfile } = useAuth();
+  const [forestData, setForestData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showAddNode, setShowAddNode] = useState(false);
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [newNodeData, setNewNodeData] = useState({
+    node_type: 'goal',
+    title: '',
+    description: '',
+    xp_reward: 0,
+    coin_reward: 0
+  });
+
+  useEffect(() => {
+    fetchForestData();
+  }, []);
+
+  const fetchForestData = async () => {
+    try {
+      const endpoint = userProfile?.role === 'trainer' 
+        ? '/api/tree/trainer-impact' 
+        : '/api/tree/my-tree';
+      
+      const response = await api.get(endpoint);
+      setForestData(response.data);
+    } catch (error) {
+      console.error('Error fetching forest data:', error);
+    }
+    setLoading(false);
+  };
+
+  const handleCreateNode = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/api/tree/create-node', {
+        ...newNodeData,
+        position: { x: Math.random() * 0.8 + 0.1, y: Math.random() * 0.8 + 0.1 }
+      });
+      
+      setNewNodeData({
+        node_type: 'goal',
+        title: '',
+        description: '',
+        xp_reward: 0,
+        coin_reward: 0
+      });
+      setShowAddNode(false);
+      fetchForestData();
+      alert('New goal planted in your FitnessForest!');
+    } catch (error) {
+      console.error('Error creating node:', error);
+      alert('Error planting new goal');
+    }
+  };
+
+  const handleCompleteNode = async (nodeId) => {
+    try {
+      await api.put(`/api/tree/update-node/${nodeId}`, {
+        status: 'completed'
+      });
+      fetchForestData();
+      alert('🎉 Goal completed! Your forest grows stronger!');
+    } catch (error) {
+      console.error('Error completing node:', error);
+      alert('Error completing goal');
+    }
+  };
+
+  if (loading) return (
+    <div className="loading-container">
+      <div className="loading-spinner">
+        <div className="spinner"></div>
+        <p>Growing your FitnessForest...</p>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="fitness-forest fade-in-up">
+      <div className="forest-header">
+        <h1>🌳 Your FitnessForest</h1>
+        <p className="text-secondary">
+          Watch your fitness journey bloom into a beautiful forest of achievements
+        </p>
+        
+        <div className="forest-stats">
+          <div className="stat-card">
+            <span className="stat-number">{forestData?.total_nodes || 0}</span>
+            <span className="stat-label">Goals Planted</span>
+          </div>
+          <div className="stat-card">
+            <span className="stat-number">{forestData?.completed_nodes || 0}</span>
+            <span className="stat-label">Goals Bloomed</span>
+          </div>
+          <div className="stat-card">
+            <span className="stat-number">{forestData?.tree_structure?.growth_points || 0}</span>
+            <span className="stat-label">Growth Points</span>
+          </div>
+        </div>
+        
+        <button 
+          onClick={() => setShowAddNode(true)}
+          className="btn-primary add-goal-btn"
+        >
+          🌱 Plant New Goal
+        </button>
+      </div>
+
+      <div className="forest-canvas">
+        <div className="forest-background">
+          <div className="forest-ground"></div>
+          <div className="forest-sky"></div>
+        </div>
+        
+        <div className="forest-trees">
+          {forestData?.nodes?.map((node, index) => (
+            <div
+              key={node.node_id}
+              className={`forest-node ${node.status} stagger`}
+              style={{
+                left: `${node.position.x * 100}%`,
+                top: `${node.position.y * 100}%`,
+                animationDelay: `${index * 0.1}s`
+              }}
+              onClick={() => setSelectedNode(node)}
+            >
+              <div className="node-icon">{node.icon}</div>
+              <div className="node-title">{node.title}</div>
+              {node.status === 'completed' && (
+                <div className="completion-glow"></div>
+              )}
+              {node.status === 'active' && (
+                <button 
+                  className="complete-btn btn-soft"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCompleteNode(node.node_id);
+                  }}
+                >
+                  Complete
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+        
+        {(!forestData?.nodes || forestData.nodes.length === 0) && (
+          <div className="empty-forest">
+            <div className="empty-forest-icon">🌱</div>
+            <h3>Plant Your First Goal</h3>
+            <p>Your FitnessForest is waiting to grow. Add your first goal to begin your journey!</p>
+            <button 
+              onClick={() => setShowAddNode(true)}
+              className="btn-primary"
+            >
+              🌱 Plant First Goal
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Add Node Modal */}
+      {showAddNode && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>🌱 Plant New Goal</h2>
+              <button onClick={() => setShowAddNode(false)} className="close-btn">×</button>
+            </div>
+            <form onSubmit={handleCreateNode} className="node-form">
+              <div className="form-group">
+                <label className="form-label">Goal Type</label>
+                <select
+                  value={newNodeData.node_type}
+                  onChange={(e) => setNewNodeData({...newNodeData, node_type: e.target.value})}
+                  className="form-select"
+                >
+                  <option value="goal">🎯 Goal</option>
+                  <option value="milestone">📍 Milestone</option>
+                  <option value="achievement">🏆 Achievement</option>
+                </select>
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Title</label>
+                <input
+                  type="text"
+                  value={newNodeData.title}
+                  onChange={(e) => setNewNodeData({...newNodeData, title: e.target.value})}
+                  className="form-input"
+                  placeholder="e.g., Lose 10 lbs, Run 5K, Bench 200 lbs"
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label className="form-label">Description</label>
+                <textarea
+                  value={newNodeData.description}
+                  onChange={(e) => setNewNodeData({...newNodeData, description: e.target.value})}
+                  className="form-textarea"
+                  placeholder="Describe your goal and how you'll achieve it..."
+                  required
+                />
+              </div>
+              
+              <div className="grid grid-cols-2">
+                <div className="form-group">
+                  <label className="form-label">XP Reward</label>
+                  <input
+                    type="number"
+                    value={newNodeData.xp_reward}
+                    onChange={(e) => setNewNodeData({...newNodeData, xp_reward: parseInt(e.target.value)})}
+                    className="form-input"
+                    min="0"
+                    max="500"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Coin Reward</label>
+                  <input
+                    type="number"
+                    value={newNodeData.coin_reward}
+                    onChange={(e) => setNewNodeData({...newNodeData, coin_reward: parseInt(e.target.value)})}
+                    className="form-input"
+                    min="0"
+                    max="1000"
+                  />
+                </div>
+              </div>
+              
+              <div className="form-actions">
+                <button type="submit" className="btn-primary">Plant Goal 🌱</button>
+                <button type="button" onClick={() => setShowAddNode(false)} className="btn-secondary">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Node Details Modal */}
+      {selectedNode && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h2>{selectedNode.icon} {selectedNode.title}</h2>
+              <button onClick={() => setSelectedNode(null)} className="close-btn">×</button>
+            </div>
+            <div className="node-details">
+              <p className="text-secondary">{selectedNode.description}</p>
+              
+              {(selectedNode.xp_reward > 0 || selectedNode.coin_reward > 0) && (
+                <div className="node-rewards">
+                  {selectedNode.xp_reward > 0 && (
+                    <span className="reward-badge">⚡ {selectedNode.xp_reward} XP</span>
+                  )}
+                  {selectedNode.coin_reward > 0 && (
+                    <span className="reward-badge">🪙 {selectedNode.coin_reward} Coins</span>
+                  )}
+                </div>
+              )}
+              
+              <div className="node-status">
+                <span className="status-label">Status:</span>
+                <span className={`status-badge ${selectedNode.status}`}>
+                  {selectedNode.status === 'completed' ? '✅ Completed' : 
+                   selectedNode.status === 'active' ? '🎯 Active' : '🔒 Locked'}
+                </span>
+              </div>
+              
+              {selectedNode.completion_date && (
+                <div className="completion-info">
+                  <span className="completion-label">Completed:</span>
+                  <span className="completion-date">
+                    {new Date(selectedNode.completion_date).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 const Profile = () => {
   const { userProfile, user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
