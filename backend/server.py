@@ -163,7 +163,6 @@ def verify_face_match(id_image_data: bytes, selfie_image_data: bytes) -> bool:
         return False
         
         # Compare faces
-        return matches[0]
         
     except Exception as e:
         security_logger.error(f"Face verification error: {e}")
@@ -481,7 +480,6 @@ def verify_face_match(id_image_data: bytes, selfie_image_data: bytes) -> bool:
         return False
         
         # Compare faces
-        return matches[0]
         
     except Exception as e:
         security_logger.error(f"Face verification error: {e}")
