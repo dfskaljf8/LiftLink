@@ -75,6 +75,9 @@ class LiftLinkAPITester:
         elif email == "trainer@demo.com":
             self.token = "demo_trainer"
             return True
+        elif email == "admin@demo.com":
+            self.token = "demo_admin"
+            return True
         return False
 
     def test_get_user_profile(self):
