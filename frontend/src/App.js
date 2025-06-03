@@ -438,84 +438,127 @@ const CertificationUpload = ({ onComplete }) => {
 
 // Navigation Component
 const Navigation = ({ currentView, setCurrentView }) => {
-  const { user, userProfile, logout } = useAuth();
+  const { userProfile, logout } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const navItems = [
+    { key: 'dashboard', label: 'Home', icon: '🏠' },
+    { key: 'trainers', label: 'Find Trainers', icon: '🔍' },
+    { key: 'bookings', label: 'My Bookings', icon: '📅' },
+    { key: 'progress', label: 'Progress', icon: '📊' },
+    { key: 'tree', label: 'Tree', icon: '🌳' },
+    { key: 'social', label: 'Social', icon: '👥' }
+  ];
+
+  // Add trainer-specific items
+  if (userProfile?.role === 'trainer') {
+    navItems.push({ key: 'trainer-dashboard', label: 'Trainer Hub', icon: '🏋️‍♂️' });
+  }
+
+  // Add admin items
+  if (userProfile?.role === 'admin') {
+    navItems.push({ key: 'admin', label: 'Admin Panel', icon: '🛡️' });
+  }
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
   return (
-    <nav className="navbar">
-      <div className="nav-brand">
-        <div className="logo">
-          <span className="logo-lift">Lift</span>
-          <span className="logo-link">Link</span>
+    <>
+      {/* Mobile hamburger button */}
+      <button 
+        className="hamburger-btn"
+        onClick={toggleSidebar}
+        aria-label="Toggle navigation"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      {/* Sidebar overlay for mobile */}
+      {sidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
+
+      {/* Sidebar */}
+      <div className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
+        <div className="sidebar-header">
+          <div className="logo">
+            <span className="logo-icon">💪</span>
+            <span className="logo-text">LiftLink</span>
+          </div>
+          <button className="sidebar-close" onClick={toggleSidebar}>×</button>
         </div>
-        <span className="tagline">Beginners to Believers</span>
+
+        <div className="sidebar-profile">
+          <div className="profile-avatar">
+            {userProfile?.name?.charAt(0) || '👤'}
+          </div>
+          <div className="profile-info">
+            <div className="profile-name">{userProfile?.name || 'User'}</div>
+            <div className="profile-role">
+              {userProfile?.role === 'trainer' ? '🏋️‍♂️ Trainer' : 
+               userProfile?.role === 'admin' ? '🛡️ Admin' : '💪 Member'}
+            </div>
+            <div className="profile-stats">
+              <div className="stat">
+                <span className="stat-icon">🪙</span>
+                <span className="stat-value">{userProfile?.lift_coins || 0}</span>
+              </div>
+              <div className="stat">
+                <span className="stat-icon">⚡</span>
+                <span className="stat-value">L{userProfile?.level || 1}</span>
+              </div>
+              <div className="stat">
+                <span className="stat-icon">🔥</span>
+                <span className="stat-value">{userProfile?.consecutive_days || 0}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <nav className="sidebar-nav">
+          {navItems.map((item) => (
+            <button
+              key={item.key}
+              className={`nav-item ${currentView === item.key ? 'active' : ''}`}
+              onClick={() => {
+                setCurrentView(item.key);
+                setSidebarOpen(false); // Close sidebar on mobile after navigation
+              }}
+            >
+              <span className="nav-icon">{item.icon}</span>
+              <span className="nav-label">{item.label}</span>
+              {currentView === item.key && <div className="nav-indicator"></div>}
+            </button>
+          ))}
+        </nav>
+
+        <div className="sidebar-footer">
+          <button 
+            className="nav-item profile-nav"
+            onClick={() => {
+              setCurrentView('profile');
+              setSidebarOpen(false);
+            }}
+          >
+            <span className="nav-icon">👤</span>
+            <span className="nav-label">Profile</span>
+          </button>
+          
+          <button 
+            className="nav-item logout-nav"
+            onClick={() => {
+              logout();
+              setSidebarOpen(false);
+            }}
+          >
+            <span className="nav-icon">🚪</span>
+            <span className="nav-label">Logout</span>
+          </button>
+        </div>
       </div>
-      
-      {user && (
-        <div className="nav-links">
-          <button 
-            className={`nav-btn ${currentView === 'home' ? 'active' : ''}`}
-            onClick={() => setCurrentView('home')}
-          >
-            🏠 Home
-          </button>
-          <button 
-            className={`nav-btn ${currentView === 'trainers' ? 'active' : ''}`}
-            onClick={() => setCurrentView('trainers')}
-          >
-            💪 Find Trainers
-          </button>
-          <button 
-            className={`nav-btn ${currentView === 'bookings' ? 'active' : ''}`}
-            onClick={() => setCurrentView('bookings')}
-          >
-            📅 My Bookings
-          </button>
-          <button 
-            className={`nav-btn ${currentView === 'progress' ? 'active' : ''}`}
-            onClick={() => setCurrentView('progress')}
-          >
-            📊 Progress
-          </button>
-          <button 
-            className={`nav-btn ${currentView === 'tree' ? 'active' : ''}`}
-            onClick={() => setCurrentView('tree')}
-          >
-            🌳 Tree
-          </button>
-          <button 
-            className={`nav-btn ${currentView === 'social' ? 'active' : ''}`}
-            onClick={() => setCurrentView('social')}
-          >
-            👥 Social
-          </button>
-          {userProfile?.role === 'trainer' && (
-            <button 
-              className={`nav-btn ${currentView === 'trainer-dashboard' ? 'active' : ''}`}
-              onClick={() => setCurrentView('trainer-dashboard')}
-            >
-              🎯 Trainer Dashboard
-            </button>
-          )}
-          {userProfile?.role === 'admin' && (
-            <button 
-              className={`nav-btn admin ${currentView === 'admin' ? 'active' : ''}`}
-              onClick={() => setCurrentView('admin')}
-            >
-              👑 Admin Panel
-            </button>
-          )}
-          <button 
-            className={`nav-btn ${currentView === 'profile' ? 'active' : ''}`}
-            onClick={() => setCurrentView('profile')}
-          >
-            👤 Profile
-          </button>
-          <button className="nav-btn logout" onClick={logout}>
-            🚪 Logout
-          </button>
-        </div>
-      )}
-    </nav>
+    </>
   );
 };
 
