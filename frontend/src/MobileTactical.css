@@ -169,8 +169,8 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
-  background: linear-gradient(135deg, var(--liftlink-green), var(--liftlink-yellow));
-  border-radius: var(--radius-sm);
+  background: var(--gradient-primary);
+  border-radius: var(--radius-md);
   box-shadow: var(--shadow-glow);
 }
 
@@ -192,16 +192,16 @@ body {
   font-family: 'Orbitron', monospace;
   font-size: var(--text-lg);
   font-weight: 700;
-  color: var(--liftlink-white);
+  color: var(--text-primary);
   letter-spacing: 1px;
 }
 
 .logo-text .lift {
-  color: var(--liftlink-green);
+  color: var(--primary);
 }
 
 .logo-text .link {
-  color: var(--liftlink-white);
+  color: var(--text-primary);
 }
 
 /* Larger logo for headers */
@@ -239,6 +239,7 @@ body {
   width: 80px;
   height: 80px;
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-glow-strong);
 }
 
 .liftlink-logo.xl .logo-barbell::before {
@@ -259,7 +260,7 @@ body {
 .logo-tagline {
   font-family: 'Space Mono', monospace;
   font-size: var(--text-sm);
-  color: var(--neon-secondary);
+  color: var(--secondary);
   text-transform: uppercase;
   letter-spacing: 2px;
   margin-top: var(--space-xs);
