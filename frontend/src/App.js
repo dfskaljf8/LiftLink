@@ -3212,7 +3212,7 @@ const PaymentExperience = ({ sessionData, onComplete }) => {
 };
 
 // Bookings Component
-const BookingManagement = () => {
+const BookingManagementView = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
