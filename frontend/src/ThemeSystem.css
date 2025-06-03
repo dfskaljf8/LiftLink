@@ -1,0 +1,354 @@
+/* Modern Theme System with Light/Dark Mode */
+
+:root {
+  /* Light Theme (Default) */
+  --background-primary: #ffffff;
+  --background-secondary: #f8f9fa;
+  --background-tertiary: #e9ecef;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --text-muted: #adb5bd;
+  
+  /* Accent Colors - Soft and Modern */
+  --accent-primary: #6c63ff;       /* Soft purple */
+  --accent-secondary: #74c0fc;     /* Soft blue */
+  --accent-success: #51cf66;       /* Soft green */
+  --accent-warning: #ffd43b;       /* Soft yellow */
+  --accent-danger: #ff6b6b;        /* Soft red */
+  --accent-info: #74c0fc;          /* Soft cyan */
+  
+  /* Muted Pastels */
+  --pastel-lavender: #b39cd0;
+  --pastel-coral: #ffb3ba;
+  --pastel-mint: #baffc9;
+  --pastel-peach: #ffd1dc;
+  --pastel-sky: #bae1ff;
+  
+  /* Borders and Shadows */
+  --border-color: #dee2e6;
+  --border-radius: 12px;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.15);
+  
+  /* Interactive States */
+  --hover-overlay: rgba(108, 99, 255, 0.08);
+  --active-overlay: rgba(108, 99, 255, 0.12);
+  --focus-ring: rgba(108, 99, 255, 0.25);
+}
+
+/* Dark Theme */
+[data-theme='dark'] {
+  --background-primary: #000000;      /* Pitch black */
+  --background-secondary: #121212;    /* Very dark gray */
+  --background-tertiary: #1e1e1e;     /* Dark gray */
+  --text-primary: #e0e0e0;            /* Light gray */
+  --text-secondary: #a0a0a0;          /* Medium gray */
+  --text-muted: #707070;              /* Muted gray */
+  
+  /* Muted Accent Colors for Dark Mode */
+  --accent-primary: #b39cd0;          /* Muted lavender */
+  --accent-secondary: #87ceeb;        /* Muted sky blue */
+  --accent-success: #90ee90;          /* Muted light green */
+  --accent-warning: #f0e68c;          /* Muted khaki */
+  --accent-danger: #ffa07a;           /* Muted light salmon */
+  --accent-info: #87ceeb;             /* Muted sky blue */
+  
+  /* Darker Pastels */
+  --pastel-lavender: #8b7ca6;
+  --pastel-coral: #d4a5a5;
+  --pastel-mint: #a5d4a5;
+  --pastel-peach: #d4b5a5;
+  --pastel-sky: #a5c4d4;
+  
+  /* Dark Mode Borders and Shadows */
+  --border-color: #333333;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.5);
+  
+  /* Dark Mode Interactive States */
+  --hover-overlay: rgba(179, 156, 208, 0.12);
+  --active-overlay: rgba(179, 156, 208, 0.18);
+  --focus-ring: rgba(179, 156, 208, 0.35);
+}
+
+/* Smooth theme transitions */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Global body styling */
+body {
+  background-color: var(--background-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+/* Theme Toggle Button Styles */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: var(--background-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 50px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 1.2rem;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 60px;
+  justify-content: center;
+}
+
+.theme-toggle:hover {
+  background: var(--hover-overlay);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.theme-toggle:active {
+  transform: translateY(0);
+}
+
+.theme-toggle .theme-icon {
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover .theme-icon {
+  transform: scale(1.1) rotate(10deg);
+}
+
+/* Updated Card Styles */
+.mobile-card, .card {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.mobile-card:hover, .card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Updated Button Styles */
+.mobile-btn, .btn {
+  background: var(--accent-primary);
+  color: var(--background-primary);
+  border: none;
+  padding: 12px 24px;
+  border-radius: var(--border-radius);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.mobile-btn:hover, .btn:hover {
+  background: var(--accent-primary);
+  filter: brightness(110%);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.mobile-btn.secondary, .btn.secondary {
+  background: var(--background-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.mobile-btn.secondary:hover, .btn.secondary:hover {
+  background: var(--hover-overlay);
+}
+
+.mobile-btn.danger, .btn.danger {
+  background: var(--accent-danger);
+  color: var(--background-primary);
+}
+
+/* Updated Input Styles */
+.mobile-form-input, .form-input, input, textarea, select {
+  background: var(--background-primary);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 12px 16px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mobile-form-input:focus, .form-input:focus, input:focus, textarea:focus, select:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+  outline: none;
+}
+
+/* Updated Navigation Styles */
+.mobile-nav-bar, .nav-bar {
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+}
+
+.mobile-bottom-nav {
+  background: var(--background-secondary);
+  border-top: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+}
+
+.bottom-nav-item {
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+}
+
+.bottom-nav-item.active {
+  color: var(--accent-primary);
+}
+
+.bottom-nav-item:hover {
+  color: var(--accent-primary);
+  background: var(--hover-overlay);
+}
+
+/* Updated Text Styles */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-primary);
+}
+
+.card-title {
+  color: var(--text-primary);
+}
+
+.card-subtitle {
+  color: var(--text-secondary);
+}
+
+/* Updated Loading Styles */
+.loading-spinner {
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Updated Modal/Overlay Styles */
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+}
+
+.modal-content {
+  background: var(--background-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Updated Badge/Tag Styles */
+.badge, .tag {
+  background: var(--accent-primary);
+  color: var(--background-primary);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge.success {
+  background: var(--accent-success);
+}
+
+.badge.warning {
+  background: var(--accent-warning);
+}
+
+.badge.danger {
+  background: var(--accent-danger);
+}
+
+/* Pastel Theme Variations */
+.theme-pastel .mobile-btn, .theme-pastel .btn {
+  background: var(--pastel-lavender);
+}
+
+.theme-pastel .accent-coral {
+  background: var(--pastel-coral);
+}
+
+.theme-pastel .accent-mint {
+  background: var(--pastel-mint);
+}
+
+.theme-pastel .accent-peach {
+  background: var(--pastel-peach);
+}
+
+.theme-pastel .accent-sky {
+  background: var(--pastel-sky);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .theme-toggle {
+    top: 15px;
+    right: 15px;
+    padding: 10px 12px;
+    font-size: 1.1rem;
+  }
+}
+
+/* Accessibility Enhancements */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: #000000;
+    --text-secondary: #000000;
+  }
+  
+  [data-theme='dark'] {
+    --border-color: #ffffff;
+    --text-secondary: #ffffff;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .theme-toggle {
+    display: none !important;
+  }
+  
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+}
