@@ -3077,10 +3077,11 @@ const App = () => {
   );
 };
 
-// Auth Handler Component
+// Auth Handler Component - Legacy (Remove if not used)
 const AuthHandler = ({ setCurrentView }) => {
   const { user, loading } = useAuth();
   const [view, setView] = useState('home');
+  const [authMode, setAuthMode] = useState('login');
 
   if (loading) {
     return (
@@ -3102,7 +3103,15 @@ const AuthHandler = ({ setCurrentView }) => {
   }
 
   if (!user) {
-    return <LoginForm />;
+    return (
+      <div className="auth-container">
+        {authMode === 'login' ? (
+          <LoginForm onToggle={() => setAuthMode('register')} />
+        ) : (
+          <RegistrationForm onToggle={() => setAuthMode('login')} />
+        )}
+      </div>
+    );
   }
 
   const renderView = () => {
