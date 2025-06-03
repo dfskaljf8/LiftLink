@@ -2193,10 +2193,6 @@ const SocialTracking = () => {
       { member: 'Riley Stone', action: 'started leg day', time: '35 min ago', avatar: 'R' }
     ]
   });
-    leaderboards: {},
-    recommendations: []
-  });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchSocialData();
