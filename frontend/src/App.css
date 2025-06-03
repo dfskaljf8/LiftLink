@@ -1071,10 +1071,6 @@ body {
 .elite-btn:active, .book-btn:active, .submit-btn:active {
   transform: translateY(0);
 }
-  background: var(--gradient-neon);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .logo-text {
