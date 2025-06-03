@@ -733,19 +733,18 @@ input::placeholder, textarea::placeholder {
 }
 
 .submit-btn, .action-btn, .book-btn, .edit-btn, .trainer-btn, .save-btn {
-  width: 100%;
-  padding: 1.25rem;
-  background: var(--gradient-primary);
-  border: none;
-  border-radius: 16px;
-  color: var(--bg-primary);
-  font-size: 1.1rem;
+  background: var(--primary);
+  color: var(--background);
+  border-radius: 6px;
   font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  border: none;
   cursor: pointer;
-  transition: all 0.3s var(--ease-out-quart);
+  transition: var(--transition);
   margin-bottom: 1rem;
   position: relative;
   overflow: hidden;
+  font-family: var(--font-base);
 }
 
 .submit-btn::before, .action-btn::before, .book-btn::before {
