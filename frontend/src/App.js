@@ -6009,7 +6009,7 @@ const ModernProfileScreen = ({ setCurrentView, user }) => {
   );
 };
 
-// User Messages Interface Component (Adonis-inspired)
+// Modern Profile Screen Component (Adonis-inspired)
 const UserMessagesInterface = ({ setCurrentView, user }) => {
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
