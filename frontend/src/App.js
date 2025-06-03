@@ -3660,7 +3660,7 @@ const ProgressAnalyticsView = () => {
 };
 
 // Admin Dashboard Component
-const AdminDashboard = () => {
+const AdminDashboardView = () => {
   const [stats, setStats] = useState(null);
   const [users, setUsers] = useState([]);
   const [trainers, setTrainers] = useState([]);
