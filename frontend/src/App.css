@@ -80,7 +80,6 @@
   --grid: minmax(320px, 1fr);
   --container: max-width: 1200px; margin: 0 auto;
 }
-}
 
 body {
   margin: 0;
@@ -88,8 +87,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--background);
-  background-image: var(--pattern-bg);
-  color: var(--primary);
+  color: var(--foreground);
   line-height: 1.6;
   font-size: 16px;
   transition: var(--transition);
