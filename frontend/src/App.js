@@ -668,7 +668,7 @@ const AuthProvider = ({ children }) => {
   };
 
   if (loading) {
-    return <TacticalLoading progress={loadingProgress} />;
+    return <MobileLoadingScreen progress={loadingProgress} />;
   }
 
   return (
