@@ -466,8 +466,8 @@ body {
 /* =============== MOBILE TACTICAL CARDS =============== */
 
 .mobile-card {
-  background: rgba(0, 0, 0, 0.8);
-  border: 1px solid rgba(154, 205, 50, 0.3);
+  background: rgba(20, 20, 20, 0.8);
+  border: 1px solid rgba(107, 142, 90, 0.2);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
   margin-bottom: var(--space-md);
@@ -481,6 +481,7 @@ body {
 .mobile-card:active {
   transform: scale(0.98);
   box-shadow: var(--shadow-lg);
+  border-color: rgba(107, 142, 90, 0.3);
 }
 
 .mobile-card::before {
@@ -490,7 +491,7 @@ body {
   left: -100%;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--neon-primary), transparent);
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
   transition: left var(--duration-slow) var(--ease-mobile);
 }
 
@@ -509,15 +510,15 @@ body {
   font-family: 'Orbitron', monospace;
   font-size: var(--text-lg);
   font-weight: 600;
-  color: var(--neon-primary);
+  color: var(--primary);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
 
 .card-action {
   background: none;
-  border: 1px solid var(--neon-secondary);
-  color: var(--neon-secondary);
+  border: 1px solid var(--secondary);
+  color: var(--secondary);
   font-size: var(--text-sm);
   padding: var(--space-xs) var(--space-sm);
   border-radius: var(--radius-md);
@@ -529,8 +530,8 @@ body {
 }
 
 .card-action:active {
-  background: var(--neon-secondary);
-  color: var(--bg-command);
+  background: var(--secondary);
+  color: var(--text-inverse);
   transform: scale(0.95);
 }
 
