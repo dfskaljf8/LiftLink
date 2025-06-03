@@ -12,69 +12,74 @@
 }
 
 :root {
-  /* LiftLink Neon Vibe - Dark Theme */
-  --primary: #c0f527;              /* Neon green primary */
-  --background: #0f0f0f;           /* Deep black background */
-  --foreground: #c0f527;           /* Neon green foreground */
-  --border: #c0f527;               /* Neon green borders */
-  --hover: #d4fd5e;                /* Lighter neon green on hover */
-  --accent: #c0f527;               /* Neon green accent */
+  /* LiftLink BlackOps Theme - Uber-inspired */
+  --background: #0a0a0a;           /* Very dark background */
+  --surface: #111111;              /* Surface elements */
+  --foreground: #e5e5e5;           /* Light gray text */
+  --primary: #b7f34b;              /* Bright green primary */
+  --accent: #b7f34b;               /* Bright green accent */
+  --border: #1f1f1f;               /* Dark gray borders */
+  --muted: #555555;                /* Medium gray muted text */
   
   /* Legacy mappings for compatibility */
-  --primary-soft: #c0f527;
-  --primary-medium: #a8e522;
-  --primary-deep: #8fc91e;
+  --primary-soft: #b7f34b;
+  --primary-medium: #a5e042;
+  --primary-deep: #93cc39;
   
-  --accent-light: #c0f527;
-  --accent-soft: #d4fd5e;
-  --accent-warm: #c0f527;
+  --accent-light: #b7f34b;
+  --accent-soft: #c9f666;
+  --accent-warm: #b7f34b;
   
-  --text-primary: #c0f527;         /* Neon green text */
-  --text-secondary: #a8e522;       /* Slightly dimmer green */
-  --text-muted: rgba(192, 245, 39, 0.6); /* Muted neon green */
+  --text-primary: #e5e5e5;         /* Light gray text */
+  --text-secondary: #b0b0b0;       /* Medium gray */
+  --text-muted: #555555;           /* Muted gray text */
   
-  --background-primary: #0f0f0f;   /* Deep black */
-  --background-soft: #1a1a1a;      /* Slightly lighter black */
-  --background-card: #0f0f0f;      /* Card background */
+  --background-primary: #0a0a0a;   /* Very dark background */
+  --background-soft: #111111;      /* Surface background */
+  --background-card: #111111;      /* Card background */
   
   --surface-light: #1a1a1a;        /* Light surface */
-  --surface-medium: #262626;       /* Medium surface */
+  --surface-medium: #1f1f1f;       /* Medium surface */
   
   /* Theme-specific variables */
-  --border-light: rgba(192, 245, 39, 0.2);    /* Neon green border light */
-  --border-medium: rgba(192, 245, 39, 0.4);   /* Neon green border medium */
+  --border-light: #1f1f1f;         /* Dark border light */
+  --border-medium: #2a2a2a;        /* Dark border medium */
   
-  --shadow-soft: 0 2px 12px rgba(192, 245, 39, 0.1);
-  --shadow-medium: 0 4px 20px rgba(192, 245, 39, 0.15);
-  --shadow-strong: 0 8px 30px rgba(192, 245, 39, 0.2);
+  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-strong: 0 8px 30px rgba(0, 0, 0, 0.5);
   
-  --gradient-soft: linear-gradient(135deg, #c0f527 0%, #d4fd5e 100%);
-  --gradient-warm: linear-gradient(135deg, #a8e522 0%, #c0f527 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(192, 245, 39, 0.1) 0%, rgba(212, 253, 94, 0.05) 100%);
+  --gradient-soft: linear-gradient(135deg, #b7f34b 0%, #c9f666 100%);
+  --gradient-warm: linear-gradient(135deg, #a5e042 0%, #b7f34b 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(183, 243, 75, 0.1) 0%, rgba(201, 246, 102, 0.05) 100%);
   
-  /* Neon theme accent colors */
-  --hope-gold: #c0f527;            /* Neon green instead of gold */
-  --peace-blue: #c0f527;           /* Neon green instead of blue */
-  --joy-coral: #c0f527;            /* Neon green instead of coral */
-  --growth-green: #c0f527;         /* Primary neon green */
+  /* BlackOps theme accent colors */
+  --hope-gold: #b7f34b;            /* Primary green */
+  --peace-blue: #b7f34b;           /* Primary green */
+  --joy-coral: #b7f34b;            /* Primary green */
+  --growth-green: #b7f34b;         /* Primary green */
   
-  /* Status colors - neon green variants */
-  --success-soft: #c0f527;         /* Neon green success */
-  --warning-soft: #d4fd5e;         /* Lighter neon for warning */
-  --error-soft: rgba(192, 245, 39, 0.8);     /* Muted neon for errors */
-  --info-soft: rgba(192, 245, 39, 0.6);      /* Info neon green */
-  
-  /* Striped pattern background */
-  --pattern-bg: repeating-linear-gradient(45deg, rgba(192, 245, 39, 0.03), rgba(192, 245, 39, 0.03) 20px, transparent 20px, transparent 40px);
+  /* Status colors - green variants */
+  --success-soft: #b7f34b;         /* Success green */
+  --warning-soft: #f39c12;         /* Orange warning */
+  --error-soft: #e74c3c;           /* Red error */
+  --info-soft: #3498db;            /* Blue info */
   
   /* Glass effect borders */
-  --glass-border: rgba(192, 245, 39, 0.2);
+  --glass-border: rgba(183, 243, 75, 0.2);
   
   /* Transition effects */
-  --transition: all 0.3s ease-in-out;
+  --transition: all 0.25s ease-in-out;
   
-  /* Font family */
-  --font-base: 'Orbitron', sans-serif;
+  /* Font families */
+  --font-base: 'Inter', sans-serif;
+  --font-heading: 'Inter', sans-serif;
+  
+  /* Layout system */
+  --spacing: 1rem;
+  --grid: minmax(320px, 1fr);
+  --container: max-width: 1200px; margin: 0 auto;
+}
 }
 
 body {
