@@ -5914,7 +5914,7 @@ const AppContent = () => {
 
 // Main App Component - Modern Adonis-inspired Design
 
-// Modern Profile Screen Component (Adonis-inspired)
+// Simple Messages Placeholder Component
 const ModernProfileScreen = ({ setCurrentView, user }) => {
   const [profile, setProfile] = useState(user);
   const [editing, setEditing] = useState(false);
