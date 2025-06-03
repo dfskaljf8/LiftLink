@@ -544,14 +544,14 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
   );
 };
 
-// Enhanced Auth Provider with Tactical Features
+// Enhanced Auth Provider with Mobile Features
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
-  // Simulate tactical loading sequence
+  // Simulate mobile loading sequence
   useEffect(() => {
     if (loading) {
       const interval = setInterval(() => {
@@ -684,74 +684,74 @@ const AuthChecker = ({ children }) => {
   return children(auth);
 };
 
-// Tactical Component Placeholders (using existing components with tactical styling)
-const TacticalDashboard = ({ setCurrentView }) => {
+// Mobile Component Wrappers for existing components
+const MobileDashboard = ({ setCurrentView }) => {
   return (
-    <div className="tactical-component">
+    <div className="mobile-card">
       <HomeDashboard setCurrentView={setCurrentView} />
     </div>
   );
 };
 
-const TacticalTrainerSearch = () => {
+const MobileTrainerSearch = () => {
   return (
-    <div className="tactical-component">
+    <div className="mobile-card">
       <TrainerSearch />
     </div>
   );
 };
 
-const TacticalBookings = () => {
+const MobileBookings = () => {
   return (
-    <div className="tactical-component">
+    <div className="mobile-card">
       <MyBookings />
     </div>
   );
 };
 
-const TacticalProgress = () => {
+const MobileProgress = () => {
   return (
-    <div className="tactical-component">
+    <div className="mobile-card">
       <ProgressAnalytics />
     </div>
   );
 };
 
-const TacticalTree = () => {
+const MobileTree = () => {
   return (
-    <div className="tactical-component">
+    <div className="mobile-card">
       <FitnessForest />
     </div>
   );
 };
 
-const TacticalSocial = () => {
+const MobileSocial = () => {
   return (
-    <div className="tactical-component">
+    <div className="mobile-card">
       <SocialNetwork />
     </div>
   );
 };
 
-const TacticalProfile = () => {
+const MobileProfile = () => {
   return (
-    <div className="tactical-component">
+    <div className="mobile-card">
       <UserProfile />
     </div>
   );
 };
 
-const TacticalTrainerDashboard = () => {
+const MobileTrainerDashboard = () => {
   return (
-    <div className="tactical-component">
+    <div className="mobile-card">
       <TrainerDashboard />
     </div>
   );
 };
 
-const TacticalAdminDashboard = () => {
+const MobileAdminDashboard = () => {
   return (
-    <div className="tactical-component">
+    <div className="mobile-card">
       <AdminDashboard />
     </div>
   );
