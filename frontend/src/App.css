@@ -91,10 +91,11 @@ body {
   /* Enforce dark mode */
   color-scheme: dark;
 }
-  transition: all 0.3s ease;
-}
 
 * {
+  color: var(--primary);
+  font-family: var(--font-base);
+}
   box-sizing: border-box;
   margin: 0;
   padding: 0;
