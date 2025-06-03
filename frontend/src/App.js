@@ -129,6 +129,17 @@ const useAuth = () => {
   return useContext(AuthContext);
 };
 
+// AuthChecker component to provide user context to child components
+const AuthChecker = ({ children }) => {
+  const { user, userProfile, loading } = useAuth();
+  
+  if (typeof children === 'function') {
+    return children({ user, userProfile, loading });
+  }
+  
+  return children;
+};
+
 // ID Verification Component
 const IDVerification = ({ onVerified }) => {
   const [documentType, setDocumentType] = useState('drivers_license');
