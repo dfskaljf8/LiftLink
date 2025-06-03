@@ -409,41 +409,41 @@ body::after {
   }
 }
 
-/* High-Tech Utility Classes */
-.glow-lime { 
-  box-shadow: var(--glow-lime); 
+/* =============== MATRIX UTILITY CLASSES =============== */
+.glow-matrix { 
+  box-shadow: var(--glow-matrix); 
+  border: 1px solid var(--border-bright);
+}
+.glow-matrix-strong { 
+  box-shadow: var(--glow-matrix-strong); 
   border: 1px solid var(--border-glow);
 }
-.glow-cyan { 
-  box-shadow: var(--glow-cyan); 
-  border: 1px solid rgba(0, 255, 255, 0.3);
+.glow-matrix-ultra { 
+  box-shadow: var(--glow-matrix-ultra); 
+  border: 1px solid var(--accent-primary);
 }
-.glow-purple { 
-  box-shadow: var(--glow-purple); 
-  border: 1px solid rgba(139, 92, 246, 0.3);
-}
-.glow-gold { box-shadow: var(--glow-gold); }
-.text-lime { color: var(--accent-lime); }
-.text-cyan { color: var(--accent-cyan); }
-.text-purple { color: var(--accent-purple); }
-.text-gold { color: var(--accent-gold); }
-.bg-surface { background: var(--surface); }
-.bg-elevated { background: var(--surface-elevated); }
-.bg-glass { background: var(--surface-glass); }
+.text-matrix { color: var(--text-primary); }
+.text-matrix-muted { color: var(--text-muted); }
+.text-white { color: var(--text-white); }
+.bg-matrix { background: var(--bg-primary); }
+.bg-matrix-elevated { background: var(--bg-tertiary); }
+.bg-matrix-glass { background: var(--surface-glass); }
+.bg-matrix-glow { background: var(--surface-glow); }
 
-/* Neural Components Base */
-.neural-card {
-  background: var(--gradient-neural);
+/* Matrix Component Base */
+.matrix-card {
+  background: var(--gradient-matrix);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: var(--space-xl);
-  transition: var(--motion-neural);
+  transition: var(--motion-matrix);
   animation: slideUpElite 0.6s ease-out;
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 }
 
-.neural-card::before {
+.matrix-card::before {
   content: '';
   position: absolute;
   top: 0;
@@ -456,21 +456,44 @@ body::after {
   z-index: 1;
 }
 
-.neural-card:hover::before {
+.matrix-card:hover::before {
   left: 100%;
   opacity: 1;
-  animation: hologramShimmer 1s ease-in-out;
+  animation: hologramShimmer 2s ease-in-out;
 }
 
-.neural-card:hover {
+.matrix-card:hover {
   transform: translateY(-8px) scale(1.02);
-  box-shadow: var(--shadow-floating);
-  border-color: var(--accent-lime);
-  animation: quantumGlow 2s ease-in-out infinite;
+  box-shadow: var(--shadow-floating), var(--glow-matrix);
+  border-color: var(--accent-primary);
+  animation: matrixGlow 3s ease-in-out infinite;
 }
 
-.neural-button {
-  background: var(--gradient-cyber);
+/* Responsive Matrix Card */
+@media (max-width: 768px) {
+  .matrix-card {
+    padding: var(--space-lg);
+    border-radius: var(--radius-md);
+  }
+  
+  .matrix-card:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+}
+
+@media (max-width: 480px) {
+  .matrix-card {
+    padding: var(--space-md);
+    border-radius: var(--radius-neural);
+  }
+  
+  .matrix-card:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.matrix-button {
+  background: var(--gradient-matrix-glow);
   border: none;
   border-radius: var(--radius-neural);
   padding: var(--space-md) var(--space-xl);
@@ -479,36 +502,64 @@ body::after {
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--motion-neural);
+  transition: var(--motion-matrix);
   position: relative;
   overflow: hidden;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  box-shadow: var(--shadow-neural);
+  box-shadow: var(--shadow-neural), var(--glow-matrix);
 }
 
-.neural-button::before {
+.matrix-button::before {
   content: '';
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   transition: var(--motion-fast);
 }
 
-.neural-button:hover::before {
+.matrix-button:hover::before {
   left: 100%;
 }
 
-.neural-button:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--glow-lime-strong), var(--shadow-floating);
-  animation: quantumGlow 1.5s ease-in-out infinite;
+.matrix-button:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: var(--glow-matrix-strong), var(--shadow-floating);
+  animation: matrixGlow 2s ease-in-out infinite;
 }
 
-.neural-input {
+.matrix-button:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* Responsive Matrix Button */
+@media (max-width: 768px) {
+  .matrix-button {
+    padding: var(--space-sm) var(--space-lg);
+    font-size: 0.8rem;
+  }
+  
+  .matrix-button:hover {
+    transform: translateY(-2px) scale(1.03);
+  }
+}
+
+@media (max-width: 480px) {
+  .matrix-button {
+    padding: var(--space-xs) var(--space-md);
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+  
+  .matrix-button:hover {
+    transform: translateY(-1px) scale(1.02);
+  }
+}
+
+.matrix-input {
   background: var(--surface-glass);
   border: 1px solid var(--border);
   border-radius: var(--radius-neural);
@@ -516,24 +567,39 @@ body::after {
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: 0.9rem;
-  transition: var(--motion-neural);
+  transition: var(--motion-matrix);
   width: 100%;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(15px);
   box-shadow: var(--shadow-neural);
 }
 
-.neural-input:focus {
+.matrix-input:focus {
   outline: none;
-  border-color: var(--accent-lime);
-  box-shadow: var(--glow-lime), var(--shadow-neural);
+  border-color: var(--accent-primary);
+  box-shadow: var(--glow-matrix), var(--shadow-neural);
   background: var(--surface-elevated);
-  animation: quantumGlow 2s ease-in-out infinite;
+  animation: matrixGlow 4s ease-in-out infinite;
 }
 
-.neural-input::placeholder {
+.matrix-input::placeholder {
   color: var(--text-muted);
   font-weight: 300;
   font-family: var(--font-neural);
+}
+
+/* Responsive Matrix Input */
+@media (max-width: 768px) {
+  .matrix-input {
+    padding: var(--space-md);
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .matrix-input {
+    padding: var(--space-sm);
+    font-size: 0.8rem;
+  }
 }
 
 /* ============ CYBERPUNK AUTH SCREEN ============ */
