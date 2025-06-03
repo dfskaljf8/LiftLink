@@ -684,75 +684,617 @@ const AuthChecker = ({ children }) => {
   return children(auth);
 };
 
-// Mobile Component Wrappers for existing components
-const MobileDashboard = ({ setCurrentView }) => {
+// Simple placeholder components for missing features
+const SocialNetwork = () => {
+  const { userProfile } = useAuth();
+  
   return (
     <div className="mobile-card">
-      <HomeDashboard setCurrentView={setCurrentView} />
+      <div className="card-header">
+        <h2 className="card-title">Connect with Friends</h2>
+      </div>
+      
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👥</div>
+        <h3 style={{ color: '#9ACD32', marginBottom: '1rem' }}>Coming Soon!</h3>
+        <p style={{ color: '#00d4ff', marginBottom: '2rem' }}>
+          Connect with workout buddies, share your progress, and join fitness challenges together.
+        </p>
+        
+        <div style={{ 
+          background: 'rgba(154, 205, 50, 0.1)', 
+          border: '1px solid rgba(154, 205, 50, 0.3)',
+          borderRadius: '12px',
+          padding: '1rem',
+          marginBottom: '1rem'
+        }}>
+          <h4 style={{ color: '#9ACD32', marginBottom: '0.5rem' }}>What's Coming:</h4>
+          <ul style={{ textAlign: 'left', color: '#00d4ff' }}>
+            <li>Find workout partners nearby</li>
+            <li>Share your fitness wins</li>
+            <li>Join group challenges</li>
+            <li>Celebrate together</li>
+          </ul>
+        </div>
+        
+        <button className="mobile-btn secondary" disabled>
+          <span className="btn-icon">🔔</span>
+          Get Notified When Ready
+        </button>
+      </div>
     </div>
   );
 };
 
-const MobileTrainerSearch = () => {
+const FitnessForest = () => {
+  const { userProfile } = useAuth();
+  
   return (
     <div className="mobile-card">
-      <TrainerSearch />
+      <div className="card-header">
+        <h2 className="card-title">Your Growth Tree</h2>
+      </div>
+      
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌲</div>
+        <h3 style={{ color: '#9ACD32', marginBottom: '1rem' }}>Growing Strong!</h3>
+        <p style={{ color: '#00d4ff', marginBottom: '2rem' }}>
+          Watch your fitness journey grow like a mighty tree. Every workout adds a new branch!
+        </p>
+        
+        <div style={{ 
+          background: 'rgba(154, 205, 50, 0.1)', 
+          border: '1px solid rgba(154, 205, 50, 0.3)',
+          borderRadius: '12px',
+          padding: '1rem',
+          marginBottom: '1rem'
+        }}>
+          <h4 style={{ color: '#9ACD32', marginBottom: '0.5rem' }}>Your Progress:</h4>
+          <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
+            <div>
+              <div style={{ fontSize: '2rem' }}>🌱</div>
+              <div style={{ color: '#00d4ff' }}>Level {userProfile?.level || 1}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '2rem' }}>🏆</div>
+              <div style={{ color: '#00d4ff' }}>{userProfile?.consecutive_days || 0} Day Streak</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '2rem' }}>💰</div>
+              <div style={{ color: '#00d4ff' }}>{userProfile?.lift_coins || 0} Coins</div>
+            </div>
+          </div>
+        </div>
+        
+        <button className="mobile-btn">
+          <span className="btn-icon">🌿</span>
+          Continue Growing
+        </button>
+      </div>
     </div>
   );
 };
 
-const MobileBookings = () => {
+const UserProfile = () => {
+  const { userProfile, logout } = useAuth();
+  
   return (
     <div className="mobile-card">
-      <MyBookings />
+      <div className="card-header">
+        <h2 className="card-title">My Profile</h2>
+      </div>
+      
+      <div style={{ padding: '1rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #9ACD32, #FFD700)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '2rem',
+            margin: '0 auto 1rem',
+            boxShadow: '0 0 20px rgba(154, 205, 50, 0.5)'
+          }}>
+            {userProfile?.name?.charAt(0) || '👤'}
+          </div>
+          <h3 style={{ color: '#9ACD32', marginBottom: '0.5rem' }}>
+            {userProfile?.name || 'Fitness Warrior'}
+          </h3>
+          <p style={{ color: '#00d4ff' }}>
+            {userProfile?.role === 'trainer' ? 'Personal Trainer' : 
+             userProfile?.role === 'admin' ? 'Administrator' : 'Member'}
+          </p>
+        </div>
+        
+        <div style={{ marginBottom: '2rem' }}>
+          <h4 style={{ color: '#9ACD32', marginBottom: '1rem' }}>Your Stats</h4>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: '1rem',
+            marginBottom: '1rem'
+          }}>
+            <div style={{ 
+              background: 'rgba(154, 205, 50, 0.1)', 
+              border: '1px solid rgba(154, 205, 50, 0.3)',
+              borderRadius: '8px',
+              padding: '1rem',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>{userProfile?.level || 1}</div>
+              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Level</div>
+            </div>
+            <div style={{ 
+              background: 'rgba(154, 205, 50, 0.1)', 
+              border: '1px solid rgba(154, 205, 50, 0.3)',
+              borderRadius: '8px',
+              padding: '1rem',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>{userProfile?.consecutive_days || 0}</div>
+              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Day Streak</div>
+            </div>
+            <div style={{ 
+              background: 'rgba(154, 205, 50, 0.1)', 
+              border: '1px solid rgba(154, 205, 50, 0.3)',
+              borderRadius: '8px',
+              padding: '1rem',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>{userProfile?.lift_coins || 0}</div>
+              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Coins</div>
+            </div>
+            <div style={{ 
+              background: 'rgba(154, 205, 50, 0.1)', 
+              border: '1px solid rgba(154, 205, 50, 0.3)',
+              borderRadius: '8px',
+              padding: '1rem',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>{userProfile?.xp_points || 0}</div>
+              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>XP Points</div>
+            </div>
+          </div>
+        </div>
+        
+        <div style={{ marginBottom: '2rem' }}>
+          <h4 style={{ color: '#9ACD32', marginBottom: '1rem' }}>Settings</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <button className="mobile-btn secondary" style={{ justifyContent: 'flex-start' }}>
+              <span className="btn-icon">🔔</span>
+              Notifications
+            </button>
+            <button className="mobile-btn secondary" style={{ justifyContent: 'flex-start' }}>
+              <span className="btn-icon">🎯</span>
+              Goals
+            </button>
+            <button className="mobile-btn secondary" style={{ justifyContent: 'flex-start' }}>
+              <span className="btn-icon">🏆</span>
+              Achievements
+            </button>
+            <button className="mobile-btn secondary" style={{ justifyContent: 'flex-start' }}>
+              <span className="btn-icon">⚙️</span>
+              App Settings
+            </button>
+          </div>
+        </div>
+        
+        <button 
+          className="mobile-btn danger"
+          onClick={logout}
+          onTouchStart={() => MobileHaptics.light()}
+        >
+          <span className="btn-icon">🚪</span>
+          Sign Out
+        </button>
+      </div>
     </div>
   );
 };
 
-const MobileProgress = () => {
+const TrainerDashboard = () => {
   return (
     <div className="mobile-card">
-      <ProgressAnalytics />
+      <div className="card-header">
+        <h2 className="card-title">Trainer Dashboard</h2>
+      </div>
+      
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏋️‍♂️</div>
+        <h3 style={{ color: '#9ACD32', marginBottom: '1rem' }}>Welcome, Trainer!</h3>
+        <p style={{ color: '#00d4ff', marginBottom: '2rem' }}>
+          Manage your clients, schedule sessions, and track your training business.
+        </p>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(2, 1fr)', 
+          gap: '1rem',
+          marginBottom: '2rem'
+        }}>
+          <div style={{ 
+            background: 'rgba(154, 205, 50, 0.1)', 
+            border: '1px solid rgba(154, 205, 50, 0.3)',
+            borderRadius: '8px',
+            padding: '1rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>12</div>
+            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Active Clients</div>
+          </div>
+          <div style={{ 
+            background: 'rgba(154, 205, 50, 0.1)', 
+            border: '1px solid rgba(154, 205, 50, 0.3)',
+            borderRadius: '8px',
+            padding: '1rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>5</div>
+            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Today's Sessions</div>
+          </div>
+        </div>
+        
+        <button className="mobile-btn">
+          <span className="btn-icon">📅</span>
+          View Schedule
+        </button>
+      </div>
     </div>
   );
 };
 
-const MobileTree = () => {
+const AdminDashboard = () => {
   return (
     <div className="mobile-card">
-      <FitnessForest />
+      <div className="card-header">
+        <h2 className="card-title">Admin Dashboard</h2>
+      </div>
+      
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🛡️</div>
+        <h3 style={{ color: '#9ACD32', marginBottom: '1rem' }}>Admin Controls</h3>
+        <p style={{ color: '#00d4ff', marginBottom: '2rem' }}>
+          Manage users, trainers, and platform settings.
+        </p>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(2, 1fr)', 
+          gap: '1rem',
+          marginBottom: '2rem'
+        }}>
+          <div style={{ 
+            background: 'rgba(154, 205, 50, 0.1)', 
+            border: '1px solid rgba(154, 205, 50, 0.3)',
+            borderRadius: '8px',
+            padding: '1rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>2,847</div>
+            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Total Users</div>
+          </div>
+          <div style={{ 
+            background: 'rgba(154, 205, 50, 0.1)', 
+            border: '1px solid rgba(154, 205, 50, 0.3)',
+            borderRadius: '8px',
+            padding: '1rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>127</div>
+            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Active Trainers</div>
+          </div>
+        </div>
+        
+        <button className="mobile-btn">
+          <span className="btn-icon">⚙️</span>
+          Manage Platform
+        </button>
+      </div>
     </div>
   );
 };
 
-const MobileSocial = () => {
+const ProgressAnalytics = () => {
+  const { userProfile } = useAuth();
+  
   return (
     <div className="mobile-card">
-      <SocialNetwork />
+      <div className="card-header">
+        <h2 className="card-title">Your Progress</h2>
+      </div>
+      
+      <div style={{ padding: '1rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📊</div>
+          <h3 style={{ color: '#9ACD32', marginBottom: '0.5rem' }}>Keep Going!</h3>
+          <p style={{ color: '#00d4ff' }}>You're doing great. Here's how you're doing.</p>
+        </div>
+        
+        <div style={{ marginBottom: '2rem' }}>
+          <h4 style={{ color: '#9ACD32', marginBottom: '1rem' }}>This Week</h4>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: '1rem',
+            marginBottom: '1rem'
+          }}>
+            <div style={{ 
+              background: 'rgba(154, 205, 50, 0.1)', 
+              border: '1px solid rgba(154, 205, 50, 0.3)',
+              borderRadius: '8px',
+              padding: '1rem',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>4</div>
+              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Workouts</div>
+            </div>
+            <div style={{ 
+              background: 'rgba(154, 205, 50, 0.1)', 
+              border: '1px solid rgba(154, 205, 50, 0.3)',
+              borderRadius: '8px',
+              padding: '1rem',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>320</div>
+              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Minutes</div>
+            </div>
+            <div style={{ 
+              background: 'rgba(154, 205, 50, 0.1)', 
+              border: '1px solid rgba(154, 205, 50, 0.3)',
+              borderRadius: '8px',
+              padding: '1rem',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>1,240</div>
+              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Calories</div>
+            </div>
+            <div style={{ 
+              background: 'rgba(154, 205, 50, 0.1)', 
+              border: '1px solid rgba(154, 205, 50, 0.3)',
+              borderRadius: '8px',
+              padding: '1rem',
+              textAlign: 'center'
+            }}>
+              <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>{userProfile?.consecutive_days || 0}</div>
+              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Day Streak</div>
+            </div>
+          </div>
+        </div>
+        
+        <div style={{ marginBottom: '2rem' }}>
+          <h4 style={{ color: '#9ACD32', marginBottom: '1rem' }}>Goals</h4>
+          <div style={{ 
+            background: 'rgba(154, 205, 50, 0.1)', 
+            border: '1px solid rgba(154, 205, 50, 0.3)',
+            borderRadius: '8px',
+            padding: '1rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+              <span style={{ color: '#00d4ff' }}>Weekly Workouts</span>
+              <span style={{ color: '#9ACD32' }}>4/5</span>
+            </div>
+            <div style={{ 
+              background: 'rgba(0, 0, 0, 0.3)', 
+              borderRadius: '4px', 
+              height: '8px',
+              position: 'relative'
+            }}>
+              <div style={{ 
+                background: '#9ACD32', 
+                borderRadius: '4px', 
+                height: '100%',
+                width: '80%',
+                boxShadow: '0 0 10px rgba(154, 205, 50, 0.5)'
+              }}></div>
+            </div>
+          </div>
+        </div>
+        
+        <button className="mobile-btn">
+          <span className="btn-icon">🎯</span>
+          Set New Goals
+        </button>
+      </div>
     </div>
   );
 };
 
-const MobileProfile = () => {
+const MyBookings = () => {
   return (
     <div className="mobile-card">
-      <UserProfile />
+      <div className="card-header">
+        <h2 className="card-title">My Sessions</h2>
+        <button className="card-action">+ Book New</button>
+      </div>
+      
+      <div style={{ padding: '1rem' }}>
+        <div style={{ marginBottom: '2rem' }}>
+          <h4 style={{ color: '#9ACD32', marginBottom: '1rem' }}>Upcoming</h4>
+          
+          <div style={{ 
+            background: 'rgba(154, 205, 50, 0.1)', 
+            border: '1px solid rgba(154, 205, 50, 0.3)',
+            borderRadius: '12px',
+            padding: '1rem',
+            marginBottom: '1rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <h5 style={{ color: '#9ACD32', margin: 0 }}>Strength Training</h5>
+              <span style={{ 
+                background: 'rgba(154, 205, 50, 0.2)', 
+                color: '#9ACD32', 
+                padding: '2px 8px', 
+                borderRadius: '12px',
+                fontSize: '0.8rem'
+              }}>
+                Confirmed
+              </span>
+            </div>
+            <p style={{ color: '#00d4ff', margin: '0.5rem 0' }}>with Sarah Johnson</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: '#00d4ff', fontSize: '0.9rem' }}>Tomorrow, 2:00 PM</span>
+              <button 
+                className="mobile-btn secondary" 
+                style={{ 
+                  padding: '0.5rem 1rem', 
+                  fontSize: '0.8rem',
+                  minHeight: 'auto'
+                }}
+              >
+                Reschedule
+              </button>
+            </div>
+          </div>
+          
+          <div style={{ 
+            background: 'rgba(154, 205, 50, 0.1)', 
+            border: '1px solid rgba(154, 205, 50, 0.3)',
+            borderRadius: '12px',
+            padding: '1rem'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+              <h5 style={{ color: '#9ACD32', margin: 0 }}>Cardio & Core</h5>
+              <span style={{ 
+                background: 'rgba(255, 215, 0, 0.2)', 
+                color: '#FFD700', 
+                padding: '2px 8px', 
+                borderRadius: '12px',
+                fontSize: '0.8rem'
+              }}>
+                Pending
+              </span>
+            </div>
+            <p style={{ color: '#00d4ff', margin: '0.5rem 0' }}>with Mike Torres</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: '#00d4ff', fontSize: '0.9rem' }}>Friday, 10:00 AM</span>
+              <button 
+                className="mobile-btn secondary" 
+                style={{ 
+                  padding: '0.5rem 1rem', 
+                  fontSize: '0.8rem',
+                  minHeight: 'auto'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div>
+          <h4 style={{ color: '#9ACD32', marginBottom: '1rem' }}>Past Sessions</h4>
+          <p style={{ color: '#00d4ff', textAlign: 'center', padding: '2rem' }}>
+            Your completed sessions will show up here.
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
 
-const MobileTrainerDashboard = () => {
+const HomeDashboard = ({ setCurrentView }) => {
+  const { userProfile } = useAuth();
+  
   return (
-    <div className="mobile-card">
-      <TrainerDashboard />
-    </div>
-  );
-};
-
-const MobileAdminDashboard = () => {
-  return (
-    <div className="mobile-card">
-      <AdminDashboard />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {/* Welcome Card */}
+      <div className="mobile-card">
+        <div style={{ textAlign: 'center', padding: '1rem' }}>
+          <h2 style={{ color: '#9ACD32', marginBottom: '0.5rem' }}>
+            Welcome back, {userProfile?.name?.split(' ')[0] || 'Warrior'}! 👋
+          </h2>
+          <p style={{ color: '#00d4ff' }}>Ready to crush your fitness goals today?</p>
+        </div>
+      </div>
+      
+      {/* Quick Stats */}
+      <div className="mobile-card">
+        <div className="card-header">
+          <h3 className="card-title">Your Stats</h3>
+          <button 
+            className="card-action"
+            onClick={() => setCurrentView('progress')}
+            onTouchStart={() => MobileHaptics.light()}
+          >
+            View All
+          </button>
+        </div>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(3, 1fr)', 
+          gap: '1rem',
+          padding: '1rem'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>{userProfile?.level || 1}</div>
+            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Level</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>{userProfile?.consecutive_days || 0}</div>
+            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Day Streak</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>{userProfile?.lift_coins || 0}</div>
+            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Coins</div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Quick Actions */}
+      <div className="mobile-card">
+        <div className="card-header">
+          <h3 className="card-title">Quick Actions</h3>
+        </div>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(2, 1fr)', 
+          gap: '1rem',
+          padding: '1rem'
+        }}>
+          <button 
+            className="mobile-btn"
+            onClick={() => setCurrentView('trainers')}
+            onTouchStart={() => MobileHaptics.light()}
+          >
+            <span className="btn-icon">🎯</span>
+            Find Trainers
+          </button>
+          <button 
+            className="mobile-btn secondary"
+            onClick={() => setCurrentView('bookings')}
+            onTouchStart={() => MobileHaptics.light()}
+          >
+            <span className="btn-icon">📅</span>
+            My Sessions
+          </button>
+        </div>
+      </div>
+      
+      {/* Today's Goal */}
+      <div className="mobile-card">
+        <div className="card-header">
+          <h3 className="card-title">Today's Goal</h3>
+        </div>
+        
+        <div style={{ padding: '1rem' }}>
+          <div style={{ 
+            background: 'rgba(154, 205, 50, 0.1)', 
+            border: '1px solid rgba(154, 205, 50, 0.3)',
+            borderRadius: '12px',
+            padding: '1rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💪</div>
+            <h4 style={{ color: '#9ACD32', marginBottom: '0.5rem' }}>Complete 1 Workout</h4>
+            <p style={{ color: '#00d4ff', fontSize: '0.9rem' }}>You've got this! Let's make today count.</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
