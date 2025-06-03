@@ -379,7 +379,7 @@ body::after {
   font-family: var(--font-neural);
 }
 
-/* ============ ELITE LOGIN SCREEN ============ */
+/* ============ CYBERPUNK AUTH SCREEN ============ */
 .auth-container {
   min-height: 100vh;
   display: flex;
@@ -390,7 +390,7 @@ body::after {
   overflow: hidden;
 }
 
-/* Animated Background Particles */
+/* Holographic Background Effects */
 .auth-container::before {
   content: '';
   position: absolute;
@@ -399,32 +399,92 @@ body::after {
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 25% 25%, rgba(198, 255, 0, 0.05) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(255, 215, 0, 0.03) 0%, transparent 50%);
-  animation: breatheBackground 8s ease-in-out infinite;
+    radial-gradient(circle at 25% 25%, rgba(0, 255, 65, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(0, 255, 255, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 50%);
+  animation: neuralPulse 15s ease-in-out infinite;
+  z-index: 0;
 }
 
-@keyframes breatheBackground {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+/* Data Stream Effects */
+.auth-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 98px,
+      rgba(0, 255, 65, 0.02) 100px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 98px,
+      rgba(0, 255, 255, 0.015) 100px
+    );
+  animation: dataFlow 20s linear infinite;
+  z-index: 0;
 }
 
 .auth-content {
-  background: var(--gradient-surface);
-  border: 1px solid var(--border);
+  background: var(--gradient-neural);
+  border: 1px solid var(--border-glow);
   border-radius: var(--radius-xl);
   padding: var(--space-3xl);
   width: 100%;
-  max-width: 450px;
+  max-width: 480px;
   position: relative;
   backdrop-filter: blur(20px);
-  box-shadow: var(--shadow-elite);
+  box-shadow: var(--shadow-elite), var(--glow-lime);
   animation: floatIn 0.8s cubic-bezier(0.23, 1, 0.320, 1);
+  z-index: 1;
+}
+
+/* Quantum Border Effect */
+.auth-content::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: var(--radius-xl);
+  background: var(--gradient-cyber);
+  z-index: -1;
+  animation: quantumGlow 4s ease-in-out infinite;
+}
+
+/* Holographic Overlay */
+.auth-content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 255, 65, 0.1),
+    rgba(0, 255, 255, 0.08),
+    rgba(139, 92, 246, 0.06),
+    transparent
+  );
+  animation: hologramShimmer 3s ease-in-out infinite;
+  border-radius: var(--radius-xl);
+  z-index: -1;
 }
 
 .auth-header {
   text-align: center;
   margin-bottom: var(--space-3xl);
+  position: relative;
+  z-index: 2;
 }
 
 .elite-logo {
@@ -436,88 +496,129 @@ body::after {
 }
 
 .elite-logo-icon {
-  font-size: 3rem;
-  background: var(--gradient-lime);
+  font-size: 3.5rem;
+  background: var(--gradient-cyber);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 0 10px rgba(198, 255, 0, 0.4));
-  animation: flickerUnlock 2s ease-in-out;
+  filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.5));
+  animation: flickerUnlock 2s ease-in-out, quantumGlow 4s ease-in-out infinite 2s;
 }
 
 .elite-logo-text {
   font-family: var(--font-primary);
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   font-weight: 800;
-  letter-spacing: 0.1em;
-  background: var(--gradient-lime);
+  letter-spacing: 0.15em;
+  background: var(--gradient-cyber);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   text-transform: uppercase;
   animation: flickerUnlock 2s ease-in-out 0.2s both;
+  position: relative;
+}
+
+.elite-logo-text::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: dataFlow 2s ease-in-out infinite 3s;
 }
 
 .elite-tagline {
   color: var(--text-secondary);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 300;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-top: var(--space-md);
   opacity: 0;
   animation: slideUpElite 0.6s ease-out 0.8s both;
+  font-family: var(--font-mono);
 }
 
-/* Elite Forms */
+/* Cyberpunk Forms */
 .auth-form {
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  position: relative;
+  z-index: 2;
 }
 
 .form-group {
   position: relative;
 }
 
-.floating-label {
-  position: absolute;
-  top: var(--space-lg);
-  left: var(--space-lg);
-  color: var(--text-muted);
-  font-size: 1rem;
-  pointer-events: none;
-  transition: var(--motion-smooth);
-  transform-origin: left center;
+.elite-input {
+  background: var(--surface-glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-neural);
+  padding: var(--space-lg);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  transition: var(--motion-neural);
+  width: 100%;
+  backdrop-filter: blur(15px);
+  box-shadow: var(--shadow-neural);
+  position: relative;
 }
 
-.elite-input:focus + .floating-label,
-.elite-input:not(:placeholder-shown) + .floating-label {
-  top: -8px;
-  left: var(--space-md);
-  font-size: 0.75rem;
-  color: var(--accent-lime);
-  transform: scale(0.9);
-  background: var(--bg-primary);
-  padding: 0 var(--space-xs);
+.elite-input::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  border-radius: var(--radius-neural);
+  background: var(--gradient-hologram);
+  z-index: -1;
+  opacity: 0;
+  transition: var(--motion-neural);
+}
+
+.elite-input:focus {
+  outline: none;
+  border-color: var(--accent-lime);
+  box-shadow: var(--glow-lime), var(--shadow-neural);
+  background: var(--surface-elevated);
+  animation: quantumGlow 3s ease-in-out infinite;
+}
+
+.elite-input:focus::before {
+  opacity: 1;
+}
+
+.elite-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 300;
+  letter-spacing: 0.05em;
 }
 
 .elite-submit-btn {
-  background: var(--gradient-lime);
+  background: var(--gradient-cyber);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-neural);
   padding: var(--space-lg) var(--space-xl);
   color: var(--bg-primary);
   font-size: 1rem;
   font-weight: 700;
-  font-family: var(--font-primary);
+  font-family: var(--font-mono);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   cursor: pointer;
-  transition: var(--motion-smooth);
+  transition: var(--motion-neural);
   position: relative;
   overflow: hidden;
-  box-shadow: var(--glow-lime);
+  box-shadow: var(--glow-lime), var(--shadow-neural);
+  margin-top: var(--space-md);
 }
 
 .elite-submit-btn::before {
@@ -527,8 +628,8 @@ body::after {
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  transition: var(--motion-smooth);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: var(--motion-fast);
 }
 
 .elite-submit-btn:hover::before {
@@ -536,9 +637,101 @@ body::after {
 }
 
 .elite-submit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--glow-lime-strong);
-  animation: pulseGlow 2s ease-in-out infinite;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: var(--glow-lime-strong), var(--shadow-floating);
+  animation: quantumGlow 1.5s ease-in-out infinite;
+}
+
+.elite-submit-btn:active {
+  transform: translateY(-1px) scale(1.01);
+}
+
+.elite-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  animation: none;
+}
+
+.form-toggle {
+  text-align: center;
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--border);
+  position: relative;
+}
+
+.form-toggle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 1px;
+  background: var(--gradient-cyber);
+  box-shadow: var(--glow-lime);
+}
+
+.form-toggle span {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 300;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  color: var(--accent-lime);
+  cursor: pointer;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  text-decoration: none;
+  transition: var(--motion-neural);
+  margin-left: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.toggle-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--gradient-hologram);
+  transition: var(--motion-fast);
+  z-index: -1;
+}
+
+.toggle-btn:hover::before {
+  left: 100%;
+}
+
+.toggle-btn:hover {
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.8);
+  color: var(--text-primary);
+  transform: scale(1.05);
+}
+
+.error-message {
+  background: rgba(255, 65, 65, 0.1);
+  border: 1px solid rgba(255, 65, 65, 0.3);
+  border-radius: var(--radius-neural);
+  padding: var(--space-md);
+  color: #ff4141;
+  font-size: 0.9rem;
+  font-weight: 400;
+  font-family: var(--font-mono);
+  margin-bottom: var(--space-lg);
+  text-align: center;
+  backdrop-filter: blur(10px);
+  animation: slideUpElite 0.3s ease-out;
 }
 
 /* ============ ELITE HOME DASHBOARD ============ */
