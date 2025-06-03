@@ -877,77 +877,232 @@ const TrainerSearch = () => {
 
   return (
     <div className="trainer-search">
+      {/* Enhanced Header */}
       <div className="search-header">
-        <h1>Find Your Perfect Trainer 🎯</h1>
-        <p>Connect with certified trainers in your area</p>
+        <div className="header-content">
+          <h1>Find Your Perfect Trainer</h1>
+          <p>Connect with certified fitness professionals in your area</p>
+          <div className="search-stats">
+            <span className="stat">🏆 {trainers.length} Expert Trainers</span>
+            <span className="stat">⭐ 4.9 Avg Rating</span>
+            <span className="stat">📍 Multiple Locations</span>
+          </div>
+        </div>
       </div>
 
-      <div className="filters">
-        <div className="filter-group">
-          <select
-            value={filters.specialty}
-            onChange={(e) => setFilters({...filters, specialty: e.target.value})}
-            className="filter-select"
+      {/* Enhanced Filters */}
+      <div className="filters-section">
+        <div className="filters-header">
+          <h3>🔍 Find the Right Fit</h3>
+          <button 
+            className="clear-filters"
+            onClick={() => setFilters({ specialty: '', maxRate: '', gym: '', experience: '', rating: '' })}
           >
-            <option value="">All Specialties</option>
-            <option value="Weight Training">Weight Training</option>
-            <option value="Cardio">Cardio</option>
-            <option value="Yoga">Yoga</option>
-            <option value="CrossFit">CrossFit</option>
-            <option value="Personal Training">Personal Training</option>
-          </select>
+            Clear All
+          </button>
         </div>
-        <div className="filter-group">
-          <input
-            type="number"
-            placeholder="Max hourly rate"
-            value={filters.maxRate}
-            onChange={(e) => setFilters({...filters, maxRate: e.target.value})}
-            className="filter-input"
-          />
-        </div>
-        <div className="filter-group">
-          <input
-            type="text"
-            placeholder="Gym name"
-            value={filters.gym}
-            onChange={(e) => setFilters({...filters, gym: e.target.value})}
-            className="filter-input"
-          />
+        
+        <div className="filters-grid">
+          <div className="filter-group">
+            <label>💪 Specialty</label>
+            <select
+              value={filters.specialty}
+              onChange={(e) => setFilters({...filters, specialty: e.target.value})}
+              className="filter-select"
+            >
+              <option value="">All Specialties</option>
+              <option value="Weight Training">🏋️ Weight Training</option>
+              <option value="Cardio">🏃 Cardio & Endurance</option>
+              <option value="Yoga">🧘 Yoga & Flexibility</option>
+              <option value="CrossFit">⚡ CrossFit</option>
+              <option value="Personal Training">👤 Personal Training</option>
+              <option value="Nutrition">🥗 Nutrition Coaching</option>
+              <option value="Sports Performance">🏆 Sports Performance</option>
+              <option value="Rehabilitation">🩺 Rehabilitation</option>
+            </select>
+          </div>
+          
+          <div className="filter-group">
+            <label>💰 Max Rate ($/hour)</label>
+            <input
+              type="number"
+              placeholder="e.g. 100"
+              value={filters.maxRate}
+              onChange={(e) => setFilters({...filters, maxRate: e.target.value})}
+              className="filter-input"
+              min="20"
+              max="300"
+            />
+          </div>
+          
+          <div className="filter-group">
+            <label>📍 Gym/Location</label>
+            <input
+              type="text"
+              placeholder="Search by gym name"
+              value={filters.gym}
+              onChange={(e) => setFilters({...filters, gym: e.target.value})}
+              className="filter-input"
+            />
+          </div>
+          
+          <div className="filter-group">
+            <label>📅 Experience</label>
+            <select
+              value={filters.experience}
+              onChange={(e) => setFilters({...filters, experience: e.target.value})}
+              className="filter-select"
+            >
+              <option value="">Any Experience</option>
+              <option value="1-2">1-2 years</option>
+              <option value="3-5">3-5 years</option>
+              <option value="6-10">6-10 years</option>
+              <option value="10+">10+ years</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      {loading ? (
-        <div className="loading">Finding trainers...</div>
-      ) : (
-        <div className="trainers-grid">
-          {trainers.length === 0 ? (
-            <div className="no-trainers">
-              <p>No trainers found. Try adjusting your filters.</p>
+      {/* Results Section */}
+      <div className="results-section">
+        <div className="results-header">
+          <div className="results-count">
+            <h3>Available Trainers ({trainers.length})</h3>
+            <p>Showing top-rated professionals in your area</p>
+          </div>
+          <div className="view-options">
+            <button className="view-btn active">📋 Grid View</button>
+            <button className="view-btn">📃 List View</button>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="loading-state">
+            <div className="loading-spinner">
+              <div className="spinner"></div>
             </div>
-          ) : (
-            trainers.map((trainer) => (
+            <h3>Finding the best trainers for you...</h3>
+            <p>Searching through our network of certified professionals</p>
+          </div>
+        ) : trainers.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">🔍</div>
+            <h3>No trainers found</h3>
+            <p>Try adjusting your search criteria or browse all available trainers</p>
+            <button 
+              className="reset-search-btn"
+              onClick={() => setFilters({ specialty: '', maxRate: '', gym: '', experience: '', rating: '' })}
+            >
+              View All Trainers
+            </button>
+          </div>
+        ) : (
+          <div className="trainers-grid">
+            {trainers.map((trainer) => (
               <div key={trainer.trainer_id} className="trainer-card">
-                <div className="trainer-avatar">
-                  {trainer.trainer_name?.charAt(0) || '👤'}
+                {/* Card Header */}
+                <div className="trainer-header">
+                  <div className="trainer-avatar">
+                    {trainer.trainer_name?.charAt(0) || '💪'}
+                  </div>
+                  <div className="trainer-basic-info">
+                    <h3>{trainer.trainer_name}</h3>
+                    <p className="trainer-title">Certified Personal Trainer</p>
+                    <div className="trainer-rating">
+                      <span className="stars">⭐⭐⭐⭐⭐</span>
+                      <span className="rating-text">4.9 (127 reviews)</span>
+                    </div>
+                  </div>
+                  <div className="trainer-actions">
+                    <button className="favorite-btn">💜</button>
+                    <button className="share-btn">📤</button>
+                  </div>
                 </div>
-                <div className="trainer-info">
-                  <h3>{trainer.trainer_name}</h3>
-                  <p className="trainer-gym">📍 {trainer.gym_name}</p>
-                  <p className="trainer-bio">{trainer.bio}</p>
+
+                {/* Trainer Details */}
+                <div className="trainer-body">
+                  <div className="trainer-location">
+                    <span className="location-icon">📍</span>
+                    <span>{trainer.gym_name || 'Multiple Locations'}</span>
+                  </div>
+                  
+                  <div className="trainer-bio">
+                    <p>{trainer.bio || 'Dedicated fitness professional committed to helping you achieve your goals through personalized training programs and nutritional guidance.'}</p>
+                  </div>
+
                   <div className="trainer-specialties">
-                    {(trainer.specialties || []).map((specialty, index) => (
-                      <span key={index} className="specialty-tag">
-                        {specialty}
-                      </span>
-                    ))}
+                    {(trainer.specialties || ['Weight Training', 'Nutrition', 'Personal Training']).map((specialty, index) => {
+                      const specialtyIcons = {
+                        'Weight Training': '🏋️',
+                        'Cardio': '🏃',
+                        'Yoga': '🧘',
+                        'CrossFit': '⚡',
+                        'Personal Training': '👤',
+                        'Nutrition': '🥗',
+                        'Sports Performance': '🏆',
+                        'Rehabilitation': '🩺'
+                      };
+                      
+                      return (
+                        <span key={index} className="specialty-tag">
+                          <span className="specialty-icon">{specialtyIcons[specialty] || '💪'}</span>
+                          {specialty}
+                        </span>
+                      );
+                    })}
                   </div>
-                  <div className="trainer-details">
-                    <span className="trainer-rate">${trainer.hourly_rate}/hr</span>
-                    <span className="trainer-experience">{trainer.experience_years} years exp</span>
+
+                  <div className="trainer-stats">
+                    <div className="stat">
+                      <span className="stat-number">{trainer.experience_years || '5'}</span>
+                      <span className="stat-label">Years Exp</span>
+                    </div>
+                    <div className="stat">
+                      <span className="stat-number">{trainer.total_clients || '150+'}</span>
+                      <span className="stat-label">Clients</span>
+                    </div>
+                    <div className="stat">
+                      <span className="stat-number">{trainer.success_rate || '95%'}</span>
+                      <span className="stat-label">Success Rate</span>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => handleBooking(trainer)}
+
+                  <div className="trainer-pricing">
+                    <div className="pricing-info">
+                      <span className="price">${trainer.hourly_rate || '75'}</span>
+                      <span className="price-period">/hour</span>
+                    </div>
+                    <div className="pricing-details">
+                      <span className="original-price">${(trainer.hourly_rate || 75) + 15}</span>
+                      <span className="discount">20% off first session</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Footer */}
+                <div className="trainer-footer">
+                  <div className="availability">
+                    <span className="availability-status available">🟢 Available Today</span>
+                    <span className="next-slot">Next: 2:00 PM</span>
+                  </div>
+                  
+                  <div className="action-buttons">
+                    <button className="message-btn">💬 Message</button>
+                    <button 
+                      className="book-btn"
+                      onClick={() => handleBooking(trainer)}
+                    >
+                      🚀 Book Session
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
                     className="book-btn"
                   >
                     Book Session 🔥
