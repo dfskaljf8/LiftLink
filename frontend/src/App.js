@@ -7,6 +7,28 @@ import './MobileTactical.css';
 import './MarketplaceDesign.css';
 import './ThemeSystem.css';
 
+// LiftLink Logo Component
+const LiftLinkLogo = ({ size = "md" }) => {
+  const { theme } = useTheme();
+  const sizeClasses = {
+    sm: { container: "w-8 h-8", text: "text-sm" },
+    md: { container: "w-10 h-10", text: "text-base" },
+    lg: { container: "w-12 h-12", text: "text-lg" },
+    xl: { container: "w-16 h-16", text: "text-xl" }
+  };
+  
+  const logoClass = sizeClasses[size] || sizeClasses.md;
+  
+  return (
+    <div className="flex items-center">
+      <div className={`${logoClass.container} rounded-full bg-accent-primary flex items-center justify-center mr-2`}>
+        <span className={`${logoClass.text} font-bold text-white`}>LL</span>
+      </div>
+      <span className={`${logoClass.text} font-bold`}>LiftLink</span>
+    </div>
+  );
+};
+
 // Theme Context
 const ThemeContext = createContext();
 
