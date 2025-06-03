@@ -2410,6 +2410,8 @@ const Profile = () => {
 // Main App Component
 const App = () => {
   const [currentView, setCurrentView] = useState('home');
+  const [authMode, setAuthMode] = useState('login');
+  const { loading } = useAuth();
 
   return (
     <AuthProvider>
