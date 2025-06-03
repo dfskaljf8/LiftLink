@@ -738,6 +738,9 @@ const HomeDashboard = ({ setCurrentView }) => {
   );
 };
 
+// Alias for main dashboard
+const Dashboard = ({ setCurrentView }) => <HomeDashboard setCurrentView={setCurrentView} />;
+
 // Trainer Search Component
 const TrainerSearch = () => {
   const [trainers, setTrainers] = useState([]);
