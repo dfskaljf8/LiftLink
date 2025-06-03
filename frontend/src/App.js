@@ -8,24 +8,280 @@ import './MarketplaceDesign.css';
 import './ThemeSystem.css';
 import './ModernDesign.css';
 
-// LiftLink Logo Component
-const LiftLinkLogo = ({ size = "md" }) => {
-  const { theme } = useTheme();
-  const sizeClasses = {
-    sm: { container: "w-8 h-8", text: "text-sm" },
-    md: { container: "w-10 h-10", text: "text-base" },
-    lg: { container: "w-12 h-12", text: "text-lg" },
-    xl: { container: "w-16 h-16", text: "text-xl" }
-  };
-  
-  const logoClass = sizeClasses[size] || sizeClasses.md;
+// Modern Top Navigation Component (Adonis-inspired)
+const ModernTopNav = ({ user, onNotificationClick, onProfileClick }) => {
+  const { theme, toggleTheme } = useTheme();
   
   return (
-    <div className="flex items-center">
-      <div className={`${logoClass.container} rounded-full bg-accent-primary flex items-center justify-center mr-2`}>
-        <span className={`${logoClass.text} font-bold text-white`}>LL</span>
+    <div className="top-nav">
+      <div className="top-nav-content">
+        <div className="logo">
+          <div className="logo-icon">LL</div>
+          <span>LiftLink</span>
+        </div>
+        
+        <div className="top-nav-actions">
+          <button className="icon-button" onClick={onNotificationClick}>
+            <span>🔔</span>
+            <div className="notification-badge">3</div>
+          </button>
+          
+          <button className="icon-button" onClick={toggleTheme}>
+            <span>{theme === 'light' ? '🌙' : '☀️'}</span>
+          </button>
+          
+          <button className="icon-button" onClick={onProfileClick}>
+            <img 
+              src={user?.profileImage || `https://ui-avatars.com/api/?name=${user?.name}&background=6366F1&color=fff`}
+              alt="Profile"
+              style={{ width: '24px', height: '24px', borderRadius: '6px' }}
+            />
+          </button>
+        </div>
       </div>
-      <span className={`${logoClass.text} font-bold`}>LiftLink</span>
+    </div>
+  );
+};
+
+// Modern Bottom Navigation Component (Adonis-inspired)
+const ModernBottomNav = ({ currentView, setCurrentView, user }) => {
+  const navItems = [
+    { id: 'home', icon: '🏠', label: 'Home' },
+    { id: 'search', icon: '🔍', label: 'Search' },
+    { id: 'bookings', icon: '📅', label: 'Bookings' },
+    { id: 'messages', icon: '💬', label: 'Messages' },
+    { id: 'profile', icon: '👤', label: 'Profile' }
+  ];
+  
+  return (
+    <div className="bottom-nav">
+      {navItems.map(item => (
+        <div
+          key={item.id}
+          className={`nav-item ${currentView === item.id ? 'active' : ''}`}
+          onClick={() => setCurrentView(item.id)}
+        >
+          <div className="nav-icon">{item.icon}</div>
+          <div className="nav-label">{item.label}</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// Modern Home Screen Component (Adonis-inspired)
+const ModernHomeScreen = ({ setCurrentView, user }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [featuredPros, setFeaturedPros] = useState([]);
+  const [ongoingBookings, setOngoingBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadHomeData();
+  }, []);
+
+  const loadHomeData = async () => {
+    try {
+      setLoading(true);
+      // Load featured trainers
+      const response = await api.get('/api/trainers/featured');
+      setFeaturedPros(response.data.trainers || []);
+      
+      // Load ongoing bookings
+      const bookingsResponse = await api.get('/api/bookings/ongoing');
+      setOngoingBookings(bookingsResponse.data.bookings || []);
+    } catch (error) {
+      console.error('Error loading home data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      setCurrentView('search');
+      // Pass search query to search component
+    }
+  };
+
+  return (
+    <div className="main-content">
+      {/* Welcome Section */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-primary mb-2">
+          Welcome back, {user?.name?.split(' ')[0] || 'Warrior'}! 👋
+        </h1>
+        <p className="text-secondary">Ready to crush your fitness goals today?</p>
+      </div>
+
+      {/* Search Bar */}
+      <div className="search-container">
+        <div className="search-icon">🔍</div>
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Find a trainer, gym, or workout..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+        />
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 gap-4 mb-8">
+        <button 
+          className="btn btn-primary btn-lg"
+          onClick={() => setCurrentView('search')}
+        >
+          🎯 Find a Pro Now
+        </button>
+        <button 
+          className="btn btn-secondary btn-lg"
+          onClick={() => setCurrentView('bookings')}
+        >
+          📅 My Sessions
+        </button>
+      </div>
+
+      {/* Ongoing Bookings */}
+      {ongoingBookings.length > 0 && (
+        <div className="carousel-container">
+          <div className="carousel-header">
+            <h2 className="carousel-title">Upcoming Sessions</h2>
+            <a href="#" className="see-all-link" onClick={() => setCurrentView('bookings')}>
+              See all
+            </a>
+          </div>
+          <div className="carousel-scroll">
+            {ongoingBookings.map(booking => (
+              <div key={booking.id} className="carousel-item">
+                <div className="card card-compact">
+                  <div className="flex items-center gap-3 mb-3">
+                    <img
+                      src={booking.trainerImage || `https://ui-avatars.com/api/?name=${booking.trainerName}`}
+                      alt={booking.trainerName}
+                      className="pro-avatar"
+                    />
+                    <div>
+                      <div className="font-semibold text-primary">{booking.trainerName}</div>
+                      <div className="text-sm text-secondary">{booking.sessionType}</div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted mb-2">
+                    📅 {new Date(booking.sessionDate).toLocaleDateString()}
+                  </div>
+                  <div className="text-sm text-muted">
+                    ⏰ {booking.sessionTime}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Featured Pros */}
+      <div className="carousel-container">
+        <div className="carousel-header">
+          <h2 className="carousel-title">Featured Trainers</h2>
+          <a href="#" className="see-all-link" onClick={() => setCurrentView('search')}>
+            See all
+          </a>
+        </div>
+        
+        {loading ? (
+          <div className="carousel-scroll">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="carousel-item">
+                <div className="card card-compact">
+                  <div className="skeleton" style={{ height: '60px', marginBottom: '12px' }}></div>
+                  <div className="skeleton" style={{ height: '20px', marginBottom: '8px' }}></div>
+                  <div className="skeleton" style={{ height: '16px' }}></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="carousel-scroll">
+            {featuredPros.map(pro => (
+              <div key={pro.trainer_id} className="carousel-item">
+                <FeaturedProCard pro={pro} onClick={() => setCurrentView('pro-profile')} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Quick Stats */}
+      <div className="card mb-6">
+        <h3 className="text-lg font-semibold mb-4">Your Progress</h3>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-brand-primary">{user?.level || 1}</div>
+            <div className="text-sm text-muted">Level</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-brand-success">{user?.consecutive_days || 0}</div>
+            <div className="text-sm text-muted">Day Streak</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-brand-accent">{user?.lift_coins || 0}</div>
+            <div className="text-sm text-muted">LiftCoins</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Today's Goal */}
+      <div className="card" style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05))' }}>
+        <div className="text-center">
+          <div className="text-4xl mb-3">💪</div>
+          <h4 className="text-lg font-semibold text-primary mb-2">Today's Goal</h4>
+          <p className="text-secondary mb-4">Complete 1 workout session</p>
+          <button className="btn btn-primary">Start Workout</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Featured Pro Card Component
+const FeaturedProCard = ({ pro, onClick }) => {
+  return (
+    <div className="pro-card" onClick={onClick}>
+      <div className="pro-header">
+        <img
+          src={pro.profileImage || `https://ui-avatars.com/api/?name=${pro.trainer_name}&background=6366F1&color=fff`}
+          alt={pro.trainer_name}
+          className="pro-avatar"
+        />
+        <div className="pro-info">
+          <div className="pro-name">{pro.trainer_name}</div>
+          <div className="pro-specialty">{pro.specialties?.[0] || 'Personal Trainer'}</div>
+          <div className="pro-rating">
+            <span className="rating-stars">⭐</span>
+            <span>{pro.rating || 4.8}</span>
+            <span>({pro.total_reviews || 127})</span>
+          </div>
+        </div>
+        <div className="status-badge status-online">
+          <span>🟢</span>
+          Online
+        </div>
+      </div>
+      
+      <div className="pro-tags">
+        {pro.specialties?.slice(0, 2).map(specialty => (
+          <span key={specialty} className="tag">{specialty}</span>
+        ))}
+      </div>
+      
+      <div className="pro-footer">
+        <div className="pro-price">
+          ${pro.hourly_rate}
+          <span className="price-period">/session</span>
+        </div>
+        <button className="btn btn-primary btn-sm">Book Now</button>
+      </div>
     </div>
   );
 };
