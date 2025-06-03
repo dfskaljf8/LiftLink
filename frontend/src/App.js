@@ -2564,8 +2564,8 @@ const TacticalRegistration = ({ onToggle }) => {
   );
 };
 
-// Home Dashboard Component
-const HomeDashboard = ({ setCurrentView }) => {
+// Advanced Home Dashboard Component with Backend Integration
+const AdvancedHomeDashboard = ({ setCurrentView }) => {
   const { userProfile } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
