@@ -5999,6 +5999,30 @@ const ModernProfileScreen = ({ setCurrentView, user }) => {
   );
 };
 
+// Simple Messages Placeholder Component
+const MessagesPlaceholder = ({ setCurrentView, user }) => {
+  return (
+    <div className="main-content">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-primary mb-2">Messages</h1>
+        <p className="text-secondary">Chat with your trainers</p>
+      </div>
+      
+      <div className="card text-center py-12">
+        <div className="text-4xl mb-4">💬</div>
+        <h3 className="text-lg font-semibold mb-2">Messages Coming Soon</h3>
+        <p className="text-muted mb-4">Direct messaging with trainers will be available soon!</p>
+        <button 
+          className="btn btn-primary"
+          onClick={() => setCurrentView('search')}
+        >
+          Find a Trainer
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Main App Component - Modern Adonis-inspired Design
 const App = () => {
   const [currentView, setCurrentView] = useState('home');
