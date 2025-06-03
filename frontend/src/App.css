@@ -761,19 +761,13 @@ input::placeholder, textarea::placeholder {
 }
 
 .submit-btn:hover, .action-btn:hover, .book-btn:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 15px 40px rgba(0, 255, 136, 0.4);
-}
-
-.submit-btn:hover::before, .action-btn:hover::before, .book-btn:hover::before {
-  width: 300px;
-  height: 300px;
+  filter: brightness(1.2);
 }
 
 .submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  transform: none;
+  filter: none;
 }
 
 /* ============ MAIN LAYOUT - MULTI-PANEL DESIGN ============ */
