@@ -928,21 +928,100 @@ body {
   backdrop-filter: blur(20px);
   animation: eliteSlideUp 0.5s ease-out;
 }
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  border-right: 1px solid var(--glass-border);
-  padding: var(--spacing-xl);
-  z-index: 1000;
-  animation: slideInLeft 0.5s ease-out;
-}
 
 .sidebar-header {
   margin-bottom: var(--spacing-2xl);
   text-align: center;
 }
 
-.logo {
+.elite-logo {
   display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.elite-logo-icon {
+  font-size: 2rem;
+  background: var(--gradient-lime);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.elite-logo-text {
+  font-family: var(--font-primary);
+  font-size: 1.5rem;
+  font-weight: 800;
+  background: var(--gradient-lime);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.elite-tagline {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+/* Navigation buttons */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--foreground);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-elite);
+  position: relative;
+  overflow: hidden;
+  text-align: left;
+  width: 100%;
+  animation: eliteSlideUp 0.6s ease-out;
+}
+
+.nav-btn:hover {
+  border-color: var(--lime-green);
+  color: var(--lime-green);
+  box-shadow: var(--glow-lime);
+  transform: translateX(4px);
+}
+
+.nav-btn.active {
+  background: var(--gradient-glass);
+  border-color: var(--lime-green);
+  color: var(--lime-green);
+  box-shadow: var(--glow-lime);
+}
+
+.nav-icon {
+  font-size: 1.25rem;
+  min-width: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-label {
+  font-family: var(--font-secondary);
+  letter-spacing: 0.02em;
+}
   align-items: center;
   justify-content: center;
   gap: var(--spacing-sm);
