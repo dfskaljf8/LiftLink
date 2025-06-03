@@ -349,6 +349,448 @@ const ThemeToggle = () => {
   );
 };
 
+// Modern Search/Explore Screen Component (Adonis-inspired)
+const ModernSearchScreen = ({ setCurrentView }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState({
+    specialty: '',
+    priceRange: '',
+    availability: '',
+    rating: '',
+    location: ''
+  });
+  const [trainers, setTrainers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid', 'list', 'map'
+
+  const specialties = [
+    'Personal Training', 'Yoga', 'CrossFit', 'Pilates', 'Boxing',
+    'Weight Loss', 'Strength Training', 'Cardio', 'Nutrition', 'Recovery'
+  ];
+
+  const priceRanges = [
+    { label: 'Under $50', value: '0-50' },
+    { label: '$50 - $100', value: '50-100' },
+    { label: '$100 - $150', value: '100-150' },
+    { label: 'Over $150', value: '150+' }
+  ];
+
+  useEffect(() => {
+    searchTrainers();
+  }, [filters]);
+
+  const searchTrainers = async () => {
+    try {
+      setLoading(true);
+      const params = new URLSearchParams();
+      
+      if (searchQuery) params.append('q', searchQuery);
+      if (filters.specialty) params.append('specialty', filters.specialty);
+      if (filters.priceRange) params.append('price_range', filters.priceRange);
+      if (filters.rating) params.append('min_rating', filters.rating);
+      
+      const response = await api.get(`/api/trainers/search?${params}`);
+      setTrainers(response.data.trainers || []);
+    } catch (error) {
+      console.error('Error searching trainers:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = () => {
+    searchTrainers();
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      specialty: '',
+      priceRange: '',
+      availability: '',
+      rating: '',
+      location: ''
+    });
+    setSearchQuery('');
+  };
+
+  return (
+    <div className="main-content">
+      {/* Search Header */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-primary mb-2">Find Your Perfect Trainer</h1>
+        <p className="text-secondary">Discover certified professionals near you</p>
+      </div>
+
+      {/* Search Bar */}
+      <div className="search-container">
+        <div className="search-icon">🔍</div>
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search by name, specialty, or location..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+        />
+      </div>
+
+      {/* Filter Chips */}
+      <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
+        <select
+          className="btn btn-secondary btn-sm"
+          value={filters.specialty}
+          onChange={(e) => setFilters(prev => ({ ...prev, specialty: e.target.value }))}
+        >
+          <option value="">All Specialties</option>
+          {specialties.map(specialty => (
+            <option key={specialty} value={specialty}>{specialty}</option>
+          ))}
+        </select>
+
+        <select
+          className="btn btn-secondary btn-sm"
+          value={filters.priceRange}
+          onChange={(e) => setFilters(prev => ({ ...prev, priceRange: e.target.value }))}
+        >
+          <option value="">Any Price</option>
+          {priceRanges.map(range => (
+            <option key={range.value} value={range.value}>{range.label}</option>
+          ))}
+        </select>
+
+        <select
+          className="btn btn-secondary btn-sm"
+          value={filters.rating}
+          onChange={(e) => setFilters(prev => ({ ...prev, rating: e.target.value }))}
+        >
+          <option value="">Any Rating</option>
+          <option value="4">4+ Stars</option>
+          <option value="4.5">4.5+ Stars</option>
+          <option value="5">5 Stars</option>
+        </select>
+
+        {(filters.specialty || filters.priceRange || filters.rating || searchQuery) && (
+          <button className="btn btn-secondary btn-sm" onClick={clearFilters}>
+            Clear All
+          </button>
+        )}
+      </div>
+
+      {/* View Mode Toggle */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="text-sm text-muted">
+          {trainers.length} trainers found
+        </div>
+        
+        <div className="flex gap-2">
+          <button
+            className={`icon-button ${viewMode === 'grid' ? 'active' : ''}`}
+            onClick={() => setViewMode('grid')}
+          >
+            ⊞
+          </button>
+          <button
+            className={`icon-button ${viewMode === 'list' ? 'active' : ''}`}
+            onClick={() => setViewMode('list')}
+          >
+            ☰
+          </button>
+          <button
+            className={`icon-button ${viewMode === 'map' ? 'active' : ''}`}
+            onClick={() => setViewMode('map')}
+          >
+            🗺️
+          </button>
+        </div>
+      </div>
+
+      {/* Results */}
+      {loading ? (
+        <div className="grid gap-4">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="card">
+              <div className="skeleton" style={{ height: '80px', marginBottom: '12px' }}></div>
+              <div className="skeleton" style={{ height: '20px', marginBottom: '8px' }}></div>
+              <div className="skeleton" style={{ height: '16px' }}></div>
+            </div>
+          ))}
+        </div>
+      ) : viewMode === 'map' ? (
+        <div className="card p-4">
+          <div className="text-center py-8 text-muted">
+            🗺️ Map view coming soon
+          </div>
+        </div>
+      ) : (
+        <div className={`grid gap-4 ${viewMode === 'grid' ? 'grid-cols-1' : ''}`}>
+          {trainers.map(trainer => (
+            <ModernTrainerCard
+              key={trainer.trainer_id}
+              trainer={trainer}
+              viewMode={viewMode}
+              onClick={() => setCurrentView('trainer-profile')}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!loading && trainers.length === 0 && (
+        <div className="card text-center py-12">
+          <div className="text-4xl mb-4">🔍</div>
+          <h3 className="text-lg font-semibold mb-2">No trainers found</h3>
+          <p className="text-muted mb-4">Try adjusting your search criteria</p>
+          <button className="btn btn-primary" onClick={clearFilters}>
+            Clear Filters
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Modern Trainer Card Component
+const ModernTrainerCard = ({ trainer, viewMode, onClick }) => {
+  const isListView = viewMode === 'list';
+  
+  return (
+    <div className={`pro-card ${isListView ? 'flex gap-4' : ''}`} onClick={onClick}>
+      <div className={isListView ? 'flex-shrink-0' : ''}>
+        <img
+          src={trainer.profileImage || `https://ui-avatars.com/api/?name=${trainer.trainer_name}&background=6366F1&color=fff`}
+          alt={trainer.trainer_name}
+          className="pro-avatar"
+        />
+      </div>
+      
+      <div className={`flex-1 ${isListView ? '' : 'mt-3'}`}>
+        <div className="flex items-start justify-between mb-2">
+          <div>
+            <div className="pro-name">{trainer.trainer_name}</div>
+            <div className="pro-specialty">{trainer.specialties?.[0] || 'Personal Trainer'}</div>
+          </div>
+          <div className="status-badge status-online">
+            <span>🟢</span>
+            Online
+          </div>
+        </div>
+        
+        <div className="pro-rating mb-3">
+          <span className="rating-stars">⭐</span>
+          <span>{trainer.rating || 4.8}</span>
+          <span>({trainer.total_reviews || 127} reviews)</span>
+        </div>
+        
+        <div className="pro-tags mb-3">
+          {trainer.specialties?.slice(0, 3).map(specialty => (
+            <span key={specialty} className="tag">{specialty}</span>
+          ))}
+        </div>
+        
+        <div className="pro-footer">
+          <div className="pro-price">
+            ${trainer.hourly_rate}
+            <span className="price-period">/session</span>
+          </div>
+          <button className="btn btn-primary btn-sm">Book Now</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Modern Pro Profile Screen Component (Adonis-inspired)
+const ModernProProfileScreen = ({ trainerId, setCurrentView }) => {
+  const [trainer, setTrainer] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('about');
+
+  useEffect(() => {
+    if (trainerId) {
+      loadTrainerProfile();
+    }
+  }, [trainerId]);
+
+  const loadTrainerProfile = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/api/trainers/${trainerId}`);
+      setTrainer(response.data);
+    } catch (error) {
+      console.error('Error loading trainer profile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="main-content">
+        <div className="skeleton" style={{ height: '200px', marginBottom: '20px' }}></div>
+        <div className="skeleton" style={{ height: '40px', marginBottom: '10px' }}></div>
+        <div className="skeleton" style={{ height: '20px' }}></div>
+      </div>
+    );
+  }
+
+  if (!trainer) {
+    return (
+      <div className="main-content">
+        <div className="card text-center py-12">
+          <h3>Trainer not found</h3>
+          <button className="btn btn-primary mt-4" onClick={() => setCurrentView('search')}>
+            Back to Search
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="main-content">
+      {/* Back Button */}
+      <button 
+        className="btn btn-secondary mb-4"
+        onClick={() => setCurrentView('search')}
+      >
+        ← Back to Search
+      </button>
+
+      {/* Profile Header */}
+      <div className="card mb-6">
+        <div className="flex items-start gap-4 mb-4">
+          <img
+            src={trainer.profileImage || `https://ui-avatars.com/api/?name=${trainer.trainer_name}&background=6366F1&color=fff`}
+            alt={trainer.trainer_name}
+            style={{ 
+              width: '100px', 
+              height: '100px', 
+              borderRadius: '16px', 
+              objectFit: 'cover' 
+            }}
+          />
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold text-primary mb-1">{trainer.trainer_name}</h1>
+            <div className="text-secondary mb-2">{trainer.specialties?.[0] || 'Personal Trainer'}</div>
+            <div className="flex items-center gap-4 mb-3">
+              <div className="pro-rating">
+                <span className="rating-stars">⭐</span>
+                <span className="font-semibold">{trainer.rating || 4.8}</span>
+                <span className="text-muted">({trainer.total_reviews || 127})</span>
+              </div>
+              <div className="status-badge status-online">
+                <span>🟢</span>
+                Online
+              </div>
+            </div>
+            <div className="text-2xl font-bold text-brand-primary">
+              ${trainer.hourly_rate}
+              <span className="text-base font-normal text-muted">/session</span>
+            </div>
+          </div>
+        </div>
+        
+        <button className="btn btn-primary btn-lg w-full">
+          📅 Book Session - ${trainer.hourly_rate}
+        </button>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="flex mb-6 border-b border-neutral-200">
+        {['about', 'reviews', 'schedule'].map(tab => (
+          <button
+            key={tab}
+            className={`flex-1 py-3 text-center font-medium capitalize ${
+              activeTab === tab 
+                ? 'text-brand-primary border-b-2 border-brand-primary' 
+                : 'text-muted'
+            }`}
+            onClick={() => setActiveTab(tab)}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'about' && (
+        <div className="space-y-6">
+          <div className="card">
+            <h3 className="text-lg font-semibold mb-3">About</h3>
+            <p className="text-secondary mb-4">
+              {trainer.bio || "Experienced personal trainer dedicated to helping clients achieve their fitness goals through personalized training programs and nutritional guidance."}
+            </p>
+            
+            <h4 className="font-semibold mb-3">Specialties</h4>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {trainer.specialties?.map(specialty => (
+                <span key={specialty} className="tag">{specialty}</span>
+              ))}
+            </div>
+            
+            <h4 className="font-semibold mb-3">Experience</h4>
+            <p className="text-secondary">{trainer.experience_years || 5}+ years of experience</p>
+          </div>
+
+          <div className="card">
+            <h3 className="text-lg font-semibold mb-3">Certifications</h3>
+            <div className="space-y-2">
+              {trainer.certifications?.map(cert => (
+                <div key={cert.id} className="flex items-center gap-3">
+                  <span>✅</span>
+                  <span>{cert.name}</span>
+                </div>
+              )) || (
+                <div className="flex items-center gap-3">
+                  <span>✅</span>
+                  <span>Certified Personal Trainer</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'reviews' && (
+        <div className="space-y-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="card">
+              <div className="flex items-start gap-3 mb-3">
+                <img
+                  src={`https://ui-avatars.com/api/?name=User${i}&background=random`}
+                  alt="User"
+                  style={{ width: '40px', height: '40px', borderRadius: '8px' }}
+                />
+                <div className="flex-1">
+                  <div className="font-semibold">User {i}</div>
+                  <div className="text-sm text-muted">2 weeks ago</div>
+                </div>
+                <div className="pro-rating">
+                  <span className="rating-stars">⭐</span>
+                  <span>5.0</span>
+                </div>
+              </div>
+              <p className="text-secondary">
+                Amazing trainer! Really helped me achieve my fitness goals. 
+                Highly recommend for anyone looking to get in shape.
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {activeTab === 'schedule' && (
+        <div className="card">
+          <h3 className="text-lg font-semibold mb-4">Available Times</h3>
+          <div className="text-center py-8 text-muted">
+            📅 Schedule integration coming soon
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // Professional Marketplace Audio System
 const MarketplaceAudio = {
   audioContext: null,
