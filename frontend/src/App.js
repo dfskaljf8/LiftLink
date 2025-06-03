@@ -3,93 +3,74 @@ import axios from 'axios';
 import { Wrapper, Status } from '@googlemaps/react-wrapper';
 import './App.css';
 import './TacticalApp.css';
+import './MobileTactical.css';
 
-// Tactical sound effects system
-const TacticalAudio = {
-  playSound: (type) => {
+// Mobile-First Tactical Audio System
+const MobileTacticalAudio = {
+  audioContext: null,
+  
+  init() {
+    if (!this.audioContext && (window.AudioContext || window.webkitAudioContext)) {
+      this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+  },
+  
+  playSound: (type, volume = 0.1) => {
     try {
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      MobileTacticalAudio.init();
+      if (!MobileTacticalAudio.audioContext) return;
+      
       const sounds = {
-        hover: { freq: 800, duration: 0.1 },
-        click: { freq: 1200, duration: 0.15 },
-        success: { freq: 880, duration: 0.3 },
-        error: { freq: 220, duration: 0.5 },
-        notification: { freq: 660, duration: 0.2 },
-        mission: { freq: 1760, duration: 0.4 }
+        tap: { freq: 800, duration: 0.1 },
+        success: { freq: 1200, duration: 0.15 },
+        error: { freq: 300, duration: 0.3 },
+        notification: { freq: 900, duration: 0.2 },
+        swipe: { freq: 600, duration: 0.08 }
       };
       
       const sound = sounds[type];
       if (sound) {
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
+        const oscillator = MobileTacticalAudio.audioContext.createOscillator();
+        const gainNode = MobileTacticalAudio.audioContext.createGain();
         
         oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+        gainNode.connect(MobileTacticalAudio.audioContext.destination);
         
-        oscillator.frequency.setValueAtTime(sound.freq, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(sound.freq, MobileTacticalAudio.audioContext.currentTime);
         oscillator.type = 'square';
         
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + sound.duration);
+        gainNode.gain.setValueAtTime(volume, MobileTacticalAudio.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, MobileTacticalAudio.audioContext.currentTime + sound.duration);
         
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + sound.duration);
+        oscillator.start(MobileTacticalAudio.audioContext.currentTime);
+        oscillator.stop(MobileTacticalAudio.audioContext.currentTime + sound.duration);
       }
     } catch (e) {
-      console.log('Audio not available:', e);
+      console.log('Audio not supported:', e);
     }
   }
 };
 
-// Haptic feedback simulation
-const TacticalHaptics = {
-  vibrate: (pattern) => {
-    if (navigator.vibrate) {
-      navigator.vibrate(pattern);
-    }
+// Mobile Haptic Feedback
+const MobileHaptics = {
+  light: () => {
+    if (navigator.vibrate) navigator.vibrate(10);
   },
-  
-  light: () => TacticalHaptics.vibrate([10]),
-  medium: () => TacticalHaptics.vibrate([20]),
-  heavy: () => TacticalHaptics.vibrate([50]),
-  pulse: () => TacticalHaptics.vibrate([10, 50, 10]),
-  success: () => TacticalHaptics.vibrate([50, 100, 50])
-};
-
-// Gamification System
-const GamificationEngine = {
-  triggers: {
-    firstLogin: { xp: 100, coins: 50, badges: ['rookie'] },
-    profileComplete: { xp: 200, coins: 100, badges: ['prepared'] },
-    firstSession: { xp: 500, coins: 200, badges: ['initiated'] },
-    weekStreak: { xp: 300, coins: 150, badges: ['consistent'] },
-    monthStreak: { xp: 1000, coins: 500, badges: ['dedicated'] },
-    levelUp: { coins: 'level * 100' }
+  medium: () => {
+    if (navigator.vibrate) navigator.vibrate(25);
   },
-  
-  calculateLevel: (xp) => {
-    const levels = [0, 100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500, 5500];
-    for (let i = levels.length - 1; i >= 0; i--) {
-      if (xp >= levels[i]) return i + 1;
-    }
-    return 1;
+  heavy: () => {
+    if (navigator.vibrate) navigator.vibrate(50);
   },
-  
-  getNextLevelXP: (level) => {
-    const levels = [0, 100, 300, 600, 1000, 1500, 2100, 2800, 3600, 4500, 5500];
-    return levels[level] || levels[levels.length - 1];
+  success: () => {
+    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
   },
-  
-  getRankName: (level) => {
-    const ranks = [
-      'Recruit', 'Private', 'Corporal', 'Sergeant', 'Lieutenant',
-      'Captain', 'Major', 'Colonel', 'General', 'Commander', 'Elite'
-    ];
-    return ranks[Math.min(level - 1, ranks.length - 1)];
+  error: () => {
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
   }
 };
 
-// Enhanced Auth Context with Tactical Features
+// Enhanced Auth Context with Mobile Features
 const AuthContext = createContext();
 
 // Google Maps Components
