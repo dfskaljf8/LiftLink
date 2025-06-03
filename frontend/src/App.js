@@ -501,7 +501,7 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
           </button>
           
           <div style={{ textAlign: 'center' }}>
-            <span style={{ color: '#00d4ff', fontSize: '14px' }}>
+            <span style={{ color: '#4A90A4', fontSize: '14px' }}>
               {isLogin ? 'Don\'t have an account?' : 'Already have an account?'}{' '}
             </span>
             <button 
@@ -534,7 +534,7 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
         }}>
           <div style={{ 
             textAlign: 'center', 
-            color: '#00d4ff', 
+            color: '#4A90A4', 
             fontSize: '12px', 
             fontWeight: '600',
             textTransform: 'uppercase',
@@ -741,7 +741,7 @@ const SocialNetwork = () => {
       <div style={{ textAlign: 'center', padding: '2rem' }}>
         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>👥</div>
         <h3 style={{ color: '#6B8E5A', marginBottom: '1rem' }}>Coming Soon!</h3>
-        <p style={{ color: '#00d4ff', marginBottom: '2rem' }}>
+        <p style={{ color: '#4A90A4', marginBottom: '2rem' }}>
           Connect with workout buddies, share your progress, and join fitness challenges together.
         </p>
         
@@ -753,7 +753,7 @@ const SocialNetwork = () => {
           marginBottom: '1rem'
         }}>
           <h4 style={{ color: '#6B8E5A', marginBottom: '0.5rem' }}>What's Coming:</h4>
-          <ul style={{ textAlign: 'left', color: '#00d4ff' }}>
+          <ul style={{ textAlign: 'left', color: '#4A90A4' }}>
             <li>Find workout partners nearby</li>
             <li>Share your fitness wins</li>
             <li>Join group challenges</li>
@@ -782,7 +782,7 @@ const FitnessForest = () => {
       <div style={{ textAlign: 'center', padding: '2rem' }}>
         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌲</div>
         <h3 style={{ color: '#6B8E5A', marginBottom: '1rem' }}>Growing Strong!</h3>
-        <p style={{ color: '#00d4ff', marginBottom: '2rem' }}>
+        <p style={{ color: '#4A90A4', marginBottom: '2rem' }}>
           Watch your fitness journey grow like a mighty tree. Every workout adds a new branch!
         </p>
         
@@ -797,15 +797,15 @@ const FitnessForest = () => {
           <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
             <div>
               <div style={{ fontSize: '2rem' }}>🌱</div>
-              <div style={{ color: '#00d4ff' }}>Level {userProfile?.level || 1}</div>
+              <div style={{ color: '#4A90A4' }}>Level {userProfile?.level || 1}</div>
             </div>
             <div>
               <div style={{ fontSize: '2rem' }}>🏆</div>
-              <div style={{ color: '#00d4ff' }}>{userProfile?.consecutive_days || 0} Day Streak</div>
+              <div style={{ color: '#4A90A4' }}>{userProfile?.consecutive_days || 0} Day Streak</div>
             </div>
             <div>
               <div style={{ fontSize: '2rem' }}>💰</div>
-              <div style={{ color: '#00d4ff' }}>{userProfile?.lift_coins || 0} Coins</div>
+              <div style={{ color: '#4A90A4' }}>{userProfile?.lift_coins || 0} Coins</div>
             </div>
           </div>
         </div>
@@ -847,7 +847,7 @@ const UserProfile = () => {
           <h3 style={{ color: '#6B8E5A', marginBottom: '0.5rem' }}>
             {userProfile?.name || 'Fitness Warrior'}
           </h3>
-          <p style={{ color: '#00d4ff' }}>
+          <p style={{ color: '#4A90A4' }}>
             {userProfile?.role === 'trainer' ? 'Personal Trainer' : 
              userProfile?.role === 'admin' ? 'Administrator' : 'Member'}
           </p>
@@ -869,7 +869,7 @@ const UserProfile = () => {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.level || 1}</div>
-              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Level</div>
+              <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Level</div>
             </div>
             <div style={{ 
               background: 'rgba(154, 205, 50, 0.1)', 
@@ -879,7 +879,7 @@ const UserProfile = () => {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.consecutive_days || 0}</div>
-              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Day Streak</div>
+              <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Day Streak</div>
             </div>
             <div style={{ 
               background: 'rgba(154, 205, 50, 0.1)', 
@@ -889,7 +889,7 @@ const UserProfile = () => {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.lift_coins || 0}</div>
-              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Coins</div>
+              <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Coins</div>
             </div>
             <div style={{ 
               background: 'rgba(154, 205, 50, 0.1)', 
@@ -899,7 +899,7 @@ const UserProfile = () => {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.xp_points || 0}</div>
-              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>XP Points</div>
+              <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>XP Points</div>
             </div>
           </div>
         </div>
@@ -949,7 +949,7 @@ const TrainerDashboard = () => {
       <div style={{ textAlign: 'center', padding: '2rem' }}>
         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏋️‍♂️</div>
         <h3 style={{ color: '#6B8E5A', marginBottom: '1rem' }}>Welcome, Trainer!</h3>
-        <p style={{ color: '#00d4ff', marginBottom: '2rem' }}>
+        <p style={{ color: '#4A90A4', marginBottom: '2rem' }}>
           Manage your clients, schedule sessions, and track your training business.
         </p>
         
@@ -967,7 +967,7 @@ const TrainerDashboard = () => {
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>12</div>
-            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Active Clients</div>
+            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Active Clients</div>
           </div>
           <div style={{ 
             background: 'rgba(154, 205, 50, 0.1)', 
@@ -977,7 +977,7 @@ const TrainerDashboard = () => {
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>5</div>
-            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Today's Sessions</div>
+            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Today's Sessions</div>
           </div>
         </div>
         
@@ -1000,7 +1000,7 @@ const AdminDashboard = () => {
       <div style={{ textAlign: 'center', padding: '2rem' }}>
         <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🛡️</div>
         <h3 style={{ color: '#6B8E5A', marginBottom: '1rem' }}>Admin Controls</h3>
-        <p style={{ color: '#00d4ff', marginBottom: '2rem' }}>
+        <p style={{ color: '#4A90A4', marginBottom: '2rem' }}>
           Manage users, trainers, and platform settings.
         </p>
         
@@ -1018,7 +1018,7 @@ const AdminDashboard = () => {
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>2,847</div>
-            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Total Users</div>
+            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Total Users</div>
           </div>
           <div style={{ 
             background: 'rgba(154, 205, 50, 0.1)', 
@@ -1028,7 +1028,7 @@ const AdminDashboard = () => {
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>127</div>
-            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Active Trainers</div>
+            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Active Trainers</div>
           </div>
         </div>
         
@@ -1054,7 +1054,7 @@ const ProgressAnalytics = () => {
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📊</div>
           <h3 style={{ color: '#6B8E5A', marginBottom: '0.5rem' }}>Keep Going!</h3>
-          <p style={{ color: '#00d4ff' }}>You're doing great. Here's how you're doing.</p>
+          <p style={{ color: '#4A90A4' }}>You're doing great. Here's how you're doing.</p>
         </div>
         
         <div style={{ marginBottom: '2rem' }}>
@@ -1073,7 +1073,7 @@ const ProgressAnalytics = () => {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>4</div>
-              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Workouts</div>
+              <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Workouts</div>
             </div>
             <div style={{ 
               background: 'rgba(154, 205, 50, 0.1)', 
@@ -1083,7 +1083,7 @@ const ProgressAnalytics = () => {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>320</div>
-              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Minutes</div>
+              <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Minutes</div>
             </div>
             <div style={{ 
               background: 'rgba(154, 205, 50, 0.1)', 
@@ -1093,7 +1093,7 @@ const ProgressAnalytics = () => {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>1,240</div>
-              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Calories</div>
+              <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Calories</div>
             </div>
             <div style={{ 
               background: 'rgba(154, 205, 50, 0.1)', 
@@ -1103,7 +1103,7 @@ const ProgressAnalytics = () => {
               textAlign: 'center'
             }}>
               <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.consecutive_days || 0}</div>
-              <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Day Streak</div>
+              <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Day Streak</div>
             </div>
           </div>
         </div>
@@ -1117,7 +1117,7 @@ const ProgressAnalytics = () => {
             padding: '1rem'
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-              <span style={{ color: '#00d4ff' }}>Weekly Workouts</span>
+              <span style={{ color: '#4A90A4' }}>Weekly Workouts</span>
               <span style={{ color: '#6B8E5A' }}>4/5</span>
             </div>
             <div style={{ 
@@ -1177,9 +1177,9 @@ const MyBookings = () => {
                 Confirmed
               </span>
             </div>
-            <p style={{ color: '#00d4ff', margin: '0.5rem 0' }}>with Sarah Johnson</p>
+            <p style={{ color: '#4A90A4', margin: '0.5rem 0' }}>with Sarah Johnson</p>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#00d4ff', fontSize: '0.9rem' }}>Tomorrow, 2:00 PM</span>
+              <span style={{ color: '#4A90A4', fontSize: '0.9rem' }}>Tomorrow, 2:00 PM</span>
               <button 
                 className="mobile-btn secondary" 
                 style={{ 
@@ -1211,9 +1211,9 @@ const MyBookings = () => {
                 Pending
               </span>
             </div>
-            <p style={{ color: '#00d4ff', margin: '0.5rem 0' }}>with Mike Torres</p>
+            <p style={{ color: '#4A90A4', margin: '0.5rem 0' }}>with Mike Torres</p>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#00d4ff', fontSize: '0.9rem' }}>Friday, 10:00 AM</span>
+              <span style={{ color: '#4A90A4', fontSize: '0.9rem' }}>Friday, 10:00 AM</span>
               <button 
                 className="mobile-btn secondary" 
                 style={{ 
@@ -1230,7 +1230,7 @@ const MyBookings = () => {
         
         <div>
           <h4 style={{ color: '#6B8E5A', marginBottom: '1rem' }}>Past Sessions</h4>
-          <p style={{ color: '#00d4ff', textAlign: 'center', padding: '2rem' }}>
+          <p style={{ color: '#4A90A4', textAlign: 'center', padding: '2rem' }}>
             Your completed sessions will show up here.
           </p>
         </div>
@@ -1250,7 +1250,7 @@ const HomeDashboard = ({ setCurrentView }) => {
           <h2 style={{ color: '#6B8E5A', marginBottom: '0.5rem' }}>
             Welcome back, {userProfile?.name?.split(' ')[0] || 'Warrior'}! 👋
           </h2>
-          <p style={{ color: '#00d4ff' }}>Ready to crush your fitness goals today?</p>
+          <p style={{ color: '#4A90A4' }}>Ready to crush your fitness goals today?</p>
         </div>
       </div>
       
@@ -1275,15 +1275,15 @@ const HomeDashboard = ({ setCurrentView }) => {
         }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.level || 1}</div>
-            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Level</div>
+            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Level</div>
           </div>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.consecutive_days || 0}</div>
-            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Day Streak</div>
+            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Day Streak</div>
           </div>
           <div style={{ textAlign: 'center' }}>
             <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.lift_coins || 0}</div>
-            <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Coins</div>
+            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Coins</div>
           </div>
         </div>
       </div>
@@ -1335,7 +1335,7 @@ const HomeDashboard = ({ setCurrentView }) => {
           }}>
             <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💪</div>
             <h4 style={{ color: '#6B8E5A', marginBottom: '0.5rem' }}>Complete 1 Workout</h4>
-            <p style={{ color: '#00d4ff', fontSize: '0.9rem' }}>You've got this! Let's make today count.</p>
+            <p style={{ color: '#4A90A4', fontSize: '0.9rem' }}>You've got this! Let's make today count.</p>
           </div>
         </div>
       </div>
