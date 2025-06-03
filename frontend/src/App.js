@@ -412,8 +412,8 @@ const AuthProvider = ({ children }) => {
       const response = await api.get('/api/users/profile');
       setUserProfile(response.data);
       
-      TacticalAudio.playSound('success');
-      TacticalHaptics.success();
+      MobileTacticalAudio.playSound('success');
+      MobileHaptics.success();
       
       return { user: demoUser };
     } catch (error) {
