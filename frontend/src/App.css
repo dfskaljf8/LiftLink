@@ -37,27 +37,41 @@
   --surface-light: #1a1a1a;        /* Light surface */
   --surface-medium: #262626;       /* Medium surface */
   
-  --border-light: #e8f0ed;         /* Very light border */
-  --border-medium: #d1e7dd;        /* Medium border */
+  /* Theme-specific variables */
+  --border-light: rgba(192, 245, 39, 0.2);    /* Neon green border light */
+  --border-medium: rgba(192, 245, 39, 0.4);   /* Neon green border medium */
   
-  --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.06);
-  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.08);
-  --shadow-strong: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --shadow-soft: 0 2px 12px rgba(192, 245, 39, 0.1);
+  --shadow-medium: 0 4px 20px rgba(192, 245, 39, 0.15);
+  --shadow-strong: 0 8px 30px rgba(192, 245, 39, 0.2);
   
-  --gradient-soft: linear-gradient(135deg, #a8d5ba 0%, #b8e0d2 100%);
-  --gradient-warm: linear-gradient(135deg, #d4c5b9 0%, #e8f4f8 100%);
+  --gradient-soft: linear-gradient(135deg, #c0f527 0%, #d4fd5e 100%);
+  --gradient-warm: linear-gradient(135deg, #a8e522 0%, #c0f527 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(192, 245, 39, 0.1) 0%, rgba(212, 253, 94, 0.05) 100%);
   
-  /* Faith-based accent colors */
-  --hope-gold: #f4d03f;            /* Gentle gold */
-  --peace-blue: #85c1e9;           /* Soft blue */
-  --joy-coral: #f8b4b4;            /* Gentle coral */
-  --growth-green: #a8d5ba;         /* Our primary */
+  /* Neon theme accent colors */
+  --hope-gold: #c0f527;            /* Neon green instead of gold */
+  --peace-blue: #c0f527;           /* Neon green instead of blue */
+  --joy-coral: #c0f527;            /* Neon green instead of coral */
+  --growth-green: #c0f527;         /* Primary neon green */
   
-  /* Status colors - softened */
-  --success-soft: #b8e6b8;         /* Soft green */
-  --warning-soft: #ffeaa7;         /* Soft yellow */
-  --error-soft: #ffb8b8;           /* Soft red */
-  --info-soft: #b8d4f0;            /* Soft blue */
+  /* Status colors - neon green variants */
+  --success-soft: #c0f527;         /* Neon green success */
+  --warning-soft: #d4fd5e;         /* Lighter neon for warning */
+  --error-soft: rgba(192, 245, 39, 0.8);     /* Muted neon for errors */
+  --info-soft: rgba(192, 245, 39, 0.6);      /* Info neon green */
+  
+  /* Striped pattern background */
+  --pattern-bg: repeating-linear-gradient(45deg, rgba(192, 245, 39, 0.03), rgba(192, 245, 39, 0.03) 20px, transparent 20px, transparent 40px);
+  
+  /* Glass effect borders */
+  --glass-border: rgba(192, 245, 39, 0.2);
+  
+  /* Transition effects */
+  --transition: all 0.3s ease-in-out;
+  
+  /* Font family */
+  --font-base: 'Orbitron', sans-serif;
 }
 
 body {
