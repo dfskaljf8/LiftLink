@@ -868,7 +868,7 @@ const UserProfile = () => {
               padding: '1rem',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>{userProfile?.level || 1}</div>
+              <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.level || 1}</div>
               <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Level</div>
             </div>
             <div style={{ 
