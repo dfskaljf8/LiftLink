@@ -82,16 +82,9 @@
 }
 }
 
-/* Neural Network Background Animation */
-@keyframes neuralPulse {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
+/* =============== ADVANCED MATRIX ANIMATIONS =============== */
 
+/* Matrix Digital Rain */
 @keyframes matrixRain {
   0% {
     transform: translateY(-100vh);
@@ -109,12 +102,28 @@
   }
 }
 
+/* Neural Network Pulse */
+@keyframes neuralPulse {
+  0%, 100% {
+    background-position: 0% 50%;
+    opacity: 0.3;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 0.8;
+  }
+}
+
+/* Data Stream Flow */
 @keyframes dataFlow {
   0% {
     transform: translateX(-100%);
     opacity: 0;
   }
-  50% {
+  10% {
+    opacity: 1;
+  }
+  90% {
     opacity: 1;
   }
   100% {
@@ -123,31 +132,118 @@
   }
 }
 
+/* Holographic Shimmer */
 @keyframes hologramShimmer {
   0% {
     background-position: -200% center;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
   }
   100% {
     background-position: 200% center;
+    opacity: 0;
   }
 }
 
-@keyframes quantumGlow {
+/* Matrix Glow Pulse */
+@keyframes matrixGlow {
   0%, 100% {
-    box-shadow: var(--glow-lime);
-    border-color: rgba(0, 255, 65, 0.5);
-  }
-  25% {
-    box-shadow: var(--glow-cyan);
-    border-color: rgba(0, 255, 255, 0.5);
+    box-shadow: var(--glow-matrix);
+    border-color: var(--accent-primary);
   }
   50% {
-    box-shadow: var(--glow-purple);
-    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: var(--glow-matrix-strong);
+    border-color: var(--accent-secondary);
   }
-  75% {
-    box-shadow: var(--glow-gold);
-    border-color: rgba(255, 215, 0, 0.5);
+}
+
+/* Code Rain Effect */
+@keyframes codeRain {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  90% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}
+
+/* Glitch Effect */
+@keyframes glitch {
+  0%, 100% {
+    transform: translate(0);
+  }
+  20% {
+    transform: translate(-2px, 2px);
+  }
+  40% {
+    transform: translate(-2px, -2px);
+  }
+  60% {
+    transform: translate(2px, 2px);
+  }
+  80% {
+    transform: translate(2px, -2px);
+  }
+}
+
+/* Circuit Board Trace */
+@keyframes circuitTrace {
+  0% {
+    stroke-dashoffset: 100%;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0%;
+    opacity: 0.7;
+  }
+}
+
+/* Quantum Flicker */
+@keyframes quantumFlicker {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+/* Advanced Hover Animations */
+@keyframes hoverLift {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(-8px) scale(1.02);
+  }
+}
+
+@keyframes scanLine {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
   }
 }
 
