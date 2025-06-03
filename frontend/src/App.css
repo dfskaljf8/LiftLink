@@ -157,18 +157,46 @@ body {
   font-size: 16px;
   font-weight: 400;
   overflow-x: hidden;
+  position: relative;
 }
 
-/* Elite Animations */
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: var(--glow-lime);
-  }
-  50% {
-    box-shadow: var(--glow-lime-strong);
-  }
+/* Neural Network Background */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(0, 255, 65, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 40% 70%, rgba(139, 92, 246, 0.02) 0%, transparent 50%);
+  background-size: 100% 100%;
+  animation: neuralPulse 20s ease-in-out infinite;
+  z-index: -1;
+  pointer-events: none;
 }
 
+/* Matrix Rain Effect */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    linear-gradient(90deg, transparent 98%, rgba(0, 255, 65, 0.03) 100%),
+    linear-gradient(180deg, transparent 98%, rgba(0, 255, 65, 0.02) 100%);
+  background-size: 100px 100px, 150px 150px;
+  animation: matrixRain 15s linear infinite;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Enhanced Animations */
 @keyframes flickerUnlock {
   0% { opacity: 0; }
   10% { opacity: 1; }
@@ -224,79 +252,131 @@ body {
   }
 }
 
-/* Elite Utility Classes */
-.glow-lime { box-shadow: var(--glow-lime); }
+/* High-Tech Utility Classes */
+.glow-lime { 
+  box-shadow: var(--glow-lime); 
+  border: 1px solid var(--border-glow);
+}
+.glow-cyan { 
+  box-shadow: var(--glow-cyan); 
+  border: 1px solid rgba(0, 255, 255, 0.3);
+}
+.glow-purple { 
+  box-shadow: var(--glow-purple); 
+  border: 1px solid rgba(139, 92, 246, 0.3);
+}
 .glow-gold { box-shadow: var(--glow-gold); }
 .text-lime { color: var(--accent-lime); }
+.text-cyan { color: var(--accent-cyan); }
+.text-purple { color: var(--accent-purple); }
 .text-gold { color: var(--accent-gold); }
 .bg-surface { background: var(--surface); }
 .bg-elevated { background: var(--surface-elevated); }
+.bg-glass { background: var(--surface-glass); }
 
-/* Elite Components Base */
-.elite-card {
-  background: var(--gradient-surface);
+/* Neural Components Base */
+.neural-card {
+  background: var(--gradient-neural);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   padding: var(--space-xl);
-  transition: var(--motion-smooth);
+  transition: var(--motion-neural);
   animation: slideUpElite 0.6s ease-out;
+  position: relative;
+  overflow: hidden;
 }
 
-.elite-card:hover {
-  transform: translateY(-4px);
+.neural-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--gradient-hologram);
+  transition: var(--motion-slow);
+  opacity: 0;
+  z-index: 1;
+}
+
+.neural-card:hover::before {
+  left: 100%;
+  opacity: 1;
+  animation: hologramShimmer 1s ease-in-out;
+}
+
+.neural-card:hover {
+  transform: translateY(-8px) scale(1.02);
   box-shadow: var(--shadow-floating);
   border-color: var(--accent-lime);
+  animation: quantumGlow 2s ease-in-out infinite;
 }
 
-.elite-button {
-  background: var(--gradient-lime);
+.neural-button {
+  background: var(--gradient-cyber);
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-neural);
   padding: var(--space-md) var(--space-xl);
   color: var(--bg-primary);
-  font-family: var(--font-primary);
-  font-size: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--motion-smooth);
+  transition: var(--motion-neural);
   position: relative;
   overflow: hidden;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
+  box-shadow: var(--shadow-neural);
 }
 
-.elite-button:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--glow-lime-strong);
-  animation: pulseGlow 2s ease-in-out infinite;
+.neural-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: var(--motion-fast);
 }
 
-.elite-button:active {
-  transform: translateY(0);
+.neural-button:hover::before {
+  left: 100%;
 }
 
-.elite-input {
-  background: var(--surface);
+.neural-button:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--glow-lime-strong), var(--shadow-floating);
+  animation: quantumGlow 1.5s ease-in-out infinite;
+}
+
+.neural-input {
+  background: var(--surface-glass);
   border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-neural);
   padding: var(--space-lg);
   color: var(--text-primary);
-  font-family: var(--font-primary);
-  font-size: 1rem;
-  transition: var(--motion-smooth);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  transition: var(--motion-neural);
   width: 100%;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-neural);
 }
 
-.elite-input:focus {
+.neural-input:focus {
   outline: none;
   border-color: var(--accent-lime);
-  box-shadow: var(--glow-lime);
+  box-shadow: var(--glow-lime), var(--shadow-neural);
   background: var(--surface-elevated);
+  animation: quantumGlow 2s ease-in-out infinite;
 }
 
-.elite-input::placeholder {
+.neural-input::placeholder {
   color: var(--text-muted);
   font-weight: 300;
+  font-family: var(--font-neural);
 }
 
 /* ============ ELITE LOGIN SCREEN ============ */
