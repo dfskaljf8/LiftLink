@@ -1589,11 +1589,9 @@ const MyBookings = () => {
   );
 };
 
-// Advanced Home Dashboard Component with Backend Integration
-const AdvancedHomeDashboard = ({ setCurrentView }) => {
+const HomeDashboard = ({ setCurrentView }) => {
   const { userProfile } = useAuth();
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
       {/* Welcome Card */}
