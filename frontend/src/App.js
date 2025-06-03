@@ -8,6 +8,34 @@ import './MarketplaceDesign.css';
 import './ThemeSystem.css';
 import './ModernDesign.css';
 
+// API Configuration - Must be at top level
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
+
+const api = axios.create({
+  baseURL: API_BASE_URL,
+});
+
+// Request interceptor to add auth token
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('auth_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('auth_token');
+      window.location.reload();
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Modern Top Navigation Component (Adonis-inspired)
 const ModernTopNav = ({ user, onNotificationClick, onProfileClick }) => {
   const { theme, toggleTheme } = useTheme();
