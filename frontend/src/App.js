@@ -3898,7 +3898,7 @@ const AdminDashboardView = () => {
 };
 
 // Trainer Dashboard Component
-const TrainerDashboard = () => {
+const TrainerDashboardView = () => {
   const { userProfile } = useAuth();
   const [clients, setClients] = useState([]);
   const [schedule, setSchedule] = useState([]);
