@@ -356,7 +356,7 @@ const AuthProvider = ({ children }) => {
     try {
       const response = await api.get('/api/users/profile');
       setUserProfile(response.data);
-      TacticalAudio.playSound('success');
+      MobileTacticalAudio.playSound('success');
     } catch (error) {
       console.log('User profile fetch error:', error.response?.data?.detail || error.message);
       localStorage.removeItem('auth_token');
