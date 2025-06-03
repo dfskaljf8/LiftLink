@@ -1274,7 +1274,7 @@ const HomeDashboard = ({ setCurrentView }) => {
           padding: '1rem'
         }}>
           <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '1.5rem', color: '#9ACD32' }}>{userProfile?.level || 1}</div>
+            <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.level || 1}</div>
             <div style={{ fontSize: '0.8rem', color: '#00d4ff' }}>Level</div>
           </div>
           <div style={{ textAlign: 'center' }}>
