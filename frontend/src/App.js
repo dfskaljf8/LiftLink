@@ -5915,7 +5915,7 @@ const ModernProfileScreen = ({ setCurrentView, user }) => {
   );
 };
 
-// Simple Messages Placeholder Component
+// Modern Profile Screen Component (Adonis-inspired)
 const MessagesPlaceholder = ({ setCurrentView, user }) => {
   return (
     <div className="main-content">
