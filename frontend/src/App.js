@@ -610,7 +610,7 @@ const LoginForm = ({ onToggle }) => {
           {error && <div className="error-message">{error}</div>}
           
           <button type="submit" disabled={loading} className="submit-btn">
-            {loading ? 'Processing...' : (isLogin ? 'Sign In' : 'Sign Up')}
+            {loading ? 'Processing...' : 'Sign In'}
           </button>
           
           <div className="form-toggle">
