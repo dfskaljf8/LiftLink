@@ -654,6 +654,89 @@ const LoginForm = () => {
   );
 };
 
+// Registration Form Component
+const RegistrationForm = ({ onToggle }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { register } = useAuth();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await register(email, password);
+    } catch (error) {
+      setError(error.message);
+    }
+    
+    setLoading(false);
+  };
+
+  return (
+    <div className="registration-form">
+      <form onSubmit={handleSubmit} className="auth-form">
+        <h2>Join LiftLink</h2>
+        <div className="form-group">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="form-input"
+          />
+        </div>
+        <div className="form-group">
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            className="form-input"
+          />
+        </div>
+        <div className="form-group">
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            required
+            className="form-input"
+          />
+        </div>
+        
+        {error && <div className="error-message">{error}</div>}
+        
+        <button type="submit" disabled={loading} className="submit-btn">
+          {loading ? 'Creating Account...' : 'Sign Up'}
+        </button>
+        
+        <div className="form-toggle">
+          <span>
+            Already have an account?{' '}
+            <button type="button" onClick={onToggle} className="toggle-btn">
+              Sign In
+            </button>
+          </span>
+        </div>
+      </form>
+    </div>
+  );
+};
+
 // Home Dashboard Component
 const HomeDashboard = ({ setCurrentView }) => {
   const { userProfile } = useAuth();
