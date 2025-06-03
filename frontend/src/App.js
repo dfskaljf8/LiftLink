@@ -6070,7 +6070,7 @@ const App = () => {
                 {currentView === 'search' && <MobileTrainerSearch setCurrentView={setCurrentView} />}
                 {currentView === 'trainer-profile' && <ModernProProfileScreen setCurrentView={setCurrentView} />}
                 {currentView === 'bookings' && <MobileBookings setCurrentView={setCurrentView} user={userProfile} />}
-                {currentView === 'messages' && <ModernMessagesScreen setCurrentView={setCurrentView} user={userProfile} />}
+                {currentView === 'messages' && <MessagesPlaceholder setCurrentView={setCurrentView} user={userProfile} />}
                 {currentView === 'profile' && <ModernProfileScreen setCurrentView={setCurrentView} user={userProfile} />}
                 
                 {/* Legacy views - still accessible but will be updated */}
