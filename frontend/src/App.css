@@ -9,49 +9,47 @@
 }
 
 :root {
-  /* Pure black and bright green theme */
-  --bg-primary: #000000;
-  --bg-secondary: #111111;
-  --bg-tertiary: #222222;
-  --bg-glass: rgba(189, 213, 61, 0.05);
-  --bg-glass-strong: rgba(189, 213, 61, 0.1);
+  /* Soft, Faith-Based Color Palette */
+  --primary-soft: #a8d5ba;        /* Soft sage green */
+  --primary-medium: #7cb69d;       /* Medium sage */
+  --primary-deep: #5a9b82;         /* Deep sage */
   
-  /* Primary accent color */
-  --accent-primary: #BDD53D;
-  --accent-secondary: #A8C230;
-  --accent-tertiary: #94AF23;
+  --accent-light: #e8f4f8;         /* Very light blue-green */
+  --accent-soft: #b8e0d2;          /* Soft mint */
+  --accent-warm: #d4c5b9;          /* Warm beige */
   
-  /* Glass morphism colors */
-  --glass-border: rgba(189, 213, 61, 0.2);
-  --glass-shadow: rgba(0, 0, 0, 0.8);
+  --text-primary: #2d3436;         /* Soft dark gray */
+  --text-secondary: #636e72;       /* Medium gray */
+  --text-muted: #a0a5aa;           /* Light gray */
   
-  /* Text colors */
-  --text-primary: #ffffff;
-  --text-secondary: #cccccc;
-  --text-muted: #888888;
-  --text-accent: var(--accent-primary);
+  --background-primary: #fefefe;   /* Pure white */
+  --background-soft: #f8faf9;      /* Very light sage */
+  --background-card: #ffffff;      /* Card white */
   
-  /* Status colors using green variations */
-  --success: #BDD53D;
-  --warning: #A8C230;
-  --error: #ff4444;
+  --surface-light: #f1f8f5;        /* Light surface */
+  --surface-medium: #e8f4f0;       /* Medium surface */
   
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
-  --gradient-secondary: linear-gradient(135deg, var(--accent-secondary), var(--accent-tertiary));
-  --gradient-glass: linear-gradient(135deg, rgba(189,213,61,0.1), rgba(189,213,61,0.05));
-  --gradient-dark: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+  --border-light: #e8f0ed;         /* Very light border */
+  --border-medium: #d1e7dd;        /* Medium border */
   
-  /* Shadows and effects */
-  --shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(189, 213, 61, 0.3);
-  --shadow-glow-strong: 0 0 40px rgba(189, 213, 61, 0.5);
-  --shadow-elevated: 0 20px 40px rgba(0, 0, 0, 0.6);
+  --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-strong: 0 8px 30px rgba(0, 0, 0, 0.12);
   
-  /* Animation curves */
-  --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
-  --ease-in-out-quart: cubic-bezier(0.77, 0, 0.175, 1);
-  --ease-elastic: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --gradient-soft: linear-gradient(135deg, #a8d5ba 0%, #b8e0d2 100%);
+  --gradient-warm: linear-gradient(135deg, #d4c5b9 0%, #e8f4f8 100%);
+  
+  /* Faith-based accent colors */
+  --hope-gold: #f4d03f;            /* Gentle gold */
+  --peace-blue: #85c1e9;           /* Soft blue */
+  --joy-coral: #f8b4b4;            /* Gentle coral */
+  --growth-green: #a8d5ba;         /* Our primary */
+  
+  /* Status colors - softened */
+  --success-soft: #b8e6b8;         /* Soft green */
+  --warning-soft: #ffeaa7;         /* Soft yellow */
+  --error-soft: #ffb8b8;           /* Soft red */
+  --info-soft: #b8d4f0;            /* Soft blue */
 }
 
 body {
