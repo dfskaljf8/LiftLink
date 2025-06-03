@@ -96,7 +96,7 @@ body {
 }
 
 * {
-  color: var(--primary);
+  color: var(--foreground);
   font-family: var(--font-base);
   box-sizing: border-box;
   margin: 0;
