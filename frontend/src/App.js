@@ -582,7 +582,7 @@ const LoginForm = ({ onToggle }) => {
       <div className="form-group">
         <input
           type="email"
-          placeholder="ACCESS EMAIL"
+          placeholder="Email Address"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
