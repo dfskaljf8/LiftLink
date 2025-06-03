@@ -648,55 +648,52 @@ const RegistrationForm = ({ onToggle }) => {
   };
 
   return (
-    <div className="registration-form">
-      <form onSubmit={handleSubmit} className="auth-form">
-        <h2>Join LiftLink</h2>
-        <div className="form-group">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="form-input"
-          />
-        </div>
-        <div className="form-group">
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="form-input"
-          />
-        </div>
-        <div className="form-group">
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            className="form-input"
-          />
-        </div>
-        
-        {error && <div className="error-message">{error}</div>}
-        
-        <button type="submit" disabled={loading} className="submit-btn">
-          {loading ? 'Creating Account...' : 'Sign Up'}
-        </button>
-        
-        <div className="form-toggle">
-          <span>
-            Already have an account?{' '}
-            <button type="button" onClick={onToggle} className="toggle-btn">
-              Sign In
-            </button>
-          </span>
-        </div>
-      </form>
+    <div className="auth-form">
+      <div className="form-group">
+        <input
+          type="email"
+          placeholder="ENTER EMAIL"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="elite-input"
+        />
+      </div>
+      <div className="form-group">
+        <input
+          type="password"
+          placeholder="CREATE CODE"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="elite-input"
+        />
+      </div>
+      <div className="form-group">
+        <input
+          type="password"
+          placeholder="CONFIRM CODE"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+          className="elite-input"
+        />
+      </div>
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      <button type="submit" disabled={loading} className="elite-submit-btn">
+        {loading ? 'PROCESSING REQUEST...' : 'REQUEST ACCESS'}
+      </button>
+      
+      <div className="form-toggle">
+        <span>
+          Have clearance?{' '}
+          <button type="button" onClick={onToggle} className="toggle-btn">
+            Authorize Access
+          </button>
+        </span>
+      </div>
     </div>
   );
 };
