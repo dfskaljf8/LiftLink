@@ -578,76 +578,41 @@ const LoginForm = ({ onToggle }) => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <div className="logo-large">
-            <span className="logo-lift">Lift</span>
-            <span className="logo-link">Link</span>
-          </div>
-          <p className="tagline-large">Beginners to Believers</p>
-          <p className="subtitle">Your fitness journey starts here</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="form-group">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="form-input"
-            />
-          </div>
-          <div className="form-group">
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="form-input"
-            />
-          </div>
-          
-          {error && <div className="error-message">{error}</div>}
-          
-          <button type="submit" disabled={loading} className="submit-btn">
-            {loading ? 'Processing...' : 'Sign In'}
+    <div className="auth-form">
+      <div className="form-group">
+        <input
+          type="email"
+          placeholder="ACCESS EMAIL"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className="elite-input"
+        />
+      </div>
+      <div className="form-group">
+        <input
+          type="password"
+          placeholder="SECURITY CODE"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="elite-input"
+        />
+      </div>
+      
+      {error && <div className="error-message">{error}</div>}
+      
+      <button type="submit" disabled={loading} className="elite-submit-btn" onClick={handleSubmit}>
+        {loading ? 'ACCESSING SYSTEM...' : 'AUTHORIZE ACCESS'}
+      </button>
+      
+      <div className="form-toggle">
+        <span>
+          Need clearance?{' '}
+          <button type="button" onClick={onToggle} className="toggle-btn">
+            Request Access
           </button>
-          
-          <div className="form-toggle">
-            <span>
-              Don't have an account?{' '}
-              <button 
-                type="button" 
-                onClick={onToggle}
-                className="toggle-btn"
-              >
-                Sign Up
-              </button>
-            </span>
-          </div>
-        </form>
-
-        <div className="demo-section">
-          <p className="demo-text">🚀 Quick Demo Access:</p>
-          <div className="demo-buttons">
-            <button 
-              onClick={() => {setEmail('user@demo.com'); setPassword('demo123')}}
-              className="demo-btn"
-            >
-              Demo User
-            </button>
-            <button 
-              onClick={() => {setEmail('trainer@demo.com'); setPassword('demo123')}}
-              className="demo-btn"
-            >
-              Demo Trainer
-            </button>
-          </div>
-        </div>
+        </span>
       </div>
     </div>
   );
