@@ -4,9 +4,10 @@ import { Wrapper, Status } from '@googlemaps/react-wrapper';
 import './App.css';
 import './TacticalApp.css';
 import './MobileTactical.css';
+import './MarketplaceDesign.css';
 
-// Mobile-First Tactical Audio System
-const MobileTacticalAudio = {
+// Professional Marketplace Audio System
+const MarketplaceAudio = {
   audioContext: null,
   
   init() {
@@ -17,33 +18,34 @@ const MobileTacticalAudio = {
   
   playSound: (type, volume = 0.1) => {
     try {
-      MobileTacticalAudio.init();
-      if (!MobileTacticalAudio.audioContext) return;
+      MarketplaceAudio.init();
+      if (!MarketplaceAudio.audioContext) return;
       
       const sounds = {
         tap: { freq: 800, duration: 0.1 },
         success: { freq: 1200, duration: 0.15 },
-        error: { freq: 300, duration: 0.3 },
-        notification: { freq: 900, duration: 0.2 },
-        swipe: { freq: 600, duration: 0.08 }
+        match: { freq: 880, duration: 0.3 },
+        booking: { freq: 1000, duration: 0.2 },
+        message: { freq: 660, duration: 0.15 },
+        error: { freq: 300, duration: 0.3 }
       };
       
       const sound = sounds[type];
       if (sound) {
-        const oscillator = MobileTacticalAudio.audioContext.createOscillator();
-        const gainNode = MobileTacticalAudio.audioContext.createGain();
+        const oscillator = MarketplaceAudio.audioContext.createOscillator();
+        const gainNode = MarketplaceAudio.audioContext.createGain();
         
         oscillator.connect(gainNode);
-        gainNode.connect(MobileTacticalAudio.audioContext.destination);
+        gainNode.connect(MarketplaceAudio.audioContext.destination);
         
-        oscillator.frequency.setValueAtTime(sound.freq, MobileTacticalAudio.audioContext.currentTime);
-        oscillator.type = 'square';
+        oscillator.frequency.setValueAtTime(sound.freq, MarketplaceAudio.audioContext.currentTime);
+        oscillator.type = 'sine';
         
-        gainNode.gain.setValueAtTime(volume, MobileTacticalAudio.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, MobileTacticalAudio.audioContext.currentTime + sound.duration);
+        gainNode.gain.setValueAtTime(volume, MarketplaceAudio.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, MarketplaceAudio.audioContext.currentTime + sound.duration);
         
-        oscillator.start(MobileTacticalAudio.audioContext.currentTime);
-        oscillator.stop(MobileTacticalAudio.audioContext.currentTime + sound.duration);
+        oscillator.start(MarketplaceAudio.audioContext.currentTime);
+        oscillator.stop(MarketplaceAudio.audioContext.currentTime + sound.duration);
       }
     } catch (e) {
       console.log('Audio not supported:', e);
@@ -51,26 +53,23 @@ const MobileTacticalAudio = {
   }
 };
 
-// Mobile Haptic Feedback
-const MobileHaptics = {
+// Professional Haptic Feedback
+const MarketplaceHaptics = {
   light: () => {
     if (navigator.vibrate) navigator.vibrate(10);
   },
   medium: () => {
     if (navigator.vibrate) navigator.vibrate(25);
   },
-  heavy: () => {
-    if (navigator.vibrate) navigator.vibrate(50);
-  },
   success: () => {
-    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+    if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
   },
-  error: () => {
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+  match: () => {
+    if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
   }
 };
 
-// Enhanced Auth Context with Mobile Features
+// Enhanced Auth Context with Marketplace Features
 const AuthContext = createContext();
 
 // Google Maps Components
