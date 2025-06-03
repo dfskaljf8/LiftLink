@@ -728,9 +728,6 @@ input::placeholder, textarea::placeholder {
 .form-input::placeholder, .form-textarea::placeholder, .filter-input::placeholder {
   color: var(--muted);
 }
-  color: var(--text-muted);
-  font-weight: 300;
-}
 
 .submit-btn, .action-btn, .book-btn, .edit-btn, .trainer-btn, .save-btn {
   background: var(--primary);
