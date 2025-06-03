@@ -160,12 +160,28 @@ const MarketplaceHaptics = {
   medium: () => {
     if (navigator.vibrate) navigator.vibrate(25);
   },
+  heavy: () => {
+    if (navigator.vibrate) navigator.vibrate(50);
+  },
   success: () => {
     if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
+  },
+  error: () => {
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
   },
   match: () => {
     if (navigator.vibrate) navigator.vibrate([50, 100, 50]);
   }
+};
+
+// Mobile Haptics System (Wrapper for MarketplaceHaptics)
+const MobileHaptics = {
+  light: () => MarketplaceHaptics.light(),
+  medium: () => MarketplaceHaptics.medium(),
+  heavy: () => MarketplaceHaptics.heavy(),
+  success: () => MarketplaceHaptics.success(),
+  error: () => MarketplaceHaptics.error(),
+  match: () => MarketplaceHaptics.match()
 };
 
 // Enhanced Auth Context with Marketplace Features
