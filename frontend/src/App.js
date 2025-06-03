@@ -2195,255 +2195,135 @@ const SocialTracking = () => {
   });
 
   return (
-
-  const handleFollow = async (userId) => {
-    try {
-      await api.post('/api/social/follow', { user_id: userId });
-      fetchSocialData();
-      alert('Successfully followed user!');
-    } catch (error) {
-      console.error('Error following user:', error);
-      alert('Error following user');
-    }
-  };
-
-  const handleUnfollow = async (userId) => {
-    try {
-      await api.delete(`/api/social/unfollow/${userId}`);
-      fetchSocialData();
-      alert('Unfollowed user');
-    } catch (error) {
-      console.error('Error unfollowing user:', error);
-      alert('Error unfollowing user');
-    }
-  };
-
-  if (loading) return <div className="loading">Loading social data...</div>;
-
-  return (
-    <div className="social-tracking">
-      <div className="social-header">
-        <h1>👥 Social Fitness</h1>
-        <p>Connect, compete, and celebrate progress together</p>
+    <div className="connections-container">
+      <div className="connections-header">
+        <h1 className="connections-title">Elite Connections</h1>
+        <p className="connections-subtitle">
+          Your exclusive inner circle of elite performers. Real-time performance tracking for high-achievers only.
+        </p>
       </div>
 
-      <div className="social-tabs">
-        <button 
-          className={`tab-btn ${activeTab === 'feed' ? 'active' : ''}`}
-          onClick={() => setActiveTab('feed')}
-        >
-          📱 Feed
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'leaderboards' ? 'active' : ''}`}
-          onClick={() => setActiveTab('leaderboards')}
-        >
-          🏆 Leaderboards
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'following' ? 'active' : ''}`}
-          onClick={() => setActiveTab('following')}
-        >
-          👥 Following ({(socialData.following || []).length})
-        </button>
-        <button 
-          className={`tab-btn ${activeTab === 'recommendations' ? 'active' : ''}`}
-          onClick={() => setActiveTab('recommendations')}
-        >
-          🔍 Discover
-        </button>
+      <div className="connections-grid">
+        {/* Inner Circle Leaderboard */}
+        <div className="inner-circle">
+          <div className="inner-circle-header">
+            <h2 className="inner-circle-title">Inner Circle</h2>
+            <span className="circle-stats">5 Elite Members</span>
+          </div>
+          
+          <div className="leaderboard">
+            {connectionData.innerCircle.map((member, index) => (
+              <div key={member.id} className="leaderboard-entry">
+                <div className={`rank-badge ${index === 0 ? 'first' : index === 1 ? 'second' : index === 2 ? 'third' : 'other'}`}>
+                  {index + 1}
+                </div>
+                <div className="member-info">
+                  <div className="member-name">{member.name}</div>
+                  <div className="member-status">{member.status}</div>
+                </div>
+                <div className="member-stats">
+                  <div className="stat-item">
+                    <span className="stat-value">{member.streak}</span>
+                    <span className="stat-label">Streak</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-value">{member.prs}</span>
+                    <span className="stat-label">PRs</span>
+                  </div>
+                  <div className="stat-item">
+                    <span className="stat-value">{member.totalLifts}</span>
+                    <span className="stat-label">Total</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Real-time Activity */}
+        <div className="realtime-activity">
+          <div className="activity-header">
+            <h2 className="activity-title">Live Activity</h2>
+            <div className="live-indicator"></div>
+          </div>
+          
+          <div className="activity-list">
+            {connectionData.realtimeActivity.map((activity, index) => (
+              <div key={index} className="activity-item">
+                <div className="activity-avatar">{activity.avatar}</div>
+                <div className="activity-content">
+                  <div className="activity-member">{activity.member}</div>
+                  <div className="activity-description">{activity.action}</div>
+                  <div className="activity-time">{activity.time}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <div className="social-content">
-        {activeTab === 'feed' && (
-          <div className="social-feed">
-            <h2>Recent Activity</h2>
-            {(socialData.feed || []).length === 0 ? (
-              <div className="empty-feed">
-                <div className="empty-icon">📱</div>
-                <h3>No Activity Yet</h3>
-                <p>Follow some friends to see their progress here!</p>
+      {/* Progress Rings */}
+      <div className="progress-rings">
+        <div className="rings-header">
+          <h2 className="rings-title">Performance Metrics</h2>
+          <p className="rings-subtitle">Your elite performance indicators</p>
+        </div>
+        
+        <div className="rings-grid">
+          <div className="progress-ring-card">
+            <div className="progress-ring">
+              <svg width="120" height="120">
+                <circle cx="60" cy="60" r="40" className="ring-background" />
+                <circle cx="60" cy="60" r="40" className="ring-progress" />
+              </svg>
+              <div className="ring-center">
+                <span className="ring-value">92</span>
+                <span className="ring-unit">%</span>
               </div>
-            ) : (
-              <div className="activity-list">
-                {(socialData.feed || []).map((activity) => (
-                  <div key={activity.activity_id} className="activity-item">
-                    <div className="activity-user">
-                      <div className="user-avatar">
-                        {activity.user_name?.charAt(0) || '👤'}
-                      </div>
-                      <div className="user-info">
-                        <strong>{activity.user_name}</strong>
-                        <span className="user-level">Level {activity.user_level}</span>
-                      </div>
-                    </div>
-                    <div className="activity-content">
-                      <h4>{activity.title}</h4>
-                      <p>{activity.description}</p>
-                      {activity.metadata?.xp_earned && (
-                        <div className="activity-rewards">
-                          <span className="xp-reward">⚡ +{activity.metadata.xp_earned} XP</span>
-                          {activity.metadata?.coins_earned && (
-                            <span className="coin-reward">🪙 +{activity.metadata.coins_earned}</span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <div className="activity-time">
-                      {new Date(activity.created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+            </div>
+            <div className="ring-label">Weekly Goal</div>
+            <div className="ring-subtitle">4.6K / 5K target</div>
           </div>
-        )}
-
-        {activeTab === 'leaderboards' && (
-          <div className="leaderboards">
-            <div className="leaderboard-section">
-              <h3>🔥 Longest Streaks</h3>
-              <div className="leaderboard-list">
-                {((socialData.leaderboards || {}).streak_leaders || []).map((user, index) => (
-                  <div key={user.user_id} className="leaderboard-item">
-                    <div className="rank">
-                      {index + 1 <= 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`}
-                    </div>
-                    <div className="user-info">
-                      <strong>{user.name}</strong>
-                      <span>Level {user.level}</span>
-                    </div>
-                    <div className="streak-count">
-                      {user.streak} days 🔥
-                    </div>
-                  </div>
-                ))}
+          
+          <div className="progress-ring-card">
+            <div className="progress-ring">
+              <svg width="120" height="120">
+                <circle cx="60" cy="60" r="40" className="ring-background" />
+                <circle cx="60" cy="60" r="40" className="ring-progress" />
+              </svg>
+              <div className="ring-center">
+                <span className="ring-value">28</span>
+                <span className="ring-unit">days</span>
               </div>
             </div>
-
-            <div className="leaderboard-section">
-              <h3>🪙 Top Coin Earners</h3>
-              <div className="leaderboard-list">
-                {((socialData.leaderboards || {}).coin_leaders || []).map((user, index) => (
-                  <div key={user.user_id} className="leaderboard-item">
-                    <div className="rank">
-                      {index + 1 <= 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`}
-                    </div>
-                    <div className="user-info">
-                      <strong>{user.name}</strong>
-                      <span>Level {user.level}</span>
-                    </div>
-                    <div className="coin-count">
-                      {user.total_coins} 🪙
-                    </div>
-                  </div>
-                ))}
+            <div className="ring-label">Current Streak</div>
+            <div className="ring-subtitle">Personal best</div>
+          </div>
+          
+          <div className="progress-ring-card">
+            <div className="progress-ring">
+              <svg width="120" height="120">
+                <circle cx="60" cy="60" r="40" className="ring-background" />
+                <circle cx="60" cy="60" r="40" className="ring-progress" />
+              </svg>
+              <div className="ring-center">
+                <span className="ring-value">15</span>
+                <span className="ring-unit">PRs</span>
               </div>
             </div>
-
-            <div className="leaderboard-section">
-              <h3>🏋️‍♂️ Top Trainers This Month</h3>
-              <div className="leaderboard-list">
-                {((socialData.leaderboards || {}).trainer_leaders || []).map((trainer, index) => (
-                  <div key={trainer.trainer_id} className="leaderboard-item">
-                    <div className="rank">
-                      {index + 1 <= 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`}
-                    </div>
-                    <div className="user-info">
-                      <strong>{trainer.name}</strong>
-                      <span>{trainer.gym}</span>
-                    </div>
-                    <div className="session-count">
-                      {trainer.sessions_this_month} sessions
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <div className="ring-label">This Month</div>
+            <div className="ring-subtitle">+3 from last month</div>
           </div>
-        )}
+        </div>
+      </div>
 
-        {activeTab === 'following' && (
-          <div className="following-section">
-            <h2>Following ({(socialData.following || []).length})</h2>
-            <div className="user-list">
-              {(socialData.following || []).map((user) => (
-                <div key={user.user_id} className="user-card">
-                  <div className="user-avatar">
-                    {user.name?.charAt(0) || '👤'}
-                  </div>
-                  <div className="user-info">
-                    <h4>{user.name}</h4>
-                    <span className="user-role">
-                      {user.role === 'trainer' ? '🏋️‍♂️ Trainer' : '💪 Member'}
-                    </span>
-                    <div className="user-stats">
-                      <span>🔥 {user.current_streak} days</span>
-                      <span>🪙 {user.lift_coins}</span>
-                      <span>⚡ Level {user.level}</span>
-                    </div>
-                  </div>
-                  <div className="user-actions">
-                    <button 
-                      onClick={() => handleUnfollow(user.user_id)}
-                      className="unfollow-btn"
-                    >
-                      Unfollow
-                    </button>
-                  </div>
-                  
-                  {user.recent_activities?.length > 0 && (
-                    <div className="recent-activity">
-                      <h5>Recent Activity:</h5>
-                      {(user.recent_activities || []).slice(0, 2).map((activity, idx) => (
-                        <div key={idx} className="mini-activity">
-                          {activity.title}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'recommendations' && (
-          <div className="recommendations-section">
-            <h2>🔍 Discover New Connections</h2>
-            <div className="user-list">
-              {(socialData.recommendations || []).map((user) => (
-                <div key={user.user_id} className="user-card">
-                  <div className="user-avatar">
-                    {user.name?.charAt(0) || '👤'}
-                  </div>
-                  <div className="user-info">
-                    <h4>{user.name}</h4>
-                    <span className="user-role">
-                      {user.role === 'trainer' ? '🏋️‍♂️ Trainer' : '💪 Member'}
-                    </span>
-                    <div className="recommendation-reason">
-                      {user.reason === 'nearby_user' && `📍 ${user.distance_km}km away`}
-                      {user.reason === 'shared_trainer' && `🏋️‍♂️ Trains with ${user.shared_trainer}`}
-                    </div>
-                    <div className="user-stats">
-                      <span>🔥 {user.streak} days</span>
-                      {user.gym && <span>🏢 {user.gym}</span>}
-                    </div>
-                  </div>
-                  <div className="user-actions">
-                    <button 
-                      onClick={() => handleFollow(user.user_id)}
-                      className="follow-btn"
-                    >
-                      Follow
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+      {/* Exclusive Invite Section */}
+      <div className="invite-section">
+        <h2 className="invite-title">Expand Your Circle</h2>
+        <p className="invite-description">
+          Invite elite performers to join your exclusive network. Access is by invitation only.
+        </p>
+        <button className="invite-btn">Send Elite Invitation</button>
       </div>
     </div>
   );
