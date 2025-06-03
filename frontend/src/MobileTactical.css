@@ -96,7 +96,6 @@
   --gradient-secondary: linear-gradient(135deg, var(--secondary) 0%, #5BA3B8 100%);
   --gradient-premium: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--accent) 100%);
 }
-}
 
 /* =============== MOBILE BASE RESET =============== */
 
