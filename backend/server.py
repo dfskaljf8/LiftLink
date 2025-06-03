@@ -1806,62 +1806,79 @@ async def get_followers(current_user: dict = Depends(get_current_user)):
     return {"followers": followers}
 
 @app.get("/api/social/leaderboards")
+@cache_result(ttl=300, key_prefix="leaderboards")  # Cache for 5 minutes
 async def get_social_leaderboards():
-    """Get various leaderboards for social motivation"""
+    """Get various leaderboards for social motivation with optimized queries"""
     
-    # Longest streaks leaderboard
-    streak_leaders = []
-    async for user in db.users.find().sort("consecutive_days", -1).limit(10):
-        if user.get("consecutive_days", 0) > 0:
-            streak_leaders.append({
-                "user_id": user["user_id"],
-                "name": user["name"],
-                "streak": user.get("consecutive_days", 0),
-                "level": user.get("level", 1)
-            })
+    # Use optimized aggregation queries
+    streak_leaders = await db_query_optimizer.get_leaderboard_optimized("streaks", 10)
+    coin_leaders = await db_query_optimizer.get_leaderboard_optimized("coins", 10)
     
-    # Most LiftCoins leaderboard
-    coin_leaders = []
-    async for user in db.users.find().sort("total_coins_earned", -1).limit(10):
-        if user.get("total_coins_earned", 0) > 0:
-            coin_leaders.append({
-                "user_id": user["user_id"],
-                "name": user["name"],
-                "total_coins": user.get("total_coins_earned", 0),
-                "current_coins": user.get("lift_coins", 0),
-                "level": user.get("level", 1)
-            })
-    
-    # Most sessions this month (for trainers)
-    trainer_leaders = []
+    # Most sessions this month (for trainers) - optimized
     start_of_month = datetime.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    async for trainer in db.trainers.find():
-        sessions_this_month = await db.bookings.count_documents({
-            "trainer_id": trainer["trainer_id"],
-            "status": "confirmed",
-            "created_at": {"$gte": start_of_month}
-        })
-        
-        if sessions_this_month > 0:
-            user = await db.users.find_one({"user_id": trainer["trainer_id"]})
-            if user:
-                trainer_leaders.append({
-                    "trainer_id": trainer["trainer_id"],
-                    "name": user["name"],
-                    "sessions_this_month": sessions_this_month,
-                    "gym": trainer.get("gym_name", ""),
-                    "specialties": trainer.get("specialties", [])
-                })
     
-    trainer_leaders.sort(key=lambda x: x["sessions_this_month"], reverse=True)
-    trainer_leaders = trainer_leaders[:10]
+    # Use aggregation pipeline for trainer leaders
+    trainer_pipeline = [
+        {
+            "$lookup": {
+                "from": "bookings",
+                "let": {"trainer_id": "$trainer_id"},
+                "pipeline": [
+                    {
+                        "$match": {
+                            "$expr": {"$eq": ["$trainer_id", "$$trainer_id"]},
+                            "status": "confirmed",
+                            "created_at": {"$gte": start_of_month}
+                        }
+                    },
+                    {"$count": "sessions_count"}
+                ],
+                "as": "session_stats"
+            }
+        },
+        {
+            "$addFields": {
+                "sessions_this_month": {
+                    "$ifNull": [{"$arrayElemAt": ["$session_stats.sessions_count", 0]}, 0]
+                }
+            }
+        },
+        {
+            "$match": {"sessions_this_month": {"$gt": 0}}
+        },
+        {
+            "$lookup": {
+                "from": "users",
+                "localField": "trainer_id",
+                "foreignField": "user_id",
+                "as": "user_info"
+            }
+        },
+        {"$unwind": "$user_info"},
+        {
+            "$project": {
+                "trainer_id": 1,
+                "name": "$user_info.name",
+                "sessions_this_month": 1,
+                "gym": "$gym_name",
+                "specialties": 1
+            }
+        },
+        {"$sort": {"sessions_this_month": -1}},
+        {"$limit": 10}
+    ]
     
-    return {
-        "streak_leaders": streak_leaders,
-        "coin_leaders": coin_leaders,
-        "trainer_leaders": trainer_leaders,
+    trainer_leaders = await db.trainers.aggregate(trainer_pipeline).to_list(10)
+    
+    # Optimize response data
+    optimized_result = {
+        "streak_leaders": [FrontendOptimization.optimize_api_response(leader) for leader in streak_leaders],
+        "coin_leaders": [FrontendOptimization.optimize_api_response(leader) for leader in coin_leaders],
+        "trainer_leaders": [FrontendOptimization.optimize_api_response(leader) for leader in trainer_leaders],
         "updated_at": datetime.utcnow()
     }
+    
+    return optimized_result
 
 @app.get("/api/social/feed")
 async def get_social_feed(
