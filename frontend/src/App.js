@@ -624,7 +624,7 @@ const AuthProvider = ({ children }) => {
         demoToken = 'demo_admin';
         demoUser = { uid: 'admin_aarav', email, displayName: 'Supreme Commander' };
       } else {
-        throw new Error('ACCESS DENIED: Invalid credentials');
+        throw new Error('We couldn\'t find an account with that email and password. Please check and try again.');
       }
       
       localStorage.setItem('auth_token', demoToken);
@@ -650,7 +650,7 @@ const AuthProvider = ({ children }) => {
     } catch (error) {
       MobileTacticalAudio.playSound('error');
       MobileHaptics.heavy();
-      throw new Error(error.message || 'Mission failed: Login error');
+      throw new Error(error.message || 'Something went wrong. Please try again.');
     }
   };
 
