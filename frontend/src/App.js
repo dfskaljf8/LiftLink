@@ -5833,10 +5833,7 @@ const AppContent = () => {
 
 // Main App Component - Modern Adonis-inspired Design
 
-// Modern Profile Screen Component (Adonis-inspired)
-const ModernProfileScreen = ({ setCurrentView, user }) => {
-  const [profile, setProfile] = useState(user);
-  const [editing, setEditing] = useState(false);
+// Simple Messages Placeholder Component
 
   const profileSections = [
     { id: 'personal', icon: '👤', title: 'Personal Info', desc: 'Name, email, phone' },
