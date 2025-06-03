@@ -1566,6 +1566,104 @@ const AdminDashboard = () => {
   );
 };
 
+// Trainer Dashboard Component
+const TrainerDashboard = () => {
+  const { userProfile } = useAuth();
+  const [clients, setClients] = useState([]);
+  const [schedule, setSchedule] = useState([]);
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTrainerData();
+  }, []);
+
+  const fetchTrainerData = async () => {
+    try {
+      const [clientsResponse, scheduleResponse, statsResponse] = await Promise.all([
+        api.get('/api/trainers/clients'),
+        api.get('/api/trainers/schedule'),
+        api.get('/api/trainers/stats')
+      ]);
+      
+      setClients(clientsResponse.data.clients || []);
+      setSchedule(scheduleResponse.data.schedule || []);
+      setStats(statsResponse.data);
+    } catch (error) {
+      console.error('Error fetching trainer data:', error);
+    }
+    setLoading(false);
+  };
+
+  if (loading) return <div className="loading">Loading trainer dashboard...</div>;
+
+  return (
+    <div className="trainer-dashboard">
+      <div className="trainer-header">
+        <h1>🏋️‍♂️ Trainer Hub</h1>
+        <p>Manage your clients and schedule</p>
+      </div>
+
+      <div className="trainer-stats">
+        <div className="stat-card">
+          <div className="stat-number">{stats?.total_clients || 0}</div>
+          <div className="stat-label">Active Clients</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">{stats?.sessions_this_week || 0}</div>
+          <div className="stat-label">Sessions This Week</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-number">${stats?.earnings_this_month?.toFixed(2) || '0.00'}</div>
+          <div className="stat-label">Monthly Earnings</div>
+        </div>
+      </div>
+
+      <div className="trainer-sections">
+        <div className="section">
+          <h2>Upcoming Sessions</h2>
+          <div className="schedule-list">
+            {schedule.length === 0 ? (
+              <p>No upcoming sessions scheduled.</p>
+            ) : (
+              schedule.map((session, index) => (
+                <div key={index} className="session-card">
+                  <div className="session-time">
+                    {new Date(session.session_date).toLocaleDateString()} at{' '}
+                    {new Date(session.session_date).toLocaleTimeString()}
+                  </div>
+                  <div className="session-client">{session.client_name}</div>
+                  <div className="session-duration">{session.duration_hours}h</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="section">
+          <h2>My Clients</h2>
+          <div className="clients-list">
+            {clients.length === 0 ? (
+              <p>No clients yet.</p>
+            ) : (
+              clients.map((client) => (
+                <div key={client.client_id} className="client-card">
+                  <div className="client-avatar">{client.name?.charAt(0) || '👤'}</div>
+                  <div className="client-info">
+                    <h4>{client.name}</h4>
+                    <p>{client.total_sessions} sessions completed</p>
+                    <p>Last session: {new Date(client.last_session).toLocaleDateString()}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Tree Visualization Component
 const TreeVisualization = () => {
   const { userProfile } = useAuth();
