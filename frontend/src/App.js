@@ -941,6 +941,9 @@ const MyBookings = () => {
   );
 };
 
+// Alias for booking management
+const BookingManagement = () => <MyBookings />;
+
 // Progress Analytics Component with Advanced Data Visualization
 const ProgressAnalytics = () => {
   const [progressData, setProgressData] = useState(null);
