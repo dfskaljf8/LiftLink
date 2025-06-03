@@ -446,18 +446,19 @@ const Navigation = ({ currentView, setCurrentView }) => {
     { key: 'trainers', label: 'Find Trainers', icon: '🔍' },
     { key: 'bookings', label: 'My Bookings', icon: '📅' },
     { key: 'progress', label: 'Progress', icon: '📊' },
-    { key: 'tree', label: 'Tree', icon: '🌳' },
-    { key: 'social', label: 'Social', icon: '👥' }
+    { key: 'fitnessforest', label: 'FitnessForest', icon: '🌳' },
+    { key: 'social', label: 'Social', icon: '👥' },
+    { key: 'settings', label: 'Settings', icon: '⚙️' }
   ];
 
   // Add trainer-specific items
   if (userProfile?.role === 'trainer') {
-    navItems.push({ key: 'trainer-dashboard', label: 'Trainer Hub', icon: '🏋️‍♂️' });
+    navItems.splice(-1, 0, { key: 'trainer-dashboard', label: 'Trainer Hub', icon: '🏋️‍♂️' });
   }
 
   // Add admin items
   if (userProfile?.role === 'admin') {
-    navItems.push({ key: 'admin', label: 'Admin Panel', icon: '🛡️' });
+    navItems.splice(-1, 0, { key: 'admin', label: 'Admin Panel', icon: '🛡️' });
   }
 
   const toggleSidebar = () => {
@@ -533,30 +534,6 @@ const Navigation = ({ currentView, setCurrentView }) => {
             </button>
           ))}
         </nav>
-
-        <div className="sidebar-footer">
-          <button 
-            className="nav-item profile-nav"
-            onClick={() => {
-              setCurrentView('profile');
-              setSidebarOpen(false);
-            }}
-          >
-            <span className="nav-icon">👤</span>
-            <span className="nav-label">Profile</span>
-          </button>
-          
-          <button 
-            className="nav-item logout-nav"
-            onClick={() => {
-              logout();
-              setSidebarOpen(false);
-            }}
-          >
-            <span className="nav-icon">🚪</span>
-            <span className="nav-label">Logout</span>
-          </button>
-        </div>
       </div>
     </>
   );
