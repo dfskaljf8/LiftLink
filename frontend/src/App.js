@@ -2409,9 +2409,34 @@ const Profile = () => {
 
 // Main App Component
 const App = () => {
-  const [currentView, setCurrentView] = useState('home');
+  const [currentView, setCurrentView] = useState('dashboard');
   const [authMode, setAuthMode] = useState('login');
   const { loading } = useAuth();
+
+  const renderCurrentView = () => {
+    switch (currentView) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'trainers':
+        return <TrainerSearch />;
+      case 'bookings':
+        return <BookingManagement />;
+      case 'progress':
+        return <ProgressAnalytics />;
+      case 'tree':
+        return <TreeVisualization />;
+      case 'social':
+        return <SocialTracking />;
+      case 'trainer-dashboard':
+        return <TrainerDashboard />;
+      case 'admin':
+        return <AdminDashboard />;
+      case 'profile':
+        return <Profile />;
+      default:
+        return <Dashboard />;
+    }
+  };
 
   return (
     <AuthProvider>
