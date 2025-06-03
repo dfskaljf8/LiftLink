@@ -3322,14 +3322,14 @@ const AppContent = () => {
               {error && <div className="error-message">{error}</div>}
               
               <button type="submit" disabled={loading} className="elite-submit-btn" onClick={handleSubmit}>
-                {loading ? 'ACCESSING SYSTEM...' : 'AUTHORIZE ACCESS'}
+                {loading ? 'LOGGING IN...' : 'LOG IN'}
               </button>
               
               <div className="form-toggle">
                 <span>
-                  Need clearance?{' '}
+                  Need an account?{' '}
                   <button type="button" onClick={onToggle} className="toggle-btn">
-                    Request Access
+                    Sign Up
                   </button>
                 </span>
               </div>
