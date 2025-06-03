@@ -2589,6 +2589,10 @@ input::placeholder, textarea::placeholder {
     width: calc(100% - 2rem);
   }
 }
+
+/* Empty state styling for no trainers/bookings message - Fixed syntax error */
+.no-trainers, .no-bookings {
+  text-align: center;
   padding: 4rem 2rem;
   color: var(--text-muted);
   font-size: 1.1rem;
