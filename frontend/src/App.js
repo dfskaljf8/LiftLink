@@ -27,19 +27,6 @@ const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [userProfile, setUserProfile] = useState(null);
 
-  useEffect(() => {
-    // Check for existing auth token
-    const token = localStorage.getItem('auth_token');
-    const savedUser = localStorage.getItem('user_data');
-    
-    if (token && savedUser) {
-      setUser(JSON.parse(savedUser));
-      fetchUserProfile();
-    } else {
-      setLoading(false);
-    }
-  }, []);
-
   const fetchUserProfile = async () => {
     try {
       const response = await api.get('/api/users/profile');
@@ -53,6 +40,19 @@ const AuthProvider = ({ children }) => {
     }
     setLoading(false);
   };
+
+  useEffect(() => {
+    // Check for existing auth token
+    const token = localStorage.getItem('auth_token');
+    const savedUser = localStorage.getItem('user_data');
+    
+    if (token && savedUser) {
+      setUser(JSON.parse(savedUser));
+      fetchUserProfile();
+    } else {
+      setLoading(false);
+    }
+  }, []);  // fetchUserProfile doesn't need to be in deps since it doesn't use external state
 
   const login = async (email, password) => {
     try {
