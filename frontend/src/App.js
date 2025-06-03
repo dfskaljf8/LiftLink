@@ -650,12 +650,12 @@ const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    TacticalAudio.playSound('click');
+    MobileTacticalAudio.playSound('click');
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
     setUser(null);
     setUserProfile(null);
-    TacticalHaptics.medium();
+    MobileHaptics.medium();
   };
 
   const value = {
