@@ -9,25 +9,33 @@
 }
 
 :root {
-  /* Soft, Faith-Based Color Palette */
-  --primary-soft: #a8d5ba;        /* Soft sage green */
-  --primary-medium: #7cb69d;       /* Medium sage */
-  --primary-deep: #5a9b82;         /* Deep sage */
+  /* LiftLink Neon Vibe - Dark Theme */
+  --primary: #c0f527;              /* Neon green primary */
+  --background: #0f0f0f;           /* Deep black background */
+  --foreground: #c0f527;           /* Neon green foreground */
+  --border: #c0f527;               /* Neon green borders */
+  --hover: #d4fd5e;                /* Lighter neon green on hover */
+  --accent: #c0f527;               /* Neon green accent */
   
-  --accent-light: #e8f4f8;         /* Very light blue-green */
-  --accent-soft: #b8e0d2;          /* Soft mint */
-  --accent-warm: #d4c5b9;          /* Warm beige */
+  /* Legacy mappings for compatibility */
+  --primary-soft: #c0f527;
+  --primary-medium: #a8e522;
+  --primary-deep: #8fc91e;
   
-  --text-primary: #2d3436;         /* Soft dark gray */
-  --text-secondary: #636e72;       /* Medium gray */
-  --text-muted: #a0a5aa;           /* Light gray */
+  --accent-light: #c0f527;
+  --accent-soft: #d4fd5e;
+  --accent-warm: #c0f527;
   
-  --background-primary: #fefefe;   /* Pure white */
-  --background-soft: #f8faf9;      /* Very light sage */
-  --background-card: #ffffff;      /* Card white */
+  --text-primary: #c0f527;         /* Neon green text */
+  --text-secondary: #a8e522;       /* Slightly dimmer green */
+  --text-muted: rgba(192, 245, 39, 0.6); /* Muted neon green */
   
-  --surface-light: #f1f8f5;        /* Light surface */
-  --surface-medium: #e8f4f0;       /* Medium surface */
+  --background-primary: #0f0f0f;   /* Deep black */
+  --background-soft: #1a1a1a;      /* Slightly lighter black */
+  --background-card: #0f0f0f;      /* Card background */
+  
+  --surface-light: #1a1a1a;        /* Light surface */
+  --surface-medium: #262626;       /* Medium surface */
   
   --border-light: #e8f0ed;         /* Very light border */
   --border-medium: #d1e7dd;        /* Medium border */
