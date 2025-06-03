@@ -345,6 +345,7 @@ metadata:
 
 test_plan:
   current_focus:
+    - "Map Integration for Find Trainers"
     - "Trainer Search and Booking"
   stuck_tasks:
     - "Trainer Search and Booking"
