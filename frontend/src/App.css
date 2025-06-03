@@ -246,11 +246,16 @@
   }
 }
 
-/* Elite Base Styles */
+/* =============== MATRIX BASE STYLES =============== */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+html {
+  font-size: clamp(14px, 1.5vw, 16px);
+  scroll-behavior: smooth;
 }
 
 body {
@@ -261,13 +266,14 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 400;
   overflow-x: hidden;
   position: relative;
+  min-height: 100vh;
 }
 
-/* Neural Network Background */
+/* Matrix Digital Rain Background */
 body::before {
   content: '';
   position: fixed;
@@ -276,16 +282,16 @@ body::before {
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 20%, rgba(0, 255, 65, 0.03) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.02) 0%, transparent 50%),
-    radial-gradient(circle at 40% 70%, rgba(139, 92, 246, 0.02) 0%, transparent 50%);
-  background-size: 100% 100%;
-  animation: neuralPulse 20s ease-in-out infinite;
-  z-index: -1;
+    radial-gradient(circle at 10% 20%, rgba(0, 255, 65, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 90% 80%, rgba(0, 255, 65, 0.02) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(0, 255, 65, 0.015) 0%, transparent 60%);
+  background-size: 300% 300%;
+  animation: neuralPulse 25s ease-in-out infinite;
+  z-index: -2;
   pointer-events: none;
 }
 
-/* Matrix Rain Effect */
+/* Matrix Code Rain Effect */
 body::after {
   content: '';
   position: fixed;
@@ -294,13 +300,57 @@ body::after {
   right: 0;
   bottom: 0;
   background: 
-    linear-gradient(90deg, transparent 98%, rgba(0, 255, 65, 0.03) 100%),
-    linear-gradient(180deg, transparent 98%, rgba(0, 255, 65, 0.02) 100%);
-  background-size: 100px 100px, 150px 150px;
-  animation: matrixRain 15s linear infinite;
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 97px,
+      rgba(0, 255, 65, 0.01) 98px,
+      rgba(0, 255, 65, 0.02) 100px,
+      transparent 102px
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 147px,
+      rgba(0, 255, 65, 0.008) 150px,
+      transparent 152px
+    );
+  animation: dataFlow 30s linear infinite;
   z-index: -1;
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.7;
+}
+
+/* Mobile Responsive Optimizations */
+@media (max-width: 768px) {
+  body {
+    font-size: 0.9rem;
+  }
+  
+  body::before {
+    background-size: 200% 200%;
+    animation-duration: 20s;
+  }
+  
+  body::after {
+    opacity: 0.4;
+    animation-duration: 25s;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: clamp(13px, 2vw, 15px);
+  }
+  
+  body::before {
+    background-size: 150% 150%;
+    animation-duration: 15s;
+  }
+  
+  body::after {
+    opacity: 0.3;
+  }
 }
 
 /* Enhanced Animations */
