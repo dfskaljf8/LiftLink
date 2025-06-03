@@ -2281,7 +2281,7 @@ const SocialTracking = () => {
 
         {activeTab === 'following' && (
           <div className="following-section">
-            <h2>Following ({socialData.following.length})</h2>
+            <h2>Following ({(socialData.following || []).length})</h2>
             <div className="user-list">
               {(socialData.following || []).map((user) => (
                 <div key={user.user_id} className="user-card">
