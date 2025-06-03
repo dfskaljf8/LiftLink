@@ -640,10 +640,6 @@ body {
   transform: scale(1.1);
   box-shadow: var(--shadow-elite), var(--glow-lime-strong);
 }
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--background);
   animation: breatheBackground 8s ease-in-out infinite;
   position: relative;
   overflow: hidden;
