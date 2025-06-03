@@ -1359,8 +1359,47 @@ TREE_STAGES = {
 # ============ USER MANAGEMENT ENDPOINTS ============
 
 @app.post("/api/users/register")
-async def register_user(user_data: UserRegistrationRequest):
-    """Register a new user with email verification"""
+@require_geo_compliance(allow_vpn=False)
+async def register_user(user_data: UserRegistrationRequest, request: Request):
+    """Register a new user with enhanced security and validation"""
+    
+    client_ip = get_client_ip(request)
+    
+    # Enhanced rate limiting
+    if not await security_middleware.check_rate_limit(client_ip, "registration", client_ip):
+        raise HTTPException(status_code=429, detail="Registration rate limit exceeded. Please try again later.")
+    
+    # Device fingerprint analysis
+    device_analysis = await security_middleware.analyze_device_fingerprint(request)
+    if len(device_analysis["risk_factors"]) > 2:
+        await security_middleware.log_security_event(
+            "suspicious_registration_attempt", 
+            client_ip, 
+            {"device_analysis": device_analysis}, 
+            "MEDIUM"
+        )
+        raise HTTPException(status_code=403, detail="Registration temporarily blocked due to security concerns")
+    
+    # Geo-location analysis
+    geo_analysis = await security_middleware.analyze_geo_location(client_ip)
+    if geo_analysis["risk_score"] > 75:
+        await security_middleware.log_security_event(
+            "high_risk_location_registration", 
+            client_ip, 
+            {"geo_analysis": geo_analysis}, 
+            "HIGH"
+        )
+        raise HTTPException(status_code=403, detail="Registration not available from this location")
+    
+    # Content moderation for user data
+    profile_content = {
+        "name": user_data.name,
+        "phone": user_data.phone or ""
+    }
+    
+    moderation_result = await ContentModerationService.moderate_profile_content(profile_content)
+    if not moderation_result["approved"]:
+        raise HTTPException(status_code=400, detail="Profile content violates our community guidelines")
     
     # Validate email format
     if not validate_email_format(user_data.email):
@@ -1373,6 +1412,13 @@ async def register_user(user_data: UserRegistrationRequest):
     # Check if user already exists
     existing_user = await db.users.find_one({"email": user_data.email})
     if existing_user:
+        # Log potential duplicate account attempt
+        await security_middleware.log_security_event(
+            "duplicate_email_registration", 
+            client_ip, 
+            {"email": user_data.email, "device_id": device_analysis["device_id"]}, 
+            "LOW"
+        )
         raise HTTPException(status_code=400, detail="User with this email already exists")
     
     # Generate verification code
@@ -1396,8 +1442,19 @@ async def register_user(user_data: UserRegistrationRequest):
     # Temporarily store user data for completion after verification
     temp_user_data = user_data.dict()
     temp_user_data["verification_id"] = verification_record.verification_id
+    temp_user_data["device_analysis"] = device_analysis
+    temp_user_data["geo_analysis"] = geo_analysis
+    temp_user_data["registration_ip"] = client_ip
     
     await db.temp_users.insert_one(temp_user_data)
+    
+    # Log successful registration initiation
+    await security_middleware.log_security_event(
+        "registration_initiated", 
+        user_data.email, 
+        {"ip": client_ip, "device_id": device_analysis["device_id"]}, 
+        "INFO"
+    )
     
     return {
         "message": "Verification code sent to email. Please verify to complete registration.",
