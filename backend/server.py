@@ -87,7 +87,7 @@ def get_client_ip(request: Request) -> str:
     x_forwarded_for = request.headers.get("x-forwarded-for")
     if x_forwarded_for:
         return x_forwarded_for.split(",")[0].strip()
-    return request.client.host
+    return getattr(request.client, 'host', '127.0.0.1')
 
 def check_rate_limit(identifier: str, limit: int, window_minutes: int = 1) -> bool:
     """Check if request is within rate limit"""
@@ -404,7 +404,7 @@ def get_client_ip(request: Request) -> str:
     x_forwarded_for = request.headers.get("x-forwarded-for")
     if x_forwarded_for:
         return x_forwarded_for.split(",")[0].strip()
-    return request.client.host
+    return getattr(request.client, 'host', '127.0.0.1')
 
 def check_rate_limit(identifier: str, limit: int, window_minutes: int = 1) -> bool:
     """Check if request is within rate limit"""
