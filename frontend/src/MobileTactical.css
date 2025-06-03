@@ -4,36 +4,45 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  /* =============== MOBILE-FIRST TACTICAL VARIABLES =============== */
+  /* =============== PROFESSIONAL MOBILE-FIRST VARIABLES =============== */
   
-  /* Command Colors - Mobile Optimized */
-  --bg-command: #000000;
-  --bg-tactical: #0a0a0a;
-  --bg-stealth: #050505;
-  --bg-ops: #111111;
+  /* Command Colors - Professional Dark Palette */
+  --bg-command: #0a0a0a;
+  --bg-tactical: #141414;
+  --bg-stealth: #1a1a1a;
+  --bg-ops: #202020;
   
-  /* LiftLink Brand Colors */
-  --liftlink-green: #9ACD32;        /* Logo green */
-  --liftlink-yellow: #FFD700;       /* Logo yellow */
-  --liftlink-white: #FFFFFF;        /* Logo white */
-  --liftlink-gray: #2A2A2A;         /* Dark gray */
+  /* Professional LiftLink Brand Colors */
+  --liftlink-green: #6B8E5A;        /* Muted professional green */
+  --liftlink-green-light: #7FA068;   /* Lighter professional green */
+  --liftlink-green-dark: #5A7A4B;    /* Darker professional green */
+  --liftlink-yellow: #D4AF37;        /* Muted gold */
+  --liftlink-white: #FFFFFF;         /* Clean white */
+  --liftlink-gray: #2A2A2A;          /* Professional gray */
   
-  /* Tactical Neon System */
-  --neon-primary: var(--liftlink-green);
-  --neon-secondary: #00d4ff;
-  --neon-warning: #ff6b00;
-  --neon-danger: #ff0066;
-  --neon-success: #00ff88;
-  --neon-elite: #ff00ff;
-  --neon-gold: var(--liftlink-yellow);
+  /* Professional Color System */
+  --primary: var(--liftlink-green);
+  --primary-light: var(--liftlink-green-light);
+  --primary-dark: var(--liftlink-green-dark);
+  --secondary: #4A90A4;              /* Professional blue */
+  --accent: var(--liftlink-yellow);
+  --warning: #D4A574;                /* Muted orange */
+  --danger: #B85450;                 /* Muted red */
+  --success: var(--liftlink-green);
+  
+  /* Professional Text Colors */
+  --text-primary: #FFFFFF;
+  --text-secondary: #B0B0B0;
+  --text-muted: #808080;
+  --text-inverse: #000000;
   
   /* Mobile Touch Targets */
-  --touch-target: 44px;             /* iOS minimum */
-  --touch-target-large: 56px;       /* Android minimum */
+  --touch-target: 44px;
+  --touch-target-large: 56px;
   --touch-padding: 12px;
   --touch-margin: 8px;
   
-  /* Mobile Spacing System */
+  /* Professional Spacing System */
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 16px;
@@ -41,7 +50,7 @@
   --space-xl: 32px;
   --space-xxl: 48px;
   
-  /* Mobile Typography Scale */
+  /* Typography Scale */
   --text-xs: 12px;
   --text-sm: 14px;
   --text-base: 16px;
@@ -51,27 +60,28 @@
   --text-3xl: 28px;
   --text-4xl: 32px;
   
-  /* Mobile Radius System */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
+  /* Professional Radius System */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
   --radius-full: 9999px;
   
-  /* Mobile Shadows */
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px var(--neon-primary);
+  /* Professional Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 12px rgba(107, 142, 90, 0.3);
+  --shadow-glow-strong: 0 0 20px rgba(107, 142, 90, 0.4);
   
-  /* Mobile Animation Performance */
+  /* Professional Animation Performance */
   --duration-fast: 200ms;
   --duration-normal: 300ms;
   --duration-slow: 500ms;
   --ease-mobile: cubic-bezier(0.4, 0.0, 0.2, 1);
   --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
   
-  /* Mobile Z-index Scale */
+  /* Professional Z-index Scale */
   --z-base: 1;
   --z-dropdown: 1000;
   --z-sticky: 1020;
@@ -80,6 +90,12 @@
   --z-popover: 1050;
   --z-tooltip: 1060;
   --z-toast: 1070;
+  
+  /* Professional Gradients */
+  --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+  --gradient-secondary: linear-gradient(135deg, var(--secondary) 0%, #5BA3B8 100%);
+  --gradient-premium: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--accent) 100%);
+}
 }
 
 /* =============== MOBILE BASE RESET =============== */
