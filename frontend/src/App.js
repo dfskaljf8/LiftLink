@@ -5285,46 +5285,49 @@ const App = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <AuthProvider>
-      <AuthChecker>
-        {({ user, userProfile, loading }) => {
-          if (loading) {
-            return null; // Loading handled by AuthProvider
-          }
+    <ThemeProvider>
+      <AuthProvider>
+        <ThemeToggle />
+        <AuthChecker>
+          {({ user, userProfile, loading }) => {
+            if (loading) {
+              return null; // Loading handled by AuthProvider
+            }
 
-          if (!user) {
-            return <MobileAuthForm isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />;
-          }
+            if (!user) {
+              return <MobileAuthForm isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />;
+            }
 
-          return (
-            <div className="mobile-tactical-app">
-              <MobileTopNav 
-                userProfile={userProfile}
-                onMenuToggle={() => console.log('Menu toggle')}
-              />
-              
-              <div className="mobile-main-content">
-                {currentView === 'dashboard' && <MobileDashboard setCurrentView={setCurrentView} />}
-                {currentView === 'trainers' && <MobileTrainerSearch />}
-                {currentView === 'bookings' && <MobileBookings />}
-                {currentView === 'progress' && <MobileProgress />}
-                {currentView === 'fitnessforest' && <MobileTree />}
-                {currentView === 'social' && <MobileSocial />}
-                {currentView === 'profile' && <MobileProfile />}
-                {currentView === 'trainer-dashboard' && <MobileTrainerDashboard />}
-                {currentView === 'admin' && <MobileAdminDashboard />}
+            return (
+              <div className="mobile-tactical-app">
+                <MobileTopNav 
+                  userProfile={userProfile}
+                  onMenuToggle={() => console.log('Menu toggle')}
+                />
+                
+                <div className="mobile-main-content">
+                  {currentView === 'dashboard' && <MobileDashboard setCurrentView={setCurrentView} />}
+                  {currentView === 'trainers' && <MobileTrainerSearch />}
+                  {currentView === 'bookings' && <MobileBookings />}
+                  {currentView === 'progress' && <MobileProgress />}
+                  {currentView === 'fitnessforest' && <MobileTree />}
+                  {currentView === 'social' && <MobileSocial />}
+                  {currentView === 'profile' && <MobileProfile />}
+                  {currentView === 'trainer-dashboard' && <MobileTrainerDashboard />}
+                  {currentView === 'admin' && <MobileAdminDashboard />}
+                </div>
+                
+                <MobileBottomNav 
+                  currentView={currentView}
+                  setCurrentView={setCurrentView}
+                  userProfile={userProfile}
+                />
               </div>
-              
-              <MobileBottomNav 
-                currentView={currentView}
-                setCurrentView={setCurrentView}
-                userProfile={userProfile}
-              />
-            </div>
-          );
-        }}
-      </AuthChecker>
-    </AuthProvider>
+            );
+          }}
+        </AuthChecker>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 
