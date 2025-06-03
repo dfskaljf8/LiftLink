@@ -2795,10 +2795,12 @@ const App = () => {
         return <BookingManagement />;
       case 'progress':
         return <ProgressAnalytics />;
-      case 'tree':
-        return <TreeVisualization />;
+      case 'fitnessforest':
+        return <FitnessForest />;
       case 'social':
         return <SocialTracking />;
+      case 'settings':
+        return <Settings />;
       case 'trainer-dashboard':
         return <TrainerDashboard />;
       case 'admin':
