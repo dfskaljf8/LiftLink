@@ -1611,6 +1611,7 @@ async def update_user_location(
     return {"message": "Location updated successfully"}
 
 @app.get("/api/trainers/search")
+@cache_result(ttl=180, key_prefix="trainer_search")  # Cache for 3 minutes
 async def search_trainers(
     lat: Optional[float] = Query(None),
     lng: Optional[float] = Query(None),
@@ -1618,65 +1619,57 @@ async def search_trainers(
     specialty: Optional[str] = Query(None),
     max_rate: Optional[float] = Query(None),
     gym: Optional[str] = Query(None),
-    certified_only: Optional[bool] = Query(False)
+    certified_only: Optional[bool] = Query(False),
+    page: Optional[int] = Query(1),
+    per_page: Optional[int] = Query(20)
 ):
-    """Search for trainers based on location and filters with geospatial queries"""
+    """Enhanced trainer search with geospatial queries, caching, and pagination"""
     
-    query = {}
+    # Build filters dictionary
+    filters = {
+        "lat": lat,
+        "lng": lng,
+        "radius": radius,
+        "specialty": specialty,
+        "max_rate": max_rate,
+        "gym": gym,
+        "certified_only": certified_only
+    }
     
-    # Add non-location filters
-    if specialty:
-        query["specialties"] = {"$in": [specialty]}
-    if max_rate:
-        query["hourly_rate"] = {"$lte": max_rate}
-    if gym:
-        query["gym_name"] = {"$regex": gym, "$options": "i"}
-    if certified_only:
-        query["is_certified_trainer"] = True
+    # Remove None values
+    filters = {k: v for k, v in filters.items() if v is not None}
     
-    # Location-based search using MongoDB geospatial queries
+    # Use optimized database query
+    trainers = await db_query_optimizer.search_trainers_optimized(filters)
+    
+    # Calculate distances if location provided
     if lat and lng:
-        query["location"] = {
-            "$near": {
-                "$geometry": {
-                    "type": "Point",
-                    "coordinates": [lng, lat]
-                },
-                "$maxDistance": radius * 1000  # Convert km to meters
-            }
-        }
-    
-    trainers = []
-    async for trainer in db.trainers.find(query).limit(50):
-        # Get user info
-        user = await db.users.find_one({"user_id": trainer["trainer_id"]})
-        trainer["trainer_name"] = user["name"] if user else "Unknown"
+        for trainer in trainers:
+            if trainer.get("location") and trainer["location"].get("coordinates"):
+                trainer_lng, trainer_lat = trainer["location"]["coordinates"]
+                distance = calculate_distance(lat, lng, trainer_lat, trainer_lng)
+                trainer["distance_km"] = round(distance, 1)
         
-        # Calculate distance if location provided
-        if lat and lng and trainer.get("location"):
-            distance = calculate_distance(
-                lat, lng,
-                trainer["location"]["coordinates"][1],
-                trainer["location"]["coordinates"][0]
-            )
-            trainer["distance_km"] = round(distance, 1)
-        
-        # Get certifications
-        certifications = []
-        async for cert in db.certifications.find({"trainer_id": trainer["trainer_id"], "verification_status": "verified"}):
-            certifications.append(serialize_doc(cert))
-        
-        trainer["certifications"] = certifications
-        trainer["verified_certifications"] = trainer.get("verified_certifications", [])
-        trainer["is_certified_trainer"] = trainer.get("is_certified_trainer", False)
-        
-        trainers.append(serialize_doc(trainer))
-    
-    # Sort by distance if location provided
-    if lat and lng:
+        # Sort by distance
         trainers.sort(key=lambda x: x.get("distance_km", float('inf')))
     
-    return {"trainers": trainers}
+    # Optimize response data
+    optimized_trainers = []
+    for trainer in trainers:
+        optimized_trainer = FrontendOptimization.optimize_api_response(trainer)
+        optimized_trainers.append(optimized_trainer)
+    
+    # Paginate results
+    paginated_result = FrontendOptimization.paginate_results(
+        optimized_trainers, page, per_page
+    )
+    
+    return {
+        "trainers": paginated_result["results"],
+        "pagination": paginated_result["pagination"],
+        "total_found": len(optimized_trainers),
+        "search_filters": filters
+    }
 
 def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """Calculate distance between two points using Haversine formula"""
