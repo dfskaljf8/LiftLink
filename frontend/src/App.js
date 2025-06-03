@@ -472,13 +472,13 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
           
           {error && (
             <div style={{ 
-              color: '#ff0066', 
+              color: '#B85450', 
               textAlign: 'center', 
               marginBottom: '1rem',
               padding: '0.75rem',
-              background: 'rgba(255, 0, 102, 0.1)',
+              background: 'rgba(184, 84, 80, 0.1)',
               borderRadius: '12px',
-              border: '1px solid rgba(255, 0, 102, 0.3)'
+              border: '1px solid rgba(184, 84, 80, 0.3)'
             }}>
               {error}
             </div>
