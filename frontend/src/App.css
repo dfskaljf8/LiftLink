@@ -913,10 +913,21 @@ body {
     gap: var(--spacing-sm);
   }
 }
+
+/* ============ ELITE SIDEBAR NAVIGATION ============ */
+.sidebar {
+  position: fixed;
   left: 0;
   top: 0;
   height: 100vh;
   width: 280px;
+  background: var(--gradient-surface);
+  border-right: 1px solid var(--border);
+  padding: var(--spacing-xl);
+  z-index: 1000;
+  backdrop-filter: blur(20px);
+  animation: eliteSlideUp 0.5s ease-out;
+}
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   border-right: 1px solid var(--glass-border);
