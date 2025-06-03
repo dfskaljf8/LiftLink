@@ -1071,7 +1071,8 @@ body {
 .elite-btn:active, .book-btn:active, .submit-btn:active {
   transform: translateY(0);
 }
-}
+
+/* Remove old styles and clean up */
 
 .logo-text {
   font-size: 1.5rem;
