@@ -855,9 +855,9 @@ input::placeholder, textarea::placeholder {
 }
 
 .stat-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: 0 20px 50px rgba(0, 255, 136, 0.2);
-  border-color: var(--accent-primary);
+  transform: scale(1.02);
+  filter: brightness(1.1);
+  border-color: var(--primary);
 }
 
 .stat-card:hover::before {
