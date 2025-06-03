@@ -455,12 +455,13 @@ const Navigation = ({ currentView, setCurrentView }) => {
 
   const navItems = [
     { key: 'dashboard', label: 'Home', icon: '🏠' },
-    { key: 'trainers', label: 'Find Trainers', icon: '🔍' },
-    { key: 'bookings', label: 'My Bookings', icon: '📅' },
+    { key: 'trainers', label: 'Find Trainers', icon: '💪' },
+    { key: 'bookings', label: 'My Bookings', icon: '📆' },
     { key: 'progress', label: 'Progress', icon: '📊' },
-    { key: 'fitnessforest', label: 'FitnessForest', icon: '🌳' },
+    { key: 'fitnessforest', label: 'Tree', icon: '🌳' },
     { key: 'social', label: 'Social', icon: '👥' },
-    { key: 'settings', label: 'Settings', icon: '⚙️' }
+    { key: 'profile', label: 'Profile', icon: '👤' },
+    { key: 'logout', label: 'Logout', icon: '📕' }
   ];
 
   // Add trainer-specific items
