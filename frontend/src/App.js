@@ -1103,18 +1103,6 @@ const TrainerSearch = () => {
       </div>
     </div>
   );
-                    className="book-btn"
-                  >
-                    Book Session 🔥
-                  </button>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-    </div>
-  );
 };
 
 // Bookings Component
