@@ -6793,6 +6793,328 @@ const ModernProfileScreen = ({ setCurrentView, user }) => {
   );
 };
 
+// Modern Bookings Screen Component (Adonis-inspired)
+const ModernBookingsScreen = ({ setCurrentView, user }) => {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('upcoming');
+
+  useEffect(() => {
+    loadBookings();
+  }, []);
+
+  const loadBookings = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/api/bookings');
+      setBookings(response.data.bookings || []);
+    } catch (error) {
+      console.error('Error loading bookings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const upcomingBookings = bookings.filter(b => new Date(b.sessionDate) >= new Date());
+  const pastBookings = bookings.filter(b => new Date(b.sessionDate) < new Date());
+
+  return (
+    <div className="main-content">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-primary mb-2">My Sessions</h1>
+        <p className="text-secondary">Manage your training sessions</p>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="flex mb-6 border-b border-neutral-200">
+        <button
+          className={`flex-1 py-3 text-center font-medium ${
+            activeTab === 'upcoming' 
+              ? 'text-brand-primary border-b-2 border-brand-primary' 
+              : 'text-muted'
+          }`}
+          onClick={() => setActiveTab('upcoming')}
+        >
+          Upcoming ({upcomingBookings.length})
+        </button>
+        <button
+          className={`flex-1 py-3 text-center font-medium ${
+            activeTab === 'past' 
+              ? 'text-brand-primary border-b-2 border-brand-primary' 
+              : 'text-muted'
+          }`}
+          onClick={() => setActiveTab('past')}
+        >
+          Past ({pastBookings.length})
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="card">
+              <div className="skeleton" style={{ height: '80px' }}></div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {(activeTab === 'upcoming' ? upcomingBookings : pastBookings).map(booking => (
+            <BookingCard key={booking.id} booking={booking} />
+          ))}
+          
+          {(activeTab === 'upcoming' ? upcomingBookings : pastBookings).length === 0 && (
+            <div className="card text-center py-12">
+              <div className="text-4xl mb-4">📅</div>
+              <h3 className="text-lg font-semibold mb-2">
+                No {activeTab} sessions
+              </h3>
+              <p className="text-muted mb-4">
+                {activeTab === 'upcoming' 
+                  ? 'Book a session to get started!'
+                  : 'Your completed sessions will appear here.'
+                }
+              </p>
+              {activeTab === 'upcoming' && (
+                <button 
+                  className="btn btn-primary"
+                  onClick={() => setCurrentView('search')}
+                >
+                  Find a Trainer
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Booking Card Component
+const BookingCard = ({ booking }) => {
+  const isUpcoming = new Date(booking.sessionDate) >= new Date();
+  
+  return (
+    <div className="card">
+      <div className="flex gap-4">
+        <img
+          src={booking.trainerImage || `https://ui-avatars.com/api/?name=${booking.trainerName}`}
+          alt={booking.trainerName}
+          className="pro-avatar"
+        />
+        <div className="flex-1">
+          <div className="flex items-start justify-between mb-2">
+            <div>
+              <div className="font-semibold text-primary">{booking.trainerName}</div>
+              <div className="text-sm text-secondary">{booking.sessionType}</div>
+            </div>
+            <div className={`status-badge ${isUpcoming ? 'status-online' : 'status-offline'}`}>
+              {isUpcoming ? 'Upcoming' : 'Completed'}
+            </div>
+          </div>
+          
+          <div className="text-sm text-muted mb-2">
+            📅 {new Date(booking.sessionDate).toLocaleDateString()}
+          </div>
+          <div className="text-sm text-muted mb-3">
+            ⏰ {booking.sessionTime}
+          </div>
+          
+          <div className="flex gap-2">
+            {isUpcoming ? (
+              <>
+                <button className="btn btn-secondary btn-sm">Reschedule</button>
+                <button className="btn btn-primary btn-sm">Join Session</button>
+              </>
+            ) : (
+              <button className="btn btn-secondary btn-sm">Book Again</button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Modern Messages Screen Component (Adonis-inspired)
+const ModernMessagesScreen = ({ setCurrentView, user }) => {
+  const [conversations, setConversations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadConversations();
+  }, []);
+
+  const loadConversations = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/api/messages/conversations');
+      setConversations(response.data.conversations || []);
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="main-content">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-primary mb-2">Messages</h1>
+        <p className="text-secondary">Chat with your trainers</p>
+      </div>
+
+      {loading ? (
+        <div className="space-y-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="card">
+              <div className="skeleton" style={{ height: '60px' }}></div>
+            </div>
+          ))}
+        </div>
+      ) : conversations.length > 0 ? (
+        <div className="space-y-4">
+          {conversations.map(conversation => (
+            <ConversationCard key={conversation.id} conversation={conversation} />
+          ))}
+        </div>
+      ) : (
+        <div className="card text-center py-12">
+          <div className="text-4xl mb-4">💬</div>
+          <h3 className="text-lg font-semibold mb-2">No messages yet</h3>
+          <p className="text-muted mb-4">Start a conversation with a trainer!</p>
+          <button 
+            className="btn btn-primary"
+            onClick={() => setCurrentView('search')}
+          >
+            Find a Trainer
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Conversation Card Component
+const ConversationCard = ({ conversation }) => {
+  return (
+    <div className="card cursor-pointer hover:bg-background-secondary">
+      <div className="flex gap-3">
+        <div className="relative">
+          <img
+            src={conversation.trainerImage || `https://ui-avatars.com/api/?name=${conversation.trainerName}`}
+            alt={conversation.trainerName}
+            className="pro-avatar"
+          />
+          {conversation.isOnline && (
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-brand-success rounded-full border-2 border-white"></div>
+          )}
+        </div>
+        
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-1">
+            <div className="font-semibold text-primary">{conversation.trainerName}</div>
+            <div className="text-xs text-muted">{conversation.lastMessageTime}</div>
+          </div>
+          
+          <div className="text-sm text-secondary mb-1">{conversation.lastMessage}</div>
+          
+          {conversation.unreadCount > 0 && (
+            <div className="flex justify-end">
+              <div className="bg-brand-primary text-white text-xs rounded-full px-2 py-1">
+                {conversation.unreadCount}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Modern Profile Screen Component (Adonis-inspired)
+const ModernProfileScreen = ({ setCurrentView, user }) => {
+  const [profile, setProfile] = useState(user);
+  const [editing, setEditing] = useState(false);
+
+  const profileSections = [
+    { id: 'personal', icon: '👤', title: 'Personal Info', desc: 'Name, email, phone' },
+    { id: 'fitness', icon: '💪', title: 'Fitness Goals', desc: 'Goals, preferences, level' },
+    { id: 'payment', icon: '💳', title: 'Payment Methods', desc: 'Cards, billing info' },
+    { id: 'notifications', icon: '🔔', title: 'Notifications', desc: 'Email, push, SMS' },
+    { id: 'privacy', icon: '🔒', title: 'Privacy & Security', desc: 'Password, 2FA, data' },
+    { id: 'help', icon: '❓', title: 'Help & Support', desc: 'FAQ, contact, feedback' }
+  ];
+
+  return (
+    <div className="main-content">
+      {/* Profile Header */}
+      <div className="card mb-6">
+        <div className="flex items-center gap-4">
+          <img
+            src={profile?.profileImage || `https://ui-avatars.com/api/?name=${profile?.name}&background=6366F1&color=fff`}
+            alt={profile?.name}
+            style={{ 
+              width: '80px', 
+              height: '80px', 
+              borderRadius: '16px', 
+              objectFit: 'cover' 
+            }}
+          />
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold text-primary mb-1">{profile?.name}</h2>
+            <div className="text-secondary mb-2">{profile?.email}</div>
+            <div className="flex gap-4 text-sm">
+              <div>
+                <span className="font-medium">Level:</span>
+                <span className="text-brand-primary ml-1">{profile?.level || 1}</span>
+              </div>
+              <div>
+                <span className="font-medium">LiftCoins:</span>
+                <span className="text-brand-accent ml-1">{profile?.lift_coins || 0}</span>
+              </div>
+            </div>
+          </div>
+          <button className="btn btn-secondary btn-sm">Edit</button>
+        </div>
+      </div>
+
+      {/* Profile Sections */}
+      <div className="space-y-3">
+        {profileSections.map(section => (
+          <div key={section.id} className="card cursor-pointer hover:bg-background-secondary">
+            <div className="flex items-center gap-4">
+              <div className="text-2xl">{section.icon}</div>
+              <div className="flex-1">
+                <div className="font-medium text-primary">{section.title}</div>
+                <div className="text-sm text-muted">{section.desc}</div>
+              </div>
+              <div className="text-muted">›</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="mt-8 space-y-3">
+        <button className="btn btn-secondary w-full justify-start">
+          📊 Progress Analytics
+        </button>
+        <button className="btn btn-secondary w-full justify-start">
+          🌳 Fitness Forest
+        </button>
+        <button className="btn btn-secondary w-full justify-start">
+          👥 Social Features
+        </button>
+        <button className="btn btn-secondary w-full justify-start text-brand-danger">
+          🚪 Sign Out
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // Main App Component - Modern Adonis-inspired Design
 const App = () => {
   const [currentView, setCurrentView] = useState('home');
