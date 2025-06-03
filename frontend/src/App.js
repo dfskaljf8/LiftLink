@@ -672,7 +672,7 @@ const RegistrationForm = ({ onToggle }) => {
       <div className="form-group">
         <input
           type="password"
-          placeholder="CONFIRM CODE"
+          placeholder="Confirm Password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
