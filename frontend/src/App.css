@@ -1022,10 +1022,26 @@ body {
   font-family: var(--font-secondary);
   letter-spacing: 0.02em;
 }
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-md);
+
+/* ============ MAIN LAYOUT ============ */
+.app-container {
+  min-height: 100vh;
+  background: var(--background);
+  animation: breatheBackground 8s ease-in-out infinite;
+  display: flex;
+}
+
+.main-content {
+  margin-left: 280px;
+  flex: 1;
+  padding: var(--spacing-xl);
+  animation: eliteSlideUp 0.6s ease-out;
+}
+
+.content-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
 }
 
 .logo-icon {
