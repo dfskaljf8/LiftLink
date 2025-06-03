@@ -3,7 +3,7 @@ import requests
 import json
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://e13bff68-25b0-4579-bc48-4b9c9d2f94a3.preview.emergentagent.com"
+BACKEND_URL = "https://db6b590a-e75d-4dbf-8c87-995544bbf466.preview.emergentagent.com"
 API_URL = f"{BACKEND_URL}/api"
 
 def test_api_health():
