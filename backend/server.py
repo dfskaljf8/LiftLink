@@ -32,6 +32,24 @@ import numpy as np
 from PIL import Image
 import io
 
+# Import our enhanced security and performance modules
+from security_middleware import (
+    AdvancedSecurityMiddleware, 
+    require_geo_compliance, 
+    ContentModerationService,
+    ENHANCED_SECURITY_CONFIG
+)
+from performance_optimizer import (
+    PerformanceOptimizer,
+    CompressionMiddleware,
+    DatabaseQueryOptimizer,
+    FrontendOptimization,
+    RequestTimer,
+    cache_result,
+    invalidate_cache_on_update,
+    performance_monitoring_task
+)
+
 # Load environment variables
 load_dotenv()
 
