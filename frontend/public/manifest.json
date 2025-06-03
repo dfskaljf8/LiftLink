@@ -1,0 +1,58 @@
+{
+  "name": "LiftLink - Tactical Fitness Command",
+  "short_name": "LiftLink",
+  "description": "Beginners to Believers - Military-grade fitness tracking and trainer matching platform",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#9ACD32",
+  "background_color": "#000000",
+  "categories": ["fitness", "health", "sports"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png", 
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Find Trainers",
+      "description": "Search for tactical fitness trainers",
+      "url": "/?view=trainers",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Progress Tracking",
+      "description": "View your mission progress",
+      "url": "/?view=progress",
+      "icons": [
+        {
+          "src": "/icon-192.png", 
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}
