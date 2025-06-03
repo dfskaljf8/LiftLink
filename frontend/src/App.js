@@ -2564,84 +2564,104 @@ const TacticalRegistration = ({ onToggle }) => {
   );
 };
 
-// Advanced Home Dashboard Component with Backend Integration
-const AdvancedHomeDashboard = ({ setCurrentView }) => {
+const HomeDashboard = ({ setCurrentView }) => {
   const { userProfile } = useAuth();
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
-    try {
-      const response = await api.get('/api/dashboard/stats');
-      setStats(response.data);
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-    }
-    setLoading(false);
-  };
-
-  if (loading) return <div className="loading">Loading dashboard...</div>;
-
+  
   return (
-    <div className="dashboard">
-      <div className="dashboard-header">
-        <h1>Welcome back! 💪</h1>
-        <p>Ready to crush your fitness goals?</p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      {/* Welcome Card */}
+      <div className="mobile-card">
+        <div style={{ textAlign: 'center', padding: '1rem' }}>
+          <h2 style={{ color: '#6B8E5A', marginBottom: '0.5rem' }}>
+            Welcome back, {userProfile?.name?.split(' ')[0] || 'Warrior'}! 👋
+          </h2>
+          <p style={{ color: '#4A90A4' }}>Ready to crush your fitness goals today?</p>
+        </div>
       </div>
-
-      <div className="stats-grid">
-        {userProfile?.role === 'trainer' ? (
-          <>
-            <div className="stat-card">
-              <div className="stat-number">{stats?.total_bookings || 0}</div>
-              <div className="stat-label">Total Bookings</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">{stats?.confirmed_bookings || 0}</div>
-              <div className="stat-label">Confirmed Sessions</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">${stats?.total_earnings?.toFixed(2) || '0.00'}</div>
-              <div className="stat-label">Total Earnings</div>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="stat-card">
-              <div className="stat-number">{stats?.total_bookings || 0}</div>
-              <div className="stat-label">Sessions Booked</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">{stats?.confirmed_sessions || 0}</div>
-              <div className="stat-label">Sessions Completed</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">🔥</div>
-              <div className="stat-label">Current Streak</div>
-            </div>
-          </>
-        )}
-      </div>
-
-      <div className="quick-actions">
-        <h2>Quick Actions</h2>
-        <div className="action-buttons">
+      
+      {/* Quick Stats */}
+      <div className="mobile-card">
+        <div className="card-header">
+          <h3 className="card-title">Your Stats</h3>
           <button 
-            className="action-btn primary"
-            onClick={() => setCurrentView(userProfile?.role === 'trainer' ? 'trainer-dashboard' : 'trainers')}
+            className="card-action"
+            onClick={() => setCurrentView('progress')}
+            onTouchStart={() => MobileHaptics.light()}
           >
-            {userProfile?.role === 'trainer' ? '📅 Manage Schedule' : '💪 Find Trainers'}
+            View All
+          </button>
+        </div>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(3, 1fr)', 
+          gap: '1rem',
+          padding: '1rem'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.level || 1}</div>
+            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Level</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.consecutive_days || 0}</div>
+            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Day Streak</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>{userProfile?.lift_coins || 0}</div>
+            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Coins</div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Quick Actions */}
+      <div className="mobile-card">
+        <div className="card-header">
+          <h3 className="card-title">Quick Actions</h3>
+        </div>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(2, 1fr)', 
+          gap: '1rem',
+          padding: '1rem'
+        }}>
+          <button 
+            className="mobile-btn"
+            onClick={() => setCurrentView('trainers')}
+            onTouchStart={() => MobileHaptics.light()}
+          >
+            <span className="btn-icon">🎯</span>
+            Find Trainers
           </button>
           <button 
-            className="action-btn secondary"
-            onClick={() => setCurrentView(userProfile?.role === 'trainer' ? 'bookings' : 'progress')}
+            className="mobile-btn secondary"
+            onClick={() => setCurrentView('bookings')}
+            onTouchStart={() => MobileHaptics.light()}
           >
-            {userProfile?.role === 'trainer' ? '👥 View Clients' : '📊 Track Progress'}
+            <span className="btn-icon">📅</span>
+            My Sessions
           </button>
+        </div>
+      </div>
+      
+      {/* Today's Goal */}
+      <div className="mobile-card">
+        <div className="card-header">
+          <h3 className="card-title">Today's Goal</h3>
+        </div>
+        
+        <div style={{ padding: '1rem' }}>
+          <div style={{ 
+            background: 'rgba(154, 205, 50, 0.1)', 
+            border: '1px solid rgba(154, 205, 50, 0.3)',
+            borderRadius: '12px',
+            padding: '1rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>💪</div>
+            <h4 style={{ color: '#6B8E5A', marginBottom: '0.5rem' }}>Complete 1 Workout</h4>
+            <p style={{ color: '#4A90A4', fontSize: '0.9rem' }}>You've got this! Let's make today count.</p>
+          </div>
         </div>
       </div>
     </div>
