@@ -772,17 +772,18 @@ input::placeholder, textarea::placeholder {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--background);
 }
 
 .main-content {
   flex: 1;
-  padding: 2rem;
-  max-width: 1400px;
+  padding: var(--spacing);
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
   display: grid;
-  gap: 2rem;
-  grid-template-columns: 1fr;
+  gap: var(--spacing);
+  grid-template-columns: var(--grid);
 }
 
 /* ============ DASHBOARD - DATA VISUALIZATION ============ */
