@@ -684,7 +684,42 @@ const AuthChecker = ({ children }) => {
   return children(auth);
 };
 
-// Simple placeholder components for missing features
+// Mobile Component Wrappers - Updated
+const MobileDashboard = ({ setCurrentView }) => {
+  return <HomeDashboard setCurrentView={setCurrentView} />;
+};
+
+const MobileTrainerSearch = () => {
+  return <TrainerSearch />;
+};
+
+const MobileBookings = () => {
+  return <MyBookings />;
+};
+
+const MobileProgress = () => {
+  return <ProgressAnalytics />;
+};
+
+const MobileTree = () => {
+  return <FitnessForest />;
+};
+
+const MobileSocial = () => {
+  return <SocialNetwork />;
+};
+
+const MobileProfile = () => {
+  return <UserProfile />;
+};
+
+const MobileTrainerDashboard = () => {
+  return <TrainerDashboard />;
+};
+
+const MobileAdminDashboard = () => {
+  return <AdminDashboard />;
+};
 const SocialNetwork = () => {
   const { userProfile } = useAuth();
   
