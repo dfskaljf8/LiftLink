@@ -331,19 +331,6 @@ const InstantMatch = () => {
   const [potentialMatches, setPotentialMatches] = useState([]);
   const [showResults, setShowResults] = useState(false);
 
-// LiftLink Marketplace - Instant Matching System
-const InstantMatch = () => {
-  const [isMatching, setIsMatching] = useState(false);
-  const [matchPreferences, setMatchPreferences] = useState({
-    goal: '',
-    location: '',
-    sessionType: 'in-person',
-    budget: '',
-    availability: 'today'
-  });
-  const [potentialMatches, setPotentialMatches] = useState([]);
-  const [showResults, setShowResults] = useState(false);
-
   const goals = [
     { id: 'weight-loss', label: 'Lose Weight', icon: '🎯', description: 'Get leaner and stronger' },
     { id: 'muscle-gain', label: 'Build Muscle', icon: '💪', description: 'Gain size and strength' },
