@@ -1283,6 +1283,252 @@
   position: relative;
 }
 
+/* Tactical Component Wrapper */
+.tactical-component {
+  position: relative;
+  animation: hudActivation 0.8s var(--ease-command) forwards;
+}
+
+.tactical-component::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: 
+    linear-gradient(45deg, 
+      rgba(0, 255, 65, 0.1) 0%, 
+      transparent 25%, 
+      transparent 75%, 
+      rgba(0, 255, 65, 0.1) 100%);
+  border-radius: 16px;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-tactical);
+}
+
+.tactical-component:hover::before {
+  opacity: 1;
+}
+
+/* Enhanced Content Areas */
+.tactical-component .main-content,
+.tactical-component .container,
+.tactical-component .dashboard,
+.tactical-component .trainer-search,
+.tactical-component .bookings-container,
+.tactical-component .progress-container,
+.tactical-component .fitness-forest,
+.tactical-component .social-network,
+.tactical-component .profile-container,
+.tactical-component .trainer-dashboard,
+.tactical-component .admin-dashboard {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 255, 65, 0.2);
+  border-radius: 16px;
+  backdrop-filter: var(--blur-command);
+  padding: var(--space-command);
+  margin: var(--space-tactical);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Tactical Headers */
+.tactical-component h1,
+.tactical-component h2,
+.tactical-component h3 {
+  font-family: var(--font-command);
+  color: var(--neon-primary);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: var(--glow-command);
+  position: relative;
+}
+
+.tactical-component h1::after,
+.tactical-component h2::after,
+.tactical-component h3::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 60px;
+  height: 2px;
+  background: var(--neon-primary);
+  box-shadow: 0 0 10px var(--neon-primary);
+}
+
+/* Tactical Buttons Enhancement */
+.tactical-component button,
+.tactical-component .btn,
+.tactical-component .button {
+  background: var(--glass-command);
+  border: 1px solid var(--neon-primary);
+  color: var(--neon-primary);
+  font-family: var(--font-tactical);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s var(--ease-tactical);
+  position: relative;
+  overflow: hidden;
+}
+
+.tactical-component button:hover,
+.tactical-component .btn:hover,
+.tactical-component .button:hover {
+  background: var(--neon-primary);
+  color: var(--bg-command);
+  box-shadow: var(--glow-command);
+  transform: translateY(-2px);
+}
+
+/* Tactical Cards */
+.tactical-component .card,
+.tactical-component .trainer-card,
+.tactical-component .booking-card,
+.tactical-component .progress-card {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  border-radius: 12px;
+  padding: var(--space-tactical);
+  margin: var(--space-ops) 0;
+  backdrop-filter: var(--blur-command);
+  transition: all 0.3s var(--ease-tactical);
+  position: relative;
+}
+
+.tactical-component .card:hover,
+.tactical-component .trainer-card:hover,
+.tactical-component .booking-card:hover,
+.tactical-component .progress-card:hover {
+  border-color: var(--neon-primary);
+  box-shadow: var(--glow-command);
+  transform: translateY(-2px);
+}
+
+/* Tactical Input Fields */
+.tactical-component input,
+.tactical-component select,
+.tactical-component textarea {
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  color: var(--neon-primary);
+  font-family: var(--font-tactical);
+  padding: 12px 16px;
+  border-radius: 8px;
+  transition: all 0.3s var(--ease-tactical);
+}
+
+.tactical-component input:focus,
+.tactical-component select:focus,
+.tactical-component textarea:focus {
+  outline: none;
+  border-color: var(--neon-primary);
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
+}
+
+/* Tactical Status Indicators */
+.tactical-component .status,
+.tactical-component .badge,
+.tactical-component .tag {
+  background: var(--glass-command);
+  border: 1px solid var(--neon-secondary);
+  color: var(--neon-secondary);
+  font-family: var(--font-command);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  display: inline-block;
+}
+
+/* Enhanced Scrollbars for Tactical Components */
+.tactical-component ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.tactical-component ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+.tactical-component ::-webkit-scrollbar-thumb {
+  background: var(--neon-primary);
+  border-radius: 4px;
+  box-shadow: 0 0 5px var(--neon-primary);
+}
+
+.tactical-component ::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-secondary);
+  box-shadow: 0 0 10px var(--neon-secondary);
+}
+
+/* Tactical Loading States */
+.tactical-component .loading,
+.tactical-component .spinner {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 255, 65, 0.3);
+  border-radius: 50%;
+  border-top-color: var(--neon-primary);
+  animation: spin 1s ease-in-out infinite;
+  box-shadow: 0 0 15px var(--neon-primary);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Tactical Data Visualization */
+.tactical-component .chart,
+.tactical-component .graph,
+.tactical-component .progress-bar {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 255, 65, 0.3);
+  border-radius: 8px;
+  padding: var(--space-tactical);
+  position: relative;
+  overflow: hidden;
+}
+
+.tactical-component .chart::before,
+.tactical-component .graph::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 1px;
+  background: var(--neon-primary);
+  animation: dataStream 2s linear infinite;
+  box-shadow: 0 0 10px var(--neon-primary);
+}
+
+/* Tactical Animations */
+@keyframes tacticalGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--neon-primary);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--neon-primary), 0 0 30px var(--neon-primary);
+  }
+}
+
+.tactical-component .highlight,
+.tactical-component .active {
+  animation: tacticalGlow 2s ease-in-out infinite;
+}
+
 /* =============== RESPONSIVE TACTICAL DESIGN =============== */
 
 @media (max-width: 768px) {
