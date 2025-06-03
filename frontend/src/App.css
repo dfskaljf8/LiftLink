@@ -1,88 +1,78 @@
-/* LiftLink BlackGlass Theme - Glass Morphism Dark Design */
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
-/* LiftLink BlackGlass Theme - Glass Morphism with Backdrop Blur */
+/* LiftLink - Sleek Dark Fitness UI */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
+:root {
+  /* Sleek Dark Theme Colors */
+  --background: #000000;           /* Pure black background */
+  --surface: #0f0f0f;              /* Dark surface elements */
+  --surface-hover: #1a1a1a;        /* Hover surface */
+  --foreground: #ffffff;           /* White text */
+  --neon-green: #b0ff77;           /* Soft neon green */
+  --mint-green: #95e64f;           /* Mint green accent */
+  --primary: #b0ff77;              /* Primary neon green */
+  --accent: #95e64f;               /* Mint green accent */
+  --border: #2a2a2a;               /* Dark gray borders */
+  --muted: #6b7280;                /* Muted gray text */
+  --glass: rgba(15, 15, 15, 0.4);  /* Glass overlay */
+  
+  /* Legacy mappings */
+  --primary-soft: #b0ff77;
+  --primary-medium: #95e64f;
+  --primary-deep: #7bd645;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #b0ff77;
+  --text-muted: #6b7280;
+  
+  --background-primary: #000000;
+  --background-soft: #0f0f0f;
+  --background-card: #0f0f0f;
+  
+  /* Glass and depth effects */
+  --glass-bg: rgba(15, 15, 15, 0.6);
+  --glass-border: rgba(176, 255, 119, 0.1);
+  --glass-blur: blur(12px) saturate(150%);
+  
+  /* Shadows for depth */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 15px 35px rgba(0, 0, 0, 0.6);
+  --shadow-neon: 0 0 20px rgba(176, 255, 119, 0.3);
+  --shadow-neon-hover: 0 0 30px rgba(176, 255, 119, 0.5);
+  
+  /* Gradients */
+  --gradient-card: linear-gradient(145deg, #0f0f0f 0%, #1a1a1a 100%);
+  --gradient-neon: linear-gradient(145deg, #b0ff77 0%, #95e64f 100%);
+  --gradient-glass: linear-gradient(145deg, rgba(176, 255, 119, 0.1) 0%, rgba(149, 230, 79, 0.05) 100%);
+  
+  /* Animations */
+  --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* Typography */
+  --font-base: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Border radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+/* Reset and base styles */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-:root {
-  /* LiftLink BlackGlass Theme - Glass Morphism */
-  --background: #050505;           /* Ultra dark background */
-  --surface: #0a0a0a;              /* Dark surface elements */
-  --foreground: #b7f34b;           /* Bright green text */
-  --primary: #b7f34b;              /* Bright green primary */
-  --accent: #99e137;               /* Slightly darker green accent */
-  --border: #1f1f1f;               /* Dark gray borders */
-  --muted: #444444;                /* Muted gray text */
-  
-  /* Legacy mappings for compatibility */
-  --primary-soft: #b7f34b;
-  --primary-medium: #99e137;
-  --primary-deep: #7cb82f;
-  
-  --accent-light: #b7f34b;
-  --accent-soft: #99e137;
-  --accent-warm: #b7f34b;
-  
-  --text-primary: #b7f34b;         /* Bright green text */
-  --text-secondary: #99e137;       /* Accent green */
-  --text-muted: #444444;           /* Muted gray text */
-  
-  --background-primary: #050505;   /* Ultra dark background */
-  --background-soft: #0a0a0a;      /* Surface background */
-  --background-card: #0a0a0a;      /* Card background */
-  
-  --surface-light: #0f0f0f;        /* Light surface */
-  --surface-medium: #1a1a1a;       /* Medium surface */
-  
-  /* Glass morphism variables */
-  --glass-bg: rgba(10, 10, 10, 0.4);
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --glass-blur: blur(10px) saturate(180%) contrast(1.2);
-  --glass-surface: rgba(15, 15, 15, 0.6);
-  
-  /* Theme-specific variables */
-  --border-light: #1f1f1f;         /* Dark border light */
-  --border-medium: #2a2a2a;        /* Dark border medium */
-  
-  --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.4);
-  --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.6);
-  --shadow-strong: 0 12px 40px rgba(0, 0, 0, 0.8);
-  
-  --gradient-soft: linear-gradient(135deg, #b7f34b 0%, #99e137 100%);
-  --gradient-warm: linear-gradient(135deg, #99e137 0%, #b7f34b 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(183, 243, 75, 0.1) 0%, rgba(153, 225, 55, 0.05) 100%);
-  
-  /* BlackGlass theme accent colors */
-  --hope-gold: #b7f34b;            /* Primary green */
-  --peace-blue: #b7f34b;           /* Primary green */
-  --joy-coral: #b7f34b;            /* Primary green */
-  --growth-green: #b7f34b;         /* Primary green */
-  
-  /* Status colors - green variants */
-  --success-soft: #b7f34b;         /* Success green */
-  --warning-soft: #e6a435;         /* Orange warning */
-  --error-soft: #e74c3c;           /* Red error */
-  --info-soft: #3498db;            /* Blue info */
-  
-  /* Transition effects */
-  --transition: all 0.2s ease-in-out;
-  
-  /* Font families */
-  --font-base: 'Inter', sans-serif;
-  --font-heading: 'Inter', sans-serif;
-  
-  /* Layout system */
-  --spacing: 1.25rem;
-  --grid: minmax(320px, 1fr);
-  --container-max-width: 1100px;
-  --container-padding: 2rem;
 }
 
 body {
@@ -94,17 +84,7 @@ body {
   color: var(--foreground);
   line-height: 1.6;
   font-size: 16px;
-  transition: var(--transition);
-  /* Enforce dark mode */
-  color-scheme: dark;
-}
-
-* {
-  color: var(--foreground);
-  font-family: var(--font-base);
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+  overflow-x: hidden;
 }
 
 /* Smooth transitions for all elements */
