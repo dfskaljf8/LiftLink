@@ -3276,7 +3276,7 @@ const BookingManagementView = () => {
 const BookingManagement = () => <MyBookings />;
 
 // Progress Analytics Component with Advanced Data Visualization
-const ProgressAnalytics = () => {
+const ProgressAnalyticsView = () => {
   const [progressData, setProgressData] = useState(null);
   const [analytics, setAnalytics] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
