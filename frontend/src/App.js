@@ -5831,8 +5831,8 @@ const AppContent = () => {
   );
 };
 
-// Modern Bookings Screen Component (Adonis-inspired)
-const ModernBookingsScreen = ({ setCurrentView, user }) => {
+// User Bookings Screen Component (Adonis-inspired)
+const UserBookingsScreen = ({ setCurrentView, user }) => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('upcoming');
@@ -6153,8 +6153,8 @@ const ModernProfileScreen = ({ setCurrentView, user }) => {
   );
 };
 
-// Modern Bookings Screen Component (Adonis-inspired)
-const ModernBookingsScreen = ({ setCurrentView, user }) => {
+// User Bookings Screen Component (Adonis-inspired)
+const UserBookingsScreen = ({ setCurrentView, user }) => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('upcoming');
