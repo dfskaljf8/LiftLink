@@ -798,108 +798,225 @@ const CertificationUpload = ({ onComplete }) => {
   );
 };
 
-// Navigation Component
-const Navigation = ({ currentView, setCurrentView }) => {
+// Tactical Navigation System
+const TacticalNavigation = ({ currentView, setCurrentView }) => {
   const { userProfile, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [missionStats, setMissionStats] = useState({
+    operationalTime: '00:00:00',
+    completedMissions: 0,
+    currentObjectives: 3
+  });
 
-  const navItems = [
-    { key: 'dashboard', label: 'Home', icon: '🏠' },
-    { key: 'trainers', label: 'Find Trainers', icon: '💪' },
-    { key: 'bookings', label: 'My Bookings', icon: '📆' },
-    { key: 'progress', label: 'Progress', icon: '📊' },
-    { key: 'fitnessforest', label: 'Tree', icon: '🌳' },
-    { key: 'social', label: 'Social', icon: '👥' },
-    { key: 'profile', label: 'Profile', icon: '👤' },
-    { key: 'logout', label: 'Logout', icon: '📕' }
+  // Update operational time
+  useEffect(() => {
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const hours = Math.floor(elapsed / 3600000).toString().padStart(2, '0');
+      const minutes = Math.floor((elapsed % 3600000) / 60000).toString().padStart(2, '0');
+      const seconds = Math.floor((elapsed % 60000) / 1000).toString().padStart(2, '0');
+      setMissionStats(prev => ({
+        ...prev,
+        operationalTime: `${hours}:${minutes}:${seconds}`
+      }));
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  const navSections = [
+    {
+      title: 'PRIMARY OPERATIONS',
+      items: [
+        { key: 'dashboard', label: 'Command Center', icon: '⚡', priority: 'alpha' },
+        { key: 'trainers', label: 'Tactical Search', icon: '🎯', priority: 'alpha' },
+        { key: 'bookings', label: 'Mission Log', icon: '📋', priority: 'bravo' },
+        { key: 'progress', label: 'Intel Analysis', icon: '📊', priority: 'bravo' }
+      ]
+    },
+    {
+      title: 'ADVANCED SYSTEMS', 
+      items: [
+        { key: 'fitnessforest', label: 'Evolution Tree', icon: '🌲', priority: 'charlie' },
+        { key: 'social', label: 'Squad Network', icon: '👥', priority: 'charlie' },
+        { key: 'profile', label: 'Operator File', icon: '🔰', priority: 'delta' }
+      ]
+    }
   ];
 
-  // Add trainer-specific items
+  // Add role-specific sections
   if (userProfile?.role === 'trainer') {
-    navItems.splice(-1, 0, { key: 'trainer-dashboard', label: 'Trainer Hub', icon: '🏋️‍♂️' });
+    navSections[0].items.splice(2, 0, { 
+      key: 'trainer-dashboard', 
+      label: 'Trainer Command', 
+      icon: '🏋️‍♂️', 
+      priority: 'alpha',
+      notification: 3 
+    });
   }
 
-  // Add admin items
   if (userProfile?.role === 'admin') {
-    navItems.splice(-1, 0, { key: 'admin', label: 'Admin Panel', icon: '🛡️' });
+    navSections.push({
+      title: 'COMMAND AUTHORITY',
+      items: [
+        { key: 'admin', label: 'Control Center', icon: '🛡️', priority: 'omega', notification: 5 }
+      ]
+    });
   }
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
+    TacticalAudio.playSound('click');
+    TacticalHaptics.light();
+  };
+
+  const handleNavigation = (key) => {
+    if (key === 'logout') {
+      logout();
+    } else {
+      setCurrentView(key);
+      setSidebarOpen(false);
+      TacticalAudio.playSound('click');
+      TacticalHaptics.light();
+    }
   };
 
   return (
     <>
-      {/* Mobile hamburger button */}
+      {/* Tactical HUD Overlay */}
+      <div className="hud-overlay">
+        <div className="hud-corners hud-corner-tl"></div>
+        <div className="hud-corners hud-corner-tr"></div>
+        <div className="hud-corners hud-corner-bl"></div>
+        <div className="hud-corners hud-corner-br"></div>
+        <div className="hud-grid"></div>
+      </div>
+
+      {/* Tactical Hamburger Menu */}
       <button 
-        className="hamburger-btn"
+        className={`tactical-hamburger ${sidebarOpen ? 'active' : ''}`}
         onClick={toggleSidebar}
-        aria-label="Toggle navigation"
+        onMouseEnter={() => TacticalAudio.playSound('hover')}
       >
-        <span></span>
-        <span></span>
-        <span></span>
+        <div className="hamburger-line"></div>
+        <div className="hamburger-line"></div>
+        <div className="hamburger-line"></div>
       </button>
 
-      {/* Sidebar overlay for mobile */}
-      {sidebarOpen && <div className="sidebar-overlay" onClick={toggleSidebar}></div>}
+      {/* Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="sidebar-overlay" 
+          onClick={toggleSidebar}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0, 0, 0, 0.8)',
+            zIndex: 99
+          }}
+        />
+      )}
 
-      {/* Sidebar */}
-      <div className={`sidebar ${sidebarOpen ? 'sidebar-open' : ''}`}>
-        <div className="sidebar-header">
-          <div className="logo">
-            <span className="logo-icon">💪</span>
-            <span className="logo-text">LiftLink</span>
+      {/* Tactical Sidebar */}
+      <div className={`tactical-sidebar ${sidebarOpen ? 'active' : ''}`}>
+        {/* Command Header */}
+        <div className="command-header">
+          <div className="command-logo">
+            <div className="logo-icon">⚡</div>
+            <div className="logo-text">LIFTLINK</div>
           </div>
-          <button className="sidebar-close" onClick={toggleSidebar}>×</button>
         </div>
 
-        <div className="sidebar-profile">
-          <div className="profile-avatar">
+        {/* Operator Profile */}
+        <div className="operator-profile">
+          <div className="operator-avatar">
             {userProfile?.name?.charAt(0) || '👤'}
           </div>
-          <div className="profile-info">
-            <div className="profile-name">{userProfile?.name || 'User'}</div>
-            <div className="profile-role">
-              {userProfile?.role === 'trainer' ? '🏋️‍♂️ Trainer' : 
-               userProfile?.role === 'admin' ? '🛡️ Admin' : '💪 Member'}
+          <div className="operator-info">
+            <div className="operator-name">{userProfile?.name || 'OPERATOR'}</div>
+            <div className="operator-rank">
+              <span className="rank-badge">
+                {GamificationEngine.getRankName(userProfile?.level || 1)}
+              </span>
+              <span>LVL {userProfile?.level || 1}</span>
             </div>
-            <div className="profile-stats">
-              <div className="stat">
-                <span className="stat-icon">🪙</span>
+            <div className="operator-stats">
+              <div className="stat-item">
                 <span className="stat-value">{userProfile?.lift_coins || 0}</span>
+                <span className="stat-label">COINS</span>
               </div>
-              <div className="stat">
-                <span className="stat-icon">⚡</span>
-                <span className="stat-value">L{userProfile?.level || 1}</span>
-              </div>
-              <div className="stat">
-                <span className="stat-icon">🔥</span>
+              <div className="stat-item">
                 <span className="stat-value">{userProfile?.consecutive_days || 0}</span>
+                <span className="stat-label">STREAK</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-value">{userProfile?.level || 1}</span>
+                <span className="stat-label">RANK</span>
               </div>
             </div>
           </div>
         </div>
 
-        <nav className="sidebar-nav">
-          {navItems.map((item) => (
-            <button
-              key={item.key}
-              className={`nav-btn ${currentView === item.key ? 'active' : ''}`}
-              onClick={() => {
-                if (item.key === 'logout') {
-                  logout();
-                } else {
-                  setCurrentView(item.key);
-                  setSidebarOpen(false); // Close sidebar on mobile after navigation
-                }
-              }}
-            >
-              <span className="nav-icon">{item.icon}</span>
-              <span className="nav-label">{item.label}</span>
-            </button>
+        {/* Mission Status */}
+        <div className="mission-status">
+          <div className="status-header">OPERATIONAL STATUS</div>
+          <div className="status-metrics">
+            <div className="status-metric">
+              <span className="metric-label">TIME</span>
+              <span className="metric-value">{missionStats.operationalTime}</span>
+            </div>
+            <div className="status-metric">
+              <span className="metric-label">OBJECTIVES</span>
+              <span className="metric-value">{missionStats.currentObjectives}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Tactical Navigation */}
+        <div className="tactical-nav">
+          {navSections.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="nav-section">
+              <div className="nav-section-title">{section.title}</div>
+              {section.items.map((item) => (
+                <div
+                  key={item.key}
+                  className={`nav-item ${currentView === item.key ? 'active' : ''}`}
+                  onClick={() => handleNavigation(item.key)}
+                  onMouseEnter={() => TacticalAudio.playSound('hover')}
+                >
+                  <div className="nav-icon">{item.icon}</div>
+                  <div className="nav-label">{item.label}</div>
+                  {item.priority && (
+                    <div className={`nav-priority priority-${item.priority}`}>
+                      {item.priority}
+                    </div>
+                  )}
+                  {item.notification && (
+                    <div className="nav-notification">{item.notification}</div>
+                  )}
+                </div>
+              ))}
+            </div>
           ))}
-        </nav>
+          
+          {/* Logout Section */}
+          <div className="nav-section">
+            <div className="nav-section-title">SYSTEM</div>
+            <div
+              className="nav-item nav-item-logout"
+              onClick={() => handleNavigation('logout')}
+              onMouseEnter={() => TacticalAudio.playSound('hover')}
+            >
+              <div className="nav-icon">🚪</div>
+              <div className="nav-label">LOGOUT</div>
+              <div className="nav-priority priority-omega">OMEGA</div>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
