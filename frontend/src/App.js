@@ -6,7 +6,7 @@ import './TacticalApp.css';
 import './MobileTactical.css';
 
 // Mobile-First Tactical Audio System
-const MobileTacticalAudio = {
+const MobileMobileTacticalAudio = {
   audioContext: null,
   
   init() {
@@ -17,8 +17,8 @@ const MobileTacticalAudio = {
   
   playSound: (type, volume = 0.1) => {
     try {
-      MobileTacticalAudio.init();
-      if (!MobileTacticalAudio.audioContext) return;
+      MobileMobileTacticalAudio.init();
+      if (!MobileMobileTacticalAudio.audioContext) return;
       
       const sounds = {
         tap: { freq: 800, duration: 0.1 },
@@ -30,20 +30,20 @@ const MobileTacticalAudio = {
       
       const sound = sounds[type];
       if (sound) {
-        const oscillator = MobileTacticalAudio.audioContext.createOscillator();
-        const gainNode = MobileTacticalAudio.audioContext.createGain();
+        const oscillator = MobileMobileTacticalAudio.audioContext.createOscillator();
+        const gainNode = MobileMobileTacticalAudio.audioContext.createGain();
         
         oscillator.connect(gainNode);
-        gainNode.connect(MobileTacticalAudio.audioContext.destination);
+        gainNode.connect(MobileMobileTacticalAudio.audioContext.destination);
         
-        oscillator.frequency.setValueAtTime(sound.freq, MobileTacticalAudio.audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(sound.freq, MobileMobileTacticalAudio.audioContext.currentTime);
         oscillator.type = 'square';
         
-        gainNode.gain.setValueAtTime(volume, MobileTacticalAudio.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, MobileTacticalAudio.audioContext.currentTime + sound.duration);
+        gainNode.gain.setValueAtTime(volume, MobileMobileTacticalAudio.audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, MobileMobileTacticalAudio.audioContext.currentTime + sound.duration);
         
-        oscillator.start(MobileTacticalAudio.audioContext.currentTime);
-        oscillator.stop(MobileTacticalAudio.audioContext.currentTime + sound.duration);
+        oscillator.start(MobileMobileTacticalAudio.audioContext.currentTime);
+        oscillator.stop(MobileMobileTacticalAudio.audioContext.currentTime + sound.duration);
       }
     } catch (e) {
       console.log('Audio not supported:', e);
@@ -351,7 +351,7 @@ const MobileBottomNav = ({ currentView, setCurrentView, userProfile }) => {
 
   const handleNavigation = (key) => {
     setCurrentView(key);
-    MobileTacticalAudio.playSound('tap');
+    MobileMobileTacticalAudio.playSound('tap');
     MobileHaptics.light();
   };
 
@@ -388,12 +388,12 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
     setError('');
 
     try {
-      MobileTacticalAudio.playSound('tap');
+      MobileMobileTacticalAudio.playSound('tap');
       
       if (!isLogin && password !== confirmPassword) {
         setError('SECURITY CODES DO NOT MATCH');
         setLoading(false);
-        MobileTacticalAudio.playSound('error');
+        MobileMobileTacticalAudio.playSound('error');
         return;
       }
 
@@ -403,11 +403,11 @@ const MobileAuthForm = ({ isLogin, onToggle }) => {
         await register(email, password);
       }
       
-      MobileTacticalAudio.playSound('success');
+      MobileMobileTacticalAudio.playSound('success');
       MobileHaptics.success();
     } catch (error) {
       setError(error.message);
-      MobileTacticalAudio.playSound('error');
+      MobileMobileTacticalAudio.playSound('error');
       MobileHaptics.error();
     }
     
@@ -566,7 +566,7 @@ const AuthProvider = ({ children }) => {
       
       setTimeout(() => {
         setLoading(false);
-        MobileTacticalAudio.playSound('success');
+        MobileMobileTacticalAudio.playSound('success');
         MobileHaptics.success();
       }, 3000);
       
@@ -578,13 +578,13 @@ const AuthProvider = ({ children }) => {
     try {
       const response = await api.get('/api/users/profile');
       setUserProfile(response.data);
-      MobileTacticalAudio.playSound('success');
+      MobileMobileTacticalAudio.playSound('success');
     } catch (error) {
       console.log('User profile fetch error:', error.response?.data?.detail || error.message);
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user_data');
       setUser(null);
-      MobileTacticalAudio.playSound('error');
+      MobileMobileTacticalAudio.playSound('error');
     }
   };
 
@@ -600,7 +600,7 @@ const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      MobileTacticalAudio.playSound('tap');
+      MobileMobileTacticalAudio.playSound('tap');
       
       let demoToken = '';
       let demoUser = {};
@@ -634,13 +634,13 @@ const AuthProvider = ({ children }) => {
       const response = await api.get('/api/users/profile');
       setUserProfile(response.data);
       
-      MobileTacticalAudio.playSound('success');
+      MobileMobileTacticalAudio.playSound('success');
       MobileHaptics.success();
       
       return { user: demoUser };
     } catch (error) {
-      TacticalAudio.playSound('error');
-      TacticalHaptics.heavy();
+      MobileTacticalAudio.playSound('error');
+      MobileHaptics.heavy();
       throw new Error(error.message || 'Mission failed: Login error');
     }
   };
@@ -650,7 +650,7 @@ const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    MobileTacticalAudio.playSound('click');
+    MobileMobileTacticalAudio.playSound('click');
     localStorage.removeItem('auth_token');
     localStorage.removeItem('user_data');
     setUser(null);
@@ -1140,7 +1140,7 @@ const TacticalNavigation = ({ currentView, setCurrentView }) => {
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
-    MobileTacticalAudio.playSound('click');
+    MobileMobileTacticalAudio.playSound('click');
     MobileHaptics.light();
   };
 
@@ -1150,8 +1150,8 @@ const TacticalNavigation = ({ currentView, setCurrentView }) => {
     } else {
       setCurrentView(key);
       setSidebarOpen(false);
-      TacticalAudio.playSound('click');
-      TacticalHaptics.light();
+      MobileTacticalAudio.playSound('click');
+      MobileHaptics.light();
     }
   };
 
@@ -1170,7 +1170,7 @@ const TacticalNavigation = ({ currentView, setCurrentView }) => {
       <button 
         className={`tactical-hamburger ${sidebarOpen ? 'active' : ''}`}
         onClick={toggleSidebar}
-        onMouseEnter={() => TacticalAudio.playSound('hover')}
+        onMouseEnter={() => MobileTacticalAudio.playSound('hover')}
       >
         <div className="hamburger-line"></div>
         <div className="hamburger-line"></div>
@@ -1259,7 +1259,7 @@ const TacticalNavigation = ({ currentView, setCurrentView }) => {
                   key={item.key}
                   className={`nav-item ${currentView === item.key ? 'active' : ''}`}
                   onClick={() => handleNavigation(item.key)}
-                  onMouseEnter={() => TacticalAudio.playSound('hover')}
+                  onMouseEnter={() => MobileTacticalAudio.playSound('hover')}
                 >
                   <div className="nav-icon">{item.icon}</div>
                   <div className="nav-label">{item.label}</div>
@@ -1282,7 +1282,7 @@ const TacticalNavigation = ({ currentView, setCurrentView }) => {
             <div
               className="nav-item nav-item-logout"
               onClick={() => handleNavigation('logout')}
-              onMouseEnter={() => TacticalAudio.playSound('hover')}
+              onMouseEnter={() => MobileTacticalAudio.playSound('hover')}
             >
               <div className="nav-icon">🚪</div>
               <div className="nav-label">LOGOUT</div>
@@ -1317,12 +1317,12 @@ const TacticalLogin = ({ onToggle }) => {
     setError('');
 
     try {
-      TacticalAudio.playSound('click');
+      MobileTacticalAudio.playSound('click');
       await login(email, password);
     } catch (error) {
       setError(error.message);
-      TacticalAudio.playSound('error');
-      TacticalHaptics.heavy();
+      MobileTacticalAudio.playSound('error');
+      MobileHaptics.heavy();
     }
     
     setLoading(false);
@@ -1368,7 +1368,7 @@ const TacticalLogin = ({ onToggle }) => {
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                TacticalAudio.playSound('hover');
+                MobileTacticalAudio.playSound('hover');
               }}
               required
               className="tactical-input"
@@ -1384,7 +1384,7 @@ const TacticalLogin = ({ onToggle }) => {
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                TacticalAudio.playSound('hover');
+                MobileTacticalAudio.playSound('hover');
               }}
               required
               className="tactical-input"
@@ -1403,7 +1403,7 @@ const TacticalLogin = ({ onToggle }) => {
             type="submit" 
             disabled={loading} 
             className="tactical-submit"
-            onMouseEnter={() => TacticalAudio.playSound('hover')}
+            onMouseEnter={() => MobileTacticalAudio.playSound('hover')}
           >
             {loading ? (
               <div className="loading-sequence">
@@ -1425,7 +1425,7 @@ const TacticalLogin = ({ onToggle }) => {
               type="button" 
               onClick={onToggle} 
               className="toggle-link"
-              onMouseEnter={() => TacticalAudio.playSound('hover')}
+              onMouseEnter={() => MobileTacticalAudio.playSound('hover')}
             >
               REQUEST ACCESS
             </button>
@@ -1485,16 +1485,16 @@ const TacticalRegistration = ({ onToggle }) => {
     if (password !== confirmPassword) {
       setError('SECURITY CODES DO NOT MATCH');
       setLoading(false);
-      TacticalAudio.playSound('error');
+      MobileTacticalAudio.playSound('error');
       return;
     }
 
     try {
-      TacticalAudio.playSound('click');
+      MobileTacticalAudio.playSound('click');
       await register(email, password);
     } catch (error) {
       setError(error.message);
-      TacticalAudio.playSound('error');
+      MobileTacticalAudio.playSound('error');
     }
     
     setLoading(false);
@@ -1526,7 +1526,7 @@ const TacticalRegistration = ({ onToggle }) => {
               value={email}
               onChange={(e) => {
                 setEmail(e.target.value);
-                TacticalAudio.playSound('hover');
+                MobileTacticalAudio.playSound('hover');
               }}
               required
               className="tactical-input"
@@ -1541,7 +1541,7 @@ const TacticalRegistration = ({ onToggle }) => {
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
-                TacticalAudio.playSound('hover');
+                MobileTacticalAudio.playSound('hover');
               }}
               required
               className="tactical-input"
@@ -1556,7 +1556,7 @@ const TacticalRegistration = ({ onToggle }) => {
               value={confirmPassword}
               onChange={(e) => {
                 setConfirmPassword(e.target.value);
-                TacticalAudio.playSound('hover');
+                MobileTacticalAudio.playSound('hover');
               }}
               required
               className="tactical-input"
@@ -1595,7 +1595,7 @@ const TacticalRegistration = ({ onToggle }) => {
             type="submit" 
             disabled={loading || !Object.values(securityChecks).every(Boolean)} 
             className="tactical-submit"
-            onMouseEnter={() => TacticalAudio.playSound('hover')}
+            onMouseEnter={() => MobileTacticalAudio.playSound('hover')}
           >
             {loading ? (
               <div className="loading-sequence">
@@ -1617,7 +1617,7 @@ const TacticalRegistration = ({ onToggle }) => {
               type="button" 
               onClick={onToggle} 
               className="toggle-link"
-              onMouseEnter={() => TacticalAudio.playSound('hover')}
+              onMouseEnter={() => MobileTacticalAudio.playSound('hover')}
             >
               ACCESS SYSTEM
             </button>
