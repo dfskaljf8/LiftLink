@@ -2001,8 +2001,595 @@ input::placeholder, textarea::placeholder {
 }
 
 /* ============ ENHANCED UTILITY CLASSES ============ */
-.no-trainers, .no-bookings {
+/* Settings Component Styles */
+.settings-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.settings-header {
   text-align: center;
+  margin-bottom: 3rem;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.settings-card {
+  background: var(--background-card);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-light);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.settings-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.settings-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--surface-light);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.settings-btn:hover {
+  background: var(--surface-medium);
+  border-color: var(--primary-soft);
+}
+
+.logout-btn {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+}
+
+.logout-btn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.btn-icon {
+  font-size: 1.5rem;
+}
+
+.btn-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.btn-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.btn-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.settings-item:hover {
+  background: var(--surface-light);
+}
+
+.item-icon {
+  font-size: 1.2rem;
+  min-width: 24px;
+}
+
+.item-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.item-title {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.item-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.item-action {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+.app-info {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.app-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.app-tagline {
+  color: var(--text-secondary);
+  font-style: italic;
+  margin-bottom: 0.5rem;
+}
+
+.app-version {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.faith-message {
+  background: var(--surface-light);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border-left: 4px solid var(--primary-soft);
+}
+
+.faith-message h4 {
+  color: var(--primary-deep);
+  margin-bottom: 1rem;
+}
+
+.faith-message p {
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.faith-message p:last-child {
+  font-style: italic;
+  color: var(--primary-deep);
+  border-top: 1px solid var(--border-light);
+  padding-top: 1rem;
+  margin-bottom: 0;
+}
+
+/* FitnessForest Component Styles */
+.fitness-forest {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.forest-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.forest-stats {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  background: var(--background-card);
+  padding: 1.5rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--border-light);
+  min-width: 120px;
+}
+
+.stat-number {
+  display: block;
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--primary-deep);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.add-goal-btn {
+  margin-top: 1rem;
+  padding: 1rem 2rem;
+  font-size: 1rem;
+}
+
+.forest-canvas {
+  position: relative;
+  height: 600px;
+  background: linear-gradient(
+    to bottom,
+    var(--accent-light) 0%,
+    var(--accent-soft) 30%,
+    var(--surface-light) 100%
+  );
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 2rem 0;
+  border: 1px solid var(--border-light);
+}
+
+.forest-background {
+  position: absolute;
+  inset: 0;
+}
+
+.forest-ground {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(
+    to top,
+    var(--primary-soft),
+    transparent
+  );
+}
+
+.forest-sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background: linear-gradient(
+    to bottom,
+    var(--accent-light),
+    transparent
+  );
+}
+
+.forest-trees {
+  position: relative;
+  height: 100%;
+  z-index: 1;
+}
+
+.forest-node {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
+  background: var(--background-card);
+  border: 2px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translate(-50%, -50%);
+  box-shadow: var(--shadow-soft);
+}
+
+.forest-node:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+  z-index: 10;
+  box-shadow: var(--shadow-medium);
+}
+
+.forest-node.completed {
+  border-color: var(--success-soft);
+  background: linear-gradient(135deg, var(--background-card), rgba(184, 230, 184, 0.1));
+}
+
+.forest-node.active {
+  border-color: var(--primary-soft);
+  background: linear-gradient(135deg, var(--background-card), rgba(168, 213, 186, 0.1));
+}
+
+.forest-node .node-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.forest-node .node-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.completion-glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--success-soft), var(--primary-soft));
+  opacity: 0.3;
+  z-index: -1;
+  animation: pulseGlow 2s infinite;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.02); }
+}
+
+.complete-btn {
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+}
+
+.empty-forest {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.empty-forest-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+}
+
+.node-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.node-details {
+  padding: 1rem 0;
+}
+
+.node-rewards {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1rem 0;
+  flex-wrap: wrap;
+}
+
+.reward-badge {
+  background: var(--primary-soft);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.node-status {
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.status-badge.completed {
+  background: var(--success-soft);
+  color: var(--text-primary);
+}
+
+.status-badge.active {
+  background: var(--info-soft);
+  color: var(--text-primary);
+}
+
+.status-badge.locked {
+  background: var(--surface-medium);
+  color: var(--text-muted);
+}
+
+.completion-info {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.completion-label {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.completion-date {
+  color: var(--text-primary);
+}
+
+/* Loading Container */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  text-align: center;
+}
+
+.loading-spinner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-light);
+  border-top: 3px solid var(--primary-soft);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  background: var(--background-card);
+  border-radius: 16px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-strong);
+  border: 1px solid var(--border-light);
+  animation: scaleIn 0.3s ease-out;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-muted);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: var(--surface-light);
+  color: var(--text-primary);
+}
+
+.modal-content form,
+.modal-content .node-details {
+  padding: 1.5rem;
+}
+
+/* Responsive Design for New Components */
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .forest-stats {
+    gap: 1rem;
+  }
+  
+  .stat-card {
+    min-width: 100px;
+    padding: 1rem;
+  }
+  
+  .forest-canvas {
+    height: 400px;
+  }
+  
+  .forest-node {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .forest-node .node-icon {
+    font-size: 1.5rem;
+  }
+  
+  .forest-node .node-title {
+    font-size: 0.6rem;
+  }
+  
+  .settings-container,
+  .fitness-forest {
+    padding: 1rem;
+  }
+  
+  .form-actions {
+    flex-direction: column;
+  }
+  
+  .modal-content {
+    margin: 1rem;
+    width: calc(100% - 2rem);
+  }
+}
   padding: 4rem 2rem;
   color: var(--text-muted);
   font-size: 1.1rem;
