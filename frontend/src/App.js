@@ -937,7 +937,7 @@ const TrainerSearch = () => {
                   <p className="trainer-gym">📍 {trainer.gym_name}</p>
                   <p className="trainer-bio">{trainer.bio}</p>
                   <div className="trainer-specialties">
-                    {trainer.specialties.map((specialty, index) => (
+                    {(trainer.specialties || []).map((specialty, index) => (
                       <span key={index} className="specialty-tag">
                         {specialty}
                       </span>
