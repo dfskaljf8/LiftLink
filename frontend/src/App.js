@@ -378,7 +378,7 @@ const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      TacticalAudio.playSound('click');
+      MobileTacticalAudio.playSound('tap');
       
       let demoToken = '';
       let demoUser = {};
