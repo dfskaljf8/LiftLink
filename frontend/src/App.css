@@ -1,70 +1,59 @@
-/* LiftLink - Elite Cyberpunk Luxury Fitness Platform */
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@300;400;500;600;700;800;900&family=Exo+2:wght@300;400;500;600;700;800&display=swap');
+/* LiftLink - Elite-Grade Fitness Platform */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Satoshi:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
-  /* Elite Cyberpunk Color Palette */
-  --background: #0a0a0a;           /* Pure matte black */
-  --surface: #111111;              /* Dark surface elements */
-  --surface-elevated: #1a1a1a;     /* Elevated surfaces */
-  --foreground: #ffffff;           /* Pure white text */
-  --lime-green: #c6ff00;           /* Soft lime green accent */
-  --gold: #ffd700;                 /* Muted gold accent */
-  --gold-dim: #b8980a;             /* Dimmed gold */
-  --lime-glow: rgba(198, 255, 0, 0.3); /* Lime glow effect */
-  --gold-glow: rgba(255, 215, 0, 0.2);  /* Gold glow effect */
-  --border: #333333;               /* Subtle borders */
-  --muted: #888888;                /* Muted text */
-  --glass: rgba(17, 17, 17, 0.8);  /* Glass overlay */
+  /* Elite Design Language - Global Variables */
+  --bg-primary: #0a0a0a;          /* Matte black background */
+  --accent-lime: #c6ff00;         /* Soft lime green */
+  --accent-gold: #ffd700;         /* Diffused gold */
+  --text-primary: #ffffff;        /* Pure white */
+  --text-secondary: #cccccc;      /* Cool gray */
+  --text-muted: #666666;          /* Darker gray */
+  --surface: #111111;             /* Dark surface */
+  --surface-elevated: #1a1a1a;    /* Elevated surface */
+  --border: #333333;              /* Subtle borders */
   
-  /* Elite luxury mappings */
-  --primary: #c6ff00;
-  --accent: #ffd700;
-  --text-primary: #ffffff;
-  --text-secondary: #c6ff00;
-  --text-muted: #888888;
-  --background-primary: #0a0a0a;
-  --background-soft: #111111;
-  --background-card: #111111;
-  
-  /* Advanced effects */
-  --glow-lime: 0 0 20px rgba(198, 255, 0, 0.3);
-  --glow-gold: 0 0 15px rgba(255, 215, 0, 0.2);
+  /* Elite Glows and Effects */
+  --glow-lime: 0 0 20px rgba(198, 255, 0, 0.4);
+  --glow-lime-strong: 0 0 30px rgba(198, 255, 0, 0.6);
+  --glow-gold: 0 0 15px rgba(255, 215, 0, 0.3);
   --shadow-elite: 0 8px 32px rgba(0, 0, 0, 0.8);
-  --shadow-luxury: 0 16px 48px rgba(0, 0, 0, 0.9);
+  --shadow-floating: 0 12px 40px rgba(0, 0, 0, 0.6);
   
-  /* Gradients */
+  /* Elite Gradients */
   --gradient-lime: linear-gradient(135deg, #c6ff00 0%, #a8d400 100%);
   --gradient-gold: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-  --gradient-dark: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 100%);
   --gradient-surface: linear-gradient(145deg, #111111 0%, #1a1a1a 100%);
+  --gradient-elite: linear-gradient(135deg, #c6ff00 0%, #ffd700 100%);
   
-  /* Elite animations */
-  --transition-elite: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
-  --transition-luxury: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-  --transition-glow: all 0.3s ease-in-out;
+  /* Motion Design - 250ms standard */
+  --motion-smooth: all 0.25s ease-in-out;
+  --motion-fast: all 0.15s ease-in-out;
+  --motion-slow: all 0.4s cubic-bezier(0.23, 1, 0.320, 1);
+  --motion-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   
-  /* Elite typography */
-  --font-primary: 'Orbitron', monospace;
-  --font-secondary: 'Exo 2', sans-serif;
+  /* Elite Typography */
+  --font-primary: 'Satoshi', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
   
-  /* Elite spacing */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 0.75rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-  --spacing-2xl: 3rem;
-  --spacing-3xl: 4rem;
+  /* Spacing System */
+  --space-xs: 0.5rem;   /* 8px */
+  --space-sm: 0.75rem;  /* 12px */
+  --space-md: 1rem;     /* 16px */
+  --space-lg: 1.5rem;   /* 24px */
+  --space-xl: 2rem;     /* 32px */
+  --space-2xl: 3rem;    /* 48px */
+  --space-3xl: 4rem;    /* 64px */
   
-  /* Elite borders */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-elite: 20px;
+  /* Elite Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
 }
 
-/* Elite base styles */
+/* Elite Base Styles */
 * {
   margin: 0;
   padding: 0;
@@ -73,46 +62,41 @@
 
 body {
   margin: 0;
-  font-family: var(--font-secondary);
+  font-family: var(--font-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   line-height: 1.6;
   font-size: 16px;
+  font-weight: 400;
   overflow-x: hidden;
-  font-weight: 300;
 }
 
-/* Elite animations */
+/* Elite Animations */
 @keyframes pulseGlow {
   0%, 100% {
     box-shadow: var(--glow-lime);
-    opacity: 0.8;
   }
   50% {
-    box-shadow: 0 0 40px rgba(198, 255, 0, 0.6);
-    opacity: 1;
+    box-shadow: var(--glow-lime-strong);
   }
 }
 
-@keyframes breatheBackground {
-  0%, 100% {
-    background: radial-gradient(circle at 20% 80%, rgba(198, 255, 0, 0.03) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.02) 0%, transparent 50%),
-                var(--background);
-  }
-  50% {
-    background: radial-gradient(circle at 20% 80%, rgba(198, 255, 0, 0.05) 0%, transparent 50%),
-                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.03) 0%, transparent 50%),
-                var(--background);
-  }
+@keyframes flickerUnlock {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  15% { opacity: 0.8; }
+  20% { opacity: 1; }
+  25% { opacity: 0.9; }
+  30% { opacity: 1; }
+  100% { opacity: 1; }
 }
 
-@keyframes eliteSlideUp {
+@keyframes slideUpElite {
   from {
     opacity: 0;
-    transform: translateY(40px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -120,17 +104,113 @@ body {
   }
 }
 
-@keyframes logoFlicker {
-  0% { opacity: 0; }
-  10% { opacity: 1; }
-  15% { opacity: 0.8; }
-  20% { opacity: 1; }
-  100% { opacity: 1; }
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(50px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
-@keyframes ringProgress {
-  from { stroke-dashoffset: 251.2; }
-  to { stroke-dashoffset: 0; }
+@keyframes progressRing {
+  from { 
+    stroke-dashoffset: 251.2; 
+  }
+  to { 
+    stroke-dashoffset: 0; 
+  }
+}
+
+@keyframes badgeUnlock {
+  0% {
+    opacity: 0;
+    transform: scale(0) rotate(-180deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(-90deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Elite Utility Classes */
+.glow-lime { box-shadow: var(--glow-lime); }
+.glow-gold { box-shadow: var(--glow-gold); }
+.text-lime { color: var(--accent-lime); }
+.text-gold { color: var(--accent-gold); }
+.bg-surface { background: var(--surface); }
+.bg-elevated { background: var(--surface-elevated); }
+
+/* Elite Components Base */
+.elite-card {
+  background: var(--gradient-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  transition: var(--motion-smooth);
+  animation: slideUpElite 0.6s ease-out;
+}
+
+.elite-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-floating);
+  border-color: var(--accent-lime);
+}
+
+.elite-button {
+  background: var(--gradient-lime);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-xl);
+  color: var(--bg-primary);
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--motion-smooth);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.elite-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--glow-lime-strong);
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.elite-button:active {
+  transform: translateY(0);
+}
+
+.elite-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  color: var(--text-primary);
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  transition: var(--motion-smooth);
+  width: 100%;
+}
+
+.elite-input:focus {
+  outline: none;
+  border-color: var(--accent-lime);
+  box-shadow: var(--glow-lime);
+  background: var(--surface-elevated);
+}
+
+.elite-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 300;
 }
 
 /* ============ ELITE LOGIN SCREEN ============ */
