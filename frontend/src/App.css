@@ -12,48 +12,54 @@
 }
 
 :root {
-  /* LiftLink BlackOps Theme - Uber-inspired */
-  --background: #0a0a0a;           /* Very dark background */
-  --surface: #111111;              /* Surface elements */
-  --foreground: #e5e5e5;           /* Light gray text */
+  /* LiftLink BlackGlass Theme - Glass Morphism */
+  --background: #050505;           /* Ultra dark background */
+  --surface: #0a0a0a;              /* Dark surface elements */
+  --foreground: #b7f34b;           /* Bright green text */
   --primary: #b7f34b;              /* Bright green primary */
-  --accent: #b7f34b;               /* Bright green accent */
+  --accent: #99e137;               /* Slightly darker green accent */
   --border: #1f1f1f;               /* Dark gray borders */
-  --muted: #555555;                /* Medium gray muted text */
+  --muted: #444444;                /* Muted gray text */
   
   /* Legacy mappings for compatibility */
   --primary-soft: #b7f34b;
-  --primary-medium: #a5e042;
-  --primary-deep: #93cc39;
+  --primary-medium: #99e137;
+  --primary-deep: #7cb82f;
   
   --accent-light: #b7f34b;
-  --accent-soft: #c9f666;
+  --accent-soft: #99e137;
   --accent-warm: #b7f34b;
   
-  --text-primary: #e5e5e5;         /* Light gray text */
-  --text-secondary: #b0b0b0;       /* Medium gray */
-  --text-muted: #555555;           /* Muted gray text */
+  --text-primary: #b7f34b;         /* Bright green text */
+  --text-secondary: #99e137;       /* Accent green */
+  --text-muted: #444444;           /* Muted gray text */
   
-  --background-primary: #0a0a0a;   /* Very dark background */
-  --background-soft: #111111;      /* Surface background */
-  --background-card: #111111;      /* Card background */
+  --background-primary: #050505;   /* Ultra dark background */
+  --background-soft: #0a0a0a;      /* Surface background */
+  --background-card: #0a0a0a;      /* Card background */
   
-  --surface-light: #1a1a1a;        /* Light surface */
-  --surface-medium: #1f1f1f;       /* Medium surface */
+  --surface-light: #0f0f0f;        /* Light surface */
+  --surface-medium: #1a1a1a;       /* Medium surface */
+  
+  /* Glass morphism variables */
+  --glass-bg: rgba(10, 10, 10, 0.4);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --glass-blur: blur(10px) saturate(180%) contrast(1.2);
+  --glass-surface: rgba(15, 15, 15, 0.6);
   
   /* Theme-specific variables */
   --border-light: #1f1f1f;         /* Dark border light */
   --border-medium: #2a2a2a;        /* Dark border medium */
   
-  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-medium: 0 4px 20px rgba(0, 0, 0, 0.4);
-  --shadow-strong: 0 8px 30px rgba(0, 0, 0, 0.5);
+  --shadow-soft: 0 4px 15px rgba(0, 0, 0, 0.4);
+  --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.6);
+  --shadow-strong: 0 12px 40px rgba(0, 0, 0, 0.8);
   
-  --gradient-soft: linear-gradient(135deg, #b7f34b 0%, #c9f666 100%);
-  --gradient-warm: linear-gradient(135deg, #a5e042 0%, #b7f34b 100%);
-  --gradient-glass: linear-gradient(135deg, rgba(183, 243, 75, 0.1) 0%, rgba(201, 246, 102, 0.05) 100%);
+  --gradient-soft: linear-gradient(135deg, #b7f34b 0%, #99e137 100%);
+  --gradient-warm: linear-gradient(135deg, #99e137 0%, #b7f34b 100%);
+  --gradient-glass: linear-gradient(135deg, rgba(183, 243, 75, 0.1) 0%, rgba(153, 225, 55, 0.05) 100%);
   
-  /* BlackOps theme accent colors */
+  /* BlackGlass theme accent colors */
   --hope-gold: #b7f34b;            /* Primary green */
   --peace-blue: #b7f34b;           /* Primary green */
   --joy-coral: #b7f34b;            /* Primary green */
@@ -61,24 +67,23 @@
   
   /* Status colors - green variants */
   --success-soft: #b7f34b;         /* Success green */
-  --warning-soft: #f39c12;         /* Orange warning */
+  --warning-soft: #e6a435;         /* Orange warning */
   --error-soft: #e74c3c;           /* Red error */
   --info-soft: #3498db;            /* Blue info */
   
-  /* Glass effect borders */
-  --glass-border: rgba(183, 243, 75, 0.2);
-  
   /* Transition effects */
-  --transition: all 0.25s ease-in-out;
+  --transition: all 0.2s ease-in-out;
   
   /* Font families */
   --font-base: 'Inter', sans-serif;
   --font-heading: 'Inter', sans-serif;
   
   /* Layout system */
-  --spacing: 1rem;
+  --spacing: 1.25rem;
   --grid: minmax(320px, 1fr);
-  --container: max-width: 1200px; margin: 0 auto;
+  --container-max-width: 1100px;
+  --container-padding: 2rem;
+}
 }
 
 body {
