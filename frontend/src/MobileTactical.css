@@ -274,9 +274,9 @@ body {
   left: 0;
   right: 0;
   height: 60px;
-  background: rgba(0, 0, 0, 0.95);
+  background: rgba(10, 10, 10, 0.95);
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(154, 205, 50, 0.3);
+  border-bottom: 1px solid rgba(107, 142, 90, 0.2);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -292,8 +292,8 @@ body {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--neon-primary), transparent);
-  box-shadow: 0 0 10px var(--neon-primary);
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  box-shadow: var(--shadow-glow);
 }
 
 .nav-menu-btn,
@@ -302,7 +302,7 @@ body {
   height: var(--touch-target);
   border: none;
   background: none;
-  color: var(--neon-primary);
+  color: var(--primary);
   font-size: var(--text-lg);
   display: flex;
   align-items: center;
@@ -315,7 +315,7 @@ body {
 
 .nav-menu-btn:active,
 .nav-profile-btn:active {
-  background: rgba(154, 205, 50, 0.2);
+  background: rgba(107, 142, 90, 0.2);
   transform: scale(0.95);
 }
 
@@ -325,7 +325,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: var(--radius-md);
-  background: rgba(154, 205, 50, 0.1);
+  background: rgba(107, 142, 90, 0.1);
   opacity: 0;
   transition: opacity var(--duration-fast) var(--ease-mobile);
 }
