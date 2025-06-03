@@ -565,11 +565,7 @@ const LoginForm = ({ onToggle }) => {
     setError('');
 
     try {
-      if (isLogin) {
-        await login(email, password);
-      } else {
-        await register(email, password);
-      }
+      await login(email, password);
     } catch (error) {
       setError(error.message);
     }
