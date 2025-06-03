@@ -4106,13 +4106,55 @@ const AppContent = () => {
   );
 };
 
-// Main App Component
+// Main App Component - Tactical Command Center
 const App = () => {
+  const [currentView, setCurrentView] = useState('dashboard');
+  const [isLogin, setIsLogin] = useState(true);
+
   return (
     <AuthProvider>
-      <div className="app">
-        <AppContent />
-      </div>
+      <AuthChecker>
+        {({ user, userProfile, loading }) => {
+          if (loading) {
+            return null; // Loading handled by AuthProvider
+          }
+
+          if (!user) {
+            return (
+              <div className="tactical-app">
+                {isLogin ? (
+                  <TacticalLogin onToggle={() => setIsLogin(false)} />
+                ) : (
+                  <TacticalRegistration onToggle={() => setIsLogin(true)} />
+                )}
+              </div>
+            );
+          }
+
+          return (
+            <div className="tactical-app">
+              <TacticalNavigation 
+                currentView={currentView} 
+                setCurrentView={setCurrentView} 
+              />
+              
+              <div className="main-command-center">
+                <div className="command-interface">
+                  {currentView === 'dashboard' && <TacticalDashboard setCurrentView={setCurrentView} />}
+                  {currentView === 'trainers' && <TacticalTrainerSearch />}
+                  {currentView === 'bookings' && <TacticalBookings />}
+                  {currentView === 'progress' && <TacticalProgress />}
+                  {currentView === 'fitnessforest' && <TacticalTree />}
+                  {currentView === 'social' && <TacticalSocial />}
+                  {currentView === 'profile' && <TacticalProfile />}
+                  {currentView === 'trainer-dashboard' && <TacticalTrainerDashboard />}
+                  {currentView === 'admin' && <TacticalAdminDashboard />}
+                </div>
+              </div>
+            </div>
+          );
+        }}
+      </AuthChecker>
     </AuthProvider>
   );
 };
