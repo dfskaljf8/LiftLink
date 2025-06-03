@@ -2260,7 +2260,7 @@ const SocialTracking = () => {
             <div className="leaderboard-section">
               <h3>🏋️‍♂️ Top Trainers This Month</h3>
               <div className="leaderboard-list">
-                {socialData.leaderboards.trainer_leaders?.map((trainer, index) => (
+                {(socialData.leaderboards.trainer_leaders || []).map((trainer, index) => (
                   <div key={trainer.trainer_id} className="leaderboard-item">
                     <div className="rank">
                       {index + 1 <= 3 ? ['🥇', '🥈', '🥉'][index] : `#${index + 1}`}
