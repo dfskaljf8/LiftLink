@@ -1059,10 +1059,277 @@ const TrainerSearch = () => {
                   </div>
                 </div>
               </div>
+// Elite Payment Experience Component
+const PaymentExperience = ({ sessionData, onComplete }) => {
+  const [selectedMethod, setSelectedMethod] = useState(null);
+  const [paymentType, setPaymentType] = useState('one-time'); // 'one-time' or 'subscription'
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [cardData, setCardData] = useState({
+    cardNumber: '',
+    expiryDate: '',
+    cvv: '',
+    cardholderName: ''
+  });
+
+  const paymentMethods = [
+    { id: 'venmo', name: 'Venmo', icon: 'V', desc: 'Quick & social' },
+    { id: 'cashapp', name: 'CashApp', icon: '$', desc: 'Instant transfer' },
+    { id: 'paypal', name: 'PayPal', icon: 'P', desc: 'Secure & trusted' },
+    { id: 'applepay', name: 'Apple Pay', icon: '', desc: 'Touch ID / Face ID' },
+    { id: 'stripe', name: 'Card', icon: '💳', desc: 'Visa, Mastercard, Amex' }
+  ];
+
+  const subscriptionBenefits = [
+    'Unlimited 1-on-1 sessions with your mentor',
+    'Priority booking and scheduling',
+    'Exclusive workout plans and nutrition guides',
+    'Progress tracking and analytics',
+    'Access to elite mentor network',
+    'Cancel anytime, no commitment'
+  ];
+
+  const handleMethodSelect = (method) => {
+    setSelectedMethod(method);
+  };
+
+  const handleCardInputChange = (field, value) => {
+    setCardData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const createConfetti = () => {
+    const container = document.createElement('div');
+    container.className = 'confetti-container';
+    
+    for (let i = 0; i < 50; i++) {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti-piece';
+      confetti.style.left = Math.random() * 100 + '%';
+      confetti.style.animationDelay = Math.random() * 0.5 + 's';
+      container.appendChild(confetti);
+    }
+    
+    return container;
+  };
+
+  const handlePayment = async () => {
+    setIsProcessing(true);
+    
+    // Simulate payment processing
+    setTimeout(() => {
+      setIsProcessing(false);
+      setShowSuccess(true);
+      
+      // Add confetti effect
+      const confetti = createConfetti();
+      document.body.appendChild(confetti);
+      
+      setTimeout(() => {
+        document.body.removeChild(confetti);
+      }, 1500);
+    }, 2000);
+  };
+
+  const handleReturnToDashboard = () => {
+    setShowSuccess(false);
+    onComplete && onComplete();
+  };
+
+  if (showSuccess) {
+    return (
+      <div className="payment-success-overlay">
+        <div className="success-content">
+          <div className="success-checkmark">✓</div>
+          <h2 className="success-title">You're locked in.</h2>
+          <p className="success-message">
+            Payment successful! Your {paymentType === 'subscription' ? 'subscription' : 'session'} is confirmed.
+          </p>
+          <button className="success-return-btn" onClick={handleReturnToDashboard}>
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="payment-container">
+      {/* Header */}
+      <div className="payment-header">
+        <h1 className="payment-title">Complete Your Payment to Unlock LiftLink</h1>
+        <p className="payment-subtitle">
+          Secure, encrypted, and instant. Choose your preferred method below.
+        </p>
+      </div>
+
+      {/* Payment Type Toggle */}
+      <div className="payment-type-toggle">
+        <button 
+          className={`toggle-option ${paymentType === 'one-time' ? 'active' : ''}`}
+          onClick={() => setPaymentType('one-time')}
+        >
+          One-Time Session
+        </button>
+        <button 
+          className={`toggle-option ${paymentType === 'subscription' ? 'active' : ''}`}
+          onClick={() => setPaymentType('subscription')}
+        >
+          Monthly Subscription
+        </button>
+      </div>
+
+      {/* Subscription Benefits */}
+      {paymentType === 'subscription' && (
+        <div className="subscription-benefits">
+          <h3 className="section-title">Elite Membership Benefits</h3>
+          <div className="benefits-list">
+            {subscriptionBenefits.map((benefit, index) => (
+              <div key={index} className="benefit-item">
+                <div className="benefit-check">✓</div>
+                <div className="benefit-text">{benefit}</div>
+              </div>
             ))}
           </div>
-        )}
+        </div>
+      )}
+
+      {/* Session Summary */}
+      <div className="session-summary">
+        <div className="summary-header">
+          <div className="mentor-avatar">
+            {sessionData?.mentorName?.charAt(0) || 'M'}
+          </div>
+          <div className="mentor-info">
+            <h3>{sessionData?.mentorName || 'Elite Mentor'}</h3>
+            <p className="mentor-title">Certified Personal Trainer</p>
+          </div>
+        </div>
+        
+        <div className="summary-details">
+          <div className="summary-item">
+            <span className="item-label">Session Type</span>
+            <span className="item-value">{sessionData?.sessionType || 'Personal Training'}</span>
+          </div>
+          <div className="summary-item">
+            <span className="item-label">Duration</span>
+            <span className="item-value">{sessionData?.duration || '60 minutes'}</span>
+          </div>
+          <div className="summary-item">
+            <span className="item-label">Date & Time</span>
+            <span className="item-value">{sessionData?.dateTime || 'Tomorrow, 2:00 PM'}</span>
+          </div>
+          <div className="summary-item">
+            <span className="item-label">Location</span>
+            <span className="item-value">{sessionData?.location || 'Elite Fitness Center'}</span>
+          </div>
+        </div>
+
+        <div className="total-amount">
+          <span className="total-label">
+            {paymentType === 'subscription' ? 'Monthly Total' : 'Session Total'}
+          </span>
+          <span className="total-price">
+            ${paymentType === 'subscription' ? '199' : sessionData?.price || '75'}
+          </span>
+        </div>
       </div>
+
+      {/* Payment Methods */}
+      <div className="payment-methods-section">
+        <h3 className="section-title">Select Payment Method</h3>
+        <div className="payment-methods-grid">
+          {paymentMethods.map((method) => (
+            <div
+              key={method.id}
+              className={`payment-method-card ${selectedMethod?.id === method.id ? 'selected' : ''}`}
+              onClick={() => handleMethodSelect(method)}
+            >
+              <div className="payment-method-icon">{method.icon}</div>
+              <div className="payment-method-name">{method.name}</div>
+              <div className="payment-method-desc">{method.desc}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Expanded Payment Form */}
+      {selectedMethod?.id === 'stripe' && (
+        <div className="payment-form-expanded">
+          <h3 className="section-title">Card Details</h3>
+          <div className="form-row">
+            <div className="form-field">
+              <label className="form-label">Card Number</label>
+              <input
+                className="payment-input"
+                type="text"
+                placeholder="1234 5678 9012 3456"
+                value={cardData.cardNumber}
+                onChange={(e) => handleCardInputChange('cardNumber', e.target.value)}
+              />
+            </div>
+            <div className="form-field">
+              <label className="form-label">Cardholder Name</label>
+              <input
+                className="payment-input"
+                type="text"
+                placeholder="John Doe"
+                value={cardData.cardholderName}
+                onChange={(e) => handleCardInputChange('cardholderName', e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-field">
+              <label className="form-label">Expiry Date</label>
+              <input
+                className="payment-input"
+                type="text"
+                placeholder="MM/YY"
+                value={cardData.expiryDate}
+                onChange={(e) => handleCardInputChange('expiryDate', e.target.value)}
+              />
+            </div>
+            <div className="form-field">
+              <label className="form-label">CVV</label>
+              <input
+                className="payment-input"
+                type="text"
+                placeholder="123"
+                value={cardData.cvv}
+                onChange={(e) => handleCardInputChange('cvv', e.target.value)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Trust Elements */}
+      <div className="trust-elements">
+        <div className="trust-badge">
+          <span className="trust-icon">🔒</span>
+          <span>SSL Encrypted</span>
+        </div>
+        <div className="trust-badge">
+          <span className="trust-icon">✓</span>
+          <span>Secure Checkout</span>
+        </div>
+        <div className="trust-badge">
+          <span className="trust-icon">🛡️</span>
+          <span>Protected by Stripe</span>
+        </div>
+      </div>
+
+      {/* Confirm Button */}
+      <button
+        className="confirm-payment-btn"
+        disabled={!selectedMethod || isProcessing}
+        onClick={handlePayment}
+      >
+        {isProcessing ? 'Processing...' : 'Confirm & Unlock LiftLink'}
+      </button>
     </div>
   );
 };
