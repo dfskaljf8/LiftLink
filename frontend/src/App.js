@@ -189,11 +189,37 @@ const AppContent = () => {
         paddingBottom: '80px'
       }}>
         {currentView === 'home' && (
-          <ProfessionalHome 
-            setCurrentView={setCurrentView} 
-            userProfile={mockUserProfile}
-            searchTrainers={searchTrainers}
-          />
+          <div>
+            <ProfessionalHome 
+              setCurrentView={setCurrentView} 
+              userProfile={mockUserProfile}
+              searchTrainers={searchTrainers}
+            />
+            
+            {/* Addictive Progress Bars */}
+            <div style={{ padding: '20px' }}>
+              <AddictiveProgressBar 
+                currentValue={mockUserProfile.xp_points} 
+                maxValue={500} 
+                type="level" 
+              />
+              <StreakFOMOBar 
+                currentStreak={mockUserProfile.consecutive_days}
+                maxStreak={mockUserProfile.max_streak}
+                missedToday={false}
+              />
+              <CompetitiveProgressBar 
+                userProgress={mockUserProfile.level}
+                friendsProgress={competitiveFriends}
+                metric="Level"
+              />
+            </div>
+            
+            {/* Social FOMO Feed */}
+            <div style={{ padding: '0 20px' }}>
+              <SocialFOMOFeed userProfile={mockUserProfile} />
+            </div>
+          </div>
         )}
         
         {currentView === 'fitness-forest' && (
