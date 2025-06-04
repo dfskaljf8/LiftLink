@@ -107,6 +107,19 @@ const AppContent = () => {
 
   return (
     <div className="professional-app">
+      {/* Action Feedback System */}
+      <ActionFeedback 
+        type={actionFeedback.type}
+        visible={actionFeedback.visible}
+        onComplete={() => setActionFeedback({ type: '', visible: false })}
+      />
+
+      {/* Feedback Widget */}
+      <FeedbackWidget 
+        context={currentView}
+        onFeedback={handleFeedback}
+      />
+
       {/* FOMO Notification System */}
       <FOMONotificationSystem 
         userProfile={mockUserProfile} 
