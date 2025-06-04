@@ -138,7 +138,7 @@ const App = () => {
         )}
         
         {currentView === 'trainers' && (
-          <ProfessionalTrainerSearch 
+          <EnhancedTrainerSearch 
             searchQuery="" 
             userProfile={mockUserProfile} 
           />
