@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TactileButton, Confetti, FloatingMascot } from './DelightfulAnimations';
-import '../styles/ProfessionalDesign.css';
+import './styles/ProfessionalDesign.css';
 
 // FOMO Notification System
 export const FOMONotificationSystem = ({ userProfile, onAction }) => {
