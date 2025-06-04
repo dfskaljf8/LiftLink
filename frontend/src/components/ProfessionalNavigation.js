@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
-import { AnimatedDumbbell, AnimatedTree, AnimatedCoin, AnimatedFire, AnimatedStar } from './AnimatedSVGs';
+import { 
+  LiftLinkLogo, 
+  AnimatedHome, 
+  AnimatedTree, 
+  AnimatedChart, 
+  AnimatedUser, 
+  AnimatedStar, 
+  AnimatedSearch, 
+  AnimatedCalendar, 
+  AnimatedMessage, 
+  AnimatedSettings, 
+  AnimatedHelp 
+} from './AnimatedSVGs';
 import '../styles/ProfessionalDesign.css';
 
 const ProfessionalNavigation = ({ currentView, setCurrentView, userProfile, toggleSidebar }) => {
