@@ -579,14 +579,7 @@ const AchievementsScreen = ({ userProfile }) => {
       </div>
 
       {/* Achievement Detail Modal */}
-      <CelebrationModal
-        isOpen={showCelebration}
-        achievement={newAchievement}
-        onClose={() => {
-          setShowCelebration(false);
-          setNewAchievement(null);
-        }}
-      />
+        <Confetti />
 
       {/* Bottom Spacing */}
       <div style={{ height: '100px' }} />
