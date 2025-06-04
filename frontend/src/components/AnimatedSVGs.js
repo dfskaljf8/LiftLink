@@ -842,7 +842,15 @@ export const AnimatedStar = ({ size = 24, filled = false, sparkling = false }) =
 );
 
 export default {
-  AnimatedDumbbell,
+  LiftLinkLogo,
+  AnimatedHome,
+  AnimatedSearch,
+  AnimatedUser,
+  AnimatedCalendar,
+  AnimatedMessage,
+  AnimatedSettings,
+  AnimatedChart,
+  AnimatedHelp,
   AnimatedTree,
   AnimatedCheckmark,
   AnimatedCoin,
