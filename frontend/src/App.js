@@ -145,6 +145,7 @@ const AppContent = () => {
         isOpen={sidebarOpen}
         toggleSidebar={toggleSidebar}
         setCurrentView={setCurrentView}
+        currentView={currentView}
         userProfile={mockUserProfile}
         logout={() => console.log('Logout clicked')}
       />
