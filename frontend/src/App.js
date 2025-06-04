@@ -1,22 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { AuthChecker } from './components/AuthChecker';
-import { MobileAuthForm } from './components/MobileAuthForm';
-import { AppContent } from './components/AppContent';
-import { LoginForm } from './components/LoginForm';
-import { RegistrationForm } from './components/RegistrationForm';
-import { HomeDashboard } from './components/HomeDashboard';
-import { TrainerSearch } from './components/TrainerSearch';
-import { MyBookings } from './components/MyBookings';
-import { ProgressAnalytics } from './components/ProgressAnalytics';
-import { TreeVisualization } from './components/TreeVisualization';
-import { SocialTracking } from './components/SocialTracking';
-import { AdminDashboard } from './components/AdminDashboard';
-import { Profile } from './components/Profile';
-import { ProfessionalSidebar } from './components/ProfessionalSidebar';
-import { ProfessionalNavigation } from './components/ProfessionalNavigation';
-import { api } from './utils/api';
+import React, { useState } from 'react';
+import './styles/ProfessionalDesign.css';
+import ProfessionalHome from './components/ProfessionalHome';
+import { ProfessionalNavigation, ProfessionalSidebar } from './components/ProfessionalNavigation';
 
 // Main App Component - Modern Adonis-inspired Design with Error Boundary
 const App = () => {
