@@ -7,6 +7,13 @@ import './MobileTactical.css';
 import './MarketplaceDesign.css';
 import './ThemeSystem.css';
 import './ModernDesign.css';
+import './styles/ProfessionalDesign.css';
+import ProfessionalHome from './components/ProfessionalHome';
+import { ProfessionalNavigation, ProfessionalSidebar } from './components/ProfessionalNavigation';
+import ProfessionalTrainerSearch from './components/ProfessionalTrainerSearch';
+import FitnessForest from './components/FitnessForest';
+import ProgressAnalytics from './components/ProgressAnalytics';
+import SocialHub from './components/SocialHub';
 
 // API Configuration - Must be at top level
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
