@@ -314,6 +314,17 @@ const FeaturedProCard = ({ pro, onClick }) => {
   );
 };
 
+// Gamification Engine
+const GamificationEngine = {
+  getRankName: (level) => {
+    if (level >= 50) return 'ELITE';
+    if (level >= 25) return 'ADVANCED';
+    if (level >= 10) return 'INTERMEDIATE';
+    if (level >= 5) return 'BEGINNER';
+    return 'ROOKIE';
+  }
+};
+
 // Theme Context
 const ThemeContext = createContext();
 
