@@ -36,10 +36,47 @@ const AppContent = () => {
   const mockUserProfile = {
     name: 'Demo User',
     level: 5,
+    xp_points: 450,
     lift_coins: 150,
     consecutive_days: 7,
-    xp_points: 450,
-    total_coins_earned: 300
+    max_streak: 12,
+    last_login: Date.now() - (3 * 60 * 60 * 1000), // 3 hours ago
+    avatar: 'DU'
+  };
+
+  const competitiveFriends = [
+    { name: 'Sarah Chen', value: 8 },
+    { name: 'Marcus Torres', value: 6 },
+    { name: 'Emma Rodriguez', value: 4 }
+  ];
+
+  const triggerCelebration = (type) => {
+    setCelebrationType(type);
+    setShowCelebration(true);
+  };
+
+  const handleHarvest = (rewards) => {
+    // Process harvest rewards
+    triggerCelebration('harvest');
+  };
+
+  const handleFOMOAction = (actionType) => {
+    switch (actionType) {
+      case 'streak_danger':
+        setCurrentView('fitness-forest');
+        break;
+      case 'bonus_expiring':
+        triggerCelebration('bonus');
+        break;
+      case 'social_activity':
+        setCurrentView('social');
+        break;
+      case 'limited_offer':
+        setCurrentView('achievements');
+        break;
+      default:
+        break;
+    }
   };
 
   const toggleSidebar = () => {
