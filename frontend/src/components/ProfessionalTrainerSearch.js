@@ -28,6 +28,7 @@ const ProfessionalTrainerSearch = ({ searchQuery, userProfile }) => {
         reviews: 127,
         location: 'Manhattan, NY',
         distance: 0.8,
+        coordinates: { lat: 40.7589, lng: -73.9851 }, // Manhattan
         avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face',
         verified: true,
         bio: 'Certified personal trainer with 8+ years of experience helping clients achieve their fitness goals.',
@@ -45,6 +46,7 @@ const ProfessionalTrainerSearch = ({ searchQuery, userProfile }) => {
         reviews: 89,
         location: 'Brooklyn, NY',
         distance: 1.2,
+        coordinates: { lat: 40.6782, lng: -73.9442 }, // Brooklyn
         avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face',
         verified: true,
         bio: 'Former athlete turned trainer, specializing in high-performance training and athletic development.',
@@ -62,6 +64,7 @@ const ProfessionalTrainerSearch = ({ searchQuery, userProfile }) => {
         reviews: 156,
         location: 'Queens, NY',
         distance: 2.1,
+        coordinates: { lat: 40.7282, lng: -73.7949 }, // Queens
         avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b190?w=200&h=200&fit=crop&crop=face',
         verified: true,
         bio: 'Holistic wellness coach focused on mind-body connection and sustainable fitness practices.',
@@ -79,6 +82,7 @@ const ProfessionalTrainerSearch = ({ searchQuery, userProfile }) => {
         reviews: 73,
         location: 'Manhattan, NY',
         distance: 1.5,
+        coordinates: { lat: 40.7505, lng: -73.9934 }, // Upper Manhattan
         avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face',
         verified: true,
         bio: 'Competition powerlifter and strength coach helping clients build functional strength.',
