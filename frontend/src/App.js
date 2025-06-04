@@ -5472,7 +5472,7 @@ const AppContent = () => {
       case 'achievements':
         return <AchievementsView userProfile={userProfile} />;
       case 'settings':
-        return <Settings />;
+        return null;
       case 'help':
         return <HelpSupport />;
       case 'trainer-dashboard':
