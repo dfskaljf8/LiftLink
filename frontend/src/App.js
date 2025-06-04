@@ -8,6 +8,7 @@ import './MarketplaceDesign.css';
 import './ThemeSystem.css';
 import './ModernDesign.css';
 import './styles/ProfessionalDesign.css';
+import './styles/ProfessionalDesign.css';
 import ProfessionalHome from './components/ProfessionalHome';
 import { ProfessionalNavigation, ProfessionalSidebar } from './components/ProfessionalNavigation';
 import ProfessionalTrainerSearch from './components/ProfessionalTrainerSearch';
