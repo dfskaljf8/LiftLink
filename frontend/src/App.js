@@ -36,6 +36,7 @@ const AppContent = () => {
   const [showCelebration, setShowCelebration] = useState(false);
   const [celebrationType, setCelebrationType] = useState('');
   const [showHarvest, setShowHarvest] = useState(false);
+  const [actionFeedback, setActionFeedback] = useState({ type: '', visible: false });
 
   // Mock user profile data
   const mockUserProfile = {
