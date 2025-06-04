@@ -6264,18 +6264,95 @@ const AuthHandler = ({ setCurrentView }) => {
   };
 
   return (
-    <div className="app-container">
-      <Navigation currentView={view} setCurrentView={setView} />
-      <main className="main-content">
-        <div className="view-container">
-          {renderView()}
+    <div className="professional-app">
+      {/* Sidebar Navigation */}
+      <ProfessionalSidebar 
+        isOpen={sidebarOpen}
+        toggleSidebar={toggleSidebar}
+        setCurrentView={setCurrentView}
+        userProfile={userProfile}
+        logout={logout}
+      />
+      
+      {/* Header with Hamburger Menu */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '60px',
+        background: 'var(--glass-bg)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 var(--space-lg)',
+        zIndex: 999
+      }}>
+        <button
+          onClick={toggleSidebar}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-primary)',
+            fontSize: '24px',
+            cursor: 'pointer',
+            padding: 'var(--space-sm)'
+          }}
+        >
+          ☰
+        </button>
+        
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-sm)'
+        }}>
+          <span style={{
+            fontSize: '20px',
+            fontWeight: '600'
+          }}>
+            💪 LiftLink
+          </span>
         </div>
-      </main>
-      <div className="background-effects">
-        <div className="floating-particle"></div>
-        <div className="floating-particle"></div>
-        <div className="floating-particle"></div>
+        
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-sm)'
+        }}>
+          <div style={{
+            background: 'var(--accent-primary)',
+            borderRadius: '50%',
+            width: '35px',
+            height: '35px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold'
+          }}>
+            {userProfile?.name?.charAt(0) || 'U'}
+          </div>
+        </div>
       </div>
+
+      {/* Main Content Area */}
+      <main style={{
+        marginTop: '60px',
+        minHeight: 'calc(100vh - 60px)',
+        paddingBottom: '80px'
+      }}>
+        {renderCurrentView()}
+      </main>
+
+      {/* Bottom Navigation */}
+      <ProfessionalNavigation 
+        currentView={currentView}
+        setCurrentView={setCurrentView}
+        userProfile={userProfile}
+        toggleSidebar={toggleSidebar}
+      />
     </div>
   );
 };
