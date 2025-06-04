@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AnimatedCheckmark, AnimatedCoin, AnimatedFire, AnimatedStar } from './AnimatedSVGs';
+import { AnimatedCheckmark, AnimatedCoin, AnimatedFire, AnimatedStar } from '../AnimatedSVGs';
 
 // Multi-phase animation feedback
 export const MultiPhaseButton = ({ children, onClick, className, ...props }) => {
