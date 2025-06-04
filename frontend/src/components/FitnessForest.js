@@ -527,4 +527,4 @@ const LegacyFitnessForest = ({ userProfile }) => {
   );
 };
 
-export default FitnessForest;
+export default LegacyFitnessForest;
