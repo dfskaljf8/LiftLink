@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Wrapper, Status } from '@googlemaps/react-wrapper';
 import '../styles/ProfessionalDesign.css';
 
 const ProfessionalTrainerSearch = ({ searchQuery, userProfile }) => {
