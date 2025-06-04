@@ -5489,7 +5489,6 @@ const AppContent = () => {
         );
     }
   };
-    }
   };
 
   if (loading) {
