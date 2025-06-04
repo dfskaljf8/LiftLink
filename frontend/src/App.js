@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import './styles/ProfessionalDesign.css';
 import ProfessionalHome from './components/ProfessionalHome';
 import { ProfessionalNavigation, ProfessionalSidebar } from './components/ProfessionalNavigation';
+import FitnessForestScreen from './components/FitnessForestScreen';
+import ProgressAnalyticsScreen from './components/ProgressAnalyticsScreen';
+import SocialHubScreen from './components/SocialHubScreen';
+import AchievementsScreen from './components/AchievementsScreen';
+import ProfessionalTrainerSearch from './components/ProfessionalTrainerSearch';
+import { Settings } from './components/PlaceholderViews';
 
 // Main App Component - Clean and Simple
 const App = () => {
