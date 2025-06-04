@@ -1789,7 +1789,7 @@ const SocialNetwork = () => {
   );
 };
 
-const FitnessForest = () => {
+const LegacyFitnessForest = () => {
   const { userProfile } = useAuth();
   
   return (
