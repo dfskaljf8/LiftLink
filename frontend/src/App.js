@@ -1,5 +1,9 @@
-import React, { useState } from 'react';
-import './styles/ProfessionalDesign.css';
+import React, { useState, useEffect } from 'react';
+import { TactileButton, FloatingMascot, Confetti } from './DelightfulAnimations';
+import { AnimatedCard } from './DelightfulComponents';
+import { FOMONotificationSystem, SocialFOMOFeed, HarvestSystem, MegaCelebration } from './AddictiveGameSystem';
+import { AddictiveProgressBar, CompetitiveProgressBar, StreakFOMOBar } from './EnhancedProgressBars';
+import '../styles/ProfessionalDesign.css';
 import ProfessionalHome from './components/ProfessionalHome';
 import { ProfessionalNavigation, ProfessionalSidebar } from './components/ProfessionalNavigation';
 import FitnessForestScreen from './components/FitnessForestScreen';
