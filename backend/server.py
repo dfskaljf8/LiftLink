@@ -3511,7 +3511,8 @@ async def get_all_trainers(current_user: dict = Depends(get_current_user)):
     async for trainer in db.trainers.find({}).sort("created_at", -1):
         # Get user info
         user = await db.users.find_one({"user_id": trainer["trainer_id"]})
-        trainer["user_info"] = user
+        if user:
+            trainer["user_info"] = serialize_doc(user)
         
         # Get booking stats
         total_bookings = await db.bookings.count_documents({"trainer_id": trainer["trainer_id"]})
@@ -3522,7 +3523,7 @@ async def get_all_trainers(current_user: dict = Depends(get_current_user)):
             "confirmed_bookings": confirmed_bookings
         }
         
-        trainers.append(trainer)
+        trainers.append(serialize_doc(trainer))
     
     return {"trainers": trainers}
 
