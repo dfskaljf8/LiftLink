@@ -14,6 +14,7 @@ const ProfessionalTrainerSearch = ({ searchQuery, userProfile }) => {
   });
   const [selectedTrainer, setSelectedTrainer] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
 
   useEffect(() => {
     // Mock trainers data
