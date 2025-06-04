@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../styles/ProfessionalDesign.css';
+import './styles/ProfessionalDesign.css';
 
 // Delightful micro-interactions and animations for LiftLink
 // Inspired by Revolut, Uber, and DoorDash polish levels
