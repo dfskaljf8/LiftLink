@@ -520,14 +520,7 @@ const FitnessForestScreen = ({ userProfile }) => {
       />
 
       {/* Level Up Celebration */}
-      <CelebrationModal
-        isOpen={showLevelUp}
-        achievement={{
-          title: "Forest Level Up!",
-          description: "Your dedication has unlocked new growth!"
-        }}
-        onClose={() => setShowLevelUp(false)}
-      />
+      <Confetti />
 
       {/* Floating Mascot */}
       {showMascot && (
