@@ -147,12 +147,24 @@ const App = () => {
           />
         )}
         
-        {currentView === 'settings' && (
-          <Settings />
+        {currentView === 'bookings' && (
+          <BookingsView userProfile={mockUserProfile} />
         )}
         
-        {/* Placeholder for missing views */}
-        {['bookings', 'messages', 'profile', 'help'].includes(currentView) && (
+        {currentView === 'messages' && (
+          <MessagesView userProfile={mockUserProfile} />
+        )}
+        
+        {currentView === 'profile' && (
+          <ProfileView userProfile={mockUserProfile} setCurrentView={setCurrentView} />
+        )}
+        
+        {currentView === 'settings' && (
+          <EnhancedSettings />
+        )}
+        
+        {/* Placeholder for help */}
+        {currentView === 'help' && (
           <div style={{
             padding: 'var(--space-xl)',
             textAlign: 'center'
@@ -167,13 +179,13 @@ const App = () => {
                 fontWeight: '600',
                 marginBottom: 'var(--space-md)'
               }}>
-                {currentView.charAt(0).toUpperCase() + currentView.slice(1)} View
+                Help Center
               </h2>
               <p style={{
                 color: 'var(--text-secondary)',
                 marginBottom: 'var(--space-lg)'
               }}>
-                Coming soon with enhanced features!
+                Get assistance with your fitness journey!
               </p>
               <button 
                 className="btn-primary"
