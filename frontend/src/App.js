@@ -7,7 +7,10 @@ import ProgressAnalyticsScreen from './components/ProgressAnalyticsScreen';
 import SocialHubScreen from './components/SocialHubScreen';
 import AchievementsScreen from './components/AchievementsScreen';
 import EnhancedTrainerSearch from './components/EnhancedTrainerSearch';
-import { Settings } from './components/PlaceholderViews';
+import BookingsView from './components/BookingsView';
+import MessagesView from './components/MessagesView';
+import ProfileView from './components/ProfileView';
+import EnhancedSettings, { ThemeProvider } from './components/EnhancedSettings';
 
 // Main App Component - Clean and Simple
 const App = () => {
