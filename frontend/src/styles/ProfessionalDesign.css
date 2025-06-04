@@ -199,21 +199,24 @@ input, textarea {
   color: var(--text-muted);
 }
 
-/* Professional Cards */
+/* Mobile-Optimized Professional Cards */
 .pro-card {
   background: var(--glass-bg);
   border: 1px solid rgba(107, 142, 107, 0.2);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
   backdrop-filter: blur(20px);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
   cursor: pointer;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.pro-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-large);
-  border-color: rgba(107, 142, 107, 0.4);
+.pro-card:active {
+  transform: translate3d(0, 2px, 0) scale3d(0.99, 0.99, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.15s ease-out;
 }
 
 .pro-avatar {
