@@ -370,6 +370,49 @@ const useTheme = () => {
   return context;
 };
 
+// LiftLink Logo Component
+const LiftLinkLogo = ({ size = "md" }) => {
+  const sizeClasses = {
+    sm: { container: "w-8 h-8", text: "text-sm" },
+    md: { container: "w-10 h-10", text: "text-base" },
+    lg: { container: "w-12 h-12", text: "text-lg" },
+    xl: { container: "w-16 h-16", text: "text-xl" }
+  };
+  
+  const { container, text } = sizeClasses[size] || sizeClasses.md;
+  
+  return (
+    <div className="logo-container" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <div 
+        className={`logo-icon ${container}`} 
+        style={{ 
+          background: 'linear-gradient(135deg, #6B8E5A, #4A90A4)',
+          color: '#fff',
+          borderRadius: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontWeight: 'bold',
+          boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)'
+        }}
+      >
+        LL
+      </div>
+      <span 
+        className={`logo-text ${text}`}
+        style={{
+          fontWeight: 'bold',
+          background: 'linear-gradient(135deg, #6B8E5A, #4A90A4)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
+        }}
+      >
+        LiftLink
+      </span>
+    </div>
+  );
+};
+
 // Theme Toggle Button Component
 const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
