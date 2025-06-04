@@ -14,6 +14,15 @@ import ProfessionalTrainerSearch from './components/ProfessionalTrainerSearch';
 import FitnessForest from './components/FitnessForest';
 import ProgressAnalytics from './components/ProgressAnalytics';
 import SocialHub from './components/SocialHub';
+import { 
+  BookingManagement, 
+  MessagesView, 
+  AchievementsView, 
+  Settings, 
+  HelpSupport,
+  TrainerDashboard,
+  AdminDashboard 
+} from './components/PlaceholderViews';
 
 // API Configuration - Must be at top level
 const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
