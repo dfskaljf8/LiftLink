@@ -461,4 +461,3 @@ export const StreakFOMOBar = ({ currentStreak, maxStreak, missedToday = false })
   );
 };
 
-export { AddictiveProgressBar, CompetitiveProgressBar, StreakFOMOBar };
