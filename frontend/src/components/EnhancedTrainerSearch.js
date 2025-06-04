@@ -270,6 +270,21 @@ const EnhancedTrainerSearch = ({ searchQuery, userProfile }) => {
     );
   };
 
+  const handleViewProfile = (trainer) => {
+    // Animate to profile view with trainer details
+    setSelectedTrainer(trainer);
+    // Could navigate to dedicated profile page or show modal
+    console.log('Viewing profile for:', trainer.name);
+  };
+
+  const handleBookSession = (trainer) => {
+    // Animate to booking flow
+    setSelectedTrainer(trainer);
+    setShowBookingModal(true);
+    // Could navigate to payment page: /payment?trainerId=${trainer.id}
+    console.log('Booking session with:', trainer.name);
+  };
+
   const TrainerCard = ({ trainer }) => (
     <div className="pro-card" style={{ marginBottom: 'var(--space-lg)' }}>
       <div style={{
