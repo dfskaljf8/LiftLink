@@ -90,6 +90,26 @@ const AppContent = () => {
 
   return (
     <div className="professional-app">
+      {/* FOMO Notification System */}
+      <FOMONotificationSystem 
+        userProfile={mockUserProfile} 
+        onAction={handleFOMOAction}
+      />
+
+      {/* Harvest System */}
+      <HarvestSystem 
+        userProfile={mockUserProfile} 
+        onHarvest={handleHarvest}
+      />
+
+      {/* Mega Celebration */}
+      {showCelebration && (
+        <MegaCelebration 
+          trigger={celebrationType}
+          onComplete={() => setShowCelebration(false)}
+        />
+      )}
+
       {/* Sidebar Navigation */}
       <ProfessionalSidebar 
         isOpen={sidebarOpen}
