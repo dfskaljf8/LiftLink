@@ -250,13 +250,12 @@ const ProfessionalHome = ({ setCurrentView, userProfile, searchTrainers }) => {
           gap: 'var(--space-lg)'
         }}>
           {featuredTrainers.map((trainer, index) => (
-            <div
+            <AnimatedCard
               key={trainer.id}
-              className="pro-card slide-up"
+              delay={index * 200}
+              direction="up"
+              className="pro-card interactive-card"
               onClick={() => setCurrentView('trainers')}
-              style={{
-                animationDelay: `${index * 0.2}s`
-              }}
             >
               <div style={{ display: 'flex', gap: 'var(--space-md)' }}>
                 <div style={{ position: 'relative' }}>
@@ -278,7 +277,8 @@ const ProfessionalHome = ({ setCurrentView, userProfile, searchTrainers }) => {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      border: '2px solid var(--primary-bg)'
+                      border: '2px solid var(--primary-bg)',
+                      animation: 'pulse 2s infinite'
                     }}>
                       ✓
                     </div>
@@ -314,7 +314,8 @@ const ProfessionalHome = ({ setCurrentView, userProfile, searchTrainers }) => {
                           padding: '2px 8px',
                           borderRadius: 'var(--radius-sm)',
                           fontSize: '12px',
-                          color: 'var(--text-secondary)'
+                          color: 'var(--text-secondary)',
+                          border: '1px solid rgba(0, 212, 170, 0.3)'
                         }}
                       >
                         {specialty}
@@ -330,7 +331,8 @@ const ProfessionalHome = ({ setCurrentView, userProfile, searchTrainers }) => {
                     <div>
                       <div style={{
                         fontWeight: '600',
-                        color: 'var(--accent-primary)'
+                        color: 'var(--accent-primary)',
+                        fontSize: '18px'
                       }}>
                         ${trainer.hourlyRate}/hour
                       </div>
@@ -338,23 +340,99 @@ const ProfessionalHome = ({ setCurrentView, userProfile, searchTrainers }) => {
                         fontSize: '12px',
                         color: 'var(--text-muted)'
                       }}>
-                        {trainer.distance}
+                        📍 {trainer.distance}
                       </div>
                     </div>
                     
-                    <button className="btn-primary" style={{
-                      padding: 'var(--space-sm) var(--space-md)',
-                      fontSize: '14px'
-                    }}>
-                      Book Now
-                    </button>
+                    <TactileButton 
+                      variant="primary"
+                      size="medium"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCelebrateAction(true);
+                        setTimeout(() => setCelebrateAction(false), 1000);
+                      }}
+                    >
+                      ⚡ Book Now
+                    </TactileButton>
                   </div>
                 </div>
               </div>
-            </div>
+            </AnimatedCard>
           ))}
         </div>
       </div>
+
+      {/* User Stats Section */}
+      {userProfile && (
+        <div style={{ padding: '0 var(--space-lg) var(--space-xl)' }}>
+          <AnimatedCard delay={600} direction="up" className="glass-card" style={{ padding: 'var(--space-lg)' }}>
+            <h2 style={{
+              fontSize: '20px',
+              fontWeight: '600',
+              marginBottom: 'var(--space-lg)',
+              textAlign: 'center'
+            }}>
+              Your Fitness Journey
+            </h2>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+              gap: 'var(--space-md)',
+              marginBottom: 'var(--space-lg)'
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ marginBottom: 'var(--space-sm)' }}>
+                  <StreakCounter count={userProfile.consecutive_days || 0} isIncreasing={celebrateAction} />
+                </div>
+                <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                  Day Streak
+                </div>
+              </div>
+              
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ marginBottom: 'var(--space-sm)' }}>
+                  <PulsingCoinCounter coins={userProfile.lift_coins || 0} isIncreasing={celebrateAction} />
+                </div>
+                <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                  LiftCoins
+                </div>
+              </div>
+              
+              <div style={{ textAlign: 'center' }}>
+                <div style={{
+                  fontSize: '2rem',
+                  fontWeight: 'bold',
+                  color: 'var(--accent-secondary)',
+                  marginBottom: 'var(--space-sm)'
+                }}>
+                  ⭐ {userProfile.level || 1}
+                </div>
+                <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                  Level
+                </div>
+              </div>
+            </div>
+            
+            <MorphingProgressBar 
+              progress={((userProfile.level || 1) % 10) * 10}
+              label="Progress to next level"
+              color="var(--accent-primary)"
+              showSparkles={true}
+            />
+          </AnimatedCard>
+        </div>
+      )}
+
+      {/* Floating Mascot */}
+      {showMascot && (
+        <FloatingMascot
+          emotion="happy"
+          message="Ready to find your perfect trainer? Let's get those gains! 💪"
+          onDismiss={() => setShowMascot(false)}
+        />
+      )}
 
       {/* Bottom Spacing for Navigation */}
       <div style={{ height: '100px' }}></div>
