@@ -5935,88 +5935,10 @@ const MessagesPlaceholder = ({ setCurrentView, user }) => {
   );
 };
 
-// Main App Component - Modern Adonis-inspired Design
-const App = () => {
-  const [currentView, setCurrentView] = useState('home');
-  const [isLogin, setIsLogin] = useState(true);
-
-  return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AuthChecker>
-          {({ user, userProfile, loading }) => {
-            if (loading) {
-              return (
-                <div className="mobile-app">
-                  <div className="flex items-center justify-center h-screen">
-                    <div className="text-center">
-                      <div className="logo mb-4">
-                        <div className="logo-icon">LL</div>
-                        <span>LiftLink</span>
-                      </div>
-                      <div className="text-muted">Loading your fitness journey...</div>
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-
-            if (!user) {
-              return (
-                <div className="mobile-app">
-                  <div className="flex items-center justify-center h-screen bg-background-primary">
-                    <div className="w-full max-w-md p-6">
-                      <div className="text-center mb-8">
-                        <div className="logo mb-4">
-                          <div className="logo-icon">LL</div>
-                          <span>LiftLink</span>
-                        </div>
-                        <h1 className="text-2xl font-bold text-primary mb-2">Welcome to LiftLink</h1>
-                        <p className="text-secondary">Your fitness journey starts here</p>
-                      </div>
-                      <MobileAuthForm isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-
-            return (
-              <div className="mobile-app">
-                <ModernTopNav 
-                  user={userProfile}
-                  onNotificationClick={() => console.log('Notifications')}
-                  onProfileClick={() => setCurrentView('profile')}
-                />
-                
-                {/* Main Content */}
-                {currentView === 'home' && <ModernHomeScreen setCurrentView={setCurrentView} user={userProfile} />}
-                {currentView === 'search' && <MobileTrainerSearch setCurrentView={setCurrentView} />}
-                {currentView === 'trainer-profile' && <ModernProProfileScreen setCurrentView={setCurrentView} />}
-                {currentView === 'bookings' && <MobileBookings setCurrentView={setCurrentView} user={userProfile} />}
-                {currentView === 'messages' && <MessagesPlaceholder setCurrentView={setCurrentView} user={userProfile} />}
-                {currentView === 'profile' && <ModernProfileScreen setCurrentView={setCurrentView} user={userProfile} />}
-                
-                {/* Legacy views - still accessible but will be updated */}
-                {currentView === 'progress' && <MobileProgress />}
-                {currentView === 'fitnessforest' && <MobileTree />}
-                {currentView === 'social' && <MobileSocial />}
-                {currentView === 'trainer-dashboard' && <MobileTrainerDashboard />}
-                {currentView === 'admin' && <MobileAdminDashboard />}
-                
-                <ModernBottomNav 
-                  currentView={currentView}
-                  setCurrentView={setCurrentView}
-                  user={userProfile}
-                />
-              </div>
-            );
-          }}
-        </AuthChecker>
-      </AuthProvider>
-    </ThemeProvider>
-  );
-};
+// Temporary test to isolate white screen issue
+function App() {
+  return <div style={{padding: '20px', fontSize: '18px', color: 'blue'}}>✅ Test Render - React is Working!</div>;
+}
 
 // Auth Handler Component - Legacy (Remove if not used)
 const AuthHandler = ({ setCurrentView }) => {
