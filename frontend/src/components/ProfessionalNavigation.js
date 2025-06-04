@@ -41,12 +41,42 @@ const ProfessionalNavigation = ({ currentView, setCurrentView, userProfile, togg
 
 const ProfessionalSidebar = ({ isOpen, toggleSidebar, setCurrentView, userProfile, logout }) => {
   const sidebarItems = [
-    { id: 'fitness-forest', label: 'Fitness Forest', icon: '🌲', subtitle: 'Grow your progress' },
-    { id: 'analytics', label: 'Progress Analytics', icon: '📊', subtitle: 'Track your journey' },
-    { id: 'social', label: 'Social Hub', icon: '👥', subtitle: 'Connect & compete' },
-    { id: 'achievements', label: 'Achievements', icon: '🏆', subtitle: 'Your milestones' },
-    { id: 'settings', label: 'Settings', icon: '⚙️', subtitle: 'Customize app' },
-    { id: 'help', label: 'Help & Support', icon: '❓', subtitle: 'Get assistance' }
+    { 
+      id: 'fitness-forest', 
+      label: 'Forest', 
+      icon: <AnimatedTree size={24} growth={userProfile?.level * 10 || 50} />,
+      subtitle: 'Grow your progress'
+    },
+    { 
+      id: 'analytics', 
+      label: 'Analytics', 
+      icon: <span style={{ fontSize: '24px' }}>📊</span>,
+      subtitle: 'Track your journey'
+    },
+    { 
+      id: 'social', 
+      label: 'Social', 
+      icon: <span style={{ fontSize: '24px' }}>👥</span>,
+      subtitle: 'Connect & compete'
+    },
+    { 
+      id: 'achievements', 
+      label: 'Rewards', 
+      icon: <AnimatedStar size={24} filled sparkling />,
+      subtitle: 'Your milestones'
+    },
+    { 
+      id: 'settings', 
+      label: 'Settings', 
+      icon: '⚙️',
+      subtitle: 'Customize app'
+    },
+    { 
+      id: 'help', 
+      label: 'Help & Support', 
+      icon: '❓',
+      subtitle: 'Get assistance'
+    }
   ];
 
   const handleItemClick = (itemId) => {
