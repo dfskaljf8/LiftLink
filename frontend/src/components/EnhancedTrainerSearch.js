@@ -386,26 +386,29 @@ const EnhancedTrainerSearch = ({ searchQuery, userProfile }) => {
             <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
               <button 
                 className="btn-secondary"
-                onClick={() => setSelectedTrainer(trainer)}
+                onClick={() => handleViewProfile(trainer)}
                 style={{
                   padding: 'var(--space-sm) var(--space-md)',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  background: 'rgba(196, 214, 0, 0.1)',
+                  borderColor: 'var(--accent-primary)',
+                  color: 'var(--accent-primary)'
                 }}
               >
-                View Profile
+                👤 View Profile
               </button>
               <button 
                 className="btn-primary"
-                onClick={() => {
-                  setSelectedTrainer(trainer);
-                  setShowBookingModal(true);
-                }}
+                onClick={() => handleBookSession(trainer)}
                 style={{
                   padding: 'var(--space-sm) var(--space-md)',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  background: 'linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%)',
+                  color: '#000000',
+                  fontWeight: '600'
                 }}
               >
-                Book Session
+                📅 Book Session
               </button>
             </div>
           </div>
