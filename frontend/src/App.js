@@ -70,19 +70,30 @@ const AppContent = () => {
     switch (actionType) {
       case 'streak_danger':
         setCurrentView('fitness-forest');
+        setActionFeedback({ type: 'streak_milestone', visible: true });
         break;
       case 'bonus_expiring':
-        triggerCelebration('bonus');
+        setActionFeedback({ type: 'coins_earned', visible: true });
         break;
       case 'social_activity':
         setCurrentView('social');
         break;
       case 'limited_offer':
         setCurrentView('achievements');
+        setActionFeedback({ type: 'achievement_unlocked', visible: true });
         break;
       default:
         break;
     }
+  };
+
+  const handleSuccessAction = (type) => {
+    setActionFeedback({ type, visible: true });
+  };
+
+  const handleFeedback = (feedback) => {
+    console.log('User feedback:', feedback);
+    // Here you would send feedback to your analytics/support system
   };
 
   const toggleSidebar = () => {
