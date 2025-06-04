@@ -264,6 +264,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "Unable to fully test the Map Integration feature. The application appears to be stuck on the loading screen with 'LOADING YOUR INFO...' text and doesn't progress to the dashboard where the map integration would be visible. The theme toggle button is visible and functional, switching between light and dark themes, but the main application content doesn't load."
+      - working: false
+        agent: "testing"
+        comment: "Fixed the white screen issue by implementing the missing LiftLinkLogo component. The app now loads properly and the login form is visible. After logging in, the dashboard is displayed correctly. However, the Map Integration feature is still not working. When clicking on the Map View button in the Trainers/Search page, the console shows a Google Maps JavaScript API error: 'ApiProjectMapError'. This is because the REACT_APP_GOOGLE_MAPS_API_KEY environment variable is not defined in the .env file. The map view button is visible and clickable, but the map doesn't display properly due to this API key issue."
 
   - task: "Trainer Search and Booking"
     implemented: true
