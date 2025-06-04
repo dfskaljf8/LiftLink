@@ -909,6 +909,149 @@ const ProfessionalTrainerSearch = ({ searchQuery, userProfile }) => {
     );
   };
 
+  // Google Maps Components
+  const MapComponent = ({ trainers }) => {
+    const mapRef = useRef(null);
+    const [map, setMap] = useState(null);
+    const [markers, setMarkers] = useState([]);
+
+    useEffect(() => {
+      if (mapRef.current && !map) {
+        const googleMap = new window.google.maps.Map(mapRef.current, {
+          center: { lat: 40.7589, lng: -73.9851 }, // NYC center
+          zoom: 12,
+          styles: [
+            {
+              "featureType": "all",
+              "elementType": "all",
+              "stylers": [{"saturation": -100}, {"lightness": 50}]
+            },
+            {
+              "featureType": "road.highway",
+              "elementType": "all",
+              "stylers": [{"visibility": "simplified"}]
+            },
+            {
+              "featureType": "road.arterial",
+              "elementType": "labels.icon",
+              "stylers": [{"visibility": "off"}]
+            }
+          ], // White/light theme
+          disableDefaultUI: true,
+          zoomControl: true,
+          mapTypeControl: false,
+          scaleControl: false,
+          streetViewControl: false,
+          rotateControl: false,
+          fullscreenControl: true
+        });
+        setMap(googleMap);
+      }
+    }, [map]);
+
+    useEffect(() => {
+      if (map && trainers.length > 0) {
+        // Clear existing markers
+        markers.forEach(marker => marker.setMap(null));
+        
+        // Create new markers
+        const newMarkers = trainers.map(trainer => {
+          const marker = new window.google.maps.Marker({
+            position: trainer.coordinates,
+            map: map,
+            title: trainer.name,
+            icon: {
+              url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="20" cy="20" r="15" fill="#00d4aa" stroke="white" stroke-width="3"/>
+                  <text x="20" y="26" text-anchor="middle" fill="white" font-size="16" font-weight="bold">💪</text>
+                </svg>
+              `),
+              scaledSize: new window.google.maps.Size(40, 40),
+              anchor: new window.google.maps.Point(20, 20)
+            }
+          });
+
+          // Add click listener
+          marker.addListener('click', () => {
+            setSelectedTrainer(trainer);
+          });
+
+          return marker;
+        });
+        
+        setMarkers(newMarkers);
+        
+        // Adjust map bounds to fit all markers
+        if (newMarkers.length > 0) {
+          const bounds = new window.google.maps.LatLngBounds();
+          trainers.forEach(trainer => bounds.extend(trainer.coordinates));
+          map.fitBounds(bounds);
+        }
+      }
+    }, [map, trainers, markers]);
+
+    return (
+      <div
+        ref={mapRef}
+        style={{
+          width: '100%',
+          height: '400px',
+          borderRadius: 'var(--radius-lg)',
+          overflow: 'hidden'
+        }}
+      />
+    );
+  };
+
+  const MapWrapper = ({ trainers }) => {
+    const render = (status) => {
+      switch (status) {
+        case Status.LOADING:
+          return (
+            <div style={{
+              height: '400px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'var(--glass-bg)',
+              borderRadius: 'var(--radius-lg)'
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🗺️</div>
+                <div>Loading map...</div>
+              </div>
+            </div>
+          );
+        case Status.FAILURE:
+          return (
+            <div style={{
+              height: '400px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'var(--glass-bg)',
+              borderRadius: 'var(--radius-lg)'
+            }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>❌</div>
+                <div>Error loading map</div>
+              </div>
+            </div>
+          );
+        default:
+          return <MapComponent trainers={trainers} />;
+      }
+    };
+
+    return (
+      <Wrapper 
+        apiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} 
+        render={render}
+      />
+    );
+  };
+
   return (
     <div className="trainer-search">
       {/* Header */}
