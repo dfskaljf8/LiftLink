@@ -5946,87 +5946,123 @@ const MessagesPlaceholder = ({ setCurrentView, user }) => {
   );
 };
 
-// Main App Component - Modern Adonis-inspired Design
+// Main App Component - Modern Adonis-inspired Design with Error Boundary
 const App = () => {
   const [currentView, setCurrentView] = useState('home');
   const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState(null);
 
-  return (
-    <ThemeProvider>
-      <AuthProvider>
-        <AuthChecker>
-          {({ user, userProfile, loading }) => {
-            if (loading) {
-              return (
-                <div className="mobile-app">
-                  <div className="flex items-center justify-center h-screen">
-                    <div className="text-center">
-                      <div className="logo mb-4">
-                        <div className="logo-icon">LL</div>
-                        <span>LiftLink</span>
-                      </div>
-                      <div className="text-muted">Loading your fitness journey...</div>
-                    </div>
-                  </div>
-                </div>
-              );
-            }
+  // Error boundary function
+  React.useEffect(() => {
+    const handleError = (error) => {
+      console.error('App Error:', error);
+      setError(error.message);
+    };
 
-            if (!user) {
-              return (
-                <div className="mobile-app">
-                  <div className="flex items-center justify-center h-screen bg-background-primary">
-                    <div className="w-full max-w-md p-6">
-                      <div className="text-center mb-8">
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+
+  if (error) {
+    return (
+      <div style={{ padding: '20px', color: 'red', fontFamily: 'Arial' }}>
+        <h2>Error Detected:</h2>
+        <p>{error}</p>
+        <button onClick={() => {setError(null); window.location.reload();}}>
+          Reload App
+        </button>
+      </div>
+    );
+  }
+
+  try {
+    return (
+      <ThemeProvider>
+        <AuthProvider>
+          <AuthChecker>
+            {({ user, userProfile, loading }) => {
+              if (loading) {
+                return (
+                  <div className="mobile-app">
+                    <div className="flex items-center justify-center h-screen">
+                      <div className="text-center">
                         <div className="logo mb-4">
                           <div className="logo-icon">LL</div>
                           <span>LiftLink</span>
                         </div>
-                        <h1 className="text-2xl font-bold text-primary mb-2">Welcome to LiftLink</h1>
-                        <p className="text-secondary">Your fitness journey starts here</p>
+                        <div className="text-muted">Loading your fitness journey...</div>
                       </div>
-                      <MobileAuthForm isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />
                     </div>
                   </div>
+                );
+              }
+
+              if (!user) {
+                return (
+                  <div className="mobile-app">
+                    <div className="flex items-center justify-center h-screen bg-background-primary">
+                      <div className="w-full max-w-md p-6">
+                        <div className="text-center mb-8">
+                          <div className="logo mb-4">
+                            <div className="logo-icon">LL</div>
+                            <span>LiftLink</span>
+                          </div>
+                          <h1 className="text-2xl font-bold text-primary mb-2">Welcome to LiftLink</h1>
+                          <p className="text-secondary">Your fitness journey starts here</p>
+                        </div>
+                        <MobileAuthForm isLogin={isLogin} onToggle={() => setIsLogin(!isLogin)} />
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="mobile-app">
+                  <ModernTopNav 
+                    user={userProfile}
+                    onNotificationClick={() => console.log('Notifications')}
+                    onProfileClick={() => setCurrentView('profile')}
+                  />
+                  
+                  {/* Main Content */}
+                  {currentView === 'home' && <ModernHomeScreen setCurrentView={setCurrentView} user={userProfile} />}
+                  {currentView === 'search' && <MobileTrainerSearch setCurrentView={setCurrentView} />}
+                  {currentView === 'trainer-profile' && <ModernProProfileScreen setCurrentView={setCurrentView} />}
+                  {currentView === 'bookings' && <MobileBookings setCurrentView={setCurrentView} user={userProfile} />}
+                  {currentView === 'messages' && <MessagesPlaceholder setCurrentView={setCurrentView} user={userProfile} />}
+                  {currentView === 'profile' && <ModernProfileScreen setCurrentView={setCurrentView} user={userProfile} />}
+                  
+                  {/* Legacy views - still accessible but will be updated */}
+                  {currentView === 'progress' && <MobileProgress />}
+                  {currentView === 'fitnessforest' && <MobileTree />}
+                  {currentView === 'social' && <MobileSocial />}
+                  {currentView === 'trainer-dashboard' && <MobileTrainerDashboard />}
+                  {currentView === 'admin' && <MobileAdminDashboard />}
+                  
+                  <ModernBottomNav 
+                    currentView={currentView}
+                    setCurrentView={setCurrentView}
+                    user={userProfile}
+                  />
                 </div>
               );
-            }
-
-            return (
-              <div className="mobile-app">
-                <ModernTopNav 
-                  user={userProfile}
-                  onNotificationClick={() => console.log('Notifications')}
-                  onProfileClick={() => setCurrentView('profile')}
-                />
-                
-                {/* Main Content */}
-                {currentView === 'home' && <ModernHomeScreen setCurrentView={setCurrentView} user={userProfile} />}
-                {currentView === 'search' && <MobileTrainerSearch setCurrentView={setCurrentView} />}
-                {currentView === 'trainer-profile' && <ModernProProfileScreen setCurrentView={setCurrentView} />}
-                {currentView === 'bookings' && <MobileBookings setCurrentView={setCurrentView} user={userProfile} />}
-                {currentView === 'messages' && <MessagesPlaceholder setCurrentView={setCurrentView} user={userProfile} />}
-                {currentView === 'profile' && <ModernProfileScreen setCurrentView={setCurrentView} user={userProfile} />}
-                
-                {/* Legacy views - still accessible but will be updated */}
-                {currentView === 'progress' && <MobileProgress />}
-                {currentView === 'fitnessforest' && <MobileTree />}
-                {currentView === 'social' && <MobileSocial />}
-                {currentView === 'trainer-dashboard' && <MobileTrainerDashboard />}
-                {currentView === 'admin' && <MobileAdminDashboard />}
-                
-                <ModernBottomNav 
-                  currentView={currentView}
-                  setCurrentView={setCurrentView}
-                  user={userProfile}
-                />
-              </div>
-            );
-          }}
-        </AuthChecker>
-      </AuthProvider>
-    </ThemeProvider>
-  );
+            }}
+          </AuthChecker>
+        </AuthProvider>
+      </ThemeProvider>
+    );
+  } catch (err) {
+    return (
+      <div style={{ padding: '20px', color: 'red', fontFamily: 'Arial' }}>
+        <h2>Render Error:</h2>
+        <p>{err.message}</p>
+        <button onClick={() => window.location.reload()}>
+          Reload App
+        </button>
+      </div>
+    );
+  }
 };
 
 // Auth Handler Component - Legacy (Remove if not used)
