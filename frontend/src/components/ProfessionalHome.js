@@ -170,24 +170,44 @@ const ProfessionalHome = ({ setCurrentView, userProfile, searchTrainers }) => {
           marginBottom: 'var(--space-2xl)'
         }}>
           {categories.map((category, index) => (
-            <div
+            <AnimatedCard
               key={category.id}
-              className="category-card glass-card fade-in"
+              delay={index * 100}
+              direction="scale"
+              className="category-card glass-card interactive-card"
               onClick={() => handleCategorySelect(category)}
               style={{
                 padding: 'var(--space-lg)',
                 textAlign: 'center',
                 cursor: 'pointer',
-                animationDelay: `${index * 0.1}s`
+                borderLeft: `4px solid ${category.color}`,
+                position: 'relative',
+                overflow: 'hidden'
               }}
             >
-              <div style={{ fontSize: '32px', marginBottom: 'var(--space-sm)' }}>
+              {/* Glow effect */}
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '2px',
+                background: `linear-gradient(90deg, transparent, ${category.color}, transparent)`,
+                opacity: 0.6
+              }} />
+              
+              <div style={{ 
+                fontSize: '32px', 
+                marginBottom: 'var(--space-sm)',
+                animation: `bounce 2s infinite ${index * 0.2}s`
+              }}>
                 {category.icon}
               </div>
               <h3 style={{
                 fontSize: '16px',
                 fontWeight: '600',
-                marginBottom: 'var(--space-xs)'
+                marginBottom: 'var(--space-xs)',
+                color: category.color
               }}>
                 {category.name}
               </h3>
@@ -197,7 +217,7 @@ const ProfessionalHome = ({ setCurrentView, userProfile, searchTrainers }) => {
               }}>
                 {category.count} available
               </p>
-            </div>
+            </AnimatedCard>
           ))}
         </div>
       </div>
