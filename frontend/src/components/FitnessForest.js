@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/ProfessionalDesign.css';
 
-const FitnessForest = ({ userProfile }) => {
+const LegacyFitnessForest = ({ userProfile }) => {
   const [forestData, setForestData] = useState({
     trees: [],
     currentTree: null,
