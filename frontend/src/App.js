@@ -6,7 +6,7 @@ import FitnessForestScreen from './components/FitnessForestScreen';
 import ProgressAnalyticsScreen from './components/ProgressAnalyticsScreen';
 import SocialHubScreen from './components/SocialHubScreen';
 import AchievementsScreen from './components/AchievementsScreen';
-import ProfessionalTrainerSearch from './components/ProfessionalTrainerSearch';
+import EnhancedTrainerSearch from './components/EnhancedTrainerSearch';
 import { Settings } from './components/PlaceholderViews';
 
 // Main App Component - Clean and Simple
