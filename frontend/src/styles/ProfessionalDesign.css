@@ -106,20 +106,21 @@ input, textarea {
   user-select: text;
 }
 
-/* Glass Card Component */
+/* Mobile-Optimized Glass Cards */
 .glass-card {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(107, 142, 107, 0.2);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-medium);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
 }
 
-.glass-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-large);
-  border-color: rgba(107, 142, 107, 0.3);
+.glass-card:active {
+  transform: translate3d(0, 1px, 0) scale3d(0.995, 0.995, 1);
+  transition: all 0.1s ease-out;
 }
 
 /* Mobile-Optimized Button Animations */
