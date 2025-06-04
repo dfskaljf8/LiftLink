@@ -194,15 +194,18 @@ backend:
 
   - task: "Admin Dashboard Backend"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Admin endpoints for user, trainer, booking, transaction management. Need to test admin functionality."
+      - working: true
+        agent: "testing"
+        comment: "Admin Dashboard Backend is working correctly. Successfully tested all admin endpoints including user management, trainer management, booking management, and transaction monitoring. Fixed serialization issues with MongoDB ObjectId in admin endpoints."
 
 frontend:
   - task: "React App Setup and Dependencies"
