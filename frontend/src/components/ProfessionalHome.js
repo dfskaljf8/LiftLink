@@ -7,13 +7,15 @@ const ProfessionalHome = ({ setCurrentView, userProfile, searchTrainers }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('New York, NY');
   const [featuredTrainers, setFeaturedTrainers] = useState([]);
+  const [showMascot, setShowMascot] = useState(true);
+  const [celebrateAction, setCelebrateAction] = useState(false);
   const [categories, setCategories] = useState([
-    { id: 1, name: 'Personal Trainers', icon: '💪', count: '2.3k+' },
-    { id: 2, name: 'Yoga Instructors', icon: '🧘‍♀️', count: '1.8k+' },
-    { id: 3, name: 'Nutritionists', icon: '🥗', count: '950+' },
-    { id: 4, name: 'Pilates', icon: '🤸‍♀️', count: '720+' },
-    { id: 5, name: 'Boxing', icon: '🥊', count: '560+' },
-    { id: 6, name: 'Swimming', icon: '🏊‍♂️', count: '430+' }
+    { id: 1, name: 'Personal Trainers', icon: '💪', count: '2.3k+', color: '#00d4aa' },
+    { id: 2, name: 'Yoga Instructors', icon: '🧘‍♀️', count: '1.8k+', color: '#8b5cf6' },
+    { id: 3, name: 'Nutritionists', icon: '🥗', count: '950+', color: '#10b981' },
+    { id: 4, name: 'Pilates', icon: '🤸‍♀️', count: '720+', color: '#f59e0b' },
+    { id: 5, name: 'Boxing', icon: '🥊', count: '560+', color: '#ef4444' },
+    { id: 6, name: 'Swimming', icon: '🏊‍♂️', count: '430+', color: '#3b82f6' }
   ]);
 
   useEffect(() => {
