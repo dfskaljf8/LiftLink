@@ -121,7 +121,35 @@ const App = () => {
           />
         )}
         
-        {currentView !== 'home' && (
+        {currentView === 'fitness-forest' && (
+          <FitnessForestScreen userProfile={mockUserProfile} />
+        )}
+        
+        {currentView === 'analytics' && (
+          <ProgressAnalyticsScreen userProfile={mockUserProfile} />
+        )}
+        
+        {currentView === 'social' && (
+          <SocialHubScreen userProfile={mockUserProfile} />
+        )}
+        
+        {currentView === 'achievements' && (
+          <AchievementsScreen userProfile={mockUserProfile} />
+        )}
+        
+        {currentView === 'trainers' && (
+          <ProfessionalTrainerSearch 
+            searchQuery="" 
+            userProfile={mockUserProfile} 
+          />
+        )}
+        
+        {currentView === 'settings' && (
+          <Settings />
+        )}
+        
+        {/* Placeholder for missing views */}
+        {['bookings', 'messages', 'profile', 'help'].includes(currentView) && (
           <div style={{
             padding: 'var(--space-xl)',
             textAlign: 'center'
@@ -142,7 +170,7 @@ const App = () => {
                 color: 'var(--text-secondary)',
                 marginBottom: 'var(--space-lg)'
               }}>
-                This section is coming soon with enhanced features!
+                Coming soon with enhanced features!
               </p>
               <button 
                 className="btn-primary"
