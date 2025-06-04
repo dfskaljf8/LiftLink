@@ -841,6 +841,501 @@ export const AnimatedStar = ({ size = 24, filled = false, sparkling = false }) =
   </svg>
 );
 
+// Animated Success Checkmark
+export const AnimatedSuccess = ({ size = 24, color = '#C4D600' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="11" fill={color} stroke="none">
+      <animate
+        attributeName="r"
+        values="0;11"
+        dur="0.5s"
+        fill="freeze"
+      />
+    </circle>
+    <path 
+      d="M8 12l3 3 5-5" 
+      stroke="white" 
+      strokeWidth="3" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+      fill="none"
+      strokeDasharray="0 20"
+    >
+      <animate
+        attributeName="stroke-dasharray"
+        values="0 20;20 20"
+        dur="0.8s"
+        begin="0.5s"
+        fill="freeze"
+      />
+    </path>
+  </svg>
+);
+
+// Animated Error X
+export const AnimatedError = ({ size = 24, color = '#ef4444' }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="11" fill={color} stroke="none">
+      <animate
+        attributeName="r"
+        values="0;11"
+        dur="0.5s"
+        fill="freeze"
+      />
+    </circle>
+    <path 
+      d="M8 8L16 16M16 8L8 16" 
+      stroke="white" 
+      strokeWidth="3" 
+      strokeLinecap="round"
+      strokeDasharray="0 12"
+    >
+      <animate
+        attributeName="stroke-dasharray"
+        values="0 12;12 12"
+        dur="0.6s"
+        begin="0.5s"
+        fill="freeze"
+      />
+    </path>
+  </svg>
+);
+
+// Animated Trophy
+export const AnimatedTrophy = ({ size = 24, active = false }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <defs>
+      <linearGradient id="trophyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FFD700" />
+        <stop offset="100%" stopColor="#FFA500" />
+      </linearGradient>
+    </defs>
+    
+    {/* Trophy cup */}
+    <path 
+      d="M7 8h10l-1 8H8l-1-8z" 
+      fill="url(#trophyGradient)"
+      stroke="#B8860B"
+      strokeWidth="1"
+    >
+      {active && (
+        <animateTransform
+          attributeName="transform"
+          type="scale"
+          values="1;1.1;1"
+          dur="2s"
+          repeatCount="indefinite"
+        />
+      )}
+    </path>
+    
+    {/* Base */}
+    <rect x="6" y="16" width="12" height="3" rx="1" fill="url(#trophyGradient)" />
+    
+    {/* Handles */}
+    <path d="M7 10C5.5 10 4 9 4 7s1.5-3 3-3" stroke="#FFD700" strokeWidth="2" fill="none" />
+    <path d="M17 10c1.5 0 3-1 3-3s-1.5-3-3-3" stroke="#FFD700" strokeWidth="2" fill="none" />
+    
+    {/* Sparkles */}
+    {active && (
+      <>
+        <circle cx="6" cy="6" r="1" fill="#FFD700">
+          <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="18" cy="6" r="1" fill="#FFD700">
+          <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" begin="0.5s" />
+        </circle>
+        <circle cx="12" cy="4" r="1" fill="#FFD700">
+          <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" begin="1s" />
+        </circle>
+      </>
+    )}
+  </svg>
+);
+
+// Animated Email
+export const AnimatedEmail = ({ size = 24, active = false }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <rect 
+      x="2" 
+      y="4" 
+      width="20" 
+      height="16" 
+      rx="2" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      fill={active ? "rgba(196, 214, 0, 0.1)" : "none"}
+    />
+    <path 
+      d="M2 6L12 13L22 6" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {active && (
+        <animate
+          attributeName="stroke-dasharray"
+          values="0 40;40 40"
+          dur="2s"
+          repeatCount="indefinite"
+        />
+      )}
+    </path>
+  </svg>
+);
+
+// Animated Key
+export const AnimatedKey = ({ size = 24, active = false }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle 
+      cx="8" 
+      cy="8" 
+      r="4" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      fill={active ? "rgba(196, 214, 0, 0.1)" : "none"}
+    />
+    <path 
+      d="M12 8L20 8M20 8L18 6M20 8L18 10" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {active && (
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          values="0 8 8;10 8 8;0 8 8"
+          dur="2s"
+          repeatCount="indefinite"
+        />
+      )}
+    </path>
+  </svg>
+);
+
+// Animated Phone
+export const AnimatedPhone = ({ size = 24, active = false }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <rect 
+      x="5" 
+      y="2" 
+      width="14" 
+      height="20" 
+      rx="2" 
+      ry="2" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      fill={active ? "rgba(196, 214, 0, 0.1)" : "none"}
+    />
+    <line 
+      x1="12" 
+      y1="18" 
+      x2="12.01" 
+      y2="18" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    {active && (
+      <animateTransform
+        attributeName="transform"
+        type="scale"
+        values="1;1.05;1"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    )}
+  </svg>
+);
+
+// Animated Credit Card
+export const AnimatedCreditCard = ({ size = 24, active = false }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <rect 
+      x="1" 
+      y="4" 
+      width="22" 
+      height="16" 
+      rx="2" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      fill={active ? "rgba(196, 214, 0, 0.1)" : "none"}
+    />
+    <line 
+      x1="1" 
+      y1="10" 
+      x2="23" 
+      y2="10" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+    />
+    <line 
+      x1="1" 
+      y1="15" 
+      x2="7" 
+      y2="15" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+    />
+    {active && (
+      <animate
+        attributeName="opacity"
+        values="1;0.7;1"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    )}
+  </svg>
+);
+
+// Animated Trash
+export const AnimatedTrash = ({ size = 24, active = false }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <path 
+      d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6h14zM10 11v6M14 11v6" 
+      stroke={active ? "#ef4444" : "#666"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {active && (
+      <animateTransform
+        attributeName="transform"
+        type="scale"
+        values="1;1.1;1"
+        dur="1s"
+        repeatCount="indefinite"
+      />
+    )}
+  </svg>
+);
+
+// Animated Book
+export const AnimatedBook = ({ size = 24, active = false }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <path 
+      d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    <path 
+      d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      fill={active ? "rgba(196, 214, 0, 0.1)" : "none"}
+    />
+    {active && (
+      <animateTransform
+        attributeName="transform"
+        type="rotateY"
+        values="0;10;0"
+        dur="3s"
+        repeatCount="indefinite"
+      />
+    )}
+  </svg>
+);
+
+// Animated Lock
+export const AnimatedLock = ({ size = 24, active = false, locked = true }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <rect 
+      x="3" 
+      y="11" 
+      width="18" 
+      height="11" 
+      rx="2" 
+      ry="2" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      fill={active ? "rgba(196, 214, 0, 0.1)" : "none"}
+    />
+    <circle 
+      cx="12" 
+      cy="16" 
+      r="1" 
+      fill={active ? "#C4D600" : "#666"}
+    />
+    <path 
+      d={locked ? "M7 11V7a5 5 0 0 1 10 0v4" : "M7 11V7a5 5 0 0 1 10 0v2"} 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {active && (
+      <animateTransform
+        attributeName="transform"
+        type="scale"
+        values="1;1.05;1"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    )}
+  </svg>
+);
+
+// Animated Document
+export const AnimatedDocument = ({ size = 24, active = false }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <path 
+      d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      fill={active ? "rgba(196, 214, 0, 0.1)" : "none"}
+    />
+    <polyline 
+      points="14,2 14,8 20,8" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <line 
+      x1="16" 
+      y1="13" 
+      x2="8" 
+      y2="13" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    <line 
+      x1="16" 
+      y1="17" 
+      x2="8" 
+      y2="17" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+    {active && (
+      <animate
+        attributeName="opacity"
+        values="1;0.8;1"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    )}
+  </svg>
+);
+
+// Animated Location Pin
+export const AnimatedLocation = ({ size = 24, active = false }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <path 
+      d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      fill={active ? "rgba(196, 214, 0, 0.2)" : "none"}
+    >
+      {active && (
+        <animateTransform
+          attributeName="transform"
+          type="scale"
+          values="1;1.1;1"
+          dur="2s"
+          repeatCount="indefinite"
+        />
+      )}
+    </path>
+    <circle 
+      cx="12" 
+      cy="10" 
+      r="3" 
+      stroke={active ? "#C4D600" : "#666"}
+      strokeWidth="2"
+      fill={active ? "#C4D600" : "none"}
+    />
+  </svg>
+);
+
+// Animated Door Exit
+export const AnimatedDoor = ({ size = 24, active = false }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <path 
+      d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" 
+      stroke={active ? "#ef4444" : "#666"}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    {active && (
+      <animateTransform
+        attributeName="transform"
+        type="translateX"
+        values="0;2;0"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    )}
+  </svg>
+);
+
+// Animated Party/Celebration
+export const AnimatedParty = ({ size = 24, active = true }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    {/* Confetti pieces */}
+    <rect x="6" y="4" width="2" height="2" fill="#FFD700" transform="rotate(45 7 5)">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="45 7 5;405 7 5"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </rect>
+    <circle cx="16" cy="6" r="1" fill="#FF6B9D">
+      <animate
+        attributeName="cy"
+        values="6;10;6"
+        dur="1.5s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <rect x="4" y="8" width="1.5" height="1.5" fill="#00D4AA" transform="rotate(30 4.75 8.75)">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="30 4.75 8.75;390 4.75 8.75"
+        dur="3s"
+        repeatCount="indefinite"
+      />
+    </rect>
+    <circle cx="18" cy="12" r="1.5" fill="#C4D600">
+      <animate
+        attributeName="cx"
+        values="18;14;18"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <rect x="8" y="16" width="2" height="2" fill="#FF4444" transform="rotate(60 9 17)">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="60 9 17;420 9 17"
+        dur="2.5s"
+        repeatCount="indefinite"
+      />
+    </rect>
+    <circle cx="14" cy="18" r="1" fill="#8B5CF6">
+      <animate
+        attributeName="cy"
+        values="18;14;18"
+        dur="1.8s"
+        repeatCount="indefinite"
+      />
+    </circle>
+  </svg>
+);
+
 export default {
   LiftLinkLogo,
   AnimatedHome,
@@ -857,5 +1352,19 @@ export default {
   AnimatedFire,
   AnimatedHeart,
   AnimatedSpinner,
-  AnimatedStar
+  AnimatedStar,
+  AnimatedSuccess,
+  AnimatedError,
+  AnimatedTrophy,
+  AnimatedEmail,
+  AnimatedKey,
+  AnimatedPhone,
+  AnimatedCreditCard,
+  AnimatedTrash,
+  AnimatedBook,
+  AnimatedLock,
+  AnimatedDocument,
+  AnimatedLocation,
+  AnimatedDoor,
+  AnimatedParty
 };
