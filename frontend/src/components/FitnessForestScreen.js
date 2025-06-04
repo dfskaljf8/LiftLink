@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TactileButton, StreakCounter, FloatingMascot, CelebrationModal } from './DelightfulAnimations';
+import { TactileButton, StreakCounter, FloatingMascot, Confetti } from './DelightfulAnimations';
 import { AnimatedCard, MorphingProgressBar } from './DelightfulComponents';
 import '../styles/ProfessionalDesign.css';
 
