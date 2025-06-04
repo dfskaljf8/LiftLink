@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ErrorBoundary from './ErrorBoundary';
 import { TactileButton, FloatingMascot, Confetti } from './DelightfulAnimations';
 import { AnimatedCard } from './DelightfulComponents';
 import { FOMONotificationSystem, SocialFOMOFeed, HarvestSystem, MegaCelebration } from './AddictiveGameSystem';
