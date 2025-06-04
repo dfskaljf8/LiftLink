@@ -74,40 +74,59 @@ const ProfessionalNavigation = ({ currentView, setCurrentView, userProfile, togg
 const ProfessionalSidebar = ({ isOpen, toggleSidebar, setCurrentView, userProfile, logout }) => {
   const sidebarItems = [
     { 
+      id: 'home', 
+      label: 'Home', 
+      icon: <AnimatedHome size={20} active={currentView === 'home'} />
+    },
+    { 
       id: 'fitness-forest', 
-      label: 'Forest', 
-      icon: <AnimatedTree size={24} growth={userProfile?.level * 10 || 50} />,
-      subtitle: 'Grow your progress'
+      label: 'Fitness Forest', 
+      icon: <AnimatedTree size={20} growth={userProfile?.level * 10 || 50} />
     },
     { 
       id: 'analytics', 
-      label: 'Analytics', 
-      icon: <span style={{ fontSize: '24px' }}>📊</span>,
-      subtitle: 'Track your journey'
+      label: 'Progress Analytics', 
+      icon: <AnimatedChart size={20} active={currentView === 'analytics'} />
     },
     { 
       id: 'social', 
-      label: 'Social', 
-      icon: <span style={{ fontSize: '24px' }}>👥</span>,
-      subtitle: 'Connect & compete'
+      label: 'Social Hub', 
+      icon: <AnimatedUser size={20} active={currentView === 'social'} />
     },
     { 
       id: 'achievements', 
-      label: 'Rewards', 
-      icon: <AnimatedStar size={24} filled sparkling />,
-      subtitle: 'Your milestones'
+      label: 'Achievements', 
+      icon: <AnimatedStar size={20} filled={currentView === 'achievements'} sparkling={currentView === 'achievements'} />
+    },
+    { 
+      id: 'trainers', 
+      label: 'Find Trainers', 
+      icon: <AnimatedSearch size={20} active={currentView === 'trainers'} />
+    },
+    { 
+      id: 'bookings', 
+      label: 'My Bookings', 
+      icon: <AnimatedCalendar size={20} active={currentView === 'bookings'} />
+    },
+    { 
+      id: 'messages', 
+      label: 'Messages', 
+      icon: <AnimatedMessage size={20} active={currentView === 'messages'} hasNotification={true} />
+    },
+    { 
+      id: 'profile', 
+      label: 'Profile', 
+      icon: <AnimatedUser size={20} active={currentView === 'profile'} />
     },
     { 
       id: 'settings', 
       label: 'Settings', 
-      icon: '⚙️',
-      subtitle: 'Customize app'
+      icon: <AnimatedSettings size={20} active={currentView === 'settings'} />
     },
     { 
       id: 'help', 
-      label: 'Help & Support', 
-      icon: '❓',
-      subtitle: 'Get assistance'
+      label: 'Get Help', 
+      icon: <AnimatedHelp size={20} active={currentView === 'help'} />
     }
   ];
 
