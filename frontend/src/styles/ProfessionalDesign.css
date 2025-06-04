@@ -122,44 +122,49 @@ input, textarea {
   border-color: rgba(107, 142, 107, 0.3);
 }
 
-/* Professional Button Styles */
+/* Modern Button Animations */
 .btn-primary {
   background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
-  color: white;
+  color: #000000;
   border: none;
   border-radius: var(--radius-md);
   padding: var(--space-md) var(--space-lg);
   font-weight: 600;
   font-size: 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  transform: translateZ(0);
+  box-shadow: 0 4px 15px rgba(196, 214, 0, 0.3);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-glow);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(196, 214, 0, 0.4);
 }
 
 .btn-primary:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
+  transition: all 0.1s ease;
 }
 
 .btn-secondary {
   background: var(--card-bg);
   color: var(--text-primary);
-  border: 1px solid rgba(107, 142, 107, 0.3);
+  border: 1px solid rgba(196, 214, 0, 0.3);
   border-radius: var(--radius-md);
   padding: var(--space-md) var(--space-lg);
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
 }
 
 .btn-secondary:hover {
-  background: var(--glass-bg);
-  border-color: rgba(107, 142, 107, 0.5);
+  background: rgba(196, 214, 0, 0.1);
+  border-color: var(--accent-primary);
+  transform: translateY(-1px);
 }
 
 /* Search Bar Styles */
