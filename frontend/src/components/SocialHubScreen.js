@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TactileButton, FloatingMascot } from './DelightfulAnimations';
-import { AnimatedCard } from './DelightfulComponents';
+import { TactileButton, FloatingMascot } from '../DelightfulAnimations';
+import { AnimatedCard } from '../DelightfulComponents';
 import '../styles/ProfessionalDesign.css';
 
 const SocialHubScreen = ({ userProfile }) => {

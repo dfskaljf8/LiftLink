@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/ProfessionalDesign.css';
-import { TactileButton, StreakCounter, FloatingMascot, SparkleButton } from './DelightfulAnimations';
-import { MorphingProgressBar, PulsingCoinCounter, AnimatedCard } from './DelightfulComponents';
+import { TactileButton, StreakCounter, FloatingMascot, SparkleButton } from '../DelightfulAnimations';
+import { MorphingProgressBar, PulsingCoinCounter, AnimatedCard } from '../DelightfulComponents';
 
 const ProfessionalHome = ({ setCurrentView, userProfile, searchTrainers }) => {
   const [searchQuery, setSearchQuery] = useState('');

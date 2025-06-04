@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TactileButton, StreakCounter } from './DelightfulAnimations';
-import { AnimatedCard, MorphingProgressBar } from './DelightfulComponents';
+import { TactileButton, StreakCounter } from '../DelightfulAnimations';
+import { AnimatedCard, MorphingProgressBar } from '../DelightfulComponents';
 import '../styles/ProfessionalDesign.css';
 
 const ProgressAnalyticsScreen = ({ userProfile }) => {

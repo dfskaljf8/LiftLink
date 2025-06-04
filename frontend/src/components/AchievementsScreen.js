@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { TactileButton, FloatingMascot, Confetti } from './DelightfulAnimations';
-import { AnimatedCard, MorphingProgressBar } from './DelightfulComponents';
+import { TactileButton, FloatingMascot, Confetti } from '../DelightfulAnimations';
+import { AnimatedCard, MorphingProgressBar } from '../DelightfulComponents';
 import '../styles/ProfessionalDesign.css';
 
 const AchievementsScreen = ({ userProfile }) => {

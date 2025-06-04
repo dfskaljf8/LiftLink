@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { TactileButton, StreakCounter, FloatingMascot, Confetti } from './DelightfulAnimations';
-import { AnimatedCard, MorphingProgressBar } from './DelightfulComponents';
+import { TactileButton, StreakCounter, FloatingMascot, Confetti } from '../DelightfulAnimations';
+import { AnimatedCard, MorphingProgressBar } from '../DelightfulComponents';
 import '../styles/ProfessionalDesign.css';
 
 const FitnessForestScreen = ({ userProfile }) => {
