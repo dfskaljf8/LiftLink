@@ -28,6 +28,9 @@ const App = () => {
 const AppContent = () => {
   const [currentView, setCurrentView] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [celebrationType, setCelebrationType] = useState('');
+  const [showHarvest, setShowHarvest] = useState(false);
 
   // Mock user profile data
   const mockUserProfile = {
