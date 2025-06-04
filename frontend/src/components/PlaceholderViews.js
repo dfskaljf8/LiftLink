@@ -332,12 +332,56 @@ export const HelpSupport = () => (
 );
 
 // Legacy component placeholders
-export const TrainerDashboard = () => (
-  <div className="glass-card" style={{ margin: 'var(--space-lg)', padding: 'var(--space-xl)', textAlign: 'center' }}>
-    <h2>Trainer Dashboard</h2>
-    <p>Coming soon - Professional trainer interface</p>
-  </div>
-);
+export const TrainerDashboard = () => {
+  return (
+    <div className="mobile-card">
+      <div className="card-header">
+        <h2 className="card-title">Trainer Dashboard</h2>
+      </div>
+      
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🏋️‍♂️</div>
+        <h3 style={{ color: '#6B8E5A', marginBottom: '1rem' }}>Welcome, Trainer!</h3>
+        <p style={{ color: '#4A90A4', marginBottom: '2rem' }}>
+          Manage your clients, schedule sessions, and track your training business.
+        </p>
+        
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(2, 1fr)', 
+          gap: '1rem',
+          marginBottom: '2rem'
+        }}>
+          <div style={{ 
+            background: 'rgba(154, 205, 50, 0.1)', 
+            border: '1px solid rgba(154, 205, 50, 0.3)',
+            borderRadius: '8px',
+            padding: '1rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>12</div>
+            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Active Clients</div>
+          </div>
+          <div style={{ 
+            background: 'rgba(154, 205, 50, 0.1)', 
+            border: '1px solid rgba(154, 205, 50, 0.3)',
+            borderRadius: '8px',
+            padding: '1rem',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>5</div>
+            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Today's Sessions</div>
+          </div>
+        </div>
+        
+        <button className="mobile-btn">
+          <span className="btn-icon">📅</span>
+          View Schedule
+        </button>
+      </div>
+    </div>
+  );
+};
 
 export const AdminDashboard = () => (
   <div className="glass-card" style={{ margin: 'var(--space-lg)', padding: 'var(--space-xl)', textAlign: 'center' }}>
