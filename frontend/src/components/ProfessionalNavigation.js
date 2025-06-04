@@ -71,7 +71,7 @@ const ProfessionalNavigation = ({ currentView, setCurrentView, userProfile, togg
   );
 };
 
-const ProfessionalSidebar = ({ isOpen, toggleSidebar, setCurrentView, userProfile, logout }) => {
+const ProfessionalSidebar = ({ isOpen, toggleSidebar, setCurrentView, currentView, userProfile, logout }) => {
   const sidebarItems = [
     { 
       id: 'home', 
