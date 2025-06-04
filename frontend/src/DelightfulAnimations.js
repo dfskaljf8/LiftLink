@@ -394,15 +394,6 @@ export const SparkleButton = ({ children, onClick, ...props }) => {
   );
 };
 
-export default {
-  Confetti,
-  FloatingMascot,
-  StreakCounter,
-  TactileButton,
-  SparkleButton,
-  CelebrationModal
-};
-
 // CelebrationModal Component
 export const CelebrationModal = ({ children, onClose }) => (
   <div style={{
@@ -452,3 +443,12 @@ export const CelebrationModal = ({ children, onClose }) => (
     <FloatingMascot emotion="celebration" />
   </div>
 );
+
+export default {
+  Confetti,
+  FloatingMascot,
+  StreakCounter,
+  TactileButton,
+  SparkleButton,
+  CelebrationModal
+};
