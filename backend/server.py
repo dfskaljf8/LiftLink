@@ -3495,8 +3495,9 @@ async def get_all_users(current_user: dict = Depends(get_current_user)):
         # Get trainer info if user is a trainer
         if user.get("role") == "trainer":
             trainer = await db.trainers.find_one({"trainer_id": user["user_id"]})
-            user["trainer_info"] = trainer
-        users.append(user)
+            if trainer:
+                user["trainer_info"] = serialize_doc(trainer)
+        users.append(serialize_doc(user))
     
     return {"users": users}
 
