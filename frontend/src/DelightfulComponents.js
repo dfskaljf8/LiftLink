@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './styles/ProfessionalDesign.css';
 
 // Additional delightful UI components for LiftLink
 
