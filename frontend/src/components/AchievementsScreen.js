@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TactileButton, CelebrationModal, Confetti } from './DelightfulAnimations';
+import { TactileButton, FloatingMascot, Confetti } from './DelightfulAnimations';
 import { AnimatedCard, MorphingProgressBar } from './DelightfulComponents';
 import '../styles/ProfessionalDesign.css';
 
