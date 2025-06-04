@@ -333,3 +333,122 @@ export const TactileButton = ({ children, onClick, variant = 'primary', size = '
     </button>
   );
 };
+
+// Sparkle button with shimmering effects
+export const SparkleButton = ({ children, onClick, ...props }) => {
+  const [sparkles, setSparkles] = useState([]);
+
+  const addSparkle = (e) => {
+    const rect = e.target.getBoundingClientRect();
+    const sparkle = {
+      id: Date.now(),
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+      size: Math.random() * 10 + 5
+    };
+    
+    setSparkles(prev => [...prev, sparkle]);
+    setTimeout(() => {
+      setSparkles(prev => prev.filter(s => s.id !== sparkle.id));
+    }, 500);
+    
+    onClick && onClick(e);
+  };
+
+  return (
+    <button
+      {...props}
+      onClick={addSparkle}
+      style={{
+        position: 'relative',
+        padding: '12px 24px',
+        background: 'linear-gradient(135deg, #00d4aa 0%, #3b82f6 100%)',
+        border: 'none',
+        borderRadius: '12px',
+        color: 'white',
+        fontWeight: '600',
+        cursor: 'pointer',
+        overflow: 'hidden',
+        ...props.style
+      }}
+    >
+      {children}
+      
+      {sparkles.map(sparkle => (
+        <div
+          key={sparkle.id}
+          style={{
+            position: 'absolute',
+            left: sparkle.x - sparkle.size / 2,
+            top: sparkle.y - sparkle.size / 2,
+            width: sparkle.size,
+            height: sparkle.size,
+            background: '#fff',
+            borderRadius: '50%',
+            animation: 'sparkle 0.5s ease-out',
+            pointerEvents: 'none'
+          }}
+        />
+      ))}
+    </button>
+  );
+};
+
+export default {
+  Confetti,
+  FloatingMascot,
+  StreakCounter,
+  TactileButton,
+  SparkleButton,
+  CelebrationModal
+};
+
+// CelebrationModal Component
+export const CelebrationModal = ({ children, onClose }) => (
+  <div style={{
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+    background: 'rgba(0, 0, 0, 0.8)',
+    backdropFilter: 'blur(10px)'
+  }}>
+    <Confetti />
+    <div style={{
+      position: 'relative',
+      background: 'var(--glass-bg)',
+      borderRadius: '20px',
+      padding: '30px',
+      maxWidth: '400px',
+      width: '90%',
+      textAlign: 'center',
+      border: '1px solid rgba(255, 255, 255, 0.2)',
+      animation: 'celebrationBounce 0.6s ease-out'
+    }}>
+      {children}
+      {onClose && (
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            background: 'none',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            color: 'var(--text-muted)'
+          }}
+        >
+          ×
+        </button>
+      )}
+    </div>
+    <FloatingMascot emotion="celebration" />
+  </div>
+);
