@@ -1730,7 +1730,8 @@ const MobileProgress = () => {
 };
 
 const MobileTree = () => {
-  return <FitnessForest />;
+  const { userProfile } = useAuth();
+  return <FitnessForest userProfile={userProfile} />;
 };
 
 const MobileSocial = () => {
