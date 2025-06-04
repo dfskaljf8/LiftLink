@@ -29,7 +29,7 @@ const ProfessionalNavigation = ({ currentView, setCurrentView, userProfile, togg
               className={`nav-tab ${activeTab === tab.id ? 'active' : ''}`}
               onClick={() => handleTabClick(tab.id)}
             >
-              <div className="nav-icon">{tab.icon}</div>
+              <div className="nav-icon">{typeof tab.icon === 'string' ? tab.icon : tab.icon}</div>
               <div className="nav-label">{tab.label}</div>
             </button>
           ))}
