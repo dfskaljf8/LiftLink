@@ -796,8 +796,9 @@ stripe_checkout = StripeCheckout(api_key=os.getenv("STRIPE_SECRET_KEY"))
 app = FastAPI(title="LiftLink API", version="1.0.0")
 
 # Add enhanced middleware
-app.add_middleware(RequestTimer)
-app.add_middleware(CompressionMiddleware, min_size=1000)
+# Commenting out middleware that's causing issues
+# app.add_middleware(RequestTimer)
+# app.add_middleware(CompressionMiddleware, min_size=1000)
 
 # Setup database indexes on startup
 @app.on_event("startup")
