@@ -24,24 +24,24 @@ const ProfessionalNavigation = ({ currentView, setCurrentView, userProfile, togg
       icon: <AnimatedHome size={20} active={activeTab === 'home'} />
     },
     { 
-      id: 'fitness-forest', 
-      label: 'Forest', 
-      icon: <AnimatedTree size={20} growth={userProfile?.level * 10 || 50} />
+      id: 'trainers', 
+      label: 'Search', 
+      icon: <AnimatedSearch size={20} active={activeTab === 'trainers'} />
     },
     { 
-      id: 'analytics', 
-      label: 'Analytics', 
-      icon: <AnimatedChart size={20} active={activeTab === 'analytics'} />
+      id: 'bookings', 
+      label: 'Bookings', 
+      icon: <AnimatedCalendar size={20} active={activeTab === 'bookings'} />
     },
     { 
-      id: 'social', 
-      label: 'Social', 
-      icon: <AnimatedUser size={20} active={activeTab === 'social'} />
+      id: 'messages', 
+      label: 'Messages', 
+      icon: <AnimatedMessage size={20} active={activeTab === 'messages'} hasNotification={true} />
     },
     { 
-      id: 'achievements', 
-      label: 'Rewards', 
-      icon: <AnimatedStar size={20} filled={activeTab === 'achievements'} sparkling={activeTab === 'achievements'} />
+      id: 'profile', 
+      label: 'Account', 
+      icon: <AnimatedUser size={20} active={activeTab === 'profile'} />
     }
   ];
 
