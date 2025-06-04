@@ -135,9 +135,10 @@ const ProfessionalHome = ({ setCurrentView, userProfile, searchTrainers }) => {
             </div>
           </div>
 
-          <button 
-            className="btn-primary scale-in"
+          <TactileButton 
             onClick={handleSearch}
+            variant="primary"
+            size="large"
             style={{
               width: '100%',
               maxWidth: '400px',
@@ -146,8 +147,8 @@ const ProfessionalHome = ({ setCurrentView, userProfile, searchTrainers }) => {
               padding: 'var(--space-lg)'
             }}
           >
-            Search Trainers
-          </button>
+            🔍 Search Trainers
+          </TactileButton>
         </div>
       </div>
 
