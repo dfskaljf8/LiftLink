@@ -5748,13 +5748,15 @@ const Profile = () => {
 
 // Inner App Component (inside AuthProvider)
 const AppContent = () => {
-  const [currentView, setCurrentView] = useState('dashboard');
+  const [currentView, setCurrentView] = useState('home');
   const [authMode, setAuthMode] = useState('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const { user, userProfile, loading: authLoading, login } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { user, userProfile, loading: authLoading, login, logout } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -5774,30 +5776,64 @@ const AppContent = () => {
     setAuthMode(authMode === 'login' ? 'register' : 'login');
   };
 
+  const searchTrainers = (query) => {
+    setSearchQuery(query);
+    setCurrentView('trainers');
+  };
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   const renderCurrentView = () => {
     switch (currentView) {
-      case 'dashboard':
-        return <Dashboard setCurrentView={setCurrentView} />;
+      case 'home':
+        return (
+          <ProfessionalHome 
+            setCurrentView={setCurrentView} 
+            userProfile={userProfile}
+            searchTrainers={searchTrainers}
+          />
+        );
       case 'trainers':
-        return <TrainerSearch />;
+        return (
+          <ProfessionalTrainerSearch 
+            searchQuery={searchQuery}
+            userProfile={userProfile}
+          />
+        );
       case 'bookings':
         return <BookingManagement />;
-      case 'progress':
-        return <ProgressAnalytics />;
-      case 'fitnessforest':
-        return <FitnessForest />;
+      case 'messages':
+        return <MessagesView />;
+      case 'profile':
+        return <Profile />;
+      case 'fitness-forest':
+        return <FitnessForest userProfile={userProfile} />;
+      case 'analytics':
+        return <ProgressAnalytics userProfile={userProfile} />;
       case 'social':
-        return <SocialTracking />;
+        return <SocialHub userProfile={userProfile} />;
+      case 'achievements':
+        return <AchievementsView userProfile={userProfile} />;
       case 'settings':
         return <Settings />;
+      case 'help':
+        return <HelpSupport />;
       case 'trainer-dashboard':
         return <TrainerDashboard />;
       case 'admin':
         return <AdminDashboard />;
-      case 'profile':
-        return <Profile />;
       default:
-        return <Dashboard setCurrentView={setCurrentView} />;
+        return (
+          <ProfessionalHome 
+            setCurrentView={setCurrentView} 
+            userProfile={userProfile}
+            searchTrainers={searchTrainers}
+          />
+        );
+    }
+  };
     }
   };
 
