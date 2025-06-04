@@ -5935,9 +5935,19 @@ const MessagesPlaceholder = ({ setCurrentView, user }) => {
   );
 };
 
-// Temporary test to isolate white screen issue
+// Test with providers to isolate the issue
 function App() {
-  return <div style={{padding: '20px', fontSize: '18px', color: 'blue'}}>✅ Test Render - React is Working!</div>;
+  try {
+    return (
+      <ThemeProvider>
+        <div style={{padding: '20px', fontSize: '18px', color: 'green'}}>
+          ✅ Test with ThemeProvider - Working!
+        </div>
+      </ThemeProvider>
+    );
+  } catch (error) {
+    return <div style={{padding: '20px', color: 'red'}}>Error: {error.message}</div>;
+  }
 }
 
 // Auth Handler Component - Legacy (Remove if not used)
