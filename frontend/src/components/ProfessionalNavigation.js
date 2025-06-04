@@ -18,11 +18,31 @@ const ProfessionalNavigation = ({ currentView, setCurrentView, userProfile, togg
   const [activeTab, setActiveTab] = useState(currentView || 'home');
 
   const tabs = [
-    { id: 'home', label: 'Home', icon: '🏠' },
-    { id: 'trainers', label: 'Search', icon: '🔍' },
-    { id: 'bookings', label: 'Bookings', icon: '📅' },
-    { id: 'messages', label: 'Messages', icon: '💬' },
-    { id: 'profile', label: 'Account', icon: '👤' }
+    { 
+      id: 'home', 
+      label: 'Home', 
+      icon: <AnimatedHome size={20} active={activeTab === 'home'} />
+    },
+    { 
+      id: 'fitness-forest', 
+      label: 'Forest', 
+      icon: <AnimatedTree size={20} growth={userProfile?.level * 10 || 50} />
+    },
+    { 
+      id: 'analytics', 
+      label: 'Analytics', 
+      icon: <AnimatedChart size={20} active={activeTab === 'analytics'} />
+    },
+    { 
+      id: 'social', 
+      label: 'Social', 
+      icon: <AnimatedUser size={20} active={activeTab === 'social'} />
+    },
+    { 
+      id: 'achievements', 
+      label: 'Rewards', 
+      icon: <AnimatedStar size={20} filled={activeTab === 'achievements'} sparkling={activeTab === 'achievements'} />
+    }
   ];
 
   const handleTabClick = (tabId) => {
