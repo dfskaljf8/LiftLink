@@ -1913,56 +1913,7 @@ const UserProfile = () => {
 
 
 
-const AdminDashboard = () => {
-  return (
-    <div className="mobile-card">
-      <div className="card-header">
-        <h2 className="card-title">Admin Dashboard</h2>
-      </div>
-      
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🛡️</div>
-        <h3 style={{ color: '#6B8E5A', marginBottom: '1rem' }}>Admin Controls</h3>
-        <p style={{ color: '#4A90A4', marginBottom: '2rem' }}>
-          Manage users, trainers, and platform settings.
-        </p>
-        
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(2, 1fr)', 
-          gap: '1rem',
-          marginBottom: '2rem'
-        }}>
-          <div style={{ 
-            background: 'rgba(154, 205, 50, 0.1)', 
-            border: '1px solid rgba(154, 205, 50, 0.3)',
-            borderRadius: '8px',
-            padding: '1rem',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>2,847</div>
-            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Total Users</div>
-          </div>
-          <div style={{ 
-            background: 'rgba(154, 205, 50, 0.1)', 
-            border: '1px solid rgba(154, 205, 50, 0.3)',
-            borderRadius: '8px',
-            padding: '1rem',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '1.5rem', color: '#6B8E5A' }}>127</div>
-            <div style={{ fontSize: '0.8rem', color: '#4A90A4' }}>Active Trainers</div>
-          </div>
-        </div>
-        
-        <button className="mobile-btn">
-          <span className="btn-icon">⚙️</span>
-          Manage Platform
-        </button>
-      </div>
-    </div>
-  );
-};
+
 
 const ProgressAnalytics = () => {
   const { userProfile } = useAuth();
