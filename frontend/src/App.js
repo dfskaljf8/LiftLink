@@ -20,9 +20,11 @@ import EnhancedSettings, { ThemeProvider } from './components/EnhancedSettings';
 // Main App Component - Clean and Simple
 const App = () => {
   return (
-    <ThemeProvider>
-      <AppContent />
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AppContent />
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 };
 
