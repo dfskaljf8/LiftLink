@@ -6105,32 +6105,7 @@ const App = () => {
 
               return (
                 <div className="mobile-app">
-                  <ModernTopNav 
-                    user={userProfile}
-                    onNotificationClick={() => console.log('Notifications')}
-                    onProfileClick={() => setCurrentView('profile')}
-                  />
-                  
-                  {/* Main Content */}
-                  {currentView === 'home' && <ModernHomeScreen setCurrentView={setCurrentView} user={userProfile} />}
-                  {currentView === 'search' && <MobileTrainerSearch setCurrentView={setCurrentView} />}
-                  {currentView === 'trainer-profile' && <ModernProProfileScreen setCurrentView={setCurrentView} />}
-                  {currentView === 'bookings' && <MobileBookings setCurrentView={setCurrentView} user={userProfile} />}
-                  {currentView === 'messages' && <MessagesPlaceholder setCurrentView={setCurrentView} user={userProfile} />}
-                  {currentView === 'profile' && <ModernProfileScreen setCurrentView={setCurrentView} user={userProfile} />}
-                  
-                  {/* Legacy views - still accessible but will be updated */}
-                  {currentView === 'progress' && <MobileProgress />}
-                  {currentView === 'fitnessforest' && <MobileTree />}
-                  {currentView === 'social' && <MobileSocial />}
-                  {currentView === 'trainer-dashboard' && <MobileTrainerDashboard />}
-                  {currentView === 'admin' && <MobileAdminDashboard />}
-                  
-                  <ModernBottomNav 
-                    currentView={currentView}
-                    setCurrentView={setCurrentView}
-                    user={userProfile}
-                  />
+                  <AppContent />
                 </div>
               );
             }}
