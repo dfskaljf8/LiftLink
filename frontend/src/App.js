@@ -14,6 +14,14 @@ import EnhancedSettings, { ThemeProvider } from './components/EnhancedSettings';
 
 // Main App Component - Clean and Simple
 const App = () => {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
+  );
+};
+
+const AppContent = () => {
   const [currentView, setCurrentView] = useState('home');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
