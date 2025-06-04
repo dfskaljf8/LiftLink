@@ -3693,8 +3693,7 @@ const BookingManagementView = () => {
   );
 };
 
-// Alias for booking management
-const BookingManagementAlias = () => <MyBookings />;
+
 
 // Progress Analytics Component with Advanced Data Visualization
 const ProgressAnalyticsView = () => {
