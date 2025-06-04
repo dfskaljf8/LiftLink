@@ -355,82 +355,110 @@ input, textarea {
   color: white;
 }
 
-/* Modern Page Transitions & Animations */
+/* Mobile-Optimized Animations (60fps) */
 @keyframes slideInRight {
-  from {
+  0% {
     opacity: 0;
-    transform: translateX(30px);
+    transform: translate3d(20px, 0, 0);
   }
-  to {
+  100% {
     opacity: 1;
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @keyframes slideInUp {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translate3d(0, 20px, 0);
   }
-  to {
+  100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 @keyframes bounceIn {
   0% {
     opacity: 0;
-    transform: scale(0.3);
+    transform: scale3d(0.8, 0.8, 1);
   }
-  50% {
+  60% {
     opacity: 1;
-    transform: scale(1.05);
-  }
-  70% {
-    transform: scale(0.9);
+    transform: scale3d(1.02, 1.02, 1);
   }
   100% {
     opacity: 1;
-    transform: scale(1);
+    transform: scale3d(1, 1, 1);
   }
 }
 
 @keyframes fadeInScale {
-  from {
+  0% {
     opacity: 0;
-    transform: scale(0.95);
+    transform: scale3d(0.96, 0.96, 1);
   }
-  to {
+  100% {
     opacity: 1;
-    transform: scale(1);
+    transform: scale3d(1, 1, 1);
   }
 }
 
 @keyframes glowPulse {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(196, 214, 0, 0.3);
+    box-shadow: 0 0 4px rgba(196, 214, 0, 0.2);
   }
   50% {
-    box-shadow: 0 0 20px rgba(196, 214, 0, 0.6), 0 0 30px rgba(196, 214, 0, 0.4);
+    box-shadow: 0 0 12px rgba(196, 214, 0, 0.4);
   }
 }
 
-/* Mobile-optimized animations */
+@keyframes mobilePress {
+  0% {
+    transform: scale3d(1, 1, 1);
+  }
+  50% {
+    transform: scale3d(0.96, 0.96, 1);
+  }
+  100% {
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+/* Mobile-optimized animation classes */
 .animate-in {
-  animation: slideInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideInUp 0.3s ease-out;
+  will-change: transform, opacity;
+}
+
+.animate-in.complete {
+  will-change: auto;
 }
 
 .bounce-in {
-  animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  animation: bounceIn 0.4s ease-out;
+  will-change: transform, opacity;
+}
+
+.bounce-in.complete {
+  will-change: auto;
 }
 
 .fade-scale-in {
-  animation: fadeInScale 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: fadeInScale 0.25s ease-out;
+  will-change: transform, opacity;
+}
+
+.fade-scale-in.complete {
+  will-change: auto;
+}
+
+.mobile-press {
+  animation: mobilePress 0.15s ease-out;
 }
 
 .glow-effect {
-  animation: glowPulse 2s infinite;
+  animation: glowPulse 1.5s infinite ease-in-out;
 }
 .fade-in {
   animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
