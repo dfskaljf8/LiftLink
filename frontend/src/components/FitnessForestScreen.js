@@ -99,8 +99,13 @@ const FitnessForestScreen = ({ userProfile }) => {
           onDismiss={() => setShowMascot(false)}
         />
       )}
+
+      {showLevelUp && <Confetti />}
     </div>
   );
+};
+
+export default FitnessForestScreen;
 };
 
 export default FitnessForestScreen;
