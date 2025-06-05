@@ -300,32 +300,173 @@ async def daily_checkin(request: Request):
         logger.error(f"Check-in error: {e}")
         raise HTTPException(status_code=500, detail="Check-in failed")
 
-@app.get("/api/gamification/tree")
-async def get_progress_tree(request: Request):
-    """Get user's progress tree visualization"""
+@app.get("/api/tree/my-tree")
+async def get_my_tree(request: Request):
+    """Get user's complete tree structure"""
     try:
         user = await get_current_user(request)
         if not user:
             raise HTTPException(status_code=401, detail="Authentication required")
         
-        level = user.get("level", 1)
+        # Mock tree nodes
+        nodes = [
+            {
+                "node_id": "node1",
+                "user_id": user["user_id"],
+                "node_type": "goal",
+                "title": "Welcome to LiftLink! 🎉",
+                "description": "Complete your first fitness goal",
+                "status": "active",
+                "position": {"x": 0.5, "y": 0.1},
+                "icon": "🌱",
+                "color": "#BDD53D",
+                "xp_reward": 50,
+                "coin_reward": 100
+            },
+            {
+                "node_id": "node2",
+                "user_id": user["user_id"],
+                "node_type": "milestone",
+                "title": "Complete Your Profile",
+                "description": "Add your fitness goals and preferences",
+                "status": "completed",
+                "parent_node_id": "node1",
+                "position": {"x": 0.3, "y": 0.3},
+                "icon": "👤",
+                "color": "#FF6B6B",
+                "xp_reward": 25,
+                "coin_reward": 50
+            },
+            {
+                "node_id": "node3",
+                "user_id": user["user_id"],
+                "node_type": "milestone",
+                "title": "Book Your First Session",
+                "description": "Find a trainer and book your first workout",
+                "status": "active",
+                "parent_node_id": "node1",
+                "position": {"x": 0.7, "y": 0.3},
+                "icon": "💪",
+                "color": "#45B7D1",
+                "xp_reward": 100,
+                "coin_reward": 200
+            }
+        ]
         
-        tree_data = {
-            "current_level": level,
-            "tree_type": "Oak" if level >= 10 else "Sapling" if level >= 5 else "Seed",
-            "progress_percentage": min((level / 10) * 100, 100),
-            "branches": level * 2,
-            "leaves": level * 5,
-            "next_milestone": 10 if level < 10 else 20
+        # Build tree structure with relationships
+        tree_structure = {}
+        for node in nodes:
+            node_id = node["node_id"]
+            tree_structure[node_id] = {
+                "node_id": node_id,
+                "title": node["title"],
+                "status": node["status"],
+                "children": []
+            }
+        
+        # Add children relationships
+        for node in nodes:
+            if "parent_node_id" in node and node["parent_node_id"]:
+                parent_id = node["parent_node_id"]
+                if parent_id in tree_structure:
+                    tree_structure[parent_id]["children"].append(node["node_id"])
+        
+        return {
+            "tree_structure": tree_structure,
+            "nodes": nodes,
+            "total_nodes": len(nodes),
+            "completed_nodes": len([n for n in nodes if n["status"] == "completed"])
         }
-        
-        return tree_data
     
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Tree data error: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch tree data")
+
+@app.get("/api/coins/balance")
+async def get_coin_balance(request: Request):
+    """Get user's current coin balance and transaction history"""
+    try:
+        user = await get_current_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        
+        # Mock transactions
+        transactions = [
+            {
+                "transaction_id": "tx1",
+                "user_id": user["user_id"],
+                "transaction_type": "earned",
+                "amount": 50,
+                "reason": "profile_completion",
+                "created_at": "2024-05-01T10:00:00Z"
+            },
+            {
+                "transaction_id": "tx2",
+                "user_id": user["user_id"],
+                "transaction_type": "earned",
+                "amount": 100,
+                "reason": "first_session",
+                "created_at": "2024-05-03T14:30:00Z"
+            },
+            {
+                "transaction_id": "tx3",
+                "user_id": user["user_id"],
+                "transaction_type": "earned",
+                "amount": 100,
+                "reason": "daily_streak",
+                "created_at": "2024-05-05T09:15:00Z"
+            }
+        ]
+        
+        # Calculate how close to $10 discount
+        current_coins = user.get("lift_coins", 0)
+        coins_needed_for_discount = max(0, 1000 - current_coins)
+        
+        return {
+            "lift_coins": current_coins,
+            "total_coins_earned": user.get("total_coins_earned", 0),
+            "level": user.get("level", 1),
+            "xp_points": user.get("xp_points", 0),
+            "badges": user.get("badges", []),
+            "consecutive_days": user.get("consecutive_days", 0),
+            "discount_progress": {
+                "current_coins": current_coins,
+                "coins_needed": coins_needed_for_discount,
+                "discount_available": current_coins >= 1000
+            },
+            "recent_transactions": transactions
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Coin balance error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch coin balance")
+
+@app.post("/api/coins/daily-checkin")
+async def daily_checkin(request: Request):
+    """Daily check-in to maintain streak and earn coins"""
+    try:
+        user = await get_current_user(request)
+        if not user:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        
+        # In a real implementation, we would update the user's streak and coins in the database
+        # For this mock, we'll just return the updated values
+        
+        return {
+            "streak": user.get("consecutive_days", 0) + 1,
+            "lift_coins": user.get("lift_coins", 0) + 10,
+            "message": "Daily check-in successful! +10 LiftCoins"
+        }
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Daily check-in error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to perform daily check-in")
 
 # Error handler
 @app.exception_handler(Exception)
