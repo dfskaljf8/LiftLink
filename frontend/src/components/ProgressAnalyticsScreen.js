@@ -64,7 +64,7 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
         target: 20, 
         current: Math.min(20, userLevel * 2), 
         unit: 'sessions',
-        icon: '💪',
+        icon: <AnimatedHeart size={24} beating={true} liked={true} />,
         color: '#00d4aa'
       },
       { 
@@ -73,7 +73,7 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
         target: 8000, 
         current: Math.min(8000, userLevel * 300), 
         unit: 'kcal',
-        icon: '🔥',
+        icon: <AnimatedFire size={24} intensity={1} />,
         color: '#f59e0b'
       },
       { 
@@ -82,7 +82,7 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
         target: 1200, 
         current: Math.min(1200, userLevel * 50), 
         unit: 'min',
-        icon: '⏱️',
+        icon: <AnimatedSpinner size={24} color="#3b82f6" />,
         color: '#3b82f6'
       },
       { 
@@ -91,7 +91,7 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
         target: 300000, 
         current: Math.min(300000, userLevel * 15000), 
         unit: 'steps',
-        icon: '👣',
+        icon: <AnimatedUser size={24} active={true} />,
         color: '#8b5cf6'
       }
     ];
