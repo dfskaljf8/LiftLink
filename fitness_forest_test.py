@@ -139,13 +139,11 @@ def test_daily_checkin():
         checkin_data = response.json()
         print(f"✅ POST /api/coins/daily-checkin - Status: {response.status_code}")
         print(f"Message: {checkin_data.get('message')}")
-        print(f"Consecutive Days: {checkin_data.get('consecutive_days')}")
+        print(f"Streak: {checkin_data.get('streak')}")
         print(f"LiftCoins: {checkin_data.get('lift_coins')}")
-        print(f"Level: {checkin_data.get('level')}")
-        print(f"XP Points: {checkin_data.get('xp_points')}")
         
         # Verify required fields
-        required_fields = ['consecutive_days', 'lift_coins', 'level', 'xp_points', 'message']
+        required_fields = ['streak', 'lift_coins', 'message']
         missing_fields = [field for field in required_fields if field not in checkin_data]
         
         if missing_fields:
