@@ -106,6 +106,3 @@ const FitnessForestScreen = ({ userProfile }) => {
 };
 
 export default FitnessForestScreen;
-};
-
-export default FitnessForestScreen;
