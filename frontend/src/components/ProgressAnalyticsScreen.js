@@ -146,10 +146,11 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
       border: `1px solid ${color}20`
     }}>
       <div style={{
-        fontSize: '32px',
         marginBottom: '10px',
         animation: 'bounce 2s infinite',
-        animationDelay: `${delay}ms`
+        animationDelay: `${delay}ms`,
+        display: 'flex',
+        justifyContent: 'center'
       }}>
         {icon}
       </div>
@@ -177,7 +178,11 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
           justifyContent: 'center',
           gap: '4px'
         }}>
-          {change > 0 ? '📈' : '📉'} {Math.abs(change)}% vs last {selectedTimeframe}
+          {change > 0 ? (
+            <AnimatedSuccess size={16} color="var(--success)" />
+          ) : (
+            <AnimatedFire size={16} intensity={0.5} />
+          )} {Math.abs(change)}% vs last {selectedTimeframe}
         </div>
       )}
     </AnimatedCard>
@@ -272,13 +277,13 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
                 {item[metric] === maxValue && (
                   <div style={{
                     position: 'absolute',
-                    top: '-20px',
+                    top: '-30px',
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    fontSize: '16px',
-                    animation: 'bounce 2s infinite'
+                    display: 'flex',
+                    justifyContent: 'center'
                   }}>
-                    🏆
+                    <AnimatedTrophy size={20} active={true} />
                   </div>
                 )}
               </div>
@@ -314,7 +319,7 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
           marginBottom: '15px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontSize: '24px' }}>{goal.icon}</span>
+            <div>{goal.icon}</div>
             <div>
               <h4 style={{ fontSize: '16px', fontWeight: '600' }}>
                 {goal.title}
@@ -352,9 +357,14 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
             fontSize: '14px',
             color: 'var(--success)',
             textAlign: 'center',
-            animation: 'pulse 2s infinite'
+            animation: 'pulse 2s infinite',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
           }}>
-            🎉 Goal Completed! Amazing work!
+            <AnimatedSuccess size={16} color="var(--success)" />
+            Goal Completed! Amazing work!
           </div>
         )}
       </AnimatedCard>
@@ -388,9 +398,14 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
           background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          position: 'relative'
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '10px'
         }}>
-          📊 Progress Analytics
+          <AnimatedChart size={32} active={true} />
+          Progress Analytics
         </h1>
         <p style={{
           color: 'var(--text-secondary)',
@@ -414,7 +429,7 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
             value={analyticsData.streaks.current}
             unit="days"
             change={15}
-            icon="🔥"
+            icon={<AnimatedFire size={32} intensity={1} />}
             color="var(--warning)"
             delay={100}
           />
@@ -423,7 +438,7 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
             value={userProfile?.level * 4 || 8}
             unit=""
             change={12}
-            icon="💪"
+            icon={<AnimatedHeart size={32} beating={true} liked={true} />}
             color="var(--accent-primary)"
             delay={200}
           />
@@ -432,7 +447,7 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
             value={userProfile?.lift_coins || 0}
             unit=""
             change={25}
-            icon="🪙"
+            icon={<AnimatedCoin size={32} spinning={true} />}
             color="var(--accent-secondary)"
             delay={300}
           />
@@ -440,7 +455,7 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
             title="Level"
             value={userProfile?.level || 1}
             unit=""
-            icon="⭐"
+            icon={<AnimatedStar size={32} filled={true} sparkling={true} />}
             color="var(--success)"
             delay={400}
           />
@@ -478,10 +493,10 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
           flexWrap: 'wrap'
         }}>
           {[
-            { id: 'workouts', label: '💪 Workouts', color: '#00d4aa' },
-            { id: 'calories', label: '🔥 Calories', color: '#f59e0b' },
-            { id: 'duration', label: '⏱️ Duration', color: '#3b82f6' },
-            { id: 'steps', label: '👣 Steps', color: '#8b5cf6' }
+            { id: 'workouts', label: 'Workouts', icon: <AnimatedHeart size={16} liked={true} />, color: '#00d4aa' },
+            { id: 'calories', label: 'Calories', icon: <AnimatedFire size={16} intensity={1} />, color: '#f59e0b' },
+            { id: 'duration', label: 'Duration', icon: <AnimatedSpinner size={16} color="#3b82f6" />, color: '#3b82f6' },
+            { id: 'steps', label: 'Steps', icon: <AnimatedUser size={16} active={true} />, color: '#8b5cf6' }
           ].map((metric) => (
             <TactileButton
               key={metric.id}
@@ -489,10 +504,13 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
               onClick={() => setSelectedMetric(metric.id)}
               size="small"
               style={{
-                backgroundColor: selectedMetric === metric.id ? metric.color : undefined
+                backgroundColor: selectedMetric === metric.id ? metric.color : undefined,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
               }}
             >
-              {metric.label}
+              {metric.icon} {metric.label}
             </TactileButton>
           ))}
         </div>
@@ -506,9 +524,14 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
             fontSize: '24px',
             fontWeight: '600',
             marginBottom: '20px',
-            textAlign: 'center'
+            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px'
           }}>
-            🎯 Monthly Goals
+            <AnimatedStar size={24} filled={true} sparkling={true} />
+            Monthly Goals
           </h2>
           
           <div style={{
@@ -531,9 +554,14 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
             fontSize: '20px',
             fontWeight: '600',
             marginBottom: '20px',
-            textAlign: 'center'
+            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px'
           }}>
-            📏 Body Metrics
+            <AnimatedChart size={24} active={true} />
+            Body Metrics
           </h2>
           
           <div style={{
@@ -542,10 +570,10 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
             gap: '15px'
           }}>
             {[
-              { label: 'Weight', value: analyticsData.bodyMetrics.weight?.toFixed(1), unit: 'kg', icon: '⚖️', color: '#00d4aa' },
-              { label: 'Body Fat', value: analyticsData.bodyMetrics.bodyFat?.toFixed(1), unit: '%', icon: '📊', color: '#f59e0b' },
-              { label: 'Muscle Mass', value: analyticsData.bodyMetrics.muscle?.toFixed(1), unit: '%', icon: '💪', color: '#10b981' },
-              { label: 'BMI', value: analyticsData.bodyMetrics.bmi?.toFixed(1), unit: '', icon: '📏', color: '#3b82f6' }
+              { label: 'Weight', value: analyticsData.bodyMetrics.weight?.toFixed(1), unit: 'kg', icon: <AnimatedSettings size={24} active={true} />, color: '#00d4aa' },
+              { label: 'Body Fat', value: analyticsData.bodyMetrics.bodyFat?.toFixed(1), unit: '%', icon: <AnimatedChart size={24} active={true} />, color: '#f59e0b' },
+              { label: 'Muscle Mass', value: analyticsData.bodyMetrics.muscle?.toFixed(1), unit: '%', icon: <AnimatedHeart size={24} beating={true} liked={true} />, color: '#10b981' },
+              { label: 'BMI', value: analyticsData.bodyMetrics.bmi?.toFixed(1), unit: '', icon: <AnimatedUser size={24} active={true} />, color: '#3b82f6' }
             ].map((metric, index) => (
               <div
                 key={metric.label}
@@ -557,7 +585,7 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
                   animation: `slideUp 0.6s ease-out ${index * 0.1}s both`
                 }}
               >
-                <div style={{ fontSize: '24px', marginBottom: '10px' }}>
+                <div style={{ marginBottom: '10px', display: 'flex', justifyContent: 'center' }}>
                   {metric.icon}
                 </div>
                 <div style={{
@@ -586,9 +614,14 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
               fontSize: '20px',
               fontWeight: '600',
               marginBottom: '20px',
-              textAlign: 'center'
+              textAlign: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px'
             }}>
-              🏆 Recent Achievements
+              <AnimatedTrophy size={24} active={true} />
+              Recent Achievements
             </h2>
             
             <div style={{
@@ -607,7 +640,7 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
                     animation: `slideInRight 0.5s ease-out ${index * 0.1}s both`
                   }}
                 >
-                  <div style={{ fontSize: '28px' }}>🏆</div>
+                  <AnimatedTrophy size={28} active={true} />
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: '500', marginBottom: '2px' }}>
                       {achievement}
@@ -626,10 +659,9 @@ const ProgressAnalyticsScreen = ({ userProfile }) => {
                     height: '30px',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '16px'
+                    justifyContent: 'center'
                   }}>
-                    ✓
+                    <AnimatedCheckmark size={16} color="white" />
                   </div>
                 </div>
               ))}
