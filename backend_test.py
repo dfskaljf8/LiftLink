@@ -665,6 +665,117 @@ def run_admin_tests(base_url):
     print(f"\n📊 Admin tests passed: {tester.tests_passed}/{tester.tests_run}")
     return tester.tests_passed == tester.tests_run
 
+def test_get_my_tree(tester):
+    """Test getting user's tree structure"""
+    success, response = tester.run_test(
+        "Get My Tree",
+        "GET",
+        "api/tree/my-tree",
+        200
+    )
+    
+    if success:
+        tree_structure = response.get('tree_structure', {})
+        nodes = response.get('nodes', [])
+        total_nodes = response.get('total_nodes', 0)
+        completed_nodes = response.get('completed_nodes', 0)
+        
+        print(f"Found {total_nodes} total nodes, {completed_nodes} completed")
+        print(f"Tree structure: {json.dumps(tree_structure, indent=2)[:200]}...")
+    
+    return success
+
+def test_get_coin_balance(tester):
+    """Test getting user's coin balance"""
+    success, response = tester.run_test(
+        "Get Coin Balance",
+        "GET",
+        "api/coins/balance",
+        200
+    )
+    
+    if success:
+        lift_coins = response.get('lift_coins', 0)
+        total_coins_earned = response.get('total_coins_earned', 0)
+        level = response.get('level', 1)
+        xp_points = response.get('xp_points', 0)
+        consecutive_days = response.get('consecutive_days', 0)
+        
+        print(f"LiftCoins: {lift_coins}")
+        print(f"Total Coins Earned: {total_coins_earned}")
+        print(f"Level: {level}")
+        print(f"XP Points: {xp_points}")
+        print(f"Consecutive Days: {consecutive_days}")
+        
+        # Calculate tree progress based on the formula:
+        # baseProgress (level * 10) + streakBonus (streak * 2, max 30%) + activityBonus (xp/100, max 20%)
+        base_progress = level * 10
+        streak_bonus = min(consecutive_days * 2, 30)
+        activity_bonus = min(xp_points / 100, 20)
+        
+        total_progress = min(base_progress + streak_bonus + activity_bonus, 100)
+        
+        print(f"\n=== Tree Progress Calculation ===")
+        print(f"Base Progress (level * 10): {base_progress}%")
+        print(f"Streak Bonus (streak * 2, max 30%): {streak_bonus}%")
+        print(f"Activity Bonus (xp/100, max 20%): {activity_bonus}%")
+        print(f"Total Progress (capped at 100%): {total_progress}%")
+    
+    return success
+
+def test_daily_checkin(tester):
+    """Test daily check-in to maintain streak"""
+    success, response = tester.run_test(
+        "Daily Check-in",
+        "POST",
+        "api/coins/daily-checkin",
+        200
+    )
+    
+    if success:
+        streak = response.get('streak', 0)
+        lift_coins = response.get('lift_coins', 0)
+        
+        print(f"Current Streak: {streak} days")
+        print(f"Current LiftCoins: {lift_coins}")
+    
+    return success
+
+def run_fitness_forest_tests(base_url):
+    """Test the Fitness Forest functionality"""
+    tester = LiftLinkAPITester(base_url)
+    
+    print("\n===== TESTING FITNESS FOREST FUNCTIONALITY =====\n")
+    
+    # Test login
+    if not tester.test_login("user@demo.com", "demo123"):
+        print("❌ Login failed, stopping tests")
+        return False
+    
+    # Test getting user profile
+    if not tester.test_get_user_profile():
+        print("❌ Failed to get user profile, stopping tests")
+        return False
+    
+    # Test getting user's tree structure
+    if not test_get_my_tree(tester):
+        print("❌ Failed to get tree structure")
+    
+    # Test getting coin balance
+    if not test_get_coin_balance(tester):
+        print("❌ Failed to get coin balance")
+    
+    # Test daily check-in
+    if not test_daily_checkin(tester):
+        print("❌ Failed to perform daily check-in")
+    
+    # Test getting updated coin balance after check-in
+    if not test_get_coin_balance(tester):
+        print("❌ Failed to get updated coin balance")
+    
+    print(f"\n📊 Fitness Forest tests passed: {tester.tests_passed}/{tester.tests_run}")
+    return tester.tests_passed == tester.tests_run
+
 if __name__ == "__main__":
     # Get the backend URL from the frontend .env file
     import os
@@ -686,6 +797,7 @@ if __name__ == "__main__":
     conversion_success = run_user_to_trainer_conversion_test(BACKEND_URL)
     progress_tracking_success = run_progress_tracking_tests(BACKEND_URL)
     admin_success = run_admin_tests(BACKEND_URL)
+    fitness_forest_success = run_fitness_forest_tests(BACKEND_URL)
     
     # Print overall results
     print("\n===== TEST SUMMARY =====")
@@ -694,8 +806,9 @@ if __name__ == "__main__":
     print(f"User to Trainer Conversion: {'✅ PASSED' if conversion_success else '❌ FAILED'}")
     print(f"Progress Tracking: {'✅ PASSED' if progress_tracking_success else '❌ FAILED'}")
     print(f"Admin Features: {'✅ PASSED' if admin_success else '❌ FAILED'}")
+    print(f"Fitness Forest: {'✅ PASSED' if fitness_forest_success else '❌ FAILED'}")
     
-    overall_success = user_flow_success and trainer_flow_success and conversion_success and progress_tracking_success and admin_success
+    overall_success = user_flow_success and trainer_flow_success and conversion_success and progress_tracking_success and admin_success and fitness_forest_success
     print(f"\nOverall Test Result: {'✅ PASSED' if overall_success else '❌ FAILED'}")
     
     exit(0 if overall_success else 1)
