@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TactileButton, StreakCounter, FloatingMascot, Confetti } from '../DelightfulAnimations';
 import { AnimatedCard, MorphingProgressBar } from '../DelightfulComponents';
+import { SingleGrowingTree } from './SingleGrowingTree';
+import { AnimatedTrophy, AnimatedCoin, AnimatedFire, AnimatedStar } from './AnimatedSVGs';
 import '../styles/ProfessionalDesign.css';
 
 const FitnessForestScreen = ({ userProfile }) => {
