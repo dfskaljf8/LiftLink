@@ -300,7 +300,7 @@ input, textarea {
   height: 100vh;
   background: var(--secondary-bg);
   backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(107, 142, 107, 0.2);
+  border-right: 1px solid rgba(196, 214, 0, 0.2);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1001;
   overflow-y: auto;
