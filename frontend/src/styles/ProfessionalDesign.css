@@ -110,7 +110,7 @@ input, textarea {
 .glass-card {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(107, 142, 107, 0.2);
+  border: 1px solid rgba(196, 214, 0, 0.2);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-medium);
   transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
