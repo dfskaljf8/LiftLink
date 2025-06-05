@@ -1,9 +1,20 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { SingleGrowingTree } from './SingleGrowingTree';
+import { AnimatedTrophy, AnimatedCoin, AnimatedFire } from './AnimatedSVGs';
 import '../styles/ProfessionalDesign.css';
 
 const LegacyFitnessForest = () => {
   const { userProfile } = useAuth();
+  
+  // Calculate progress based on user profile
+  const calculateProgress = () => {
+    const level = userProfile?.level || 1;
+    const streak = userProfile?.consecutive_days || 0;
+    const coins = userProfile?.lift_coins || 0;
+    
+    return Math.min(level * 8 + streak * 2, 100);
+  };
   
   return (
     <div className="mobile-card">
@@ -12,10 +23,17 @@ const LegacyFitnessForest = () => {
       </div>
       
       <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>🌲</div>
+        <div style={{ marginBottom: '2rem' }}>
+          <SingleGrowingTree 
+            progress={calculateProgress()} 
+            size={200} 
+            animated={true} 
+          />
+        </div>
+        
         <h3 style={{ color: '#6B8E5A', marginBottom: '1rem' }}>Growing Strong!</h3>
         <p style={{ color: '#4A90A4', marginBottom: '2rem' }}>
-          Watch your fitness journey grow like a mighty tree. Every workout adds a new branch!
+          Watch your fitness journey grow like a mighty tree. Every workout adds new growth!
         </p>
         
         <div style={{ 
@@ -28,27 +46,36 @@ const LegacyFitnessForest = () => {
           <h4 style={{ color: '#6B8E5A', marginBottom: '0.5rem' }}>Your Progress:</h4>
           <div style={{ display: 'flex', justifyContent: 'space-around', textAlign: 'center' }}>
             <div>
-              <div style={{ fontSize: '2rem' }}>🌱</div>
+              <div style={{ marginBottom: '8px' }}>
+                <AnimatedTrophy size={32} active={true} />
+              </div>
               <div style={{ color: '#4A90A4' }}>Level {userProfile?.level || 1}</div>
             </div>
             <div>
-              <div style={{ fontSize: '2rem' }}>🏆</div>
+              <div style={{ marginBottom: '8px' }}>
+                <AnimatedFire size={32} intensity={userProfile?.consecutive_days > 0 ? 1 : 0.5} />
+              </div>
               <div style={{ color: '#4A90A4' }}>{userProfile?.consecutive_days || 0} Day Streak</div>
             </div>
             <div>
-              <div style={{ fontSize: '2rem' }}>💰</div>
+              <div style={{ marginBottom: '8px' }}>
+                <AnimatedCoin size={32} spinning={true} />
+              </div>
               <div style={{ color: '#4A90A4' }}>{userProfile?.lift_coins || 0} Coins</div>
             </div>
           </div>
         </div>
         
-        <button className="mobile-btn">
-          <span className="btn-icon">🌿</span>
+        <button className="mobile-btn" style={{ background: '#C4D600' }}>
+          <span className="btn-icon">
+            <AnimatedFire size={20} intensity={1} />
+          </span>
           Continue Growing
         </button>
       </div>
     </div>
   );
+};
 };
 
 export default LegacyFitnessForest;
