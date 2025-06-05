@@ -248,7 +248,7 @@ input, textarea {
   right: 0;
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(107, 142, 107, 0.2);
+  border-top: 1px solid rgba(196, 214, 0, 0.2);
   padding: var(--space-md);
   z-index: 1000;
 }
