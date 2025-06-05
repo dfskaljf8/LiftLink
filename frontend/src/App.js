@@ -5,7 +5,7 @@ import { AnimatedCard } from './DelightfulComponents';
 import { FOMONotificationSystem, SocialFOMOFeed, HarvestSystem, MegaCelebration } from './AddictiveGameSystem';
 import { AddictiveProgressBar, CompetitiveProgressBar, StreakFOMOBar } from './EnhancedProgressBars';
 import { ActionFeedback, FeedbackWidget } from './components/FeedbackSystem';
-import { AnimatedDumbbell, AnimatedCoin, AnimatedFire } from './components/AnimatedSVGs';
+import { AnimatedDumbbell, AnimatedCoin, AnimatedFire, LiftLinkLogo } from './components/AnimatedSVGs';
 import './styles/ProfessionalDesign.css';
 import ProfessionalHome from './components/ProfessionalHome';
 import { ProfessionalNavigation, ProfessionalSidebar } from './components/ProfessionalNavigation';
