@@ -187,9 +187,13 @@ const AppContent = () => {
         }}>
           <span style={{
             fontSize: '20px',
-            fontWeight: '600'
+            fontWeight: '600',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
-            💪 LiftLink
+            <LiftLinkLogo size={24} animate={true} />
+            LiftLink
           </span>
         </div>
         
