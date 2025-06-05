@@ -180,7 +180,7 @@ input, textarea {
 .search-input {
   width: 100%;
   background: var(--glass-bg);
-  border: 1px solid rgba(107, 142, 107, 0.2);
+  border: 1px solid rgba(196, 214, 0, 0.2);
   border-radius: var(--radius-xl);
   padding: var(--space-md) var(--space-xl);
   color: var(--text-primary);
