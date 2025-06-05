@@ -141,9 +141,11 @@ def test_daily_checkin():
         print(f"Message: {checkin_data.get('message')}")
         print(f"Consecutive Days: {checkin_data.get('consecutive_days')}")
         print(f"LiftCoins: {checkin_data.get('lift_coins')}")
+        print(f"Level: {checkin_data.get('level')}")
+        print(f"XP Points: {checkin_data.get('xp_points')}")
         
         # Verify required fields
-        required_fields = ['consecutive_days', 'lift_coins', 'level', 'xp_points']
+        required_fields = ['consecutive_days', 'lift_coins', 'level', 'xp_points', 'message']
         missing_fields = [field for field in required_fields if field not in checkin_data]
         
         if missing_fields:
