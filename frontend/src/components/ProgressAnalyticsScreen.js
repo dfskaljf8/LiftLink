@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { TactileButton, StreakCounter } from '../DelightfulAnimations';
 import { AnimatedCard, MorphingProgressBar } from '../DelightfulComponents';
+import { 
+  AnimatedChart, AnimatedTrophy, AnimatedCoin, AnimatedFire, AnimatedStar, 
+  AnimatedHeart, AnimatedCheckmark, AnimatedUser, AnimatedSpinner,
+  AnimatedSuccess, AnimatedSettings 
+} from './AnimatedSVGs';
 import '../styles/ProfessionalDesign.css';
 
 const ProgressAnalyticsScreen = ({ userProfile }) => {
