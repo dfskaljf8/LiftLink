@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { TactileButton, FloatingMascot, Confetti } from '../DelightfulAnimations';
 import { AnimatedCard, MorphingProgressBar } from '../DelightfulComponents';
+import { 
+  AnimatedTrophy, AnimatedHeart, AnimatedFire, AnimatedStar, AnimatedUser,
+  AnimatedCoin, AnimatedCheckmark, AnimatedSuccess, AnimatedChart, AnimatedParty
+} from './AnimatedSVGs';
 import '../styles/ProfessionalDesign.css';
 
 const AchievementsScreen = ({ userProfile }) => {
@@ -11,12 +15,12 @@ const AchievementsScreen = ({ userProfile }) => {
   const [showConfetti, setShowConfetti] = useState(false);
 
   const achievementCategories = [
-    { id: 'all', name: 'All', icon: '🏆', color: '#fbbf24' },
-    { id: 'fitness', name: 'Fitness', icon: '💪', color: '#00d4aa' },
-    { id: 'consistency', name: 'Consistency', icon: '🔥', color: '#f59e0b' },
-    { id: 'social', name: 'Social', icon: '👥', color: '#8b5cf6' },
-    { id: 'milestones', name: 'Milestones', icon: '⭐', color: '#3b82f6' },
-    { id: 'special', name: 'Special', icon: '🎉', color: '#ef4444' }
+    { id: 'all', name: 'All', icon: <AnimatedTrophy size={20} active={true} />, color: '#fbbf24' },
+    { id: 'fitness', name: 'Fitness', icon: <AnimatedHeart size={20} beating={true} liked={true} />, color: '#00d4aa' },
+    { id: 'consistency', name: 'Consistency', icon: <AnimatedFire size={20} intensity={1} />, color: '#f59e0b' },
+    { id: 'social', name: 'Social', icon: <AnimatedUser size={20} active={true} />, color: '#8b5cf6' },
+    { id: 'milestones', name: 'Milestones', icon: <AnimatedStar size={20} filled={true} sparkling={true} />, color: '#3b82f6' },
+    { id: 'special', name: 'Special', icon: <AnimatedParty size={20} active={true} />, color: '#ef4444' }
   ];
 
   useEffect(() => {
@@ -35,7 +39,7 @@ const AchievementsScreen = ({ userProfile }) => {
         title: 'First Steps',
         description: 'Complete your first workout',
         category: 'fitness',
-        icon: '👟',
+        icon: <AnimatedUser size={48} active={true} />,
         progress: 100,
         maxProgress: 100,
         unlocked: userLevel >= 1,
@@ -50,7 +54,7 @@ const AchievementsScreen = ({ userProfile }) => {
         title: 'Strength Seeker',
         description: 'Complete 10 strength training workouts',
         category: 'fitness',
-        icon: '🏋️‍♀️',
+        icon: <AnimatedHeart size={48} beating={true} liked={true} />,
         progress: Math.min(100, userLevel * 10),
         maxProgress: 100,
         unlocked: userLevel >= 3,
@@ -65,7 +69,7 @@ const AchievementsScreen = ({ userProfile }) => {
         title: 'Cardio Champion',
         description: 'Burn 5000 calories through cardio',
         category: 'fitness',
-        icon: '❤️‍🔥',
+        icon: <AnimatedFire size={48} intensity={1} />,
         progress: Math.min(100, userLevel * 8),
         maxProgress: 100,
         unlocked: userLevel >= 5,
@@ -81,7 +85,7 @@ const AchievementsScreen = ({ userProfile }) => {
         title: 'Week Warrior',
         description: 'Maintain a 7-day workout streak',
         category: 'consistency',
-        icon: '🔥',
+        icon: <AnimatedFire size={48} intensity={1} />,
         progress: Math.min(100, (streak / 7) * 100),
         maxProgress: 100,
         unlocked: streak >= 7,
@@ -96,7 +100,7 @@ const AchievementsScreen = ({ userProfile }) => {
         title: 'Month Master',
         description: 'Maintain a 30-day workout streak',
         category: 'consistency',
-        icon: '📅',
+        icon: <AnimatedChart size={48} active={true} />,
         progress: Math.min(100, (streak / 30) * 100),
         maxProgress: 100,
         unlocked: streak >= 30,
@@ -112,7 +116,7 @@ const AchievementsScreen = ({ userProfile }) => {
         title: 'Social Butterfly',
         description: 'Connect with 5 fitness friends',
         category: 'social',
-        icon: '🦋',
+        icon: <AnimatedUser size={48} active={true} />,
         progress: 60,
         maxProgress: 100,
         unlocked: false,
@@ -126,7 +130,7 @@ const AchievementsScreen = ({ userProfile }) => {
         title: 'Team Player',
         description: 'Complete 3 group challenges',
         category: 'social',
-        icon: '🤝',
+        icon: <AnimatedHeart size={48} beating={true} liked={true} />,
         progress: 33,
         maxProgress: 100,
         unlocked: false,
@@ -141,7 +145,7 @@ const AchievementsScreen = ({ userProfile }) => {
         title: 'Level Up!',
         description: 'Reach Level 5',
         category: 'milestones',
-        icon: '⭐',
+        icon: <AnimatedStar size={48} filled={true} sparkling={true} />,
         progress: Math.min(100, (userLevel / 5) * 100),
         maxProgress: 100,
         unlocked: userLevel >= 5,
@@ -156,7 +160,7 @@ const AchievementsScreen = ({ userProfile }) => {
         title: 'Coin Collector',
         description: 'Earn 500 LiftCoins',
         category: 'milestones',
-        icon: '🪙',
+        icon: <AnimatedCoin size={48} spinning={true} />,
         progress: Math.min(100, (coins / 500) * 100),
         maxProgress: 100,
         unlocked: coins >= 500,
@@ -172,7 +176,7 @@ const AchievementsScreen = ({ userProfile }) => {
         title: 'Early Bird',
         description: 'Complete 10 morning workouts',
         category: 'special',
-        icon: '🌅',
+        icon: <AnimatedStar size={48} filled={true} sparkling={true} />,
         progress: 40,
         maxProgress: 100,
         unlocked: false,
@@ -186,7 +190,7 @@ const AchievementsScreen = ({ userProfile }) => {
         title: 'Night Owl',
         description: 'Complete 10 evening workouts',
         category: 'special',
-        icon: '🦉',
+        icon: <AnimatedTrophy size={48} active={true} />,
         progress: 70,
         maxProgress: 100,
         unlocked: false,
@@ -282,7 +286,6 @@ const AchievementsScreen = ({ userProfile }) => {
           zIndex: 1
         }}>
           <div style={{
-            fontSize: '48px',
             filter: isLocked ? 'grayscale(1)' : 'none',
             transform: achievement.unlocked ? 'scale(1.1)' : 'scale(1)',
             transition: 'all 0.3s ease',
@@ -328,10 +331,9 @@ const AchievementsScreen = ({ userProfile }) => {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '12px',
                   animation: 'pulse 2s infinite'
                 }}>
-                  ✓
+                  <AnimatedCheckmark size={12} color="white" />
                 </div>
               )}
             </div>
@@ -357,9 +359,13 @@ const AchievementsScreen = ({ userProfile }) => {
               <div style={{
                 fontSize: '12px',
                 color: 'var(--success)',
-                fontWeight: '500'
+                fontWeight: '500',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
               }}>
-                🎉 Unlocked on {achievement.unlockedDate}
+                <AnimatedParty size={16} active={true} />
+                Unlocked on {achievement.unlockedDate}
               </div>
             )}
           </div>
@@ -402,9 +408,10 @@ const AchievementsScreen = ({ userProfile }) => {
       border: `1px solid ${color}30`
     }}>
       <div style={{
-        fontSize: '32px',
         marginBottom: '10px',
-        animation: 'bounce 3s infinite'
+        animation: 'bounce 3s infinite',
+        display: 'flex',
+        justifyContent: 'center'
       }}>
         {icon}
       </div>
@@ -466,9 +473,14 @@ const AchievementsScreen = ({ userProfile }) => {
           background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          position: 'relative'
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '10px'
         }}>
-          🏆 Achievements
+          <AnimatedTrophy size={32} active={true} />
+          Achievements
         </h1>
         <p style={{
           color: 'var(--text-secondary)',
@@ -491,28 +503,28 @@ const AchievementsScreen = ({ userProfile }) => {
             title="Unlocked"
             value={unlockedCount}
             subtitle={`of ${achievements.length} total`}
-            icon="🏆"
+            icon={<AnimatedTrophy size={32} active={true} />}
             color="#fbbf24"
           />
           <StatsCard
             title="Completion"
             value={`${completionRate}%`}
             subtitle="Achievement rate"
-            icon="📊"
+            icon={<AnimatedChart size={32} active={true} />}
             color="#10b981"
           />
           <StatsCard
             title="XP Earned"
             value={totalPoints}
             subtitle="Total points"
-            icon="⭐"
+            icon={<AnimatedStar size={32} filled={true} sparkling={true} />}
             color="#3b82f6"
           />
           <StatsCard
             title="Rarest"
             value="Epic"
             subtitle="Highest rarity"
-            icon="💎"
+            icon={<AnimatedSuccess size={32} color="#8b5cf6" />}
             color="#8b5cf6"
           />
         </div>
@@ -539,7 +551,7 @@ const AchievementsScreen = ({ userProfile }) => {
               }}
               size="small"
             >
-              <span>{category.icon}</span>
+              {category.icon}
               <span>{category.name}</span>
             </TactileButton>
           ))}
@@ -561,8 +573,8 @@ const AchievementsScreen = ({ userProfile }) => {
             padding: '40px',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: '60px', marginBottom: '20px' }}>
-              🏆
+            <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'center' }}>
+              <AnimatedTrophy size={60} active={true} />
             </div>
             <h3 style={{
               fontSize: '20px',
