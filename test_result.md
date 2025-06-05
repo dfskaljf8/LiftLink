@@ -381,15 +381,18 @@ frontend:
 
   - task: "Fix Text Visibility in Light Mode"
     implemented: true
-    working: "NA"
+    working: true
     file: "ProfessionalDesign.css, ProgressAnalyticsScreen.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Improved text visibility by updating color system in ProfessionalDesign.css to use #C4D600 consistently. Updated ProgressAnalyticsScreen.js with proper text colors and improved contrast. The text visibility issues should be resolved with the new color system that provides better contrast in both light and dark modes."
+      - working: true
+        agent: "testing"
+        comment: "Verified that text visibility has been improved in light mode. The ProfessionalDesign.css file has been updated with better contrast ratios for text colors. In light mode, text colors use appropriate contrast against the background colors. The ProgressAnalyticsScreen.js component now uses proper text color variables that ensure readability. The color system provides good contrast in both light and dark modes, with appropriate text-primary, text-secondary, and text-muted color variables."
       - working: true
         agent: "testing"
         comment: "Successfully tested the backend APIs that support the Fitness Forest functionality. The user profile endpoint (/api/users/profile) correctly returns all required fields for tree progress calculation (level, consecutive_days, lift_coins, xp_points). The tree visualization endpoint (/api/tree/my-tree) returns the tree structure with nodes and completion status. The coin balance endpoint (/api/coins/balance) provides all necessary data for displaying user progress. The daily check-in endpoint (/api/coins/daily-checkin) correctly updates the user's streak and coins. Verified that the tree progress calculation formula works as expected: baseProgress (level * 10) + streakBonus (streak * 2, max 30%) + activityBonus (xp/100, max 20%), capped at 100%. For a user with level 5, streak 7, and XP 450, the calculated progress is 68.5%."
