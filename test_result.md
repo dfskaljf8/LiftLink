@@ -176,6 +176,9 @@ backend:
       - working: true
         agent: "testing"
         comment: "Gamification system APIs are working correctly. Successfully tested coin balance, daily check-in, and tree visualization endpoints. The system properly tracks user progress and rewards."
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested the backend APIs that support the Fitness Forest functionality. The user profile endpoint (/api/users/profile) correctly returns all required fields for tree progress calculation (level, consecutive_days, lift_coins, xp_points). The tree visualization endpoint (/api/tree/my-tree) returns the tree structure with nodes and completion status. The coin balance endpoint (/api/coins/balance) provides all necessary data for displaying user progress. The daily check-in endpoint (/api/coins/daily-checkin) correctly updates the user's streak and coins. Verified that the tree progress calculation formula works as expected: baseProgress (level * 10) + streakBonus (streak * 2, max 30%) + activityBonus (xp/100, max 20%), capped at 100%. For a user with level 5, streak 7, and XP 450, the calculated progress is 68.5%."
 
   - task: "Progress Tracking System"
     implemented: true
