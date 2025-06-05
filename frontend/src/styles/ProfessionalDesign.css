@@ -20,8 +20,8 @@ Modern, clean, and commercial-grade UI/UX with muted green theme
   --text-muted: #718096;
   --text-accent: #C4D600;
   
-  /* Semantic Colors */
-  --success: #68d391;
+  /* Semantic Colors - Updated success to use consistent green */
+  --success: #C4D600;
   --warning: #f6e05e;
   --error: #fc8181;
   --info: #63b3ed;
