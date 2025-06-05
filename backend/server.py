@@ -3105,6 +3105,315 @@ async def upload_selfie(
         "next_step": progress.get_next_step()
     }
 
+# ============ TRAINER CRM DASHBOARD ENDPOINTS ============
+
+@app.get("/api/trainer/crm/overview")
+async def get_trainer_crm_overview(current_user: dict = Depends(get_current_user)):
+    """Get trainer CRM dashboard overview statistics"""
+    
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Only trainers can access CRM dashboard")
+    
+    trainer_id = current_user["user_id"]
+    
+    # Get booking statistics
+    today = datetime.now()
+    this_month_start = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    last_month_start = (this_month_start - timedelta(days=1)).replace(day=1)
+    
+    # Total bookings
+    total_bookings = await db.bookings.count_documents({"trainer_id": trainer_id})
+    
+    # This month's bookings
+    this_month_bookings = await db.bookings.count_documents({
+        "trainer_id": trainer_id,
+        "created_at": {"$gte": this_month_start}
+    })
+    
+    # Last month's bookings for comparison
+    last_month_bookings = await db.bookings.count_documents({
+        "trainer_id": trainer_id,
+        "created_at": {"$gte": last_month_start, "$lt": this_month_start}
+    })
+    
+    # Revenue calculations
+    completed_bookings = db.bookings.find({
+        "trainer_id": trainer_id,
+        "status": "completed"
+    })
+    
+    total_revenue = 0
+    this_month_revenue = 0
+    async for booking in completed_bookings:
+        amount = booking.get("amount", 0)
+        total_revenue += amount
+        
+        if booking.get("created_at", datetime.min) >= this_month_start:
+            this_month_revenue += amount
+    
+    # Client statistics
+    unique_clients = await db.bookings.distinct("user_id", {"trainer_id": trainer_id})
+    total_clients = len(unique_clients)
+    
+    # Recent activity
+    recent_bookings = []
+    async for booking in db.bookings.find({"trainer_id": trainer_id}).sort("created_at", -1).limit(5):
+        user = await db.users.find_one({"user_id": booking["user_id"]})
+        recent_bookings.append({
+            **serialize_doc(booking),
+            "client_name": user.get("name", "Unknown") if user else "Unknown"
+        })
+    
+    # Upcoming sessions
+    upcoming_sessions = []
+    async for booking in db.bookings.find({
+        "trainer_id": trainer_id,
+        "status": "confirmed",
+        "session_date": {"$gte": today}
+    }).sort("session_date", 1).limit(5):
+        user = await db.users.find_one({"user_id": booking["user_id"]})
+        upcoming_sessions.append({
+            **serialize_doc(booking),
+            "client_name": user.get("name", "Unknown") if user else "Unknown"
+        })
+    
+    return {
+        "overview": {
+            "total_bookings": total_bookings,
+            "this_month_bookings": this_month_bookings,
+            "last_month_bookings": last_month_bookings,
+            "booking_growth": ((this_month_bookings - last_month_bookings) / max(last_month_bookings, 1)) * 100,
+            "total_revenue": total_revenue,
+            "this_month_revenue": this_month_revenue,
+            "total_clients": total_clients
+        },
+        "recent_activity": recent_bookings,
+        "upcoming_sessions": upcoming_sessions
+    }
+
+@app.get("/api/trainer/crm/clients")
+async def get_trainer_clients(
+    page: int = 1,
+    limit: int = 20,
+    search: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get trainer's client list with details"""
+    
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Only trainers can access client data")
+    
+    trainer_id = current_user["user_id"]
+    
+    # Get unique client IDs from bookings
+    client_ids = await db.bookings.distinct("user_id", {"trainer_id": trainer_id})
+    
+    # Build query for clients
+    query = {"user_id": {"$in": client_ids}}
+    if search:
+        query["$or"] = [
+            {"name": {"$regex": search, "$options": "i"}},
+            {"email": {"$regex": search, "$options": "i"}}
+        ]
+    
+    # Get clients with pagination
+    skip = (page - 1) * limit
+    clients_cursor = db.users.find(query).skip(skip).limit(limit)
+    
+    clients = []
+    async for client in clients_cursor:
+        client_data = serialize_doc(client)
+        
+        # Get client booking statistics
+        client_bookings = await db.bookings.count_documents({
+            "trainer_id": trainer_id,
+            "user_id": client["user_id"]
+        })
+        
+        completed_bookings = await db.bookings.count_documents({
+            "trainer_id": trainer_id,
+            "user_id": client["user_id"],
+            "status": "completed"
+        })
+        
+        # Get last booking date
+        last_booking = await db.bookings.find_one(
+            {"trainer_id": trainer_id, "user_id": client["user_id"]},
+            sort=[("created_at", -1)]
+        )
+        
+        client_data.update({
+            "total_bookings": client_bookings,
+            "completed_sessions": completed_bookings,
+            "last_booking_date": last_booking.get("created_at") if last_booking else None,
+            "client_since": last_booking.get("created_at") if last_booking else None
+        })
+        
+        clients.append(client_data)
+    
+    # Get total count for pagination
+    total_clients = await db.users.count_documents(query)
+    
+    return {
+        "clients": clients,
+        "pagination": {
+            "page": page,
+            "limit": limit,
+            "total": total_clients,
+            "pages": (total_clients + limit - 1) // limit
+        }
+    }
+
+@app.get("/api/trainer/crm/client/{client_id}")
+async def get_client_details(
+    client_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get detailed information about a specific client"""
+    
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Only trainers can access client data")
+    
+    trainer_id = current_user["user_id"]
+    
+    # Verify trainer has worked with this client
+    client_booking = await db.bookings.find_one({
+        "trainer_id": trainer_id,
+        "user_id": client_id
+    })
+    
+    if not client_booking:
+        raise HTTPException(status_code=404, detail="Client not found or no bookings with this trainer")
+    
+    # Get client information
+    client = await db.users.find_one({"user_id": client_id})
+    if not client:
+        raise HTTPException(status_code=404, detail="Client not found")
+    
+    client_data = serialize_doc(client)
+    
+    # Get booking history
+    booking_history = []
+    async for booking in db.bookings.find({
+        "trainer_id": trainer_id,
+        "user_id": client_id
+    }).sort("session_date", -1):
+        booking_history.append(serialize_doc(booking))
+    
+    # Get progress entries if available
+    progress_entries = []
+    async for progress in db.progress_entries.find({
+        "user_id": client_id
+    }).sort("date", -1).limit(10):
+        progress_entries.append(serialize_doc(progress))
+    
+    # Calculate client statistics
+    total_sessions = len(booking_history)
+    completed_sessions = len([b for b in booking_history if b.get("status") == "completed"])
+    total_spent = sum(b.get("amount", 0) for b in booking_history if b.get("status") == "completed")
+    
+    return {
+        "client": client_data,
+        "statistics": {
+            "total_sessions": total_sessions,
+            "completed_sessions": completed_sessions,
+            "completion_rate": (completed_sessions / max(total_sessions, 1)) * 100,
+            "total_spent": total_spent,
+            "average_session_cost": total_spent / max(completed_sessions, 1)
+        },
+        "booking_history": booking_history,
+        "progress_entries": progress_entries
+    }
+
+@app.get("/api/trainer/crm/analytics")
+async def get_trainer_analytics(
+    period: str = "month",  # "week", "month", "quarter", "year"
+    current_user: dict = Depends(get_current_user)
+):
+    """Get detailed analytics for trainer CRM"""
+    
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Only trainers can access analytics")
+    
+    trainer_id = current_user["user_id"]
+    
+    # Calculate date ranges
+    today = datetime.now()
+    if period == "week":
+        start_date = today - timedelta(days=7)
+    elif period == "month":
+        start_date = today - timedelta(days=30)
+    elif period == "quarter":
+        start_date = today - timedelta(days=90)
+    else:  # year
+        start_date = today - timedelta(days=365)
+    
+    # Revenue analytics
+    revenue_pipeline = [
+        {"$match": {
+            "trainer_id": trainer_id,
+            "status": "completed",
+            "created_at": {"$gte": start_date}
+        }},
+        {"$group": {
+            "_id": {
+                "year": {"$year": "$created_at"},
+                "month": {"$month": "$created_at"},
+                "day": {"$dayOfMonth": "$created_at"}
+            },
+            "revenue": {"$sum": "$amount"},
+            "bookings": {"$sum": 1}
+        }},
+        {"$sort": {"_id": 1}}
+    ]
+    
+    revenue_data = []
+    async for item in db.bookings.aggregate(revenue_pipeline):
+        date_str = f"{item['_id']['year']}-{item['_id']['month']:02d}-{item['_id']['day']:02d}"
+        revenue_data.append({
+            "date": date_str,
+            "revenue": item["revenue"],
+            "bookings": item["bookings"]
+        })
+    
+    # Client retention analytics
+    repeat_clients = await db.bookings.aggregate([
+        {"$match": {"trainer_id": trainer_id}},
+        {"$group": {"_id": "$user_id", "bookings": {"$sum": 1}}},
+        {"$match": {"bookings": {"$gt": 1}}},
+        {"$count": "repeat_clients"}
+    ]).to_list(length=1)
+    
+    repeat_client_count = repeat_clients[0]["repeat_clients"] if repeat_clients else 0
+    
+    # Popular session types
+    session_types = await db.bookings.aggregate([
+        {"$match": {
+            "trainer_id": trainer_id,
+            "created_at": {"$gte": start_date}
+        }},
+        {"$group": {
+            "_id": "$session_type",
+            "count": {"$sum": 1},
+            "revenue": {"$sum": "$amount"}
+        }},
+        {"$sort": {"count": -1}}
+    ]).to_list(length=10)
+    
+    return {
+        "period": period,
+        "date_range": {
+            "start": start_date.isoformat(),
+            "end": today.isoformat()
+        },
+        "revenue_trend": revenue_data,
+        "client_retention": {
+            "repeat_clients": repeat_client_count,
+            "total_clients": len(await db.bookings.distinct("user_id", {"trainer_id": trainer_id}))
+        },
+        "popular_sessions": session_types
+    }
+
 @app.post("/api/verification/enhanced-upload-certification")
 async def enhanced_upload_certification(
     session_id: str,
