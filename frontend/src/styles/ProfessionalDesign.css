@@ -4,15 +4,15 @@ Modern, clean, and commercial-grade UI/UX with muted green theme
 */
 
 :root {
-  /* Light Theme - White base with muted greens */
+  /* Light Theme - White base with muted greens - Updated to use #C4D600 */
   --primary-bg: #ffffff;
   --secondary-bg: #f8fffe;
   --card-bg: rgba(248, 255, 254, 0.8);
   --glass-bg: rgba(255, 255, 255, 0.9);
-  --accent-primary: #6b8e6b;
-  --accent-secondary: #8ba48b;
-  --accent-tertiary: #a8bea8;
-  --accent-muted: #9cb39c;
+  --accent-primary: #C4D600;
+  --accent-secondary: #B2FF66;
+  --accent-tertiary: #9ACD32;
+  --accent-muted: #98B000;
   
   /* Text Colors */
   --text-primary: #2d3748;
