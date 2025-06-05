@@ -379,20 +379,17 @@ frontend:
         agent: "testing"
         comment: "Verified that button colors have been standardized to #C4D600 green throughout the app. The ProfessionalDesign.css file has been updated with consistent color variables: --accent-primary, --text-accent, and --success all set to #C4D600. Button styles in both light and dark modes use this consistent green color. The btn-primary class uses a linear gradient that includes the #C4D600 color. Testing confirmed the presence of buttons with the standardized green color."
 
-  - task: "Fix Text Visibility in Light Mode"
+  - task: "Improve Notification System Design"
     implemented: true
-    working: true
-    file: "ProfessionalDesign.css, ProgressAnalyticsScreen.js"
+    working: "NA"
+    file: "AddictiveGameSystem.js"
     stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
+    priority: "high"
+    needs_retesting: true
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Improved text visibility by updating color system in ProfessionalDesign.css to use #C4D600 consistently. Updated ProgressAnalyticsScreen.js with proper text colors and improved contrast. The text visibility issues should be resolved with the new color system that provides better contrast in both light and dark modes."
-      - working: true
-        agent: "testing"
-        comment: "Verified that text visibility has been improved in light mode. The ProfessionalDesign.css file has been updated with better contrast ratios for text colors. In light mode, text colors use appropriate contrast against the background colors. The ProgressAnalyticsScreen.js component now uses proper text color variables that ensure readability. The color system provides good contrast in both light and dark modes, with appropriate text-primary, text-secondary, and text-muted color variables."
+        comment: "Completely redesigned the notification system to be less cluttered and more exciting. Key improvements: 1) Smart notification queue - shows one notification at a time instead of stacking. 2) Elegant visual design with smooth gradients, subtle animations, and animated SVGs replacing all emojis. 3) Auto-dismiss with 5-second timer and progress bar. 4) Condensed social feed with show/hide toggle. 5) Refined harvest system with elegant pulsing button. 6) Polished celebration system with backdrop blur. The new system is much more user-friendly and visually appealing. Ready for testing."
       - working: true
         agent: "testing"
         comment: "Successfully tested the backend APIs that support the Fitness Forest functionality. The user profile endpoint (/api/users/profile) correctly returns all required fields for tree progress calculation (level, consecutive_days, lift_coins, xp_points). The tree visualization endpoint (/api/tree/my-tree) returns the tree structure with nodes and completion status. The coin balance endpoint (/api/coins/balance) provides all necessary data for displaying user progress. The daily check-in endpoint (/api/coins/daily-checkin) correctly updates the user's streak and coins. Verified that the tree progress calculation formula works as expected: baseProgress (level * 10) + streakBonus (streak * 2, max 30%) + activityBonus (xp/100, max 20%), capped at 100%. For a user with level 5, streak 7, and XP 450, the calculated progress is 68.5%."
