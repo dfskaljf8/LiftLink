@@ -312,7 +312,7 @@ input, textarea {
 
 .sidebar-header {
   padding: var(--space-xl);
-  border-bottom: 1px solid rgba(107, 142, 107, 0.2);
+  border-bottom: 1px solid rgba(196, 214, 0, 0.2);
 }
 
 .sidebar-user {
