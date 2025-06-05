@@ -76,6 +76,5 @@ const LegacyFitnessForest = () => {
     </div>
   );
 };
-};
 
 export default LegacyFitnessForest;
