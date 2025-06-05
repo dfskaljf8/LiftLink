@@ -957,6 +957,26 @@ class CertificationModel(BaseModel):
     coins_awarded: int = 0
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
+class VerificationSessionModel(BaseModel):
+    session_id: str
+    user_id: str
+    role: str  # "trainee" or "trainer"
+    current_step: str
+    completed_steps: List[str] = []
+    verification_data: Dict[str, Any] = {}
+    status: str = "in_progress"  # "in_progress", "completed", "failed"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+class SelfieVerificationModel(BaseModel):
+    verification_id: str
+    user_id: str
+    selfie_url: str
+    face_match_score: Optional[float] = None
+    liveness_score: Optional[float] = None
+    verification_status: str = "pending"
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
 class TrainerProfileModel(BaseModel):
     trainer_id: str
     bio: str
