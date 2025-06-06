@@ -19,6 +19,17 @@ from backend.verification_service import (
     id_verification_service, 
     face_verification_service
 )
+from fitness_specialties import (
+    FITNESS_SPECIALTIES,
+    ALL_SPECIALTIES,
+    POPULAR_SPECIALTIES,
+    SPECIALTY_CATEGORIES,
+    get_specialty_category,
+    get_category_info,
+    get_specialties_by_category,
+    search_specialties,
+    DEMO_TRAINER_SPECIALTIES
+)
 from motor.motor_asyncio import AsyncIOMotorClient
 from bson import ObjectId
 import firebase_admin
