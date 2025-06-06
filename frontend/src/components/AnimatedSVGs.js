@@ -1485,39 +1485,6 @@ export const AnimatedYoga = ({ size = 24, color = "#C4D600" }) => (
   </svg>
 );
 
-// Sports Trophy for Performance Category
-export const AnimatedSportsTrophy = ({ size = 24, color = "#C4D600" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <path d="M8 2H16V8C16 10.2091 14.2091 12 12 12C9.79086 12 8 10.2091 8 8V2Z" fill={color}>
-      <animate
-        attributeName="fill"
-        values={`${color};#FFD700;${color}`}
-        dur="2s"
-        repeatCount="indefinite"
-      />
-    </path>
-    <path d="M6 4H8V8C8 8 6 8 6 6V4Z" fill={color} opacity="0.7" />
-    <path d="M16 4H18V6C18 8 16 8 16 8V4Z" fill={color} opacity="0.7" />
-    <rect x="10" y="12" width="4" height="6" fill={color} />
-    <rect x="8" y="18" width="8" height="2" rx="1" fill={color}>
-      <animate
-        attributeName="width"
-        values="8;10;8"
-        dur="2s"
-        repeatCount="indefinite"
-      />
-    </rect>
-    <circle cx="12" cy="6" r="1" fill="#FFD700">
-      <animate
-        attributeName="r"
-        values="1;1.5;1"
-        dur="2s"
-        repeatCount="indefinite"
-      />
-    </circle>
-  </svg>
-);
-
 // Group for Specialized Populations
 export const AnimatedGroup = ({ size = 24, color = "#C4D600" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
