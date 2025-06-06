@@ -913,10 +913,10 @@ const WorkoutStep = ({ userData, updateUserData, nextStep, prevStep, stepData })
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: 'var(--space-md)',
+        gridTemplateColumns: window.innerWidth < 768 ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(180px, 1fr))',
+        gap: 'var(--space-sm)',
         marginBottom: 'var(--space-xl)',
-        maxWidth: '600px',
+        maxWidth: '100%',
         margin: '0 auto var(--space-xl)'
       }}>
         {workoutTypes.map((workout) => (
