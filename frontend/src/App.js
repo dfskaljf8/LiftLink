@@ -42,6 +42,7 @@ const AppContent = () => {
   const [userVerified, setUserVerified] = useState(false);
   const [userRole, setUserRole] = useState(null); // 'trainee' or 'trainer'
   const [isFirstTime, setIsFirstTime] = useState(true);
+  const [userLocation, setUserLocation] = useState(null);
 
   // Mock user profile data with verification status
   const mockUserProfile = {
