@@ -431,6 +431,13 @@ const GoalsStep = ({ userData, updateUserData, nextStep, prevStep, stepData }) =
     );
   };
 
+  const getGoalLabels = (goalIds) => {
+    return goalIds.map(id => {
+      const goal = goals.find(g => g.id === id);
+      return goal ? goal.label : id;
+    }).join(', ');
+  };
+
   const handleContinue = () => {
     if (selectedGoals.length > 0) {
       updateUserData('fitnessGoals', selectedGoals);
