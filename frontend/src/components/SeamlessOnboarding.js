@@ -1117,6 +1117,35 @@ const MotivationStep = ({ userData, updateUserData, nextStep, prevStep, stepData
           Almost Done →
         </button>
       </div>
+
+      {/* Floating Continue Button */}
+      <div style={{
+        position: 'fixed',
+        bottom: '20px',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        zIndex: 1000
+      }}>
+        <button
+          onClick={handleSubmit}
+          disabled={!name.trim()}
+          style={{
+            padding: 'var(--space-md) var(--space-xl)',
+            background: name.trim() ? 'linear-gradient(45deg, #C4D600, #B2FF66)' : 'rgba(255, 255, 255, 0.1)',
+            border: 'none',
+            borderRadius: '12px',
+            color: name.trim() ? 'black' : 'rgba(255, 255, 255, 0.5)',
+            fontSize: '16px',
+            fontWeight: '600',
+            cursor: name.trim() ? 'pointer' : 'not-allowed',
+            transition: 'all 0.3s ease',
+            transform: name.trim() ? 'scale(1)' : 'scale(0.95)',
+            boxShadow: name.trim() ? '0 8px 24px rgba(196, 214, 0, 0.3)' : 'none'
+          }}
+        >
+          Continue →
+        </button>
+      </div>
     </div>
   );
 };
