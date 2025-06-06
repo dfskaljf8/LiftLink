@@ -122,15 +122,18 @@ backend:
 
   - task: "GET /api/verification/session/{session_id}/status"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented session status endpoint to track verification progress. Need to test status retrieval and progress tracking."
+      - working: true
+        agent: "testing"
+        comment: "Session status endpoint is working correctly. Successfully verified that progress tracking works properly and role-specific step counts are correct (3 for trainee, 4 for trainer)."
 
   - task: "POST /api/verification/enhanced-upload-id"
     implemented: true
