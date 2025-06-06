@@ -1723,7 +1723,7 @@ export default {
   AnimatedStar,
   AnimatedSuccess,
   AnimatedError,
-
+  AnimatedTrophy,
   AnimatedEmail,
   AnimatedKey,
   AnimatedPhone,
