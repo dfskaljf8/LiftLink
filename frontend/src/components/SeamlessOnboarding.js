@@ -86,6 +86,7 @@ const SeamlessOnboarding = ({ onComplete }) => {
   };
 
   const progress = ((currentStep + 1) / steps.length) * 100;
+  const totalSteps = steps.length;
   const CurrentStepComponent = steps[currentStep].component;
 
   return (
