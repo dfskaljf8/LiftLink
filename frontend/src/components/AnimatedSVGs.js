@@ -1485,8 +1485,8 @@ export const AnimatedYoga = ({ size = 24, color = "#C4D600" }) => (
   </svg>
 );
 
-// Trophy for Sports Performance  
-export const AnimatedTrophy = ({ size = 24, color = "#C4D600" }) => (
+// Sports Trophy for Performance Category
+export const AnimatedSportsTrophy = ({ size = 24, color = "#C4D600" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <path d="M8 2H16V8C16 10.2091 14.2091 12 12 12C9.79086 12 8 10.2091 8 8V2Z" fill={color}>
       <animate
