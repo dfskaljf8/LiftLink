@@ -1657,39 +1657,7 @@ export const AnimatedMountain = ({ size = 24, color = "#C4D600" }) => (
   </svg>
 );
 
-// Phone for Technology & Data
-export const AnimatedPhone = ({ size = 24, color = "#C4D600" }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
-    <rect x="6" y="2" width="12" height="20" rx="2" fill={color} opacity="0.2" />
-    <rect x="7" y="4" width="10" height="14" rx="1" fill="none" stroke={color} strokeWidth="1" />
-    <circle cx="12" cy="20" r="1" fill={color}>
-      <animate
-        attributeName="r"
-        values="1;1.5;1"
-        dur="1.5s"
-        repeatCount="indefinite"
-      />
-    </circle>
-    <rect x="9" y="6" width="6" height="1" fill={color}>
-      <animate
-        attributeName="width"
-        values="6;8;6"
-        dur="2s"
-        repeatCount="indefinite"
-      />
-    </rect>
-    <rect x="9" y="8" width="4" height="1" fill={color} opacity="0.7" />
-    <rect x="9" y="10" width="5" height="1" fill={color} opacity="0.7" />
-    <circle cx="15" cy="8" r="0.5" fill={color}>
-      <animate
-        attributeName="fill"
-        values={`${color};#FF4444;${color}`}
-        dur="1s"
-        repeatCount="indefinite"
-      />
-    </circle>
-  </svg>
-);
+
 
 export default {
   LiftLinkLogo,
