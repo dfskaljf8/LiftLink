@@ -107,15 +107,18 @@ user_problem_statement: "Test the enhanced Age & ID Verification system backend 
 backend:
   - task: "POST /api/verification/start-session"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented verification session start endpoint with role selection (trainee/trainer). Need to test session creation and role validation."
+      - working: true
+        agent: "testing"
+        comment: "Verification session start endpoint is working correctly. Successfully tested with both trainee and trainer roles. Session IDs are generated correctly and role validation is working properly."
 
   - task: "GET /api/verification/session/{session_id}/status"
     implemented: true
