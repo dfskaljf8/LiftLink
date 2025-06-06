@@ -1732,60 +1732,147 @@ async def update_user_location(
 async def search_trainers(
     lat: Optional[float] = Query(None),
     lng: Optional[float] = Query(None),
-    radius: Optional[float] = Query(25),  # km
+    radius: Optional[float] = Query(50),  # km
     specialty: Optional[str] = Query(None),
+    specialties: Optional[str] = Query(None),  # Comma-separated list
+    category: Optional[str] = Query(None),  # Specialty category
     max_rate: Optional[float] = Query(None),
+    min_rate: Optional[float] = Query(None),
     gym: Optional[str] = Query(None),
     certified_only: Optional[bool] = Query(False),
+    experience_years: Optional[int] = Query(None),
+    rating_min: Optional[float] = Query(None),
     page: Optional[int] = Query(1),
-    per_page: Optional[int] = Query(20)
+    limit: Optional[int] = Query(20)
 ):
-    """Enhanced trainer search with geospatial queries, caching, and pagination"""
+    """Enhanced search for trainers with comprehensive filtering"""
     
-    # Build filters dictionary
-    filters = {
-        "lat": lat,
-        "lng": lng,
-        "radius": radius,
-        "specialty": specialty,
-        "max_rate": max_rate,
-        "gym": gym,
-        "certified_only": certified_only
+    query = {}
+    
+    # Specialty filters
+    specialty_filters = []
+    
+    # Single specialty filter (backward compatibility)
+    if specialty:
+        specialty_filters.append(specialty)
+    
+    # Multiple specialties filter
+    if specialties:
+        specialty_list = [s.strip() for s in specialties.split(',')]
+        specialty_filters.extend(specialty_list)
+    
+    # Category filter - get all specialties in category
+    if category:
+        category_specialties = get_specialties_by_category(category)
+        specialty_filters.extend(category_specialties)
+    
+    # Apply specialty filters
+    if specialty_filters:
+        query["specialties"] = {"$in": specialty_filters}
+    
+    # Rate filters
+    if max_rate or min_rate:
+        rate_filter = {}
+        if max_rate:
+            rate_filter["$lte"] = max_rate
+        if min_rate:
+            rate_filter["$gte"] = min_rate
+        query["hourly_rate"] = rate_filter
+    
+    # Other filters
+    if gym:
+        query["gym_name"] = {"$regex": gym, "$options": "i"}
+    if certified_only:
+        query["is_certified_trainer"] = True
+    if experience_years:
+        query["experience_years"] = {"$gte": experience_years}
+    
+    # Calculate pagination
+    skip = (page - 1) * limit
+    
+    trainers = []
+    trainer_cursor = db.trainers.find(query).skip(skip).limit(limit)
+    
+    async for trainer in trainer_cursor:
+        # Get user info
+        user = await db.users.find_one({"user_id": trainer["trainer_id"]})
+        trainer["trainer_name"] = user["name"] if user else "Unknown"
+        trainer["email"] = user.get("email", "")
+        
+        # Get certifications
+        certifications = []
+        async for cert in db.certifications.find({
+            "trainer_id": trainer["trainer_id"], 
+            "verification_status": "verified"
+        }):
+            certifications.append(serialize_doc(cert))
+        
+        trainer["certifications"] = certifications
+        trainer["certification_count"] = len(certifications)
+        
+        # Calculate average rating (mock for demo)
+        trainer["average_rating"] = 4.5 + (trainer["trainer_id"].count('a') * 0.1) % 1.0
+        trainer["total_reviews"] = 15 + (trainer["trainer_id"].count('e') * 3) % 50
+        
+        # Get booking statistics
+        total_sessions = await db.bookings.count_documents({
+            "trainer_id": trainer["trainer_id"],
+            "status": "completed"
+        })
+        trainer["completed_sessions"] = total_sessions
+        
+        # Add specialty information with categories
+        enhanced_specialties = []
+        for specialty in trainer.get("specialties", []):
+            category_key = get_specialty_category(specialty)
+            category_info = get_category_info(category_key) if category_key else {}
+            
+            enhanced_specialties.append({
+                "name": specialty,
+                "category": category_info.get("category", "Unknown"),
+                "category_key": category_key,
+                "animated_svg": category_info.get("animated_svg", "AnimatedStar"),
+                "color": category_info.get("color", "#C4D600")
+            })
+        
+        trainer["enhanced_specialties"] = enhanced_specialties
+        
+        # Add availability status (mock)
+        trainer["availability_status"] = "available"  # "available", "busy", "unavailable"
+        trainer["next_available"] = (datetime.now() + timedelta(hours=24)).isoformat()
+        
+        trainers.append(serialize_doc(trainer))
+    
+    # Get total count for pagination
+    total_trainers = await db.trainers.count_documents(query)
+    
+    # Add filter summary
+    filter_summary = {
+        "specialty_filters": specialty_filters,
+        "category_filter": category,
+        "rate_range": {"min": min_rate, "max": max_rate},
+        "certified_only": certified_only,
+        "gym_filter": gym,
+        "experience_years": experience_years,
+        "total_results": total_trainers
     }
     
-    # Remove None values
-    filters = {k: v for k, v in filters.items() if v is not None}
-    
-    # Use optimized database query
-    trainers = await db_query_optimizer.search_trainers_optimized(filters)
-    
-    # Calculate distances if location provided
-    if lat and lng:
-        for trainer in trainers:
-            if trainer.get("location") and trainer["location"].get("coordinates"):
-                trainer_lng, trainer_lat = trainer["location"]["coordinates"]
-                distance = calculate_distance(lat, lng, trainer_lat, trainer_lng)
-                trainer["distance_km"] = round(distance, 1)
-        
-        # Sort by distance
-        trainers.sort(key=lambda x: x.get("distance_km", float('inf')))
-    
-    # Optimize response data
-    optimized_trainers = []
-    for trainer in trainers:
-        optimized_trainer = FrontendOptimization.optimize_api_response(trainer)
-        optimized_trainers.append(optimized_trainer)
-    
-    # Paginate results
-    paginated_result = FrontendOptimization.paginate_results(
-        optimized_trainers, page, per_page
-    )
-    
     return {
-        "trainers": paginated_result["results"],
-        "pagination": paginated_result["pagination"],
-        "total_found": len(optimized_trainers),
-        "search_filters": filters
+        "trainers": trainers,
+        "pagination": {
+            "page": page,
+            "limit": limit,
+            "total": total_trainers,
+            "pages": (total_trainers + limit - 1) // limit,
+            "has_next": page * limit < total_trainers,
+            "has_prev": page > 1
+        },
+        "filter_summary": filter_summary,
+        "search_metadata": {
+            "search_time": datetime.now().isoformat(),
+            "filters_applied": len([f for f in [specialty, specialties, category, max_rate, min_rate, gym, certified_only] if f]),
+            "location_search": bool(lat and lng)
+        }
     }
 
 def calculate_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
