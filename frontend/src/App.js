@@ -131,6 +131,29 @@ const AppContent = () => {
     setCurrentView('trainers');
   };
 
+  // Handle onboarding completion
+  const handleOnboardingComplete = (onboardingData) => {
+    // Save onboarding data
+    setOnboardingComplete(true);
+    setShowOnboarding(false);
+    
+    // Update user profile with onboarding data
+    mockUserProfile.name = onboardingData.name || 'Demo User';
+    
+    // Show verification flow after onboarding
+    setIsFirstTime(true);
+    setUserVerified(false);
+    
+    // Save to localStorage
+    localStorage.setItem('liftlink_onboarding', JSON.stringify({
+      completed: true,
+      data: onboardingData,
+      completedAt: new Date().toISOString()
+    }));
+    
+    triggerCelebration('onboarding_complete');
+  };
+
   // Handle verification completion
   const handleVerificationComplete = (verificationData) => {
     setUserVerified(true);
