@@ -88,15 +88,6 @@ const AppContent = () => {
     }
   }, []);
 
-  // Show onboarding for completely new users
-  if (showOnboarding && !onboardingComplete) {
-    return (
-      <div className="professional-app">
-        <SeamlessOnboarding onComplete={handleOnboardingComplete} />
-      </div>
-    );
-  }
-
   const competitiveFriends = [
     { name: 'Sarah Chen', value: 8 },
     { name: 'Marcus Torres', value: 6 },
@@ -174,6 +165,15 @@ const AppContent = () => {
     
     triggerCelebration('onboarding_complete');
   };
+  
+  // Show onboarding for completely new users
+  if (showOnboarding && !onboardingComplete) {
+    return (
+      <div className="professional-app">
+        <SeamlessOnboarding onComplete={handleOnboardingComplete} />
+      </div>
+    );
+  }
 
   // Handle verification completion
   const handleVerificationComplete = (verificationData) => {
