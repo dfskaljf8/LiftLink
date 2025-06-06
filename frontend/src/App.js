@@ -259,7 +259,7 @@ const AppContent = () => {
             gap: '8px'
           }}>
             <LiftLinkLogo size={24} animate={true} />
-            LiftLink
+            LiftLink {userRole === 'trainer' ? 'Pro' : ''}
           </span>
         </div>
         
@@ -268,6 +268,20 @@ const AppContent = () => {
           alignItems: 'center',
           gap: 'var(--space-sm)'
         }}>
+          {/* Role Badge */}
+          <div style={{
+            background: userRole === 'trainer' ? '#C4D600' : 'rgba(196, 214, 0, 0.2)',
+            color: userRole === 'trainer' ? 'black' : '#C4D600',
+            padding: 'var(--space-xs) var(--space-sm)',
+            borderRadius: '12px',
+            fontSize: '12px',
+            fontWeight: '600',
+            textTransform: 'uppercase'
+          }}>
+            {userRole === 'trainer' ? '🏆 Trainer' : '💪 Trainee'}
+          </div>
+          
+          {/* User Avatar */}
           <div style={{
             background: 'var(--accent-primary)',
             borderRadius: '50%',
@@ -280,6 +294,23 @@ const AppContent = () => {
           }}>
             {mockUserProfile.name.charAt(0)}
           </div>
+          
+          {/* Demo Reset Button */}
+          <button
+            onClick={resetVerification}
+            style={{
+              background: 'none',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              color: 'var(--text-secondary)',
+              padding: 'var(--space-xs)',
+              borderRadius: 'var(--border-radius)',
+              fontSize: '12px',
+              cursor: 'pointer'
+            }}
+            title="Reset Demo"
+          >
+            🔄
+          </button>
         </div>
       </div>
 
