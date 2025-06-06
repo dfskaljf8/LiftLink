@@ -2234,54 +2234,7 @@ async def register_trainer(trainer_data: TrainerRegistrationRequest, current_use
     await db.trainers.insert_one(trainer_profile.dict())
     return {"message": "Trainer profile created successfully"}
 
-@app.get("/api/trainers/search")
-async def search_trainers(
-    lat: Optional[float] = Query(None),
-    lng: Optional[float] = Query(None),
-    radius: Optional[float] = Query(50),  # km
-    specialty: Optional[str] = Query(None),
-    max_rate: Optional[float] = Query(None),
-    gym: Optional[str] = Query(None),
-    certified_only: Optional[bool] = Query(False)
-):
-    """Search for trainers based on location and filters"""
-    
-    query = {}
-    
-    # Add filters
-    if specialty:
-        query["specialties"] = {"$in": [specialty]}
-    if max_rate:
-        query["hourly_rate"] = {"$lte": max_rate}
-    if gym:
-        query["gym_name"] = {"$regex": gym, "$options": "i"}
-    if certified_only:
-        query["is_certified_trainer"] = True
-    
-    # Location-based search (simplified - in production would use geospatial queries)
-    if lat and lng:
-        # For demo, we'll return all trainers
-        # In production, implement proper geospatial search
-        pass
-    
-    trainers = []
-    async for trainer in db.trainers.find(query).limit(20):
-        # Get user info
-        user = await db.users.find_one({"user_id": trainer["trainer_id"]})
-        trainer["trainer_name"] = user["name"] if user else "Unknown"
-        
-        # Get certifications
-        certifications = []
-        async for cert in db.certifications.find({"trainer_id": trainer["trainer_id"], "verification_status": "verified"}):
-            certifications.append(serialize_doc(cert))
-        
-        trainer["certifications"] = certifications
-        trainer["verified_certifications"] = trainer.get("verified_certifications", [])
-        trainer["is_certified_trainer"] = trainer.get("is_certified_trainer", False)
-        
-        trainers.append(serialize_doc(trainer))
-    
-    return {"trainers": trainers}
+
 
 @app.get("/api/trainers/{trainer_id}")
 async def get_trainer_profile(trainer_id: str):
