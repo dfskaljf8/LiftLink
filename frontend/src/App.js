@@ -66,7 +66,19 @@ const AppContent = () => {
 
   // Check if user needs verification on first load
   useEffect(() => {
-    // In real app, check localStorage or API for verification status
+    // Check if onboarding was completed
+    const savedOnboarding = localStorage.getItem('liftlink_onboarding');
+    if (savedOnboarding) {
+      const onboardingData = JSON.parse(savedOnboarding);
+      setOnboardingComplete(true);
+      setShowOnboarding(false);
+    } else {
+      // New user - show onboarding first
+      setShowOnboarding(true);
+      return;
+    }
+
+    // Check verification status (only after onboarding)
     const savedVerification = localStorage.getItem('liftlink_verification');
     if (savedVerification) {
       const verificationData = JSON.parse(savedVerification);
@@ -75,6 +87,15 @@ const AppContent = () => {
       setIsFirstTime(false);
     }
   }, []);
+
+  // Show onboarding for completely new users
+  if (showOnboarding && !onboardingComplete) {
+    return (
+      <div className="professional-app">
+        <SeamlessOnboarding onComplete={handleOnboardingComplete} />
+      </div>
+    );
+  }
 
   const competitiveFriends = [
     { name: 'Sarah Chen', value: 8 },
