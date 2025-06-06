@@ -1109,7 +1109,12 @@ async def get_current_user(token: str = Depends(security)):
     try:
         # For demo purposes, we'll use a simplified auth system
         # In production, this would verify Firebase tokens
-        user_id = token.credentials if token else "demo_user"
+        
+        # Extract token from Bearer format if needed
+        if hasattr(token, 'credentials'):
+            user_id = token.credentials
+        else:
+            user_id = str(token).replace('Bearer ', '').strip()
         
         # Handle demo users
         if user_id in ["demo_user", "demo_trainer", "demo_admin"]:
