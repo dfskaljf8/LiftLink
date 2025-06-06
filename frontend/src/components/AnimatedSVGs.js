@@ -1336,6 +1336,445 @@ export const AnimatedParty = ({ size = 24, active = true }) => (
   </svg>
 );
 
+// New Specialty Category SVGs following LiftLink design philosophy
+
+// Strength & Power Training SVG
+export const AnimatedDumbbell = ({ size = 24, color = "#C4D600" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <rect x="2" y="8" width="4" height="8" rx="1" fill={color}>
+      <animateTransform
+        attributeName="transform"
+        type="scale"
+        values="1;1.1;1"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </rect>
+    <rect x="6" y="10" width="12" height="4" rx="1" fill={color}>
+      <animate
+        attributeName="opacity"
+        values="0.8;1;0.8"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </rect>
+    <rect x="18" y="8" width="4" height="8" rx="1" fill={color}>
+      <animateTransform
+        attributeName="transform"
+        type="scale"
+        values="1;1.1;1"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </rect>
+  </svg>
+);
+
+// Running/Cardio SVG
+export const AnimatedRunning = ({ size = 24, color = "#C4D600" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="4" r="2" fill={color}>
+      <animate
+        attributeName="r"
+        values="2;2.5;2"
+        dur="1.5s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <path d="M10 8L14 8L15 12L13 16L11 16L9 12Z" fill={color}>
+      <animateTransform
+        attributeName="transform"
+        type="skewX"
+        values="0;5;0;-5;0"
+        dur="0.8s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path d="M8 16L6 20" stroke={color} strokeWidth="2" strokeLinecap="round">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0 8 16;-10 8 16;0 8 16"
+        dur="0.8s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path d="M16 16L18 20" stroke={color} strokeWidth="2" strokeLinecap="round">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0 16 16;10 16 16;0 16 16"
+        dur="0.8s"
+        repeatCount="indefinite"
+      />
+    </path>
+  </svg>
+);
+
+// Scale for Weight Management
+export const AnimatedScale = ({ size = 24, color = "#C4D600" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <rect x="2" y="18" width="20" height="3" rx="1" fill={color} />
+    <rect x="11" y="10" width="2" height="8" fill={color} />
+    <path d="M6 12L12 6L18 12" stroke={color} strokeWidth="2" fill="none">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0 12 9;5 12 9;0 12 9;-5 12 9;0 12 9"
+        dur="3s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <circle cx="6" cy="12" r="2" fill={color}>
+      <animate
+        attributeName="cy"
+        values="12;13;12;11;12"
+        dur="3s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <circle cx="18" cy="12" r="2" fill={color}>
+      <animate
+        attributeName="cy"
+        values="12;11;12;13;12"
+        dur="3s"
+        repeatCount="indefinite"
+      />
+    </circle>
+  </svg>
+);
+
+// Yoga for Flexibility & Recovery
+export const AnimatedYoga = ({ size = 24, color = "#C4D600" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="5" r="2" fill={color}>
+      <animate
+        attributeName="opacity"
+        values="0.7;1;0.7"
+        dur="3s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <path d="M12 8C12 8 8 10 8 14C8 16 10 16 12 16C14 16 16 16 16 14C16 10 12 8 12 8Z" fill={color}>
+      <animateTransform
+        attributeName="transform"
+        type="scale"
+        values="1;1.05;1"
+        dur="4s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path d="M6 16L9 14" stroke={color} strokeWidth="2" strokeLinecap="round">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0 7.5 15;10 7.5 15;0 7.5 15"
+        dur="4s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path d="M15 14L18 16" stroke={color} strokeWidth="2" strokeLinecap="round">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0 16.5 15;-10 16.5 15;0 16.5 15"
+        dur="4s"
+        repeatCount="indefinite"
+      />
+    </path>
+  </svg>
+);
+
+// Trophy for Sports Performance  
+export const AnimatedTrophy = ({ size = 24, color = "#C4D600" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <path d="M8 2H16V8C16 10.2091 14.2091 12 12 12C9.79086 12 8 10.2091 8 8V2Z" fill={color}>
+      <animate
+        attributeName="fill"
+        values={`${color};#FFD700;${color}`}
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path d="M6 4H8V8C8 8 6 8 6 6V4Z" fill={color} opacity="0.7" />
+    <path d="M16 4H18V6C18 8 16 8 16 8V4Z" fill={color} opacity="0.7" />
+    <rect x="10" y="12" width="4" height="6" fill={color} />
+    <rect x="8" y="18" width="8" height="2" rx="1" fill={color}>
+      <animate
+        attributeName="width"
+        values="8;10;8"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </rect>
+    <circle cx="12" cy="6" r="1" fill="#FFD700">
+      <animate
+        attributeName="r"
+        values="1;1.5;1"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </circle>
+  </svg>
+);
+
+// Group for Specialized Populations
+export const AnimatedGroup = ({ size = 24, color = "#C4D600" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="8" cy="6" r="2" fill={color}>
+      <animate
+        attributeName="cy"
+        values="6;5.5;6"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <circle cx="16" cy="6" r="2" fill={color}>
+      <animate
+        attributeName="cy"
+        values="6;6.5;6"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <circle cx="12" cy="8" r="2" fill={color}>
+      <animate
+        attributeName="cy"
+        values="8;7.5;8"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <ellipse cx="8" cy="16" rx="3" ry="4" fill={color} opacity="0.8" />
+    <ellipse cx="16" cy="16" rx="3" ry="4" fill={color} opacity="0.8" />
+    <ellipse cx="12" cy="18" rx="3" ry="4" fill={color} opacity="0.8" />
+  </svg>
+);
+
+// Movement for Functional Training
+export const AnimatedMovement = ({ size = 24, color = "#C4D600" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="4" r="2" fill={color} />
+    <path d="M10 8L14 8L13 12L15 16L13 16L11 12Z" fill={color}>
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0 12 12;5 12 12;0 12 12;-5 12 12;0 12 12"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path d="M9 12L7 16" stroke={color} strokeWidth="2" strokeLinecap="round">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0 8 14;-15 8 14;0 8 14"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path d="M15 12L17 16" stroke={color} strokeWidth="2" strokeLinecap="round">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0 16 14;15 16 14;0 16 14"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </path>
+  </svg>
+);
+
+// Brain for Mental & Mindful
+export const AnimatedBrain = ({ size = 24, color = "#C4D600" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <path d="M12 2C16.4183 2 20 5.58172 20 10C20 14.4183 16.4183 18 12 18C7.58172 18 4 14.4183 4 10C4 5.58172 7.58172 2 12 2Z" fill={color} opacity="0.3" />
+    <path d="M8 8C8.5 8 9 8.5 9 9C9 9.5 8.5 10 8 10" stroke={color} strokeWidth="1.5" fill="none">
+      <animate
+        attributeName="stroke-dasharray"
+        values="0 10;5 5;0 10"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path d="M12 6C12.5 6 13 6.5 13 7C13 7.5 12.5 8 12 8" stroke={color} strokeWidth="1.5" fill="none" />
+    <path d="M16 8C16.5 8 17 8.5 17 9C17 9.5 16.5 10 16 10" stroke={color} strokeWidth="1.5" fill="none" />
+    <circle cx="12" cy="12" r="1" fill={color}>
+      <animate
+        attributeName="r"
+        values="1;1.5;1"
+        dur="1.5s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <circle cx="9" cy="14" r="0.5" fill={color}>
+      <animate
+        attributeName="opacity"
+        values="0.5;1;0.5"
+        dur="1.8s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <circle cx="15" cy="14" r="0.5" fill={color}>
+      <animate
+        attributeName="opacity"
+        values="1;0.5;1"
+        dur="1.8s"
+        repeatCount="indefinite"
+      />
+    </circle>
+  </svg>
+);
+
+// Boxing for Combat & Martial Arts
+export const AnimatedBoxing = ({ size = 24, color = "#C4D600" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="8" cy="8" r="3" fill={color}>
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        values="0 0;2 -1;0 0"
+        dur="0.6s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <circle cx="16" cy="8" r="3" fill={color}>
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        values="0 0;-2 -1;0 0"
+        dur="0.8s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <path d="M8 11L12 15" stroke={color} strokeWidth="3" strokeLinecap="round">
+      <animate
+        attributeName="stroke-width"
+        values="3;4;3"
+        dur="0.6s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path d="M16 11L12 15" stroke={color} strokeWidth="3" strokeLinecap="round">
+      <animate
+        attributeName="stroke-width"
+        values="3;4;3"
+        dur="0.8s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <circle cx="12" cy="18" r="2" fill={color} opacity="0.7" />
+  </svg>
+);
+
+// Dance for Creative Movement
+export const AnimatedDance = ({ size = 24, color = "#C4D600" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="4" r="2" fill={color}>
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0 12 4;10 12 4;0 12 4;-10 12 4;0 12 4"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <path d="M12 7C12 7 8 9 10 13C12 17 14 15 16 13C18 11 14 9 12 7Z" fill={color}>
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0 12 12;15 12 12;0 12 12;-15 12 12;0 12 12"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path d="M8 15L6 20" stroke={color} strokeWidth="2" strokeLinecap="round">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0 7 17.5;20 7 17.5;0 7 17.5"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path d="M16 15L18 20" stroke={color} strokeWidth="2" strokeLinecap="round">
+      <animateTransform
+        attributeName="transform"
+        type="rotate"
+        values="0 17 17.5;-20 17 17.5;0 17 17.5"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </path>
+  </svg>
+);
+
+// Mountain for Outdoor & Adventure
+export const AnimatedMountain = ({ size = 24, color = "#C4D600" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <path d="M2 20L8 8L12 12L16 6L22 20H2Z" fill={color}>
+      <animate
+        attributeName="fill-opacity"
+        values="0.8;1;0.8"
+        dur="3s"
+        repeatCount="indefinite"
+      />
+    </path>
+    <path d="M6 10L8 8L10 10" stroke={color} strokeWidth="2" fill="none" opacity="0.7" />
+    <path d="M14 8L16 6L18 8" stroke={color} strokeWidth="2" fill="none" opacity="0.7" />
+    <circle cx="12" cy="4" r="1.5" fill="#FFD700">
+      <animate
+        attributeName="cy"
+        values="4;3;4"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <path d="M12 5L11 6L13 6Z" fill="#FFD700">
+      <animate
+        attributeName="opacity"
+        values="0.5;1;0.5"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </path>
+  </svg>
+);
+
+// Phone for Technology & Data
+export const AnimatedPhone = ({ size = 24, color = "#C4D600" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <rect x="6" y="2" width="12" height="20" rx="2" fill={color} opacity="0.2" />
+    <rect x="7" y="4" width="10" height="14" rx="1" fill="none" stroke={color} strokeWidth="1" />
+    <circle cx="12" cy="20" r="1" fill={color}>
+      <animate
+        attributeName="r"
+        values="1;1.5;1"
+        dur="1.5s"
+        repeatCount="indefinite"
+      />
+    </circle>
+    <rect x="9" y="6" width="6" height="1" fill={color}>
+      <animate
+        attributeName="width"
+        values="6;8;6"
+        dur="2s"
+        repeatCount="indefinite"
+      />
+    </rect>
+    <rect x="9" y="8" width="4" height="1" fill={color} opacity="0.7" />
+    <rect x="9" y="10" width="5" height="1" fill={color} opacity="0.7" />
+    <circle cx="15" cy="8" r="0.5" fill={color}>
+      <animate
+        attributeName="fill"
+        values={`${color};#FF4444;${color}`}
+        dur="1s"
+        repeatCount="indefinite"
+      />
+    </circle>
+  </svg>
+);
+
 export default {
   LiftLinkLogo,
   AnimatedHome,
