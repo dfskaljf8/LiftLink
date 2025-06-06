@@ -480,7 +480,7 @@ const NameStep = ({ userData, updateUserData, nextStep, prevStep, stepData }) =>
         zIndex: 1000
       }}>
         <button
-          onClick={handleContinue}
+          onClick={handleSubmit}
           disabled={!name.trim()}
           style={{
             padding: 'var(--space-md) var(--space-xl)',
