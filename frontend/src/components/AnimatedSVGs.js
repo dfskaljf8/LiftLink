@@ -1678,7 +1678,7 @@ export default {
   AnimatedStar,
   AnimatedSuccess,
   AnimatedError,
-  AnimatedSportsTrophy,
+
   AnimatedEmail,
   AnimatedKey,
   AnimatedPhone,
