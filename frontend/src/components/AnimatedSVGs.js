@@ -901,8 +901,8 @@ export const AnimatedError = ({ size = 24, color = '#ef4444' }) => (
   </svg>
 );
 
-// Animated Trophy
-export const AnimatedTrophy = ({ size = 24, active = false }) => (
+// Sports Trophy for Performance Category
+export const AnimatedSportsTrophy = ({ size = 24, color = "#C4D600" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
     <defs>
       <linearGradient id="trophyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
