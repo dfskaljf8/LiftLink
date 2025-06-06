@@ -18,6 +18,8 @@ import BookingsView from './components/BookingsView';
 import MessagesView from './components/MessagesView';
 import ProfileView from './components/ProfileView';
 import EnhancedSettings, { ThemeProvider } from './components/EnhancedSettings';
+import VerificationFlow from './components/VerificationFlow';
+import TrainerCRM from './components/TrainerCRM';
 
 // Main App Component - Clean and Simple
 const App = () => {
