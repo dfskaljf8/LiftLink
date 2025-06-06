@@ -373,7 +373,8 @@ const AppContent = () => {
         {currentView === 'trainers' && (
           <EnhancedTrainerSearch 
             searchQuery="" 
-            userProfile={mockUserProfile} 
+            userProfile={mockUserProfile}
+            userLocation={userLocation}
           />
         )}
         
