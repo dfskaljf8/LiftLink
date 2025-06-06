@@ -2,9 +2,12 @@ import requests
 import unittest
 import json
 import time
+import os
+import base64
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
-class LiftLinkAPITester:
+class VerificationAPITester:
     def __init__(self, base_url):
         self.base_url = base_url
         self.token = None
@@ -12,18 +15,17 @@ class LiftLinkAPITester:
         self.tests_passed = 0
         self.user_id = None
         self.trainer_id = None
-        self.booking_id = None
         self.session_id = None
-        self.progress_id = None
-        self.goal_id = None
-
-    def run_test(self, name, method, endpoint, expected_status, data=None, params=None):
+        self.verification_id = None
+        self.client_id = None
+        
+    def run_test(self, name, method, endpoint, expected_status, data=None, params=None, files=None):
         """Run a single API test"""
         url = f"{self.base_url}/{endpoint}"
-        headers = {'Content-Type': 'application/json'}
+        headers = {}
         if self.token:
             headers['Authorization'] = f'Bearer {self.token}'
-
+        
         self.tests_run += 1
         print(f"\n🔍 Testing {name}...")
         
@@ -31,9 +33,13 @@ class LiftLinkAPITester:
             if method == 'GET':
                 response = requests.get(url, headers=headers, params=params)
             elif method == 'POST':
-                response = requests.post(url, json=data, headers=headers)
-            elif method == 'PUT':
-                response = requests.put(url, json=data, headers=headers)
+                if files:
+                    # For multipart/form-data requests with file uploads
+                    response = requests.post(url, headers=headers, data=data, files=files)
+                else:
+                    # For JSON requests
+                    headers['Content-Type'] = 'application/json'
+                    response = requests.post(url, json=data, headers=headers)
             
             success = response.status_code == expected_status
             if success:
@@ -50,36 +56,25 @@ class LiftLinkAPITester:
                 except:
                     print(f"Response: {response.text}")
                 return False, {}
-
+                
         except Exception as e:
             print(f"❌ Failed - Error: {str(e)}")
             return False, {}
-
-    def test_health_check(self):
-        """Test the health check endpoint"""
-        success, response = self.run_test(
-            "Health Check",
-            "GET",
-            "api/health",
-            200
-        )
-        return success
-
+    
     def test_login(self, email, password):
-        """Test login with Firebase credentials"""
-        # For testing purposes, we'll use the user ID as the token
-        # In a real app, this would be a Firebase token
+        """Test login with demo credentials"""
+        # For testing purposes, we'll use predefined tokens
         if email == "user@demo.com":
             self.token = "demo_user"
+            self.user_id = "user123"
             return True
         elif email == "trainer@demo.com":
             self.token = "demo_trainer"
-            return True
-        elif email == "admin@demo.com":
-            self.token = "demo_admin"
+            self.user_id = "trainer123"
+            self.trainer_id = "trainer123"
             return True
         return False
-
+    
     def test_get_user_profile(self):
         """Test getting user profile"""
         success, response = self.run_test(
@@ -89,379 +84,366 @@ class LiftLinkAPITester:
             200
         )
         if success:
-            self.user_id = response.get('user_id')
             print(f"User profile: {json.dumps(response, indent=2)}")
         return success
-
-    def test_update_user_profile(self, name, phone, gym):
-        """Test updating user profile"""
+    
+    def test_start_verification_session(self, role):
+        """Test starting a verification session"""
         success, response = self.run_test(
-            "Update User Profile",
-            "PUT",
-            "api/users/profile",
+            f"Start Verification Session as {role}",
+            "POST",
+            "api/verification/start-session",
             200,
-            data={"name": name, "phone": phone, "gym": gym, "email": "user@demo.com"}
+            data={"role": role}
         )
+        
+        if success and "session_id" in response:
+            self.session_id = response["session_id"]
+            print(f"Session ID: {self.session_id}")
+            print(f"Role: {response.get('role')}")
+            print(f"Next step: {response.get('next_step')}")
+            print(f"Steps completed: {response.get('steps_completed')}")
+            print(f"Total steps: {response.get('total_steps')}")
+        
         return success
-
-    def test_register_trainer(self):
-        """Test registering as a trainer"""
-        trainer_data = {
-            "bio": "I'm a certified personal trainer with expertise in strength training.",
-            "specialties": ["Weight Training", "Cardio", "Personal Training"],
-            "hourly_rate": 50.0,
-            "gym_name": "FitZone Gym",
-            "location": {"lat": 40.7128, "lng": -74.0060},
-            "experience_years": 5,
-            "certifications": ["NASM CPT", "ACE"]
-        }
+    
+    def test_get_verification_status(self):
+        """Test getting verification session status"""
+        if not self.session_id:
+            print("❌ No session ID available. Start a session first.")
+            return False
         
         success, response = self.run_test(
-            "Register as Trainer",
-            "POST",
-            "api/trainers/register",
-            200,
-            data=trainer_data
-        )
-        return success
-
-    def test_search_trainers(self, specialty=None, max_rate=None, gym=None):
-        """Test searching for trainers"""
-        params = {}
-        if specialty:
-            params['specialty'] = specialty
-        if max_rate:
-            params['max_rate'] = max_rate
-        if gym:
-            params['gym'] = gym
-            
-        success, response = self.run_test(
-            "Search Trainers",
+            "Get Verification Session Status",
             "GET",
-            "api/trainers/search",
+            f"api/verification/session/{self.session_id}/status",
+            200
+        )
+        
+        if success:
+            print(f"Session ID: {response.get('session_id')}")
+            print(f"Role: {response.get('role')}")
+            print(f"Current step: {response.get('current_step')}")
+            print(f"Steps completed: {response.get('steps_completed')}")
+            print(f"Is complete: {response.get('is_complete')}")
+            print(f"Total steps: {response.get('total_steps')}")
+        
+        return success
+    
+    def test_upload_id(self, file_path, date_of_birth, document_type="drivers_license"):
+        """Test uploading an ID document"""
+        if not self.session_id:
+            print("❌ No session ID available. Start a session first.")
+            return False
+        
+        try:
+            with open(file_path, 'rb') as f:
+                file_data = f.read()
+                
+            files = {
+                'file': (os.path.basename(file_path), file_data, 'image/jpeg')
+            }
+            
+            data = {
+                'session_id': self.session_id,
+                'date_of_birth': date_of_birth,
+                'document_type': document_type
+            }
+            
+            success, response = self.run_test(
+                "Upload ID Document",
+                "POST",
+                "api/verification/enhanced-upload-id",
+                200,
+                data=data,
+                files=files
+            )
+            
+            if success and "verification_id" in response:
+                self.verification_id = response["verification_id"]
+                print(f"Verification ID: {self.verification_id}")
+                print(f"Age: {response.get('age')}")
+                print(f"Next step: {response.get('next_step')}")
+                print(f"Verification score: {response.get('verification_score')}")
+            
+            return success
+            
+        except Exception as e:
+            print(f"❌ Failed to upload ID: {str(e)}")
+            return False
+    
+    def test_upload_selfie(self, file_path):
+        """Test uploading a selfie"""
+        if not self.session_id:
+            print("❌ No session ID available. Start a session first.")
+            return False
+        
+        try:
+            with open(file_path, 'rb') as f:
+                file_data = f.read()
+                
+            files = {
+                'file': (os.path.basename(file_path), file_data, 'image/jpeg')
+            }
+            
+            data = {
+                'session_id': self.session_id
+            }
+            
+            success, response = self.run_test(
+                "Upload Selfie",
+                "POST",
+                "api/verification/upload-selfie",
+                200,
+                data=data,
+                files=files
+            )
+            
+            if success and "verification_id" in response:
+                print(f"Verification ID: {response.get('verification_id')}")
+                print(f"Face match score: {response.get('face_match_score')}")
+                print(f"Liveness score: {response.get('liveness_score')}")
+                print(f"Next step: {response.get('next_step')}")
+            
+            return success
+            
+        except Exception as e:
+            print(f"❌ Failed to upload selfie: {str(e)}")
+            return False
+    
+    def test_upload_certification(self, file_path):
+        """Test uploading a certification document"""
+        if not self.session_id:
+            print("❌ No session ID available. Start a session first.")
+            return False
+        
+        try:
+            with open(file_path, 'rb') as f:
+                file_data = f.read()
+                
+            files = {
+                'file': (os.path.basename(file_path), file_data, 'application/pdf' if file_path.endswith('.pdf') else 'image/jpeg')
+            }
+            
+            data = {
+                'session_id': self.session_id
+            }
+            
+            success, response = self.run_test(
+                "Upload Certification",
+                "POST",
+                "api/verification/enhanced-upload-certification",
+                200,
+                data=data,
+                files=files
+            )
+            
+            if success and "certification_id" in response:
+                print(f"Certification ID: {response.get('certification_id')}")
+                print(f"Certification type: {response.get('cert_type')}")
+                print(f"Confidence score: {response.get('confidence_score')}")
+                print(f"XP awarded: {response.get('xp_awarded')}")
+                print(f"Coins awarded: {response.get('coins_awarded')}")
+                print(f"Badge awarded: {response.get('badge_awarded')}")
+                print(f"Is complete: {response.get('is_complete')}")
+                print(f"Next step: {response.get('next_step')}")
+            
+            return success
+            
+        except Exception as e:
+            print(f"❌ Failed to upload certification: {str(e)}")
+            return False
+    
+    def test_upload_invalid_certification(self, file_path):
+        """Test uploading an invalid certification document"""
+        if not self.session_id:
+            print("❌ No session ID available. Start a session first.")
+            return False
+        
+        try:
+            with open(file_path, 'rb') as f:
+                file_data = f.read()
+                
+            files = {
+                'file': (os.path.basename(file_path), file_data, 'image/jpeg')
+            }
+            
+            data = {
+                'session_id': self.session_id
+            }
+            
+            # We expect this to fail with 400 Bad Request
+            success, response = self.run_test(
+                "Upload Invalid Certification",
+                "POST",
+                "api/verification/enhanced-upload-certification",
+                400,
+                data=data,
+                files=files
+            )
+            
+            # For invalid certification, we expect a 400 error
+            if success:
+                print("✅ Successfully rejected invalid certification")
+            
+            return success
+            
+        except Exception as e:
+            print(f"❌ Failed during invalid certification test: {str(e)}")
+            return False
+    
+    def test_get_trainer_crm_overview(self):
+        """Test getting trainer CRM dashboard overview"""
+        success, response = self.run_test(
+            "Get Trainer CRM Overview",
+            "GET",
+            "api/trainer/crm/overview",
+            200
+        )
+        
+        if success:
+            overview = response.get('overview', {})
+            recent_activity = response.get('recent_activity', [])
+            upcoming_sessions = response.get('upcoming_sessions', [])
+            
+            print(f"Total bookings: {overview.get('total_bookings')}")
+            print(f"This month bookings: {overview.get('this_month_bookings')}")
+            print(f"Total revenue: ${overview.get('total_revenue')}")
+            print(f"This month revenue: ${overview.get('this_month_revenue')}")
+            print(f"Total clients: {overview.get('total_clients')}")
+            print(f"Recent activity count: {len(recent_activity)}")
+            print(f"Upcoming sessions count: {len(upcoming_sessions)}")
+        
+        return success
+    
+    def test_get_trainer_clients(self, search=None, page=1, limit=10):
+        """Test getting trainer's client list"""
+        params = {
+            'page': page,
+            'limit': limit
+        }
+        
+        if search:
+            params['search'] = search
+        
+        success, response = self.run_test(
+            "Get Trainer Clients",
+            "GET",
+            "api/trainer/crm/clients",
             200,
             params=params
         )
         
-        if success and 'trainers' in response:
-            trainers = response['trainers']
-            if trainers:
-                self.trainer_id = trainers[0].get('trainer_id')
-                print(f"Found {len(trainers)} trainers")
-                print(f"First trainer: {json.dumps(trainers[0], indent=2)}")
-            else:
-                print("No trainers found")
+        if success:
+            clients = response.get('clients', [])
+            pagination = response.get('pagination', {})
+            
+            print(f"Found {len(clients)} clients")
+            print(f"Total clients: {pagination.get('total')}")
+            print(f"Page: {pagination.get('page')} of {pagination.get('pages')}")
+            
+            if clients:
+                print(f"First client: {json.dumps(clients[0], indent=2)}")
+                # Save first client ID for detailed test
+                self.client_id = clients[0].get('user_id')
         
         return success
-
-    def test_get_trainer_profile(self, trainer_id):
-        """Test getting trainer profile"""
+    
+    def test_get_client_details(self, client_id=None):
+        """Test getting specific client details"""
+        if not client_id and not self.client_id:
+            print("❌ No client ID available. Get client list first.")
+            return False
+        
+        client_id = client_id or self.client_id
+        
         success, response = self.run_test(
-            "Get Trainer Profile",
+            "Get Client Details",
             "GET",
-            f"api/trainers/{trainer_id}",
+            f"api/trainer/crm/client/{client_id}",
             200
         )
-        if success:
-            print(f"Trainer profile: {json.dumps(response, indent=2)}")
-        return success
-
-    def test_create_booking(self, trainer_id):
-        """Test creating a booking"""
-        # Set session date to tomorrow at 10 AM
-        session_date = (datetime.now() + timedelta(days=1)).replace(hour=10, minute=0, second=0).isoformat()
         
-        booking_data = {
-            "trainer_id": trainer_id,
-            "session_date": session_date,
-            "duration_hours": 1.0
+        if success:
+            client = response.get('client', {})
+            statistics = response.get('statistics', {})
+            booking_history = response.get('booking_history', [])
+            progress_entries = response.get('progress_entries', [])
+            
+            print(f"Client name: {client.get('name')}")
+            print(f"Total sessions: {statistics.get('total_sessions')}")
+            print(f"Completed sessions: {statistics.get('completed_sessions')}")
+            print(f"Completion rate: {statistics.get('completion_rate')}%")
+            print(f"Total spent: ${statistics.get('total_spent')}")
+            print(f"Booking history count: {len(booking_history)}")
+            print(f"Progress entries count: {len(progress_entries)}")
+        
+        return success
+    
+    def test_get_trainer_analytics(self, period="month"):
+        """Test getting trainer analytics"""
+        params = {
+            'period': period
         }
         
         success, response = self.run_test(
-            "Create Booking",
-            "POST",
-            "api/bookings/create",
+            f"Get Trainer Analytics ({period})",
+            "GET",
+            "api/trainer/crm/analytics",
             200,
-            data=booking_data
+            params=params
         )
         
-        if success and 'booking_id' in response:
-            self.booking_id = response['booking_id']
-            print(f"Booking created with ID: {self.booking_id}")
-            print(f"Total amount: ${response.get('total_amount')}")
-            print(f"Platform fee: ${response.get('platform_fee')}")
-            print(f"Trainer amount: ${response.get('trainer_amount')}")
+        if success:
+            date_range = response.get('date_range', {})
+            revenue_trend = response.get('revenue_trend', [])
+            client_retention = response.get('client_retention', {})
+            popular_sessions = response.get('popular_sessions', [])
+            
+            print(f"Period: {response.get('period')}")
+            print(f"Date range: {date_range.get('start')} to {date_range.get('end')}")
+            print(f"Revenue trend data points: {len(revenue_trend)}")
+            print(f"Repeat clients: {client_retention.get('repeat_clients')} of {client_retention.get('total_clients')}")
+            print(f"Popular session types: {len(popular_sessions)}")
+            
+            if popular_sessions:
+                print(f"Most popular session: {json.dumps(popular_sessions[0], indent=2)}")
         
         return success
 
-    def test_get_my_bookings(self):
-        """Test getting user's bookings"""
-        success, response = self.run_test(
-            "Get My Bookings",
-            "GET",
-            "api/bookings/my",
-            200
-        )
-        
-        if success and 'bookings' in response:
-            bookings = response['bookings']
-            print(f"Found {len(bookings)} bookings")
-            if bookings:
-                print(f"First booking: {json.dumps(bookings[0], indent=2)}")
-        
-        return success
-
-    def test_create_payment_session(self, booking_id):
-        """Test creating a payment session"""
-        success, response = self.run_test(
-            "Create Payment Session",
-            "POST",
-            f"api/payments/create-session?booking_id={booking_id}",
-            200
-        )
-        
-        if success and 'session_id' in response:
-            self.session_id = response['session_id']
-            print(f"Payment session created with ID: {self.session_id}")
-            print(f"Checkout URL: {response.get('checkout_url')}")
-        
-        return success
-
-    def test_get_payment_status(self, session_id):
-        """Test getting payment status"""
-        success, response = self.run_test(
-            "Get Payment Status",
-            "GET",
-            f"api/payments/status/{session_id}",
-            200
-        )
-        
-        if success:
-            print(f"Payment status: {response.get('payment_status')}")
-            print(f"Amount total: ${response.get('amount_total')}")
-        
-        return success
-
-    def test_get_dashboard_stats(self):
-        """Test getting dashboard statistics"""
-        success, response = self.run_test(
-            "Get Dashboard Stats",
-            "GET",
-            "api/dashboard/stats",
-            200
-        )
-        
-        if success:
-            print(f"Dashboard stats: {json.dumps(response, indent=2)}")
-        
-        return success
-        
-    def test_add_progress_entry(self, weight, body_fat_percentage=None, muscle_mass=None, notes=None):
-        """Test adding a progress entry"""
-        progress_data = {
-            "weight": weight,
-            "body_fat_percentage": body_fat_percentage,
-            "muscle_mass": muscle_mass,
-            "notes": notes
-        }
-        
-        success, response = self.run_test(
-            "Add Progress Entry",
-            "POST",
-            "api/progress/add",
-            200,
-            data=progress_data
-        )
-        
-        if success and 'progress_id' in response:
-            self.progress_id = response['progress_id']
-            print(f"Progress entry added with ID: {self.progress_id}")
-        
-        return success
-        
-    def test_get_my_progress(self):
-        """Test getting user's progress entries"""
-        success, response = self.run_test(
-            "Get My Progress",
-            "GET",
-            "api/progress/my",
-            200
-        )
-        
-        if success:
-            entries = response.get('progress_entries', [])
-            stats = response.get('stats', {})
-            goals = response.get('goals', [])
-            
-            print(f"Found {len(entries)} progress entries")
-            print(f"Progress stats: {json.dumps(stats, indent=2)}")
-            print(f"Found {len(goals)} goals")
-            
-            if entries:
-                print(f"Latest progress entry: {json.dumps(entries[0], indent=2)}")
-        
-        return success
-        
-    def test_get_progress_analytics(self):
-        """Test getting progress analytics"""
-        success, response = self.run_test(
-            "Get Progress Analytics",
-            "GET",
-            "api/progress/analytics",
-            200
-        )
-        
-        if success:
-            weekly_data = response.get('weekly_data', [])
-            trend_direction = response.get('trend_direction')
-            recent_trend = response.get('recent_trend')
-            
-            print(f"Found {len(weekly_data)} weekly data points")
-            print(f"Trend direction: {trend_direction}")
-            print(f"Recent trend: {recent_trend}")
-        
-        return success
-        
-    def test_get_progress_leaderboard(self):
-        """Test getting progress leaderboard"""
-        success, response = self.run_test(
-            "Get Progress Leaderboard",
-            "GET",
-            "api/progress/leaderboard",
-            200
-        )
-        
-        if success:
-            leaderboard = response.get('leaderboard', [])
-            print(f"Found {len(leaderboard)} users on leaderboard")
-            
-            if leaderboard:
-                print(f"Top user: {json.dumps(leaderboard[0], indent=2)}")
-        
-        return success
-        
-    def test_add_goal(self, goal_type, target_value, target_date):
-        """Test adding a fitness goal"""
-        goal_data = {
-            "goal_type": goal_type,
-            "target_value": target_value,
-            "target_date": target_date
-        }
-        
-        success, response = self.run_test(
-            "Add Goal",
-            "POST",
-            "api/goals/add",
-            200,
-            data=goal_data
-        )
-        
-        if success and 'goal_id' in response:
-            self.goal_id = response['goal_id']
-            print(f"Goal added with ID: {self.goal_id}")
-        
-        return success
-        
-    def test_admin_stats(self):
-        """Test getting admin dashboard statistics"""
-        success, response = self.run_test(
-            "Get Admin Stats",
-            "GET",
-            "api/admin/stats",
-            200
-        )
-        
-        if success:
-            print(f"Admin stats: {json.dumps(response, indent=2)}")
-        
-        return success
-        
-    def test_admin_users(self):
-        """Test getting all users (admin only)"""
-        success, response = self.run_test(
-            "Get All Users",
-            "GET",
-            "api/admin/users",
-            200
-        )
-        
-        if success:
-            users = response.get('users', [])
-            print(f"Found {len(users)} users")
-            
-            if users:
-                print(f"First user: {json.dumps(users[0], indent=2)}")
-        
-        return success
-        
-    def test_admin_trainers(self):
-        """Test getting all trainers (admin only)"""
-        success, response = self.run_test(
-            "Get All Trainers",
-            "GET",
-            "api/admin/trainers",
-            200
-        )
-        
-        if success:
-            trainers = response.get('trainers', [])
-            print(f"Found {len(trainers)} trainers")
-            
-            if trainers:
-                print(f"First trainer: {json.dumps(trainers[0], indent=2)}")
-        
-        return success
-        
-    def test_admin_bookings(self):
-        """Test getting all bookings (admin only)"""
-        success, response = self.run_test(
-            "Get All Bookings",
-            "GET",
-            "api/admin/bookings",
-            200
-        )
-        
-        if success:
-            bookings = response.get('bookings', [])
-            print(f"Found {len(bookings)} bookings")
-            
-            if bookings:
-                print(f"First booking: {json.dumps(bookings[0], indent=2)}")
-        
-        return success
-        
-    def test_admin_transactions(self):
-        """Test getting all transactions (admin only)"""
-        success, response = self.run_test(
-            "Get All Transactions",
-            "GET",
-            "api/admin/transactions",
-            200
-        )
-        
-        if success:
-            transactions = response.get('transactions', [])
-            print(f"Found {len(transactions)} transactions")
-            
-            if transactions:
-                print(f"First transaction: {json.dumps(transactions[0], indent=2)}")
-        
-        return success
-
-def run_user_flow_tests(base_url):
-    """Run tests for the regular user flow"""
-    tester = LiftLinkAPITester(base_url)
+def create_test_files():
+    """Create test files for ID, selfie, and certification uploads"""
+    # Create a directory for test files
+    os.makedirs("/app/tests/test_files", exist_ok=True)
     
-    print("\n===== TESTING USER FLOW =====\n")
+    # Create a mock ID image
+    with open("/app/tests/test_files/mock_id.jpg", "w") as f:
+        f.write("This is a mock ID image file")
     
-    # Skip health check as it's not implemented
-    print("ℹ️ Skipping health check as it's not implemented")
-    # Test health check
-    #if not tester.test_health_check():
-    #    print("❌ Health check failed, stopping tests")
-    #    return False
+    # Create a mock selfie image
+    with open("/app/tests/test_files/mock_selfie.jpg", "w") as f:
+        f.write("This is a mock selfie image file")
     
-    # Test login
+    # Create a mock valid certification PDF
+    with open("/app/tests/test_files/valid_certification.pdf", "w") as f:
+        f.write("NASM Certified Personal Trainer\nCertification Number: ABC123456\nIssued to: Demo Trainer\nIssue Date: 01/01/2023\nExpiry Date: 01/01/2025\nNational Academy of Sports Medicine\nwww.nasm.org")
+    
+    # Create a mock invalid certification image
+    with open("/app/tests/test_files/invalid_certification.jpg", "w") as f:
+        f.write("This is not a valid certification document")
+    
+    print("✅ Created test files in /app/tests/test_files/")
+
+def run_verification_flow_tests(base_url):
+    """Test the verification flow for a trainee"""
+    tester = VerificationAPITester(base_url)
+    
+    print("\n===== TESTING TRAINEE VERIFICATION FLOW =====\n")
+    
+    # Create test files
+    create_test_files()
+    
+    # Test login as user
     if not tester.test_login("user@demo.com", "demo123"):
         print("❌ Login failed, stopping tests")
         return False
@@ -471,49 +453,128 @@ def run_user_flow_tests(base_url):
         print("❌ Failed to get user profile, stopping tests")
         return False
     
-    # Test updating user profile
-    if not tester.test_update_user_profile("Demo User", "555-123-4567", "FitZone Gym"):
-        print("❌ Failed to update user profile")
+    # Test starting a verification session as trainee
+    if not tester.test_start_verification_session("trainee"):
+        print("❌ Failed to start verification session, stopping tests")
+        return False
     
-    # Test searching for trainers
-    if not tester.test_search_trainers():
-        print("❌ Failed to search trainers")
+    # Test getting verification status
+    if not tester.test_get_verification_status():
+        print("❌ Failed to get verification status")
     
-    # If we found a trainer, test getting their profile
-    if tester.trainer_id:
-        if not tester.test_get_trainer_profile(tester.trainer_id):
-            print("❌ Failed to get trainer profile")
-        
-        # Test creating a booking
-        if not tester.test_create_booking(tester.trainer_id):
-            print("❌ Failed to create booking")
-        
-        # If booking was created, test payment session
-        if tester.booking_id:
-            if not tester.test_create_payment_session(tester.booking_id):
-                print("❌ Failed to create payment session")
-            
-            # If payment session was created, test getting status
-            if tester.session_id:
-                if not tester.test_get_payment_status(tester.session_id):
-                    print("❌ Failed to get payment status")
+    # Test uploading ID
+    if not tester.test_upload_id("/app/tests/test_files/mock_id.jpg", "1990-01-01"):
+        print("❌ Failed to upload ID")
     
-    # Test getting user's bookings
-    if not tester.test_get_my_bookings():
-        print("❌ Failed to get user's bookings")
+    # Test getting updated verification status
+    if not tester.test_get_verification_status():
+        print("❌ Failed to get updated verification status")
     
-    # Test getting dashboard stats
-    if not tester.test_get_dashboard_stats():
-        print("❌ Failed to get dashboard stats")
+    # Test uploading selfie
+    if not tester.test_upload_selfie("/app/tests/test_files/mock_selfie.jpg"):
+        print("❌ Failed to upload selfie")
     
-    print(f"\n📊 User flow tests passed: {tester.tests_passed}/{tester.tests_run}")
+    # Test getting final verification status
+    if not tester.test_get_verification_status():
+        print("❌ Failed to get final verification status")
+    
+    print(f"\n📊 Trainee verification flow tests passed: {tester.tests_passed}/{tester.tests_run}")
     return tester.tests_passed == tester.tests_run
 
-def run_trainer_flow_tests(base_url):
-    """Run tests for the trainer flow"""
-    tester = LiftLinkAPITester(base_url)
+def run_trainer_verification_flow_tests(base_url):
+    """Test the verification flow for a trainer"""
+    tester = VerificationAPITester(base_url)
     
-    print("\n===== TESTING TRAINER FLOW =====\n")
+    print("\n===== TESTING TRAINER VERIFICATION FLOW =====\n")
+    
+    # Test login as user who will become a trainer
+    if not tester.test_login("user@demo.com", "demo123"):
+        print("❌ Login failed, stopping tests")
+        return False
+    
+    # Test getting user profile
+    if not tester.test_get_user_profile():
+        print("❌ Failed to get user profile, stopping tests")
+        return False
+    
+    # Test starting a verification session as trainer
+    if not tester.test_start_verification_session("trainer"):
+        print("❌ Failed to start verification session, stopping tests")
+        return False
+    
+    # Test getting verification status
+    if not tester.test_get_verification_status():
+        print("❌ Failed to get verification status")
+    
+    # Test uploading ID
+    if not tester.test_upload_id("/app/tests/test_files/mock_id.jpg", "1990-01-01"):
+        print("❌ Failed to upload ID")
+    
+    # Test getting updated verification status
+    if not tester.test_get_verification_status():
+        print("❌ Failed to get updated verification status")
+    
+    # Test uploading selfie
+    if not tester.test_upload_selfie("/app/tests/test_files/mock_selfie.jpg"):
+        print("❌ Failed to upload selfie")
+    
+    # Test getting updated verification status
+    if not tester.test_get_verification_status():
+        print("❌ Failed to get updated verification status")
+    
+    # Test uploading valid certification
+    if not tester.test_upload_certification("/app/tests/test_files/valid_certification.pdf"):
+        print("❌ Failed to upload valid certification")
+    
+    # Test getting final verification status
+    if not tester.test_get_verification_status():
+        print("❌ Failed to get final verification status")
+    
+    print(f"\n📊 Trainer verification flow tests passed: {tester.tests_passed}/{tester.tests_run}")
+    return tester.tests_passed == tester.tests_run
+
+def run_certification_validation_tests(base_url):
+    """Test the certification validation functionality"""
+    tester = VerificationAPITester(base_url)
+    
+    print("\n===== TESTING CERTIFICATION VALIDATION =====\n")
+    
+    # Test login as user
+    if not tester.test_login("user@demo.com", "demo123"):
+        print("❌ Login failed, stopping tests")
+        return False
+    
+    # Test starting a verification session as trainer
+    if not tester.test_start_verification_session("trainer"):
+        print("❌ Failed to start verification session, stopping tests")
+        return False
+    
+    # Test uploading ID (required before certification)
+    if not tester.test_upload_id("/app/tests/test_files/mock_id.jpg", "1990-01-01"):
+        print("❌ Failed to upload ID")
+        return False
+    
+    # Test uploading selfie (required before certification)
+    if not tester.test_upload_selfie("/app/tests/test_files/mock_selfie.jpg"):
+        print("❌ Failed to upload selfie")
+        return False
+    
+    # Test uploading invalid certification (should be rejected)
+    if not tester.test_upload_invalid_certification("/app/tests/test_files/invalid_certification.jpg"):
+        print("❌ Failed during invalid certification test")
+    
+    # Test uploading valid certification
+    if not tester.test_upload_certification("/app/tests/test_files/valid_certification.pdf"):
+        print("❌ Failed to upload valid certification")
+    
+    print(f"\n📊 Certification validation tests passed: {tester.tests_passed}/{tester.tests_run}")
+    return tester.tests_passed == tester.tests_run
+
+def run_trainer_crm_tests(base_url):
+    """Test the trainer CRM dashboard endpoints"""
+    tester = VerificationAPITester(base_url)
+    
+    print("\n===== TESTING TRAINER CRM DASHBOARD =====\n")
     
     # Test login as trainer
     if not tester.test_login("trainer@demo.com", "demo123"):
@@ -525,255 +586,27 @@ def run_trainer_flow_tests(base_url):
         print("❌ Failed to get trainer profile, stopping tests")
         return False
     
-    # Test getting trainer's bookings
-    if not tester.test_get_my_bookings():
-        print("❌ Failed to get trainer's bookings")
+    # Test getting CRM overview
+    if not tester.test_get_trainer_crm_overview():
+        print("❌ Failed to get CRM overview")
     
-    # Test getting dashboard stats
-    if not tester.test_get_dashboard_stats():
-        print("❌ Failed to get trainer dashboard stats")
+    # Test getting client list
+    if not tester.test_get_trainer_clients():
+        print("❌ Failed to get client list")
     
-    print(f"\n📊 Trainer flow tests passed: {tester.tests_passed}/{tester.tests_run}")
-    return tester.tests_passed == tester.tests_run
-
-def run_user_to_trainer_conversion_test(base_url):
-    """Test converting a regular user to a trainer"""
-    tester = LiftLinkAPITester(base_url)
+    # Test getting client details
+    if tester.client_id:
+        if not tester.test_get_client_details():
+            print("❌ Failed to get client details")
+    else:
+        print("⚠️ Skipping client details test - no client ID available")
     
-    print("\n===== TESTING USER TO TRAINER CONVERSION =====\n")
+    # Test getting analytics with different periods
+    for period in ["week", "month", "quarter", "year"]:
+        if not tester.test_get_trainer_analytics(period):
+            print(f"❌ Failed to get analytics for period: {period}")
     
-    # Test login
-    if not tester.test_login("user@demo.com", "demo123"):
-        print("❌ Login failed, stopping tests")
-        return False
-    
-    # Test getting user profile
-    if not tester.test_get_user_profile():
-        print("❌ Failed to get user profile, stopping tests")
-        return False
-    
-    # Test registering as a trainer
-    if not tester.test_register_trainer():
-        print("❌ Failed to register as trainer")
-        return False
-    
-    # Test getting updated profile (should now be a trainer)
-    if not tester.test_get_user_profile():
-        print("❌ Failed to get updated profile")
-        return False
-    
-    print(f"\n📊 User to trainer conversion tests passed: {tester.tests_passed}/{tester.tests_run}")
-    return tester.tests_passed == tester.tests_run
-
-def run_progress_tracking_tests(base_url):
-    """Test the progress tracking features"""
-    tester = LiftLinkAPITester(base_url)
-    
-    print("\n===== TESTING PROGRESS TRACKING =====\n")
-    
-    # Test login
-    if not tester.test_login("user@demo.com", "demo123"):
-        print("❌ Login failed, stopping tests")
-        return False
-    
-    # Test getting user profile
-    if not tester.test_get_user_profile():
-        print("❌ Failed to get user profile, stopping tests")
-        return False
-    
-    # Test adding a progress entry
-    if not tester.test_add_progress_entry(
-        weight=80.5, 
-        body_fat_percentage=18.5, 
-        muscle_mass=65.0, 
-        notes="Feeling good after today's workout"
-    ):
-        print("❌ Failed to add progress entry")
-    
-    # Test adding another progress entry with different weight
-    if not tester.test_add_progress_entry(
-        weight=79.8, 
-        body_fat_percentage=18.2, 
-        notes="Lost some weight this week"
-    ):
-        print("❌ Failed to add second progress entry")
-    
-    # Test getting user's progress
-    if not tester.test_get_my_progress():
-        print("❌ Failed to get progress data")
-    
-    # Test getting progress analytics
-    if not tester.test_get_progress_analytics():
-        print("❌ Failed to get progress analytics")
-    
-    # Test getting progress leaderboard
-    if not tester.test_get_progress_leaderboard():
-        print("❌ Failed to get progress leaderboard")
-    
-    # Test adding a goal
-    target_date = (datetime.now() + timedelta(days=30)).isoformat()
-    if not tester.test_add_goal(
-        goal_type="weight_loss",
-        target_value=75.0,
-        target_date=target_date
-    ):
-        print("❌ Failed to add goal")
-    
-    # Test getting progress again to see the goal
-    if not tester.test_get_my_progress():
-        print("❌ Failed to get updated progress data with goal")
-    
-    print(f"\n📊 Progress tracking tests passed: {tester.tests_passed}/{tester.tests_run}")
-    return tester.tests_passed == tester.tests_run
-
-def run_admin_tests(base_url):
-    """Test the admin features"""
-    tester = LiftLinkAPITester(base_url)
-    
-    print("\n===== TESTING ADMIN FEATURES =====\n")
-    
-    # Test login as admin
-    if not tester.test_login("admin@demo.com", "demo123"):
-        print("❌ Admin login failed, stopping tests")
-        return False
-    
-    # Test getting admin profile
-    if not tester.test_get_user_profile():
-        print("❌ Failed to get admin profile, stopping tests")
-        return False
-    
-    # Test getting admin dashboard stats
-    if not tester.test_admin_stats():
-        print("❌ Failed to get admin stats")
-    
-    # Test getting all users
-    if not tester.test_admin_users():
-        print("❌ Failed to get all users")
-    
-    # Test getting all trainers
-    if not tester.test_admin_trainers():
-        print("❌ Failed to get all trainers")
-    
-    # Test getting all bookings
-    if not tester.test_admin_bookings():
-        print("❌ Failed to get all bookings")
-    
-    # Test getting all transactions
-    if not tester.test_admin_transactions():
-        print("❌ Failed to get all transactions")
-    
-    print(f"\n📊 Admin tests passed: {tester.tests_passed}/{tester.tests_run}")
-    return tester.tests_passed == tester.tests_run
-
-def test_get_my_tree(tester):
-    """Test getting user's tree structure"""
-    success, response = tester.run_test(
-        "Get My Tree",
-        "GET",
-        "api/tree/my-tree",
-        200
-    )
-    
-    if success:
-        tree_structure = response.get('tree_structure', {})
-        nodes = response.get('nodes', [])
-        total_nodes = response.get('total_nodes', 0)
-        completed_nodes = response.get('completed_nodes', 0)
-        
-        print(f"Found {total_nodes} total nodes, {completed_nodes} completed")
-        print(f"Tree structure: {json.dumps(tree_structure, indent=2)[:200]}...")
-    
-    return success
-
-def test_get_coin_balance(tester):
-    """Test getting user's coin balance"""
-    success, response = tester.run_test(
-        "Get Coin Balance",
-        "GET",
-        "api/coins/balance",
-        200
-    )
-    
-    if success:
-        lift_coins = response.get('lift_coins', 0)
-        total_coins_earned = response.get('total_coins_earned', 0)
-        level = response.get('level', 1)
-        xp_points = response.get('xp_points', 0)
-        consecutive_days = response.get('consecutive_days', 0)
-        
-        print(f"LiftCoins: {lift_coins}")
-        print(f"Total Coins Earned: {total_coins_earned}")
-        print(f"Level: {level}")
-        print(f"XP Points: {xp_points}")
-        print(f"Consecutive Days: {consecutive_days}")
-        
-        # Calculate tree progress based on the formula:
-        # baseProgress (level * 10) + streakBonus (streak * 2, max 30%) + activityBonus (xp/100, max 20%)
-        base_progress = level * 10
-        streak_bonus = min(consecutive_days * 2, 30)
-        activity_bonus = min(xp_points / 100, 20)
-        
-        total_progress = min(base_progress + streak_bonus + activity_bonus, 100)
-        
-        print(f"\n=== Tree Progress Calculation ===")
-        print(f"Base Progress (level * 10): {base_progress}%")
-        print(f"Streak Bonus (streak * 2, max 30%): {streak_bonus}%")
-        print(f"Activity Bonus (xp/100, max 20%): {activity_bonus}%")
-        print(f"Total Progress (capped at 100%): {total_progress}%")
-    
-    return success
-
-def test_daily_checkin(tester):
-    """Test daily check-in to maintain streak"""
-    success, response = tester.run_test(
-        "Daily Check-in",
-        "POST",
-        "api/coins/daily-checkin",
-        200
-    )
-    
-    if success:
-        streak = response.get('streak', 0)
-        lift_coins = response.get('lift_coins', 0)
-        
-        print(f"Current Streak: {streak} days")
-        print(f"Current LiftCoins: {lift_coins}")
-    
-    return success
-
-def run_fitness_forest_tests(base_url):
-    """Test the Fitness Forest functionality"""
-    tester = LiftLinkAPITester(base_url)
-    
-    print("\n===== TESTING FITNESS FOREST FUNCTIONALITY =====\n")
-    
-    # Test login
-    if not tester.test_login("user@demo.com", "demo123"):
-        print("❌ Login failed, stopping tests")
-        return False
-    
-    # Test getting user profile
-    if not tester.test_get_user_profile():
-        print("❌ Failed to get user profile, stopping tests")
-        return False
-    
-    # Test getting user's tree structure
-    if not test_get_my_tree(tester):
-        print("❌ Failed to get tree structure")
-    
-    # Test getting coin balance
-    if not test_get_coin_balance(tester):
-        print("❌ Failed to get coin balance")
-    
-    # Test daily check-in
-    if not test_daily_checkin(tester):
-        print("❌ Failed to perform daily check-in")
-    
-    # Test getting updated coin balance after check-in
-    if not test_get_coin_balance(tester):
-        print("❌ Failed to get updated coin balance")
-    
-    print(f"\n📊 Fitness Forest tests passed: {tester.tests_passed}/{tester.tests_run}")
+    print(f"\n📊 Trainer CRM tests passed: {tester.tests_passed}/{tester.tests_run}")
     return tester.tests_passed == tester.tests_run
 
 if __name__ == "__main__":
@@ -792,23 +625,19 @@ if __name__ == "__main__":
     print(f"🔗 Testing backend at: {BACKEND_URL}")
     
     # Run all test flows
-    user_flow_success = run_user_flow_tests(BACKEND_URL)
-    trainer_flow_success = run_trainer_flow_tests(BACKEND_URL)
-    conversion_success = run_user_to_trainer_conversion_test(BACKEND_URL)
-    progress_tracking_success = run_progress_tracking_tests(BACKEND_URL)
-    admin_success = run_admin_tests(BACKEND_URL)
-    fitness_forest_success = run_fitness_forest_tests(BACKEND_URL)
+    trainee_verification_success = run_verification_flow_tests(BACKEND_URL)
+    trainer_verification_success = run_trainer_verification_flow_tests(BACKEND_URL)
+    certification_validation_success = run_certification_validation_tests(BACKEND_URL)
+    trainer_crm_success = run_trainer_crm_tests(BACKEND_URL)
     
     # Print overall results
     print("\n===== TEST SUMMARY =====")
-    print(f"User Flow: {'✅ PASSED' if user_flow_success else '❌ FAILED'}")
-    print(f"Trainer Flow: {'✅ PASSED' if trainer_flow_success else '❌ FAILED'}")
-    print(f"User to Trainer Conversion: {'✅ PASSED' if conversion_success else '❌ FAILED'}")
-    print(f"Progress Tracking: {'✅ PASSED' if progress_tracking_success else '❌ FAILED'}")
-    print(f"Admin Features: {'✅ PASSED' if admin_success else '❌ FAILED'}")
-    print(f"Fitness Forest: {'✅ PASSED' if fitness_forest_success else '❌ FAILED'}")
+    print(f"Trainee Verification Flow: {'✅ PASSED' if trainee_verification_success else '❌ FAILED'}")
+    print(f"Trainer Verification Flow: {'✅ PASSED' if trainer_verification_success else '❌ FAILED'}")
+    print(f"Certification Validation: {'✅ PASSED' if certification_validation_success else '❌ FAILED'}")
+    print(f"Trainer CRM Dashboard: {'✅ PASSED' if trainer_crm_success else '❌ FAILED'}")
     
-    overall_success = user_flow_success and trainer_flow_success and conversion_success and progress_tracking_success and admin_success and fitness_forest_success
+    overall_success = trainee_verification_success and trainer_verification_success and certification_validation_success and trainer_crm_success
     print(f"\nOverall Test Result: {'✅ PASSED' if overall_success else '❌ FAILED'}")
     
     exit(0 if overall_success else 1)
