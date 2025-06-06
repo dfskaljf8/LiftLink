@@ -2919,13 +2919,17 @@ async def get_verification_status(current_user: dict = Depends(get_current_user)
 # Global verification sessions
 verification_sessions = {}
 
+class VerificationStartRequest(BaseModel):
+    role: str
+
 @app.post("/api/verification/start-session")
 async def start_verification_session(
-    role: str,  # "trainee" or "trainer"
+    request: VerificationStartRequest,
     current_user: dict = Depends(get_current_user)
 ):
     """Start a new verification session with role selection"""
     
+    role = request.role
     if role not in ["trainee", "trainer"]:
         raise HTTPException(status_code=400, detail="Role must be 'trainee' or 'trainer'")
     
