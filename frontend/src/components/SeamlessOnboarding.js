@@ -1161,7 +1161,42 @@ const CompleteStep = ({ userData, onComplete, stepData }) => {
         }}>
           We're finding trainers perfect for your goals:<br/>
           <strong style={{ color: '#C4D600' }}>
-            {userData.fitnessGoals?.join(', ')} • {userData.experience} level • {userData.preferredWorkout}
+            {(() => {
+              const goals = [
+                { id: 'weight_loss', label: 'Lose Weight' },
+                { id: 'muscle_gain', label: 'Build Muscle' },
+                { id: 'strength', label: 'Get Stronger' },
+                { id: 'endurance', label: 'Improve Endurance' },
+                { id: 'flexibility', label: 'Increase Flexibility' },
+                { id: 'health', label: 'General Health' }
+              ];
+              
+              const experiences = {
+                'beginner': 'Beginner',
+                'intermediate': 'Intermediate', 
+                'advanced': 'Advanced',
+                'expert': 'Expert'
+              };
+              
+              const workouts = {
+                'strength': 'Strength Training',
+                'cardio': 'Cardio & HIIT',
+                'yoga': 'Yoga & Flexibility',
+                'boxing': 'Boxing & Combat',
+                'dance': 'Dance Fitness',
+                'outdoor': 'Outdoor Activities'
+              };
+              
+              const goalLabels = userData.fitnessGoals?.map(id => {
+                const goal = goals.find(g => g.id === id);
+                return goal ? goal.label : id;
+              }).join(', ') || '';
+              
+              const experienceLabel = experiences[userData.experience] || userData.experience || '';
+              const workoutLabel = workouts[userData.preferredWorkout] || userData.preferredWorkout || '';
+              
+              return `${goalLabels} • ${experienceLabel} level • ${workoutLabel}`;
+            })()}
           </strong>
         </div>
       </div>
