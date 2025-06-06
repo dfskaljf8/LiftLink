@@ -39,18 +39,38 @@ const AppContent = () => {
   const [celebrationType, setCelebrationType] = useState('');
   const [showHarvest, setShowHarvest] = useState(false);
   const [actionFeedback, setActionFeedback] = useState({ type: '', visible: false });
+  const [userVerified, setUserVerified] = useState(false);
+  const [userRole, setUserRole] = useState(null); // 'trainee' or 'trainer'
+  const [isFirstTime, setIsFirstTime] = useState(true);
 
-  // Mock user profile data
+  // Mock user profile data with verification status
   const mockUserProfile = {
     name: 'Demo User',
+    role: userRole,
     level: 5,
     xp_points: 450,
     lift_coins: 150,
     consecutive_days: 7,
     max_streak: 12,
     last_login: Date.now() - (3 * 60 * 60 * 1000), // 3 hours ago
-    avatar: 'DU'
+    avatar: 'DU',
+    verified: userVerified,
+    id_verified: userVerified,
+    verification_complete: userVerified,
+    token: userRole === 'trainer' ? 'demo_trainer' : 'demo_user'
   };
+
+  // Check if user needs verification on first load
+  useEffect(() => {
+    // In real app, check localStorage or API for verification status
+    const savedVerification = localStorage.getItem('liftlink_verification');
+    if (savedVerification) {
+      const verificationData = JSON.parse(savedVerification);
+      setUserVerified(verificationData.verified);
+      setUserRole(verificationData.role);
+      setIsFirstTime(false);
+    }
+  }, []);
 
   const competitiveFriends = [
     { name: 'Sarah Chen', value: 8 },
@@ -106,6 +126,50 @@ const AppContent = () => {
     console.log('Searching for:', query);
     setCurrentView('trainers');
   };
+
+  // Handle verification completion
+  const handleVerificationComplete = (verificationData) => {
+    setUserVerified(true);
+    setUserRole(verificationData.role);
+    setIsFirstTime(false);
+    
+    // Save to localStorage
+    localStorage.setItem('liftlink_verification', JSON.stringify({
+      verified: true,
+      role: verificationData.role,
+      completedAt: new Date().toISOString()
+    }));
+    
+    // Navigate to appropriate dashboard
+    if (verificationData.role === 'trainer') {
+      setCurrentView('trainer-crm');
+    } else {
+      setCurrentView('home');
+    }
+    
+    triggerCelebration('verification_complete');
+  };
+
+  // Reset verification (for demo purposes)
+  const resetVerification = () => {
+    setUserVerified(false);
+    setUserRole(null);
+    setIsFirstTime(true);
+    localStorage.removeItem('liftlink_verification');
+    setCurrentView('home');
+  };
+
+  // Show verification flow if user is not verified
+  if (!userVerified && isFirstTime) {
+    return (
+      <div className="professional-app">
+        <VerificationFlow 
+          onComplete={handleVerificationComplete}
+          userProfile={mockUserProfile}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="professional-app">
