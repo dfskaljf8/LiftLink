@@ -686,6 +686,508 @@ input, textarea {
   }
 }
 
+/* ============ MOBILE-FIRST RESPONSIVE DESIGN ============ */
+
+/* Base Mobile Styles (320px - 768px) */
+@media (max-width: 768px) {
+  .professional-app {
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  /* Header optimizations */
+  .professional-app > div:first-child {
+    padding: 0 var(--space-md) !important;
+    height: 60px !important;
+  }
+
+  /* Navigation optimizations */
+  .bottom-nav {
+    padding: var(--space-sm) var(--space-md) !important;
+    height: 70px !important;
+  }
+
+  .bottom-nav button {
+    padding: var(--space-xs) !important;
+    font-size: 12px !important;
+    min-width: auto !important;
+    flex: 1 !important;
+  }
+
+  /* Content padding adjustments */
+  main {
+    padding: 0 var(--space-md) var(--space-lg) !important;
+    margin-top: 60px !important;
+    padding-bottom: 90px !important;
+  }
+
+  /* Card spacing optimizations */
+  .glass-card {
+    padding: var(--space-lg) !important;
+    margin-bottom: var(--space-md) !important;
+  }
+
+  /* Button sizing */
+  .btn-primary, .btn-secondary {
+    padding: var(--space-md) var(--space-lg) !important;
+    font-size: 16px !important;
+    min-height: 44px !important;
+    border-radius: 8px !important;
+  }
+
+  /* Form inputs */
+  input, select, textarea {
+    padding: var(--space-md) !important;
+    font-size: 16px !important;
+    min-height: 44px !important;
+    border-radius: 8px !important;
+  }
+
+  /* Grid layouts */
+  .grid-auto-fit {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-md) !important;
+  }
+
+  .grid-2-cols {
+    grid-template-columns: 1fr !important;
+  }
+
+  .grid-3-cols {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  /* Hide sidebar on mobile */
+  .sidebar {
+    transform: translateX(-100%) !important;
+  }
+
+  .sidebar.open {
+    transform: translateX(0) !important;
+  }
+
+  /* Text scaling */
+  h1 {
+    font-size: 24px !important;
+    line-height: 1.2 !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+    line-height: 1.3 !important;
+  }
+
+  h3 {
+    font-size: 18px !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Modal optimizations */
+  .modal {
+    padding: var(--space-md) !important;
+    max-height: 90vh !important;
+  }
+
+  .modal-content {
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 12px !important;
+  }
+}
+
+/* Small Mobile (320px - 480px) */
+@media (max-width: 480px) {
+  .professional-app {
+    font-size: 13px;
+  }
+
+  /* Extra tight spacing */
+  main {
+    padding: 0 var(--space-sm) var(--space-md) !important;
+  }
+
+  .glass-card {
+    padding: var(--space-md) !important;
+  }
+
+  /* Single column layouts */
+  .grid-auto-fit,
+  .grid-2-cols,
+  .grid-3-cols {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Button adjustments */
+  .btn-group {
+    flex-direction: column !important;
+    gap: var(--space-sm) !important;
+  }
+
+  /* Navigation simplification */
+  .bottom-nav {
+    padding: var(--space-xs) var(--space-sm) !important;
+  }
+
+  .bottom-nav button {
+    font-size: 11px !important;
+  }
+
+  /* Text overflow handling */
+  .text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* Tablet Portrait (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .professional-app {
+    font-size: 15px;
+  }
+
+  main {
+    padding: 0 var(--space-lg) var(--space-xl) !important;
+  }
+
+  .grid-auto-fit {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  }
+
+  .grid-2-cols {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .sidebar {
+    width: 280px !important;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  button, .clickable {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+
+  /* Improved hover states for touch */
+  .glass-card:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  button:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+
+  /* Remove hover effects on touch devices */
+  .hover-effect:hover {
+    transform: none !important;
+  }
+}
+
+/* High DPI screens */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  /* Sharper borders and shadows */
+  .glass-card {
+    border: 0.5px solid rgba(255, 255, 255, 0.2) !important;
+  }
+
+  .btn-primary, .btn-secondary {
+    border: 0.5px solid transparent !important;
+  }
+}
+
+/* Dark mode mobile optimizations */
+@media (prefers-color-scheme: dark) and (max-width: 768px) {
+  .glass-card {
+    background: rgba(0, 0, 0, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+
+  input, select, textarea {
+    background: rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+  }
+}
+
+/* iOS Safari specific fixes */
+@supports (-webkit-overflow-scrolling: touch) {
+  /* Fix viewport height issues */
+  .full-height {
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+
+  /* Smooth scrolling */
+  .scrollable {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+  }
+
+  /* Fix input zoom on iOS */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Android specific optimizations */
+@media screen and (-webkit-min-device-pixel-ratio: 0) and (max-width: 768px) {
+  /* Fix rendering issues on Android */
+  .glass-card {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+
+  /* Improve scroll performance */
+  .scrollable {
+    will-change: scroll-position;
+  }
+}
+
+/* Landscape mobile optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+  /* Reduce header height in landscape */
+  .professional-app > div:first-child {
+    height: 50px !important;
+  }
+
+  main {
+    margin-top: 50px !important;
+  }
+
+  /* Compress vertical spacing */
+  .glass-card {
+    padding: var(--space-md) var(--space-lg) !important;
+  }
+
+  /* Horizontal layouts for landscape */
+  .landscape-row {
+    display: flex !important;
+    gap: var(--space-md) !important;
+  }
+
+  .landscape-row > * {
+    flex: 1 !important;
+  }
+}
+
+/* Accessibility improvements for mobile */
+@media (max-width: 768px) {
+  /* Focus indicators */
+  button:focus,
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: 2px solid #C4D600 !important;
+    outline-offset: 2px !important;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .glass-card {
+      border: 2px solid white !important;
+      background: rgba(0, 0, 0, 0.9) !important;
+    }
+
+    .btn-primary {
+      background: #C4D600 !important;
+      color: black !important;
+      border: 2px solid #C4D600 !important;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Utility classes for mobile responsiveness */
+.mobile-only {
+  display: none;
+}
+
+.mobile-hidden {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: block;
+  }
+
+  .mobile-hidden {
+    display: none;
+  }
+
+  .mobile-full-width {
+    width: 100% !important;
+  }
+
+  .mobile-text-center {
+    text-align: center !important;
+  }
+
+  .mobile-no-padding {
+    padding: 0 !important;
+  }
+
+  .mobile-stack {
+    flex-direction: column !important;
+  }
+
+  .mobile-center {
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Enhanced filter system mobile optimizations */
+@media (max-width: 768px) {
+  .filter-chips {
+    display: flex;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+    margin-bottom: var(--space-md);
+  }
+
+  .filter-chip {
+    padding: var(--space-xs) var(--space-sm) !important;
+    font-size: 12px !important;
+    border-radius: 16px !important;
+    white-space: nowrap;
+  }
+
+  .filter-categories {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .category-card {
+    padding: var(--space-sm) !important;
+    text-align: center;
+  }
+}
+
+/* Verification flow mobile optimizations */
+@media (max-width: 768px) {
+  .verification-container {
+    padding: var(--space-md) !important;
+    margin-top: 60px !important;
+  }
+
+  .verification-step {
+    max-width: 100% !important;
+    margin: 0 !important;
+  }
+
+  .progress-bar {
+    height: 6px !important;
+    border-radius: 3px !important;
+  }
+
+  .file-upload-area {
+    padding: var(--space-lg) var(--space-md) !important;
+    border-radius: 12px !important;
+    margin: var(--space-md) 0 !important;
+  }
+
+  .selfie-preview {
+    width: 150px !important;
+    height: 150px !important;
+  }
+}
+
+/* CRM dashboard mobile optimizations */
+@media (max-width: 768px) {
+  .crm-navigation {
+    display: flex;
+    gap: var(--space-xs);
+    overflow-x: auto;
+    padding-bottom: var(--space-sm);
+    margin-bottom: var(--space-lg);
+  }
+
+  .crm-nav-item {
+    white-space: nowrap;
+    min-width: auto;
+    padding: var(--space-sm) var(--space-md) !important;
+    font-size: 14px !important;
+  }
+
+  .metric-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+  }
+
+  .metric-card {
+    padding: var(--space-md) !important;
+    text-align: center;
+  }
+
+  .client-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .analytics-charts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+}
+
+/* Performance optimizations for mobile */
+@media (max-width: 768px) {
+  /* Reduce expensive effects on mobile */
+  .glass-card {
+    backdrop-filter: blur(10px) !important;
+  }
+
+  /* Optimize animations for mobile */
+  .animated-element {
+    will-change: transform;
+    transform: translateZ(0);
+  }
+
+  /* Reduce shadow complexity */
+  .shadow-complex {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  }
+}
+
+/* Print styles (for mobile browsers) */
+@media print {
+  .professional-app {
+    background: white !important;
+    color: black !important;
+  }
+
+  .glass-card {
+    background: white !important;
+    border: 1px solid #ccc !important;
+  }
+
+  .mobile-hidden,
+  .bottom-nav,
+  .sidebar {
+    display: none !important;
+  }
+}
+
+/* ============ END MOBILE OPTIMIZATIONS ============ */
+
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   * {
