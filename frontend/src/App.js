@@ -393,6 +393,11 @@ const AppContent = () => {
           <EnhancedSettings />
         )}
         
+        {/* Trainer CRM Dashboard - Only for trainers */}
+        {currentView === 'trainer-crm' && userRole === 'trainer' && (
+          <TrainerCRM userProfile={mockUserProfile} />
+        )}
+        
         {/* Placeholder for help */}
         {currentView === 'help' && (
           <div style={{
@@ -417,11 +422,38 @@ const AppContent = () => {
               }}>
                 Get assistance with your fitness journey!
               </p>
+              
+              {/* Role-specific help */}
+              {userRole === 'trainer' && (
+                <div style={{
+                  marginBottom: 'var(--space-lg)',
+                  padding: 'var(--space-md)',
+                  background: 'rgba(196, 214, 0, 0.1)',
+                  borderRadius: 'var(--border-radius)',
+                  textAlign: 'left'
+                }}>
+                  <h4 style={{ fontSize: '16px', marginBottom: 'var(--space-sm)' }}>
+                    Trainer Resources:
+                  </h4>
+                  <ul style={{ 
+                    fontSize: '14px', 
+                    color: 'var(--text-secondary)',
+                    listStyle: 'none',
+                    padding: 0
+                  }}>
+                    <li>• CRM Dashboard Management</li>
+                    <li>• Client Communication Tools</li>
+                    <li>• Certification Requirements</li>
+                    <li>• Revenue Analytics</li>
+                  </ul>
+                </div>
+              )}
+              
               <button 
                 className="btn-primary"
                 onClick={() => setCurrentView('home')}
               >
-                Back to Home
+                Back to {userRole === 'trainer' ? 'Dashboard' : 'Home'}
               </button>
             </div>
           </div>
