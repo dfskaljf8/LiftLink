@@ -1794,7 +1794,7 @@ export default {
   AnimatedStar,
   AnimatedSuccess,
   AnimatedError,
-  AnimatedTrophy,
+  AnimatedSportsTrophy,
   AnimatedEmail,
   AnimatedKey,
   AnimatedPhone,
