@@ -203,7 +203,10 @@ const AppContent = () => {
     setUserVerified(false);
     setUserRole(null);
     setIsFirstTime(true);
+    setOnboardingComplete(false);
+    setShowOnboarding(true);
     localStorage.removeItem('liftlink_verification');
+    localStorage.removeItem('liftlink_onboarding');
     setCurrentView('home');
   };
 
