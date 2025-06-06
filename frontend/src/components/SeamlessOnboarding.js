@@ -198,6 +198,59 @@ const SeamlessOnboarding = ({ onComplete }) => {
         </div>
       )}
 
+      {/* Mobile-Optimized Header with Navigation */}
+      {currentStep > 0 && currentStep < steps.length - 1 && (
+        <div style={{
+          position: 'fixed',
+          top: '4px',
+          left: 0,
+          right: 0,
+          background: 'rgba(0, 0, 0, 0.9)',
+          backdropFilter: 'blur(20px)',
+          padding: 'var(--space-md)',
+          zIndex: 999,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          <button
+            onClick={prevStep}
+            disabled={currentStep === 0}
+            style={{
+              padding: 'var(--space-sm) var(--space-md)',
+              background: currentStep > 0 ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '8px',
+              color: currentStep > 0 ? 'white' : 'rgba(255, 255, 255, 0.3)',
+              fontSize: '14px',
+              cursor: currentStep > 0 ? 'pointer' : 'not-allowed',
+              transition: 'all 0.3s ease',
+              backdropFilter: 'blur(10px)'
+            }}
+          >
+            ← Back
+          </button>
+          
+          <span style={{
+            fontSize: '14px',
+            color: 'var(--text-secondary)',
+            fontWeight: '500'
+          }}>
+            {steps[currentStep]?.title}
+          </span>
+          
+          <div style={{
+            fontSize: '12px',
+            color: 'var(--text-secondary)',
+            background: 'rgba(196, 214, 0, 0.2)',
+            padding: 'var(--space-xs) var(--space-sm)',
+            borderRadius: '12px'
+          }}>
+            {steps[currentStep]?.step}/{totalSteps}
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div style={{
         flex: 1,
@@ -205,7 +258,7 @@ const SeamlessOnboarding = ({ onComplete }) => {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 'var(--space-lg)',
+        padding: 'var(--space-md)',
         paddingTop: currentStep > 0 && currentStep < steps.length - 1 ? '80px' : '60px',
         maxWidth: '100%',
         margin: '0 auto',
