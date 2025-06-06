@@ -3425,6 +3425,97 @@ async def get_trainer_analytics(
         "popular_sessions": session_types
     }
 
+# ============ FITNESS SPECIALTIES ENDPOINTS ============
+
+@app.get("/api/specialties/all")
+async def get_all_specialties():
+    """Get all available fitness specialties organized by categories"""
+    return {
+        "categories": FITNESS_SPECIALTIES,
+        "all_specialties": ALL_SPECIALTIES,
+        "popular_specialties": POPULAR_SPECIALTIES,
+        "total_count": len(ALL_SPECIALTIES)
+    }
+
+@app.get("/api/specialties/categories") 
+async def get_specialty_categories():
+    """Get all specialty categories with their information"""
+    categories = []
+    for category_key, category_data in FITNESS_SPECIALTIES.items():
+        categories.append({
+            "key": category_key,
+            "name": category_data["category"],
+            "icon": category_data["icon"],
+            "animated_svg": category_data["animated_svg"],
+            "color": category_data["color"],
+            "specialty_count": len(category_data["specialties"])
+        })
+    return {"categories": categories}
+
+@app.get("/api/specialties/category/{category_key}")
+async def get_category_specialties(category_key: str):
+    """Get all specialties for a specific category"""
+    if category_key not in FITNESS_SPECIALTIES:
+        raise HTTPException(status_code=404, detail="Category not found")
+    
+    category_data = FITNESS_SPECIALTIES[category_key]
+    return {
+        "category": category_data["category"],
+        "specialties": category_data["specialties"],
+        "icon": category_data["icon"],
+        "animated_svg": category_data["animated_svg"],
+        "color": category_data["color"]
+    }
+
+@app.get("/api/specialties/search")
+async def search_fitness_specialties(q: str = Query(..., min_length=2)):
+    """Search for specialties by name"""
+    matches = search_specialties(q)
+    
+    # Group results by category
+    results_by_category = {}
+    for specialty in matches:
+        category_key = get_specialty_category(specialty)
+        if category_key:
+            category_info = get_category_info(category_key)
+            category_name = category_info.get("category", "Unknown")
+            
+            if category_name not in results_by_category:
+                results_by_category[category_name] = {
+                    "category_key": category_key,
+                    "category_info": category_info,
+                    "specialties": []
+                }
+            results_by_category[category_name]["specialties"].append(specialty)
+    
+    return {
+        "query": q,
+        "total_matches": len(matches),
+        "results_by_category": results_by_category,
+        "all_matches": matches
+    }
+
+@app.get("/api/specialties/popular")
+async def get_popular_specialties():
+    """Get the most popular fitness specialties"""
+    popular_with_info = []
+    for specialty in POPULAR_SPECIALTIES:
+        category_key = get_specialty_category(specialty)
+        category_info = get_category_info(category_key) if category_key else {}
+        
+        popular_with_info.append({
+            "specialty": specialty,
+            "category": category_info.get("category", "Unknown"),
+            "category_key": category_key,
+            "animated_svg": category_info.get("animated_svg", "AnimatedStar"),
+            "color": category_info.get("color", "#C4D600")
+        })
+    
+    return {
+        "popular_specialties": popular_with_info,
+        "count": len(POPULAR_SPECIALTIES)
+    }
+
 @app.post("/api/verification/enhanced-upload-certification")
 async def enhanced_upload_certification(
     session_id: str,
