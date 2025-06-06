@@ -20,6 +20,7 @@ import ProfileView from './components/ProfileView';
 import EnhancedSettings, { ThemeProvider } from './components/EnhancedSettings';
 import VerificationFlow from './components/VerificationFlow';
 import TrainerCRM from './components/TrainerCRM';
+import SeamlessOnboarding from './components/SeamlessOnboarding';
 
 // Main App Component - Clean and Simple
 const App = () => {
