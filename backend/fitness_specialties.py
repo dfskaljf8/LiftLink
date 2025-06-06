@@ -294,14 +294,14 @@ def search_specialties(query):
 
 # For demo data - sample trainer specialties
 DEMO_TRAINER_SPECIALTIES = {
-    "trainer1": ["Weight Loss", "HIIT", "Strength Training"],
-    "trainer2": ["Yoga", "Pilates", "Flexibility Training"],
-    "trainer3": ["CrossFit", "Functional Training", "Athletic Performance"],
-    "trainer4": ["Boxing Training", "Combat Conditioning", "Self-Defense"],
-    "trainer5": ["Running Coaching", "Marathon Training", "Endurance Building"],
-    "trainer6": ["Bodybuilding", "Lean Muscle Building", "Nutrition Coaching"],
-    "trainer7": ["Senior Fitness", "Medical Exercise", "Fall Prevention"],
-    "trainer8": ["Dance Fitness", "Zumba", "Creative Movement"],
-    "trainer9": ["Outdoor Fitness", "Hiking Training", "Adventure Racing"],
-    "trainer10": ["Mental Health Fitness", "Stress Management", "Mindful Movement"]
+    "trainer001": ["Strength Training", "Powerlifting", "Functional Training", "Athletic Performance"],
+    "trainer002": ["Yoga", "Pilates", "Meditation Coaching", "Stress Management", "Flexibility Training"],
+    "trainer003": ["CrossFit", "HIIT", "Functional Training", "Olympic Weightlifting", "Circuit Training"],
+    "trainer004": ["Boxing Training", "MMA Training", "Self-Defense", "Combat Conditioning", "Mental Toughness"],
+    "trainer005": ["Running Coaching", "Marathon Training", "Triathlon Training", "Endurance Building", "Cycling Training"],
+    "trainer006": ["Bodybuilding", "Lean Muscle Building", "Nutrition Coaching", "Competition Prep", "Body Recomposition"],
+    "trainer007": ["Senior Fitness", "Medical Exercise", "Fall Prevention", "Arthritis Management", "Chronic Disease Management"],
+    "trainer008": ["Dance Fitness", "Zumba", "Creative Movement", "Hip Hop Fitness", "Performance Prep"],
+    "trainer009": ["Outdoor Fitness", "Hiking Training", "Rock Climbing", "Adventure Racing", "Wilderness Fitness"],
+    "trainer010": ["Mental Health Fitness", "Stress Management", "Anxiety Management", "Depression Support", "Mindful Movement"]
 }
