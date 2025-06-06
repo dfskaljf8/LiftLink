@@ -589,10 +589,10 @@ const GoalsStep = ({ userData, updateUserData, nextStep, prevStep, stepData }) =
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-        gap: 'var(--space-md)',
+        gridTemplateColumns: window.innerWidth < 768 ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(140px, 1fr))',
+        gap: 'var(--space-sm)',
         marginBottom: 'var(--space-xl)',
-        maxWidth: '500px',
+        maxWidth: '100%',
         margin: '0 auto var(--space-xl)'
       }}>
         {goals.map((goal) => (
