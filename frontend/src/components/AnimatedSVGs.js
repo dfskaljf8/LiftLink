@@ -890,14 +890,59 @@ export const AnimatedError = ({ size = 24, color = '#ef4444' }) => (
       strokeLinecap="round"
       strokeDasharray="0 12"
     >
-      <animate
-        attributeName="stroke-dasharray"
-        values="0 12;12 12"
-        dur="0.6s"
-        begin="0.5s"
-        fill="freeze"
-      />
     </path>
+  </svg>
+);
+
+// Animated Trophy - Simple version for achievements
+export const AnimatedTrophy = ({ size = 24, active = false }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <defs>
+      <linearGradient id="trophyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FFD700" />
+        <stop offset="100%" stopColor="#FFA500" />
+      </linearGradient>
+    </defs>
+    
+    {/* Trophy cup */}
+    <path 
+      d="M7 8h10l-1 8H8l-1-8z" 
+      fill="url(#trophyGradient)"
+      stroke="#B8860B"
+      strokeWidth="1"
+    >
+      {active && (
+        <animateTransform
+          attributeName="transform"
+          type="scale"
+          values="1;1.1;1"
+          dur="2s"
+          repeatCount="indefinite"
+        />
+      )}
+    </path>
+    
+    {/* Base */}
+    <rect x="6" y="16" width="12" height="3" rx="1" fill="url(#trophyGradient)" />
+    
+    {/* Handles */}
+    <path d="M7 10C5.5 10 4 9 4 7s1.5-3 3-3" stroke="#FFD700" strokeWidth="2" fill="none" />
+    <path d="M17 10c1.5 0 3-1 3-3s-1.5-3-3-3" stroke="#FFD700" strokeWidth="2" fill="none" />
+    
+    {/* Sparkles */}
+    {active && (
+      <>
+        <circle cx="6" cy="6" r="1" fill="#FFD700">
+          <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="18" cy="6" r="1" fill="#FFD700">
+          <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" begin="0.5s" />
+        </circle>
+        <circle cx="12" cy="4" r="1" fill="#FFD700">
+          <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite" begin="1s" />
+        </circle>
+      </>
+    )}
   </svg>
 );
 
