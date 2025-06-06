@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPBearer
 from pydantic import BaseModel, Field, EmailStr
 from pymongo import MongoClient, GEOSPHERE
-from verification_service import (
+from backend.verification_service import (
     VerificationProgress, 
     certification_validator, 
     id_verification_service, 
