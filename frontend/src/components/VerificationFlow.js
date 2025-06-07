@@ -165,6 +165,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
       }));
       
       setCurrentStep('id-upload');
+      scrollToTop();
     } catch (err) {
       // Final safety check for [object Object] in error message
       let finalErrorMessage = err.message;
