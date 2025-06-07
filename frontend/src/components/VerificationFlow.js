@@ -14,6 +14,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [showRoleChangeNotice, setShowRoleChangeNotice] = useState(false);
 
   const steps = {
     'role-selection': { title: 'Choose Your Role', step: 1 },
