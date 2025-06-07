@@ -1677,6 +1677,21 @@ async def generate_attendance_certificate(session_id: str, request: dict, curren
     
     return certificate
 
+async def award_coins(user_id: str, amount: int, reason: str, metadata: dict = None):
+    """Award coins to user for specific activities"""
+    # Mock function - in production, update user's coin balance
+    coin_award = {
+        "award_id": str(uuid.uuid4()),
+        "user_id": user_id,
+        "amount": amount,
+        "reason": reason,
+        "metadata": metadata or {},
+        "awarded_at": datetime.utcnow()
+    }
+    
+    # In production, save to database and update user balance
+    return coin_award
+
 # Health Data Webhook Endpoints (for real-time sync)
 @app.post("/webhook/google-fit")
 async def google_fit_webhook(request: Request):
