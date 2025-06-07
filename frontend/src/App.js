@@ -417,6 +417,27 @@ const AppContent = () => {
           <ProgressAnalyticsScreen userProfile={mockUserProfile} />
         )}
         
+        {currentView === 'enhanced-analytics' && (
+          <EnhancedProgressAnalytics userProfile={mockUserProfile} />
+        )}
+        
+        {currentView === 'health-devices' && (
+          <HealthIntegrations userProfile={mockUserProfile} />
+        )}
+        
+        {currentView === 'find-friends' && (
+          <FindFriends userProfile={mockUserProfile} />
+        )}
+        
+        {currentView === 'session-attendance' && (
+          <SessionAttendance 
+            userProfile={mockUserProfile}
+            sessionId="demo_session_123"
+            trainerId="demo_trainer_1"
+            traineId="demo_trainee_1"
+          />
+        )}
+        
         {currentView === 'social' && (
           <SocialHubScreen userProfile={mockUserProfile} />
         )}
