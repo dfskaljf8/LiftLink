@@ -747,39 +747,49 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
           </div>
         )}
 
-        {/* Upload Progress */}
+        {/* Mobile-Optimized Upload Progress */}
         {uploadProgress > 0 && uploadProgress < 100 && (
           <div style={{
             background: 'var(--glass-bg)',
-            borderRadius: 'var(--border-radius)',
-            padding: 'var(--space-lg)',
-            marginBottom: 'var(--space-lg)',
-            textAlign: 'center'
+            borderRadius: '12px',
+            padding: '20px',
+            marginBottom: '16px',
+            textAlign: 'center',
+            width: '100%',
+            boxSizing: 'border-box'
           }}>
             <div style={{
-              marginBottom: 'var(--space-md)'
+              marginBottom: '16px'
             }}>
-              <AnimatedDumbbell size={32} color="#C4D600" />
+              <AnimatedDumbbell size={40} color="#C4D600" />
             </div>
-            <p style={{ marginBottom: 'var(--space-sm)' }}>Uploading...</p>
+            <p style={{ 
+              marginBottom: '12px',
+              fontSize: '1.1em',
+              fontWeight: '500'
+            }}>
+              Uploading...
+            </p>
             <div style={{
               width: '100%',
-              height: '8px',
+              height: '12px',
               background: 'rgba(196, 214, 0, 0.2)',
-              borderRadius: '4px',
+              borderRadius: '6px',
               overflow: 'hidden'
             }}>
               <div style={{
                 width: `${uploadProgress}%`,
                 height: '100%',
                 background: 'linear-gradient(90deg, #C4D600, #B2FF66)',
-                transition: 'width 0.2s ease'
+                transition: 'width 0.2s ease',
+                borderRadius: '6px'
               }} />
             </div>
             <p style={{
-              fontSize: '14px',
+              fontSize: '1em',
               color: 'var(--text-secondary)',
-              marginTop: 'var(--space-sm)'
+              marginTop: '12px',
+              fontWeight: '600'
             }}>
               {uploadProgress}%
             </p>
