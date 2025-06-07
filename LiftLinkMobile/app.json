@@ -54,18 +54,7 @@
       "expo-location",
       "expo-camera",
       "expo-contacts",
-      "expo-image-picker",
-      [
-        "expo-build-properties",
-        {
-          "ios": {
-            "newArchEnabled": true
-          },
-          "android": {
-            "newArchEnabled": true
-          }
-        }
-      ]
+      "expo-image-picker"
     ],
     "extra": {
       "eas": {
