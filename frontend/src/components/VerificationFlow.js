@@ -962,7 +962,7 @@ const RoleSelectionStep = ({ onSelectRole, loading, showChangeNotice }) => {
   );
 };
 
-// ID Upload Step
+// Mobile-Optimized ID Upload Step
 const IdUploadStep = ({ onUpload, loading }) => {
   const [file, setFile] = useState(null);
   const [documentType, setDocumentType] = useState('drivers_license');
@@ -995,58 +995,75 @@ const IdUploadStep = ({ onUpload, loading }) => {
   };
 
   return (
-    <div className="glass-card" style={{ padding: 'var(--space-2xl)' }}>
-      <div style={{ textAlign: 'center', marginBottom: 'var(--space-xl)' }}>
+    <div className="glass-card mobile-form auto-color-scheme" style={{ 
+      padding: '24px', 
+      width: '100%', 
+      boxSizing: 'border-box',
+      borderRadius: '12px'
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
         <div style={{
-          width: '60px',
-          height: '60px',
+          width: '64px',
+          height: '64px',
           background: 'linear-gradient(45deg, #C4D600, #B2FF66)',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          margin: '0 auto var(--space-lg)',
-          fontSize: '24px'
+          margin: '0 auto 16px',
+          fontSize: '28px'
         }}>
           🆔
         </div>
         
-        <h3 style={{
-          fontSize: '20px',
+        <h3 className="mobile-header" style={{
+          fontSize: '1.3em',
           fontWeight: '600',
-          marginBottom: 'var(--space-sm)'
+          marginBottom: '8px',
+          lineHeight: '1.3'
         }}>
           Upload Your ID
         </h3>
         
         <p style={{
           color: 'var(--text-secondary)',
-          fontSize: '14px'
+          fontSize: '0.95em',
+          lineHeight: '1.4'
         }}>
           We need to verify you're 18 or older
         </p>
       </div>
       
-      <div style={{ marginBottom: 'var(--space-lg)' }}>
+      <div style={{ marginBottom: '20px' }}>
         <label style={{
           display: 'block',
-          fontSize: '14px',
+          fontSize: '1em',
           fontWeight: '500',
-          marginBottom: 'var(--space-sm)'
+          marginBottom: '8px',
+          color: 'var(--text-primary)'
         }}>
           Document Type
         </label>
         <select
+          className="mobile-input"
           value={documentType}
           onChange={(e) => setDocumentType(e.target.value)}
           style={{
             width: '100%',
-            padding: 'var(--space-md)',
+            minHeight: '48px',
+            padding: '12px 16px',
             border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: 'var(--border-radius)',
+            borderRadius: '12px',
             background: 'var(--glass-bg)',
             color: 'var(--text-primary)',
-            fontSize: '16px'
+            fontSize: '1em',
+            appearance: 'none',
+            WebkitAppearance: 'none',
+            backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23C4D600' stroke-width='2'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e")`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'right 12px center',
+            backgroundSize: '20px',
+            paddingRight: '48px'
           }}
         >
           <option value="drivers_license">Driver's License</option>
@@ -1055,33 +1072,38 @@ const IdUploadStep = ({ onUpload, loading }) => {
         </select>
       </div>
       
-      <div style={{ marginBottom: 'var(--space-lg)' }}>
+      <div style={{ marginBottom: '20px' }}>
         <label style={{
           display: 'block',
-          fontSize: '14px',
+          fontSize: '1em',
           fontWeight: '500',
-          marginBottom: 'var(--space-sm)'
+          marginBottom: '8px',
+          color: 'var(--text-primary)'
         }}>
           Date of Birth
         </label>
         <input
+          className="mobile-input"
           type="date"
           value={dateOfBirth}
           onChange={(e) => setDateOfBirth(e.target.value)}
           max={new Date(new Date().setFullYear(new Date().getFullYear() - 16)).toISOString().split('T')[0]}
           style={{
             width: '100%',
-            padding: 'var(--space-md)',
+            minHeight: '48px',
+            padding: '12px 16px',
             border: '1px solid rgba(255, 255, 255, 0.2)',
-            borderRadius: 'var(--border-radius)',
+            borderRadius: '12px',
             background: 'var(--glass-bg)',
             color: 'var(--text-primary)',
-            fontSize: '16px'
+            fontSize: '1em',
+            WebkitAppearance: 'none',
+            appearance: 'none'
           }}
         />
       </div>
       
-      <div style={{ marginBottom: 'var(--space-xl)' }}>
+      <div style={{ marginBottom: '24px' }}>
         <input
           type="file"
           ref={fileInputRef}
@@ -1091,17 +1113,24 @@ const IdUploadStep = ({ onUpload, loading }) => {
         />
         
         <button
+          className="mobile-button"
           onClick={() => fileInputRef.current?.click()}
           style={{
             width: '100%',
-            padding: 'var(--space-lg)',
+            minHeight: '56px',
+            padding: '16px 20px',
             border: '2px dashed rgba(196, 214, 0, 0.5)',
-            borderRadius: 'var(--border-radius)',
+            borderRadius: '12px',
             background: file ? 'rgba(196, 214, 0, 0.1)' : 'transparent',
             color: file ? '#C4D600' : 'var(--text-secondary)',
-            fontSize: '16px',
+            fontSize: '1em',
+            fontWeight: '500',
             cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'rgba(196, 214, 0, 0.2)',
+            lineHeight: '1.4',
+            textAlign: 'center'
           }}
         >
           {file ? `Selected: ${file.name || 'File selected'}` : 'Choose ID Document'}
@@ -1109,25 +1138,29 @@ const IdUploadStep = ({ onUpload, loading }) => {
       </div>
       
       <button
-        className="btn-primary"
+        className="btn-primary mobile-button"
         onClick={handleSubmit}
         disabled={loading || !file || !dateOfBirth}
         style={{
           width: '100%',
-          padding: 'var(--space-lg)',
-          fontSize: '16px'
+          minHeight: '52px',
+          fontSize: '1.1em',
+          fontWeight: '600',
+          borderRadius: '12px',
+          touchAction: 'manipulation'
         }}
       >
         {loading ? 'Verifying...' : 'Verify Identity'}
       </button>
       
       <div style={{
-        marginTop: 'var(--space-lg)',
-        padding: 'var(--space-md)',
+        marginTop: '20px',
+        padding: '16px',
         background: 'rgba(196, 214, 0, 0.1)',
-        borderRadius: 'var(--border-radius)',
-        fontSize: '12px',
-        color: 'var(--text-secondary)'
+        borderRadius: '12px',
+        fontSize: '0.9em',
+        color: 'var(--text-secondary)',
+        lineHeight: '1.5'
       }}>
         ✓ Government-issued ID required<br/>
         ✓ Must be 18 or older<br/>
