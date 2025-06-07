@@ -58,8 +58,12 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
           selfieVerified: false,
           certificationVerified: false
         }));
-        // Hide notice after 3 seconds
-        setTimeout(() => setShowRoleChangeNotice(false), 3000);
+        // Hide notice after 3 seconds and scroll to top
+        setTimeout(() => {
+          setShowRoleChangeNotice(false);
+          scrollToTop();
+        }, 3000);
+        scrollToTop();
         break;
       case 'selfie-capture':
         setCurrentStep('id-upload');
@@ -67,6 +71,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
           ...prev,
           idVerified: false
         }));
+        scrollToTop();
         break;
       case 'certification-upload':
         setCurrentStep('selfie-capture');
@@ -74,6 +79,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
           ...prev,
           selfieVerified: false
         }));
+        scrollToTop();
         break;
       case 'verification-complete':
         if (verificationData.role === 'trainer') {
@@ -89,6 +95,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
             selfieVerified: false
           }));
         }
+        scrollToTop();
         break;
       default:
         break;
