@@ -29,18 +29,21 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
 
   // Quick bypass function for development
   const handleBypassVerification = (role) => {
-    setVerificationData({
+    const completeVerificationData = {
       role: role || 'trainee',
       sessionId: 'dev_bypass_session',
       idVerified: true,
       selfieVerified: true,
       certificationVerified: role === 'trainer'
-    });
+    };
+    
+    setVerificationData(completeVerificationData);
     
     // Show completion step briefly then complete
     setCurrentStep('verification-complete');
     setTimeout(() => {
-      onComplete();
+      // Pass the verification data to onComplete
+      onComplete(completeVerificationData);
     }, 2000);
   };
 
