@@ -1,0 +1,35 @@
+{
+  "cli": {
+    "version": ">= 13.1.1"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal"
+    },
+    "production": {
+      "ios": {
+        "resourceClass": "m-medium"
+      },
+      "android": {
+        "resourceClass": "medium"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "ios": {
+        "appleId": "lift.link.email@gmail.com",
+        "ascAppId": "will-be-configured-during-build",
+        "appleTeamId": "will-be-auto-detected"
+      },
+      "android": {
+        "serviceAccountKeyPath": "path/to/api-key.json",
+        "track": "production"
+      }
+    }
+  }
+}
