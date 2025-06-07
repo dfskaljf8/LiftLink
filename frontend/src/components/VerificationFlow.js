@@ -472,8 +472,12 @@ const IdUploadStep = ({ onUpload, loading }) => {
 
   const handleFileSelect = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile) {
+    if (selectedFile && selectedFile instanceof File) {
       setFile(selectedFile);
+    } else if (selectedFile) {
+      // Handle case where selectedFile might not be a proper File object
+      console.warn('Selected file is not a proper File object:', selectedFile);
+      setFile(null);
     }
   };
 
