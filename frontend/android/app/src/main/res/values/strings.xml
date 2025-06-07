@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LiftLink</string>
+    <string name="title_activity_main">LiftLink</string>
+    <string name="package_name">com.liftlink.app</string>
+    <string name="custom_url_scheme">com.liftlink.app</string>
+</resources>
