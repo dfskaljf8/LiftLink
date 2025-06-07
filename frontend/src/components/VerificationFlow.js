@@ -27,6 +27,61 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
 
   const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
+  // Navigation helper function
+  const goBack = () => {
+    setError(''); // Clear any errors when going back
+    setUploadProgress(0); // Reset upload progress
+    
+    switch (currentStep) {
+      case 'id-upload':
+        setCurrentStep('role-selection');
+        // Reset role data if going back to role selection
+        setVerificationData(prev => ({
+          ...prev,
+          role: null,
+          sessionId: null,
+          idVerified: false,
+          selfieVerified: false,
+          certificationVerified: false
+        }));
+        break;
+      case 'selfie-capture':
+        setCurrentStep('id-upload');
+        setVerificationData(prev => ({
+          ...prev,
+          idVerified: false
+        }));
+        break;
+      case 'certification-upload':
+        setCurrentStep('selfie-capture');
+        setVerificationData(prev => ({
+          ...prev,
+          selfieVerified: false
+        }));
+        break;
+      case 'verification-complete':
+        if (verificationData.role === 'trainer') {
+          setCurrentStep('certification-upload');
+          setVerificationData(prev => ({
+            ...prev,
+            certificationVerified: false
+          }));
+        } else {
+          setCurrentStep('selfie-capture');
+          setVerificationData(prev => ({
+            ...prev,
+            selfieVerified: false
+          }));
+        }
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Check if back button should be shown
+  const showBackButton = currentStep !== 'role-selection';
+
   // Start verification session
   const startVerificationSession = async (role) => {
     setLoading(true);
