@@ -396,14 +396,89 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
 
   return (
     <div style={{
+      width: '100vw',
       minHeight: '100vh',
       background: 'var(--bg-primary)',
-      padding: 'var(--space-lg)',
-      paddingTop: '80px'
+      padding: '16px',
+      paddingTop: 'calc(80px + env(safe-area-inset-top))', // iOS safe area
+      paddingBottom: 'calc(16px + env(safe-area-inset-bottom))', // iOS safe area
+      boxSizing: 'border-box',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      alignItems: 'stretch',
+      overflowY: 'auto',
+      fontSize: '16px',
+      fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
     }}>
-      {/* CSS Animations for Matrix theme */}
+      {/* CSS Animations for Matrix theme + Mobile optimizations */}
       <style>
         {`
+          /* Mobile-first responsive design */
+          * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: rgba(196, 214, 0, 0.2);
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+          }
+          
+          /* Safe area support for iOS */
+          @supports (padding: max(0px)) {
+            .mobile-safe-area {
+              padding-left: max(16px, env(safe-area-inset-left));
+              padding-right: max(16px, env(safe-area-inset-right));
+            }
+          }
+          
+          /* Touch-optimized buttons */
+          .mobile-button {
+            min-height: 48px !important;
+            min-width: 48px !important;
+            font-size: 1.1em !important;
+            border-radius: 12px !important;
+            margin: 8px 0 !important;
+            padding: 12px 16px !important;
+            cursor: pointer !important;
+            touch-action: manipulation !important;
+            -webkit-tap-highlight-color: rgba(196, 214, 0, 0.2) !important;
+          }
+          
+          /* Touch-optimized inputs */
+          .mobile-input {
+            min-height: 44px !important;
+            font-size: 1em !important;
+            border-radius: 12px !important;
+            margin: 8px 0 !important;
+            padding: 12px 16px !important;
+            width: 100% !important;
+            -webkit-appearance: none !important;
+            appearance: none !important;
+          }
+          
+          /* Mobile form optimization */
+          .mobile-form {
+            width: 100% !important;
+            gap: 12px !important;
+            display: flex !important;
+            flex-direction: column !important;
+          }
+          
+          /* Mobile header optimization */
+          .mobile-header {
+            font-size: 1.3em !important;
+            font-weight: bold !important;
+            margin: 0 0 12px 0 !important;
+            line-height: 1.4 !important;
+          }
+          
+          /* Mobile image optimization */
+          .mobile-image {
+            max-width: 100% !important;
+            height: auto !important;
+            border-radius: 12px !important;
+          }
+          
           @keyframes matrixGlow {
             0%, 100% { 
               filter: drop-shadow(0 0 4px rgba(196, 214, 0, 0.5));
@@ -444,6 +519,33 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
             100% { 
               opacity: 0; 
               transform: translateY(-10px); 
+            }
+          }
+          
+          /* Dark mode support */
+          @media (prefers-color-scheme: dark) {
+            .auto-color-scheme {
+              color-scheme: dark;
+            }
+          }
+          
+          @media (prefers-color-scheme: light) {
+            .auto-color-scheme {
+              color-scheme: light;
+            }
+          }
+          
+          /* Mobile viewport optimization */
+          @media screen and (max-width: 480px) {
+            .mobile-responsive {
+              font-size: 14px !important;
+              padding: 12px !important;
+            }
+            
+            .mobile-button-small {
+              min-height: 44px !important;
+              font-size: 1em !important;
+              padding: 10px 14px !important;
             }
           }
         `}
