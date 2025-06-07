@@ -48,6 +48,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
     switch (currentStep) {
       case 'id-upload':
         setCurrentStep('role-selection');
+        setShowRoleChangeNotice(true);
         // Reset role data if going back to role selection
         setVerificationData(prev => ({
           ...prev,
@@ -57,6 +58,8 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
           selfieVerified: false,
           certificationVerified: false
         }));
+        // Hide notice after 3 seconds
+        setTimeout(() => setShowRoleChangeNotice(false), 3000);
         break;
       case 'selfie-capture':
         setCurrentStep('id-upload');
