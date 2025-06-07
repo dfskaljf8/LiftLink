@@ -894,6 +894,8 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
               onSelectRole={startVerificationSession}
               loading={loading}
               showChangeNotice={showRoleChangeNotice}
+              bypassMode={bypassVerification}
+              onBypass={handleBypassVerification}
             />
           </div>
         )}
