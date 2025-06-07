@@ -248,8 +248,28 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
       setUploadProgress(100);
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Certification verification failed');
+        let errorMessage = "We couldn't verify your certification. Please upload a clear picture of your fitness certification.";
+        
+        try {
+          const errorData = await response.json();
+          // Handle different error response formats
+          if (typeof errorData.detail === 'string' && errorData.detail !== '[object Object]') {
+            errorMessage = errorData.detail;
+          } else if (typeof errorData.message === 'string' && errorData.message !== '[object Object]') {
+            errorMessage = errorData.message;
+          } else if (typeof errorData.error === 'string' && errorData.error !== '[object Object]') {
+            errorMessage = errorData.error;
+          }
+          // If any field contains [object Object], use our default message
+          if (errorMessage.includes('[object Object]')) {
+            errorMessage = "We couldn't verify your certification. Please upload a clear picture of your fitness certification.";
+          }
+        } catch (jsonError) {
+          // If JSON parsing fails, use default message
+          errorMessage = "We couldn't verify your certification. Please upload a clear picture of your fitness certification.";
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -265,7 +285,12 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
       }, 1000);
       
     } catch (err) {
-      setError(err.message);
+      // Final safety check for [object Object] in error message
+      let finalErrorMessage = err.message;
+      if (!finalErrorMessage || finalErrorMessage.includes('[object Object]') || finalErrorMessage === 'undefined') {
+        finalErrorMessage = "We couldn't verify your certification. Please upload a clear picture of your fitness certification.";
+      }
+      setError(finalErrorMessage);
       setUploadProgress(0);
     } finally {
       setLoading(false);
