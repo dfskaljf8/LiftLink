@@ -395,7 +395,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
   };
 
   return (
-    <div style={{
+    <div className="mobile-scroll-container" style={{
       width: '100vw',
       minHeight: '100vh',
       background: 'var(--bg-primary)',
@@ -409,7 +409,10 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
       alignItems: 'stretch',
       overflowY: 'auto',
       fontSize: '16px',
-      fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif'
+      fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      scrollBehavior: 'smooth',
+      WebkitOverflowScrolling: 'touch',
+      overscrollBehaviorY: 'contain'
     }}>
       {/* CSS Animations for Matrix theme + Mobile optimizations */}
       <style>
