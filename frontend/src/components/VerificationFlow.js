@@ -432,6 +432,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
         {/* Back Button */}
         {showBackButton && (
           <button
+            className="verification-back-btn"
             onClick={goBack}
             disabled={loading}
             style={{
@@ -453,14 +454,12 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
               transition: 'all 0.3s ease',
               opacity: loading ? 0.5 : 1,
               backdropFilter: 'blur(10px)',
-              boxShadow: '0 4px 12px rgba(196, 214, 0, 0.15)',
               zIndex: 101
             }}
             onMouseEnter={(e) => {
               if (!loading) {
                 e.target.style.background = 'linear-gradient(135deg, rgba(196, 214, 0, 0.3), rgba(178, 255, 102, 0.2))';
                 e.target.style.borderColor = 'rgba(196, 214, 0, 0.6)';
-                e.target.style.boxShadow = '0 6px 20px rgba(196, 214, 0, 0.25)';
                 e.target.style.transform = 'translateY(-50%) scale(1.05)';
               }
             }}
@@ -468,7 +467,6 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
               if (!loading) {
                 e.target.style.background = 'linear-gradient(135deg, rgba(196, 214, 0, 0.2), rgba(178, 255, 102, 0.1))';
                 e.target.style.borderColor = 'rgba(196, 214, 0, 0.4)';
-                e.target.style.boxShadow = '0 4px 12px rgba(196, 214, 0, 0.15)';
                 e.target.style.transform = 'translateY(-50%) scale(1)';
               }
             }}
@@ -478,11 +476,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
               width="14" 
               height="14" 
               viewBox="0 0 24 24" 
-              fill="none" 
-              style={{ 
-                filter: 'drop-shadow(0 0 4px rgba(196, 214, 0, 0.5))',
-                animation: loading ? 'none' : 'pulse 2s infinite'
-              }}
+              fill="none"
             >
               <path 
                 d="M19 12H5M5 12L12 19M5 12L12 5" 
