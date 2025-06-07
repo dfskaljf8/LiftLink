@@ -677,17 +677,19 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
         padding: '0 16px',
         boxSizing: 'border-box'
       }}>
-        {/* Error Display */}
+        {/* Mobile-Optimized Error Display */}
         {error && (
           <div style={{
             background: 'linear-gradient(135deg, rgba(255, 68, 68, 0.15), rgba(220, 38, 127, 0.1))',
             border: '1px solid rgba(255, 68, 68, 0.4)',
-            borderRadius: 'var(--border-radius)',
-            padding: 'var(--space-lg)',
-            marginBottom: 'var(--space-lg)',
+            borderRadius: '12px',
+            padding: '16px',
+            marginBottom: '16px',
             color: '#FF6B6B',
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            width: '100%',
+            boxSizing: 'border-box'
           }}>
             {/* Cyberpunk glow effect */}
             <div style={{
@@ -703,27 +705,30 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
             <div style={{
               display: 'flex',
               alignItems: 'center',
-              gap: 'var(--space-sm)',
-              marginBottom: 'var(--space-sm)'
+              gap: '12px',
+              marginBottom: '8px',
+              flexWrap: 'wrap'
             }}>
               <div style={{
-                width: '20px',
-                height: '20px',
+                minWidth: '24px',
+                minHeight: '24px',
                 borderRadius: '50%',
                 background: '#FF4444',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '12px',
+                fontSize: '14px',
                 color: 'white',
-                fontWeight: 'bold'
+                fontWeight: 'bold',
+                flexShrink: 0
               }}>
                 !
               </div>
               <span style={{
-                fontSize: '14px',
+                fontSize: '1em',
                 fontWeight: '600',
-                color: '#FF6B6B'
+                color: '#FF6B6B',
+                lineHeight: '1.4'
               }}>
                 Verification Error
               </span>
@@ -731,9 +736,11 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
             
             <p style={{
               margin: 0,
-              fontSize: '14px',
+              fontSize: '0.95em',
               lineHeight: '1.5',
-              color: '#FFB3B3'
+              color: '#FFB3B3',
+              wordWrap: 'break-word',
+              hyphens: 'auto'
             }}>
               {error}
             </p>
