@@ -98,6 +98,17 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
   // Check if back button should be shown
   const showBackButton = currentStep !== 'role-selection';
 
+  // Smooth scroll to top when step changes
+  const scrollToTop = () => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   // Start verification session
   const startVerificationSession = async (role) => {
     setLoading(true);
