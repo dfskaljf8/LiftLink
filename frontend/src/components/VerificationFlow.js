@@ -389,14 +389,63 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
         {/* Error Display */}
         {error && (
           <div style={{
-            background: 'rgba(255, 68, 68, 0.1)',
-            border: '1px solid rgba(255, 68, 68, 0.3)',
+            background: 'linear-gradient(135deg, rgba(255, 68, 68, 0.15), rgba(220, 38, 127, 0.1))',
+            border: '1px solid rgba(255, 68, 68, 0.4)',
             borderRadius: 'var(--border-radius)',
-            padding: 'var(--space-md)',
+            padding: 'var(--space-lg)',
             marginBottom: 'var(--space-lg)',
-            color: '#FF4444'
+            color: '#FF6B6B',
+            position: 'relative',
+            overflow: 'hidden'
           }}>
-            {error}
+            {/* Cyberpunk glow effect */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '2px',
+              background: 'linear-gradient(90deg, transparent, #FF4444, transparent)',
+              animation: 'pulse 2s infinite'
+            }} />
+            
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 'var(--space-sm)',
+              marginBottom: 'var(--space-sm)'
+            }}>
+              <div style={{
+                width: '20px',
+                height: '20px',
+                borderRadius: '50%',
+                background: '#FF4444',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '12px',
+                color: 'white',
+                fontWeight: 'bold'
+              }}>
+                !
+              </div>
+              <span style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#FF6B6B'
+              }}>
+                Verification Error
+              </span>
+            </div>
+            
+            <p style={{
+              margin: 0,
+              fontSize: '14px',
+              lineHeight: '1.5',
+              color: '#FFB3B3'
+            }}>
+              {error}
+            </p>
           </div>
         )}
 
