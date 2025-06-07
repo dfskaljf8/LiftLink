@@ -1181,6 +1181,61 @@ const MotivationStep = ({ userData, updateUserData, nextStep, prevStep, stepData
 
 // Complete Step Component
 const CompleteStep = ({ userData, onComplete, stepData }) => {
+  // Safely get labels for user data
+  const getGoalLabels = (goalIds) => {
+    if (!goalIds || !Array.isArray(goalIds)) return 'Various goals';
+    
+    const goals = [
+      { id: 'weight_loss', label: 'Lose Weight' },
+      { id: 'muscle_gain', label: 'Build Muscle' },
+      { id: 'strength', label: 'Get Stronger' },
+      { id: 'endurance', label: 'Improve Endurance' },
+      { id: 'flexibility', label: 'Increase Flexibility' },
+      { id: 'health', label: 'General Health' }
+    ];
+    
+    return goalIds.map(id => {
+      if (typeof id === 'object') {
+        // If somehow objects got stored, try to extract the label or id
+        return id.label || id.id || 'Unknown goal';
+      }
+      const goal = goals.find(g => g.id === id);
+      return goal ? goal.label : id;
+    }).join(', ');
+  };
+
+  const getExperienceLabel = (experience) => {
+    if (typeof experience === 'object') {
+      return experience.label || experience.id || 'Unknown level';
+    }
+    
+    const experiences = {
+      'beginner': 'Beginner',
+      'intermediate': 'Intermediate', 
+      'advanced': 'Advanced',
+      'expert': 'Expert'
+    };
+    
+    return experiences[experience] || experience || 'Unknown level';
+  };
+
+  const getWorkoutLabel = (workout) => {
+    if (typeof workout === 'object') {
+      return workout.label || workout.id || 'Unknown workout';
+    }
+    
+    const workouts = {
+      'strength': 'Strength Training',
+      'cardio': 'Cardio & HIIT',
+      'yoga': 'Yoga & Flexibility',
+      'boxing': 'Boxing & Combat',
+      'dance': 'Dance Fitness',
+      'outdoor': 'Outdoor Activities'
+    };
+    
+    return workouts[workout] || workout || 'Unknown workout';
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       onComplete(userData);
@@ -1273,7 +1328,7 @@ const CompleteStep = ({ userData, onComplete, stepData }) => {
           color: '#C4D600',
           marginBottom: 'var(--space-md)'
         }}>
-          Welcome, {userData.name}! 🎉
+          Welcome, {userData.name || 'Fitness Enthusiast'}! 🎉
         </h3>
         
         <div style={{
@@ -1283,42 +1338,7 @@ const CompleteStep = ({ userData, onComplete, stepData }) => {
         }}>
           We're finding trainers perfect for your goals:<br/>
           <strong style={{ color: '#C4D600' }}>
-            {(() => {
-              const goals = [
-                { id: 'weight_loss', label: 'Lose Weight' },
-                { id: 'muscle_gain', label: 'Build Muscle' },
-                { id: 'strength', label: 'Get Stronger' },
-                { id: 'endurance', label: 'Improve Endurance' },
-                { id: 'flexibility', label: 'Increase Flexibility' },
-                { id: 'health', label: 'General Health' }
-              ];
-              
-              const experiences = {
-                'beginner': 'Beginner',
-                'intermediate': 'Intermediate', 
-                'advanced': 'Advanced',
-                'expert': 'Expert'
-              };
-              
-              const workouts = {
-                'strength': 'Strength Training',
-                'cardio': 'Cardio & HIIT',
-                'yoga': 'Yoga & Flexibility',
-                'boxing': 'Boxing & Combat',
-                'dance': 'Dance Fitness',
-                'outdoor': 'Outdoor Activities'
-              };
-              
-              const goalLabels = userData.fitnessGoals?.map(id => {
-                const goal = goals.find(g => g.id === id);
-                return goal ? goal.label : id;
-              }).join(', ') || '';
-              
-              const experienceLabel = experiences[userData.experience] || userData.experience || '';
-              const workoutLabel = workouts[userData.preferredWorkout] || userData.preferredWorkout || '';
-              
-              return `${goalLabels} • ${experienceLabel} level • ${workoutLabel}`;
-            })()}
+            {getGoalLabels(userData.fitnessGoals)} • {getExperienceLabel(userData.experience)} • {getWorkoutLabel(userData.preferredWorkout)}
           </strong>
         </div>
       </div>
