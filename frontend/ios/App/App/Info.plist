@@ -45,5 +45,64 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
+	
+	<!-- Health Kit Permissions -->
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>LiftLink uses your health data to track your fitness progress, sync with trainers, and provide personalized workout insights.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>LiftLink needs access to your health data to provide comprehensive fitness tracking and sync with your trainer.</string>
+	<key>NSHealthRequiredReadAuthorizationTypeIdentifiers</key>
+	<array>
+		<string>HKQuantityTypeIdentifierStepCount</string>
+		<string>HKQuantityTypeIdentifierHeartRate</string>
+		<string>HKQuantityTypeIdentifierActiveEnergyBurned</string>
+		<string>HKQuantityTypeIdentifierDistanceWalkingRunning</string>
+		<string>HKCategoryTypeIdentifierSleepAnalysis</string>
+		<string>HKQuantityTypeIdentifierBodyMass</string>
+		<string>HKWorkoutTypeIdentifier</string>
+	</array>
+	
+	<!-- Location Permissions -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>LiftLink uses your location to verify session attendance and find nearby trainers.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>LiftLink uses your location for session check-ins and trainer discovery.</string>
+	
+	<!-- Camera Permissions -->
+	<key>NSCameraUsageDescription</key>
+	<string>LiftLink uses the camera for ID verification, selfies, and fitness progress photos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>LiftLink needs access to your photo library to upload ID documents and certification photos.</string>
+	
+	<!-- Contacts Permissions -->
+	<key>NSContactsUsageDescription</key>
+	<string>LiftLink can access your contacts to help you find friends who are already using the app.</string>
+	
+	<!-- Background Modes -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>background-fetch</string>
+		<string>background-processing</string>
+	</array>
+	
+	<!-- URL Schemes for OAuth -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.liftlink.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>liftlink</string>
+			</array>
+		</dict>
+	</array>
+	
+	<!-- App Transport Security -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 </dict>
 </plist>
