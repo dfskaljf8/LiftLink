@@ -43,7 +43,28 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to start verification session');
+        let errorMessage = "Failed to start verification session. Please try again.";
+        
+        try {
+          const errorData = await response.json();
+          // Handle different error response formats
+          if (typeof errorData.detail === 'string' && errorData.detail !== '[object Object]') {
+            errorMessage = errorData.detail;
+          } else if (typeof errorData.message === 'string' && errorData.message !== '[object Object]') {
+            errorMessage = errorData.message;
+          } else if (typeof errorData.error === 'string' && errorData.error !== '[object Object]') {
+            errorMessage = errorData.error;
+          }
+          // If any field contains [object Object], use our default message
+          if (errorMessage.includes('[object Object]')) {
+            errorMessage = "Failed to start verification session. Please try again.";
+          }
+        } catch (jsonError) {
+          // If JSON parsing fails, use default message
+          errorMessage = "Failed to start verification session. Please try again.";
+        }
+        
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -56,7 +77,12 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
       
       setCurrentStep('id-upload');
     } catch (err) {
-      setError(err.message);
+      // Final safety check for [object Object] in error message
+      let finalErrorMessage = err.message;
+      if (!finalErrorMessage || finalErrorMessage.includes('[object Object]') || finalErrorMessage === 'undefined') {
+        finalErrorMessage = "Failed to start verification session. Please try again.";
+      }
+      setError(finalErrorMessage);
     } finally {
       setLoading(false);
     }
