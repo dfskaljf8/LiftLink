@@ -861,39 +861,49 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
 
         {/* Step Components */}
         {currentStep === 'role-selection' && (
-          <RoleSelectionStep 
-            onSelectRole={startVerificationSession}
-            loading={loading}
-            showChangeNotice={showRoleChangeNotice}
-          />
+          <div className="verification-step">
+            <RoleSelectionStep 
+              onSelectRole={startVerificationSession}
+              loading={loading}
+              showChangeNotice={showRoleChangeNotice}
+            />
+          </div>
         )}
         
         {currentStep === 'id-upload' && (
-          <IdUploadStep 
-            onUpload={uploadIdDocument}
-            loading={loading}
-          />
+          <div className="verification-step">
+            <IdUploadStep 
+              onUpload={uploadIdDocument}
+              loading={loading}
+            />
+          </div>
         )}
         
         {currentStep === 'selfie-capture' && (
-          <SelfieStep 
-            onCapture={uploadSelfie}
-            loading={loading}
-          />
+          <div className="verification-step">
+            <SelfieStep 
+              onCapture={uploadSelfie}
+              loading={loading}
+            />
+          </div>
         )}
         
         {currentStep === 'certification-upload' && (
-          <CertificationStep 
-            onUpload={uploadCertification}
-            loading={loading}
-          />
+          <div className="verification-step">
+            <CertificationStep 
+              onUpload={uploadCertification}
+              loading={loading}
+            />
+          </div>
         )}
         
         {currentStep === 'verification-complete' && (
-          <CompletionStep 
-            role={verificationData.role}
-            onComplete={onComplete}
-          />
+          <div className="verification-step">
+            <CompletionStep 
+              role={verificationData.role}
+              onComplete={onComplete}
+            />
+          </div>
         )}
       </div>
     </div>
