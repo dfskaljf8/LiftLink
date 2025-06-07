@@ -939,7 +939,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
 };
 
 // Mobile-Optimized Role Selection Step
-const RoleSelectionStep = ({ onSelectRole, loading, showChangeNotice }) => {
+const RoleSelectionStep = ({ onSelectRole, loading, showChangeNotice, bypassMode, onBypass }) => {
   return (
     <div className="glass-card mobile-form auto-color-scheme" style={{
       padding: '24px',
@@ -948,6 +948,22 @@ const RoleSelectionStep = ({ onSelectRole, loading, showChangeNotice }) => {
       boxSizing: 'border-box',
       borderRadius: '12px'
     }}>
+      {/* Development Bypass Notice */}
+      {bypassMode && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(255, 165, 0, 0.15), rgba(255, 140, 0, 0.1))',
+          border: '1px solid rgba(255, 165, 0, 0.4)',
+          borderRadius: '12px',
+          padding: '16px',
+          marginBottom: '20px',
+          color: '#FFA500',
+          fontSize: '0.9em',
+          lineHeight: '1.4'
+        }}>
+          🚀 Development Mode - Skip Verification Available
+        </div>
+      )}
+      
       {/* Role Change Notice */}
       {showChangeNotice && (
         <div style={{
@@ -1043,6 +1059,64 @@ const RoleSelectionStep = ({ onSelectRole, loading, showChangeNotice }) => {
           <AnimatedDumbbell size={28} color="#C4D600" />
           I'm a Fitness Trainer
         </button>
+
+        {/* Development Bypass Buttons */}
+        {bypassMode && (
+          <>
+            <div style={{
+              margin: '20px 0 10px',
+              borderTop: '1px solid rgba(255, 165, 0, 0.3)',
+              paddingTop: '20px'
+            }}>
+              <p style={{
+                fontSize: '0.9em',
+                color: '#FFA500',
+                marginBottom: '12px',
+                fontWeight: '500'
+              }}>
+                🚀 Quick Access (Development Only)
+              </p>
+            </div>
+            
+            <button
+              onClick={() => onBypass('trainee')}
+              style={{
+                width: '100%',
+                minHeight: '48px',
+                fontSize: '1em',
+                padding: '12px 16px',
+                background: 'linear-gradient(135deg, rgba(255, 165, 0, 0.2), rgba(255, 140, 0, 0.1))',
+                border: '1px solid rgba(255, 165, 0, 0.4)',
+                borderRadius: '12px',
+                color: '#FFA500',
+                fontWeight: '500',
+                cursor: 'pointer',
+                touchAction: 'manipulation'
+              }}
+            >
+              ⚡ Skip Verification as Trainee
+            </button>
+            
+            <button
+              onClick={() => onBypass('trainer')}
+              style={{
+                width: '100%',
+                minHeight: '48px',
+                fontSize: '1em',
+                padding: '12px 16px',
+                background: 'linear-gradient(135deg, rgba(255, 165, 0, 0.2), rgba(255, 140, 0, 0.1))',
+                border: '1px solid rgba(255, 165, 0, 0.4)',
+                borderRadius: '12px',
+                color: '#FFA500',
+                fontWeight: '500',
+                cursor: 'pointer',
+                touchAction: 'manipulation'
+              }}
+            >
+              ⚡ Skip Verification as Trainer
+            </button>
+          </>
+        )}
       </div>
       
       <div style={{
