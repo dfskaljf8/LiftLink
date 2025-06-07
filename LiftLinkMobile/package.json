@@ -6,7 +6,10 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "build": "eas build",
+    "build:android": "eas build --platform android",
+    "build:ios": "eas build --platform ios"
   },
   "dependencies": {
     "expo": "~53.0.10",
@@ -18,10 +21,9 @@
     "expo-contacts": "~14.2.5",
     "expo-image-picker": "~16.1.4",
     "expo-av": "~15.1.5",
-    "undefined": "react-navigation/bottom-tabs",
+    "expo-linear-gradient": "~14.1.5",
     "react-native-screens": "~4.11.1",
-    "react-native-safe-area-context": "5.4.0",
-    "expo-linear-gradient": "~14.1.5"
+    "react-native-safe-area-context": "5.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
