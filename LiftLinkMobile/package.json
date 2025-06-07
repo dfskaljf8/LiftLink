@@ -17,7 +17,10 @@
     "expo-camera": "~16.1.7",
     "expo-contacts": "~14.2.5",
     "expo-image-picker": "~16.1.4",
-    "expo-av": "~15.1.5"
+    "expo-av": "~15.1.5",
+    "undefined": "react-navigation/bottom-tabs",
+    "react-native-screens": "~4.11.1",
+    "react-native-safe-area-context": "5.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
