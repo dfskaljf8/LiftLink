@@ -716,6 +716,10 @@ const RoleSelectionStep = ({ onSelectRole, loading }) => {
         lineHeight: '1.5'
       }}>
         To get started, please select your role. Both roles require age verification (18+).
+        <br />
+        <span style={{ fontSize: '14px', color: 'var(--text-tertiary)' }}>
+          💡 Don't worry - you can go back and change your selection at any time.
+        </span>
       </p>
       
       <div style={{
