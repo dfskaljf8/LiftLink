@@ -691,12 +691,13 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
       </div>
 
       {/* Mobile-Optimized Main Content */}
-      <div className="mobile-safe-area" style={{
+      <div className="mobile-safe-area mobile-scroll-container" style={{
         width: '100%',
         maxWidth: '100vw',
         margin: 'calc(80px + env(safe-area-inset-top)) auto 0',
         padding: '0 16px',
-        boxSizing: 'border-box'
+        boxSizing: 'border-box',
+        scrollBehavior: 'smooth'
       }}>
         {/* Mobile-Optimized Error Display */}
         {error && (
