@@ -73,11 +73,36 @@ const HealthIntegrations = ({ userProfile }) => {
       
       if (response.ok) {
         const authData = await response.json();
-        // Redirect to provider's OAuth URL
-        window.location.href = authData.auth_url;
+        
+        // Special handling for different providers
+        if (provider === 'google_fit') {
+          // For Google Fit, open OAuth in new window for better UX
+          const popup = window.open(
+            authData.auth_url,
+            'google_fit_auth',
+            'width=500,height=600,scrollbars=yes,resizable=yes'
+          );
+          
+          // Listen for OAuth completion (in a real app, you'd handle the callback)
+          const checkClosed = setInterval(() => {
+            if (popup.closed) {
+              clearInterval(checkClosed);
+              // In a real implementation, check if auth was successful
+              setConnectedDevices(prev => ({ ...prev, google_fit: true }));
+              alert('Google Fit connected successfully! (Demo)');
+            }
+          }, 1000);
+        } else if (provider === 'apple_health') {
+          // Apple HealthKit requires native iOS app
+          alert('Apple HealthKit integration requires the LiftLink mobile app. Coming soon!');
+        } else {
+          // For other providers, redirect to OAuth URL
+          window.open(authData.auth_url, '_blank');
+        }
       }
     } catch (error) {
       console.error(`Error connecting to ${provider}:`, error);
+      alert(`Failed to connect to ${provider}. Please try again.`);
     } finally {
       setLoading(false);
     }
