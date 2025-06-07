@@ -1,5 +1,55 @@
 {
   "appId": "com.liftlink.app",
   "appName": "LiftLink",
-  "webDir": "build"
+  "webDir": "build",
+  "server": {
+    "url": "https://verify-fit.preview.emergentagent.com",
+    "cleartext": true
+  },
+  "plugins": {
+    "CapacitorHealthKit": {
+      "permissions": [
+        "HKQuantityTypeIdentifierStepCount",
+        "HKQuantityTypeIdentifierHeartRate",
+        "HKQuantityTypeIdentifierActiveEnergyBurned",
+        "HKQuantityTypeIdentifierDistanceWalkingRunning",
+        "HKCategoryTypeIdentifierSleepAnalysis",
+        "HKQuantityTypeIdentifierBodyMass",
+        "HKWorkoutTypeIdentifier"
+      ]
+    },
+    "Geolocation": {
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    "Camera": {
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "Contacts": {
+      "permissions": [
+        "READ_CONTACTS"
+      ]
+    }
+  },
+  "ios": {
+    "backgroundColor": "#000000",
+    "scheme": "LiftLink",
+    "allowsLinkPreview": false,
+    "toolbarStyle": "dark",
+    "statusBarStyle": "dark",
+    "preferredContentMode": "mobile",
+    "limitsNavigationsToAppBoundDomains": true,
+    "webContentsDebuggingEnabled": true
+  },
+  "android": {
+    "backgroundColor": "#000000",
+    "allowMixedContent": true,
+    "webContentsDebuggingEnabled": true
+  }
 }
