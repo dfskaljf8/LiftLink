@@ -1170,7 +1170,7 @@ const IdUploadStep = ({ onUpload, loading }) => {
   );
 };
 
-// Selfie Capture Step
+// Mobile-Optimized Selfie Step
 const SelfieStep = ({ onCapture, loading }) => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -1207,33 +1207,40 @@ const SelfieStep = ({ onCapture, loading }) => {
   };
 
   return (
-    <div className="glass-card" style={{ padding: 'var(--space-2xl)' }}>
-      <div style={{ textAlign: 'center', marginBottom: 'var(--space-xl)' }}>
+    <div className="glass-card mobile-form auto-color-scheme" style={{ 
+      padding: '24px', 
+      width: '100%', 
+      boxSizing: 'border-box',
+      borderRadius: '12px'
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
         <div style={{
-          width: '60px',
-          height: '60px',
+          width: '64px',
+          height: '64px',
           background: 'linear-gradient(45deg, #C4D600, #B2FF66)',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          margin: '0 auto var(--space-lg)',
-          fontSize: '24px'
+          margin: '0 auto 16px',
+          fontSize: '28px'
         }}>
           📸
         </div>
         
-        <h3 style={{
-          fontSize: '20px',
+        <h3 className="mobile-header" style={{
+          fontSize: '1.3em',
           fontWeight: '600',
-          marginBottom: 'var(--space-sm)'
+          marginBottom: '8px',
+          lineHeight: '1.3'
         }}>
           Take a Selfie
         </h3>
         
         <p style={{
           color: 'var(--text-secondary)',
-          fontSize: '14px'
+          fontSize: '0.95em',
+          lineHeight: '1.4'
         }}>
           We'll match your face to your ID for security
         </p>
@@ -1241,24 +1248,26 @@ const SelfieStep = ({ onCapture, loading }) => {
       
       {preview && (
         <div style={{
-          marginBottom: 'var(--space-lg)',
+          marginBottom: '20px',
           textAlign: 'center'
         }}>
           <img
+            className="mobile-image"
             src={preview}
             alt="Selfie preview"
             style={{
-              width: '200px',
-              height: '200px',
+              width: '180px',
+              height: '180px',
               objectFit: 'cover',
               borderRadius: '50%',
-              border: '3px solid #C4D600'
+              border: '4px solid #C4D600',
+              maxWidth: '100%'
             }}
           />
         </div>
       )}
       
-      <div style={{ marginBottom: 'var(--space-xl)' }}>
+      <div style={{ marginBottom: '24px' }}>
         <input
           type="file"
           ref={fileInputRef}
@@ -1269,17 +1278,24 @@ const SelfieStep = ({ onCapture, loading }) => {
         />
         
         <button
+          className="mobile-button"
           onClick={() => fileInputRef.current?.click()}
           style={{
             width: '100%',
-            padding: 'var(--space-lg)',
+            minHeight: '56px',
+            padding: '16px 20px',
             border: '2px dashed rgba(196, 214, 0, 0.5)',
-            borderRadius: 'var(--border-radius)',
+            borderRadius: '12px',
             background: file ? 'rgba(196, 214, 0, 0.1)' : 'transparent',
             color: file ? '#C4D600' : 'var(--text-secondary)',
-            fontSize: '16px',
+            fontSize: '1em',
+            fontWeight: '500',
             cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'rgba(196, 214, 0, 0.2)',
+            lineHeight: '1.4',
+            textAlign: 'center'
           }}
         >
           {file ? 'Retake Selfie' : '📱 Take Selfie'}
@@ -1287,25 +1303,29 @@ const SelfieStep = ({ onCapture, loading }) => {
       </div>
       
       <button
-        className="btn-primary"
+        className="btn-primary mobile-button"
         onClick={handleSubmit}
         disabled={loading || !file}
         style={{
           width: '100%',
-          padding: 'var(--space-lg)',
-          fontSize: '16px'
+          minHeight: '52px',
+          fontSize: '1.1em',
+          fontWeight: '600',
+          borderRadius: '12px',
+          touchAction: 'manipulation'
         }}
       >
         {loading ? 'Verifying...' : 'Verify Selfie'}
       </button>
       
       <div style={{
-        marginTop: 'var(--space-lg)',
-        padding: 'var(--space-md)',
+        marginTop: '20px',
+        padding: '16px',
         background: 'rgba(196, 214, 0, 0.1)',
-        borderRadius: 'var(--border-radius)',
-        fontSize: '12px',
-        color: 'var(--text-secondary)'
+        borderRadius: '12px',
+        fontSize: '0.9em',
+        color: 'var(--text-secondary)',
+        lineHeight: '1.5'
       }}>
         ✓ Look directly at camera<br/>
         ✓ Good lighting required<br/>
