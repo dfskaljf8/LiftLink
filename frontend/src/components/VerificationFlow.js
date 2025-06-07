@@ -696,12 +696,28 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
 };
 
 // Role Selection Step
-const RoleSelectionStep = ({ onSelectRole, loading }) => {
+const RoleSelectionStep = ({ onSelectRole, loading, showChangeNotice }) => {
   return (
     <div className="glass-card" style={{
       padding: 'var(--space-2xl)',
       textAlign: 'center'
     }}>
+      {/* Role Change Notice */}
+      {showChangeNotice && (
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(196, 214, 0, 0.15), rgba(178, 255, 102, 0.1))',
+          border: '1px solid rgba(196, 214, 0, 0.3)',
+          borderRadius: 'var(--border-radius)',
+          padding: 'var(--space-md)',
+          marginBottom: 'var(--space-lg)',
+          color: '#C4D600',
+          fontSize: '14px',
+          animation: 'fadeInOut 3s ease-in-out'
+        }}>
+          ✨ You're back at role selection - choose the role that's right for you!
+        </div>
+      )}
+      
       <div style={{ marginBottom: 'var(--space-xl)' }}>
         <LiftLinkLogo size={60} animate={true} />
       </div>
