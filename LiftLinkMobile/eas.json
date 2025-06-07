@@ -22,9 +22,9 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "your-apple-id@example.com",
-        "ascAppId": "your-app-store-connect-app-id",
-        "appleTeamId": "your-apple-team-id"
+        "appleId": "lift.link.email@gmail.com",
+        "ascAppId": "will-be-configured-during-build",
+        "appleTeamId": "will-be-auto-detected"
       },
       "android": {
         "serviceAccountKeyPath": "path/to/api-key.json",
