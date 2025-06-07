@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiftLink - Health Integration</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #000000, #1a1a1a, #000000);
+            color: #ffffff;
+            width: 375px;
+            height: 812px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .container {
+            padding: 60px 20px 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #C4D600;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: #888888;
+            margin-bottom: 20px;
+        }
+        
+        .health-providers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .provider-card {
+            background: rgba(196, 214, 0, 0.1);
+            border: 1px solid rgba(196, 214, 0, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .provider-card.connected {
+            border-color: #C4D600;
+            background: rgba(196, 214, 0, 0.2);
+        }
+        
+        .provider-icon {
+            width: 60px;
+            height: 60px;
+            background: #C4D600;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 24px;
+            color: #000;
+        }
+        
+        .provider-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .provider-status {
+            font-size: 12px;
+            color: #C4D600;
+        }
+        
+        .connected-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #C4D600;
+            color: #000;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .health-data {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .data-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #C4D600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .data-item {
+            text-align: center;
+            background: rgba(196, 214, 0, 0.1);
+            border-radius: 8px;
+            padding: 12px;
+        }
+        
+        .data-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #C4D600;
+        }
+        
+        .data-label {
+            font-size: 12px;
+            color: #cccccc;
+            margin-top: 4px;
+        }
+        
+        .sync-button {
+            background: linear-gradient(45deg, #C4D600, #B2FF66);
+            color: #000000;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 16px;
+            border: none;
+            margin-bottom: 16px;
+        }
+        
+        .privacy-note {
+            background: rgba(196, 214, 0, 0.1);
+            border: 1px solid rgba(196, 214, 0, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+            font-size: 12px;
+            color: #cccccc;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">🏥 Health Integration</div>
+            <div class="subtitle">Connect your health devices for automatic tracking</div>
+        </div>
+        
+        <div class="health-providers">
+            <div class="provider-card connected">
+                <div class="connected-badge">✓</div>
+                <div class="provider-icon">🍎</div>
+                <div class="provider-name">Apple Health</div>
+                <div class="provider-status">Connected</div>
+            </div>
+            
+            <div class="provider-card">
+                <div class="provider-icon">🏃</div>
+                <div class="provider-name">Google Fit</div>
+                <div class="provider-status">Available</div>
+            </div>
+        </div>
+        
+        <div class="health-data">
+            <div class="data-title">Today's Health Data</div>
+            <div class="data-grid">
+                <div class="data-item">
+                    <div class="data-value">8,542</div>
+                    <div class="data-label">Steps</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-value">72 bpm</div>
+                    <div class="data-label">Heart Rate</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-value">2,140</div>
+                    <div class="data-label">Calories</div>
+                </div>
+                <div class="data-item">
+                    <div class="data-value">45 min</div>
+                    <div class="data-label">Active Time</div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="sync-button">🔄 Sync Health Data Now</button>
+        
+        <div class="privacy-note">
+            🔒 Your health data is encrypted and never shared with third parties. Only you and your chosen trainers can access your fitness metrics.
+        </div>
+    </div>
+</body>
+</html>
