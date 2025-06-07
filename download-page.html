@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiftLink - Download Your Deployment Package</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #000000, #1a1a1a, #000000);
+            color: #ffffff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            color: #C4D600;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(196, 214, 0, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(196, 214, 0, 0.8); }
+            to { text-shadow: 0 0 30px rgba(196, 214, 0, 1), 0 0 40px rgba(196, 214, 0, 0.8); }
+        }
+        
+        .subtitle {
+            font-size: 24px;
+            color: #888888;
+            margin-bottom: 40px;
+        }
+        
+        .alert {
+            background: rgba(196, 214, 0, 0.1);
+            border: 1px solid #C4D600;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: #C4D600;
+        }
+        
+        .download-section {
+            background: rgba(196, 214, 0, 0.1);
+            border: 1px solid rgba(196, 214, 0, 0.2);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 40px;
+        }
+        
+        .download-title {
+            font-size: 28px;
+            color: #C4D600;
+            margin-bottom: 16px;
+        }
+        
+        .download-desc {
+            font-size: 18px;
+            color: #cccccc;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        
+        .download-btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #C4D600, #B2FF66);
+            color: #000000;
+            padding: 20px 40px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 20px;
+            margin: 10px;
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 15px rgba(196, 214, 0, 0.3);
+            cursor: pointer;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(196, 214, 0, 0.4);
+        }
+        
+        .method-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(196, 214, 0, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .method-title {
+            font-size: 20px;
+            color: #C4D600;
+            margin-bottom: 12px;
+        }
+        
+        .method-desc {
+            color: #cccccc;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        
+        .code-block {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(196, 214, 0, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            color: #C4D600;
+            margin: 8px 0;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+        
+        .copy-btn {
+            background: #C4D600;
+            color: #000;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        
+        .file-list {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(196, 214, 0, 0.1);
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-name {
+            color: #ffffff;
+            font-weight: 500;
+        }
+        
+        .file-size {
+            color: #888888;
+            font-size: 14px;
+        }
+        
+        .instructions {
+            background: rgba(196, 214, 0, 0.05);
+            border: 1px solid rgba(196, 214, 0, 0.2);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: left;
+            margin: 40px 0;
+        }
+        
+        .instructions h3 {
+            color: #C4D600;
+            margin-bottom: 16px;
+        }
+        
+        .instructions ol {
+            color: #cccccc;
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">LiftLink</div>
+        <div class="subtitle">Download Your Deployment Package</div>
+        
+        <div class="alert">
+            ✅ Your LiftLink deployment package is ready! Multiple download methods available below.
+        </div>
+        
+        <div class="download-section">
+            <div class="download-title">📦 Primary Download Method</div>
+            <div class="download-desc">
+                Click the button below to download your complete deployment package (61MB)
+            </div>
+            
+            <a id="downloadBtn" class="download-btn" onclick="downloadFile()">
+                📥 Download Complete Package (61MB)
+            </a>
+            
+            <div id="downloadStatus" style="margin-top: 16px; color: #C4D600;"></div>
+        </div>
+        
+        <div class="method-card">
+            <div class="method-title">🌐 Method 1: Direct Browser Download</div>
+            <div class="method-desc">
+                If you're accessing this through a web interface, try these direct links:
+            </div>
+            
+            <div class="file-list">
+                <div class="file-item">
+                    <span class="file-name">Complete Deployment Package</span>
+                    <span class="file-size">61MB</span>
+                </div>
+                <div class="file-item">
+                    <span class="file-name">App Store Setup Guide</span>
+                    <span class="file-size">6KB</span>
+                </div>
+                <div class="file-item">
+                    <span class="file-name">Marketing Assets</span>
+                    <span class="file-size">12KB</span>
+                </div>
+                <div class="file-item">
+                    <span class="file-name">Screenshot Mockups</span>
+                    <span class="file-size">15KB</span>
+                </div>
+            </div>
+            
+            <button class="download-btn" onclick="window.open('/LiftLink_Deployment_Package.tar.gz', '_blank')">
+                📦 Try Direct Download
+            </button>
+        </div>
+        
+        <div class="method-card">
+            <div class="method-title">💻 Method 2: Command Line Access</div>
+            <div class="method-desc">
+                If you have command line access to this environment, use these commands:
+            </div>
+            
+            <div class="code-block">
+                # Copy the package to a web-accessible location
+                cp /app/LiftLink_Deployment_Package.tar.gz ~/downloads/
+                <button class="copy-btn" onclick="copyToClipboard('cp /app/LiftLink_Deployment_Package.tar.gz ~/downloads/')">Copy</button>
+            </div>
+            
+            <div class="code-block">
+                # Or use curl to download if you have the server URL
+                curl -O [SERVER_URL]/LiftLink_Deployment_Package.tar.gz
+                <button class="copy-btn" onclick="copyToClipboard('curl -O [SERVER_URL]/LiftLink_Deployment_Package.tar.gz')">Copy</button>
+            </div>
+        </div>
+        
+        <div class="method-card">
+            <div class="method-title">🔗 Method 3: File Share Service</div>
+            <div class="method-desc">
+                Upload the package to a cloud service and share the link:
+            </div>
+            
+            <div class="code-block">
+                # Upload to your preferred service (Google Drive, Dropbox, etc.)
+                # Package location: /app/LiftLink_Deployment_Package.tar.gz
+                # Size: 61MB
+            </div>
+        </div>
+        
+        <div class="method-card">
+            <div class="method-title">📱 Method 4: Individual File Access</div>
+            <div class="method-desc">
+                Access individual files from the deployment package:
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin: 16px 0;">
+                <button class="download-btn" style="font-size: 14px; padding: 12px 16px;" onclick="downloadIndividualFile('deploy-ios-expo.sh')">
+                    🚀 Deployment Script
+                </button>
+                <button class="download-btn" style="font-size: 14px; padding: 12px 16px;" onclick="downloadIndividualFile('APP_STORE_CONNECT_SETUP.md')">
+                    📋 Setup Guide
+                </button>
+                <button class="download-btn" style="font-size: 14px; padding: 12px 16px;" onclick="downloadIndividualFile('APP_STORE_ASSETS.md')">
+                    🎨 Marketing Assets
+                </button>
+                <button class="download-btn" style="font-size: 14px; padding: 12px 16px;" onclick="window.open('/screenshots-preview.html', '_blank')">
+                    📱 Screenshots
+                </button>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>🚀 After Download: Quick Deploy Steps</h3>
+            <ol>
+                <li><strong>Extract:</strong> <code>tar -xzf LiftLink_Deployment_Package.tar.gz</code></li>
+                <li><strong>Navigate:</strong> <code>cd LiftLink_Deployment_Package</code></li>
+                <li><strong>Install tools:</strong> <code>npm install -g @expo/cli eas-cli</code></li>
+                <li><strong>Deploy:</strong> <code>./deploy-ios-expo.sh</code></li>
+                <li><strong>Setup App Store Connect</strong> (guide included)</li>
+                <li><strong>Wait for Apple review</strong> (24-48 hours)</li>
+                <li><strong>🎉 Your app goes live!</strong></li>
+            </ol>
+        </div>
+        
+        <div style="margin-top: 40px; padding: 20px; background: rgba(196, 214, 0, 0.1); border-radius: 12px;">
+            <h3 style="color: #C4D600; margin-bottom: 12px;">🔐 Your Configured Credentials</h3>
+            <p><strong>Expo Account:</strong> ksurepalli259</p>
+            <p><strong>Apple Developer:</strong> lift.link.email@gmail.com</p>
+            <p><strong>Bundle ID:</strong> com.liftlink.app</p>
+            <p><strong>App Name:</strong> LiftLink</p>
+        </div>
+        
+        <div style="margin-top: 40px; color: #888888; text-align: center;">
+            <p>⏱️ <strong>Timeline:</strong> 30 minutes setup + 24-48 hours Apple review = Live on App Store!</p>
+            <p>🎯 <strong>All files are ready - choose the download method that works for you!</strong></p>
+        </div>
+    </div>
+
+    <script>
+        function downloadFile() {
+            const btn = document.getElementById('downloadBtn');
+            const status = document.getElementById('downloadStatus');
+            
+            btn.innerHTML = '📥 Downloading...';
+            status.innerHTML = 'Starting download...';
+            
+            // Try multiple download methods
+            const methods = [
+                () => {
+                    const link = document.createElement('a');
+                    link.href = '/LiftLink_Deployment_Package.tar.gz';
+                    link.download = 'LiftLink_Deployment_Package.tar.gz';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                },
+                () => {
+                    window.open('/LiftLink_Deployment_Package.tar.gz', '_blank');
+                },
+                () => {
+                    window.location.href = '/LiftLink_Deployment_Package.tar.gz';
+                }
+            ];
+            
+            // Try first method
+            try {
+                methods[0]();
+                status.innerHTML = '✅ Download started! Check your downloads folder.';
+            } catch (e) {
+                try {
+                    methods[1]();
+                    status.innerHTML = '✅ Download opened in new tab.';
+                } catch (e2) {
+                    methods[2]();
+                    status.innerHTML = '✅ Download redirect initiated.';
+                }
+            }
+            
+            setTimeout(() => {
+                btn.innerHTML = '📥 Download Complete Package (61MB)';
+                status.innerHTML = 'If download didn\'t start, try the alternative methods below.';
+            }, 3000);
+        }
+        
+        function downloadIndividualFile(filename) {
+            const link = document.createElement('a');
+            link.href = `/LiftLink_Deployment_Package/${filename}`;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            }).catch(() => {
+                prompt('Copy this command:', text);
+            });
+        }
+        
+        // Auto-try download on page load if requested
+        if (window.location.hash === '#download') {
+            setTimeout(downloadFile, 1000);
+        }
+    </script>
+</body>
+</html>
