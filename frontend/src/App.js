@@ -413,10 +413,6 @@ const AppContent = () => {
           <FitnessForestScreen userProfile={mockUserProfile} />
         )}
         
-        {currentView === 'analytics' && (
-          <ProgressAnalyticsScreen userProfile={mockUserProfile} />
-        )}
-        
         {currentView === 'enhanced-analytics' && (
           <EnhancedProgressAnalytics userProfile={mockUserProfile} />
         )}
