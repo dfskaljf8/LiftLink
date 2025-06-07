@@ -89,9 +89,27 @@ const ProfessionalSidebar = ({ isOpen, toggleSidebar, setCurrentView, currentVie
       icon: <AnimatedChart size={20} active={currentView === 'analytics'} />
     },
     { 
+      id: 'enhanced-analytics', 
+      label: 'Enhanced Analytics', 
+      icon: <span style={{ fontSize: '20px' }}>📊</span>,
+      subtitle: 'Health device insights'
+    },
+    { 
       id: 'social', 
       label: 'Social Hub', 
       icon: <AnimatedUser size={20} active={currentView === 'social'} />
+    },
+    { 
+      id: 'find-friends', 
+      label: 'Find Friends', 
+      icon: <span style={{ fontSize: '20px' }}>👥</span>,
+      subtitle: 'Connect via contacts'
+    },
+    { 
+      id: 'health-devices', 
+      label: 'Health Devices', 
+      icon: <span style={{ fontSize: '20px' }}>⌚</span>,
+      subtitle: 'Wearables & apps'
     },
     { 
       id: 'achievements', 
@@ -107,6 +125,12 @@ const ProfessionalSidebar = ({ isOpen, toggleSidebar, setCurrentView, currentVie
       id: 'bookings', 
       label: 'My Bookings', 
       icon: <AnimatedCalendar size={20} active={currentView === 'bookings'} />
+    },
+    { 
+      id: 'session-attendance', 
+      label: 'Session Check-In', 
+      icon: <span style={{ fontSize: '20px' }}>📍</span>,
+      subtitle: 'Verify attendance'
     },
     { 
       id: 'messages', 
@@ -129,6 +153,16 @@ const ProfessionalSidebar = ({ isOpen, toggleSidebar, setCurrentView, currentVie
       icon: <AnimatedHelp size={20} active={currentView === 'help'} />
     }
   ];
+
+  // Add trainer-specific items if user is a trainer
+  if (userProfile?.role === 'trainer') {
+    sidebarItems.splice(1, 0, {
+      id: 'trainer-crm',
+      label: 'Trainer CRM',
+      icon: <span style={{ fontSize: '20px' }}>💼</span>,
+      subtitle: 'Client management'
+    });
+  }
 
   const handleItemClick = (itemId) => {
     setCurrentView(itemId);
