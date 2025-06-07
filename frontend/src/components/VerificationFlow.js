@@ -837,7 +837,7 @@ const CertificationStep = ({ onUpload, loading }) => {
             transition: 'all 0.2s ease'
           }}
         >
-          {file ? `Selected: ${file.name}` : 'Choose Certification Document'}
+          {file ? `Selected: ${file.name || 'Unknown file'}` : 'Choose Certification Document'}
         </button>
       </div>
       
