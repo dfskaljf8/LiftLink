@@ -16,6 +16,34 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showRoleChangeNotice, setShowRoleChangeNotice] = useState(false);
 
+  // TEMPORARY BYPASS FOR DEVELOPMENT - Remove in production
+  const [bypassVerification, setBypassVerification] = useState(false);
+
+  // Check for bypass parameter in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('bypass') === 'true' || urlParams.get('dev') === 'true') {
+      setBypassVerification(true);
+    }
+  }, []);
+
+  // Quick bypass function for development
+  const handleBypassVerification = (role) => {
+    setVerificationData({
+      role: role || 'trainee',
+      sessionId: 'dev_bypass_session',
+      idVerified: true,
+      selfieVerified: true,
+      certificationVerified: role === 'trainer'
+    });
+    
+    // Show completion step briefly then complete
+    setCurrentStep('verification-complete');
+    setTimeout(() => {
+      onComplete();
+    }, 2000);
+  };
+
   const steps = {
     'role-selection': { title: 'Choose Your Role', step: 1 },
     'id-upload': { title: 'Verify Your Identity', step: 2 },
