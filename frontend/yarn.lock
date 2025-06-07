@@ -1081,6 +1081,52 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
+"@capacitor-community/contacts@^7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@capacitor-community/contacts/-/contacts-7.0.0.tgz#c82b07c4b9d36bec6e8539edc61c354da85744c1"
+  integrity sha512-CDn+YBUpP0YugXxDVqax1afXiJV85wQj4yS7Bz2dK+pSpRURabdIFpurlA1z41IlX+erg2z5+C2FcT2drWhTrw==
+
+"@capacitor/android@^7.3.0":
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-7.3.0.tgz#68a14f0c3ad1779852237c6932433a22e145a61a"
+  integrity sha512-TqUm+Z3Uk7/rET+adNDKD63JtA0AN+pMQlFRcLPmZJHFmJl6bUOWWELVL0Ixl5XaweTxofNKeDAjjLRIs+wd3g==
+
+"@capacitor/camera@^7.0.1":
+  version "7.0.1"
+  resolved "https://registry.yarnpkg.com/@capacitor/camera/-/camera-7.0.1.tgz#bcbd1c05cce648fa54b844bf7a6745854cae6ba4"
+  integrity sha512-gDUFsYlhMra5VVOa4iJV6+MQRhp3VXpTLQY4JDATj7UvoZ8Hv4DG8qplPL9ufUFNoR3QbDDnf8+gbQOsKdkDjg==
+
+"@capacitor/core@latest":
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-7.3.0.tgz#208074f35d59d8150ec2ce40c8be9639f7f78965"
+  integrity sha512-t/DdTyBchQ2eAZuCmAARlqQsrEm0WyeNwh5zeRuv+cR6gnAsw+86/EWvJ/em5dTnZyaqEy8vlmOMdWarrUbnuQ==
+  dependencies:
+    tslib "^2.1.0"
+
+"@capacitor/filesystem@^7.1.1":
+  version "7.1.1"
+  resolved "https://registry.yarnpkg.com/@capacitor/filesystem/-/filesystem-7.1.1.tgz#cc53f8c743dc9128c1aa77da6589de35043839a3"
+  integrity sha512-xAQvurZlfKOO7I8d98GFRymS/Dd25sw0L1weF4dKR59nXloWEeagoFv+xtaNlDfolJHo4/uKVvxsLzM0xSmiUQ==
+  dependencies:
+    "@capacitor/synapse" "^1.0.1"
+
+"@capacitor/geolocation@^7.1.2":
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/geolocation/-/geolocation-7.1.2.tgz#394ce56c20c9347dfa8c702f3b7dfd8ab3053129"
+  integrity sha512-J++OuOpn6Bjweo7SZ+jwI/dhVF9DNw6Wx0UHgQ4qfrATqmNKGNZ/BUljGhXiKJceSx2GIhfrYS7BYqo3uWibgQ==
+  dependencies:
+    "@capacitor/synapse" "^1.0.1"
+
+"@capacitor/ios@^7.3.0":
+  version "7.3.0"
+  resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-7.3.0.tgz#d7de85f32557df7eea4a46261c6a1f20402c5674"
+  integrity sha512-gHEERjA8wG/GBBZJD8i7eiX0QwGY2HMh3H3KPw5a1CGhmNhtr/1bsrgwF7s6LP+KC4kKWseYo+ZrHjw1JC3JGA==
+
+"@capacitor/synapse@^1.0.1":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/synapse/-/synapse-1.0.2.tgz#0037c3741ba29fcc927bb3546120ec2847fd2221"
+  integrity sha512-ynq39s4D2rhk+aVLWKfKfMCz9SHPKijL9tq8aFL5dG7ik7/+PvBHmg9cPHbqdvFEUSMmaGzL6cIjzkOruW7vGA==
+
 "@csstools/normalize.css@*":
   version "12.1.1"
   resolved "https://registry.yarnpkg.com/@csstools/normalize.css/-/normalize.css-12.1.1.tgz#f0ad221b7280f3fc814689786fd9ee092776ef8f"
@@ -3588,6 +3634,13 @@ caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001646, caniuse-lite@^1.0.30001688:
   version "1.0.30001690"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001690.tgz#f2d15e3aaf8e18f76b2b8c1481abde063b8104c8"
   integrity sha512-5ExiE3qQN6oF8Clf8ifIDcMRCRE/dMGcETG/XGMD8/XiXm6HXQgQTh1yZYLXXpSOsEUlJm1Xr7kGULZTuGtP/w==
+
+capacitor-healthkit@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/capacitor-healthkit/-/capacitor-healthkit-0.2.1.tgz#32ec445f89070edf144975cb6b9988e5f884a235"
+  integrity sha512-09zXed4P3XyK9TN4ogfG55BJb4C8NdriLWtCk9KsI7AKZTrMDqfaBi1OjWox3+JUWcwI+48xHFH0gS97hooZsQ==
+  dependencies:
+    "@capacitor/core" latest
 
 case-sensitive-paths-webpack-plugin@^2.4.0:
   version "2.4.0"
