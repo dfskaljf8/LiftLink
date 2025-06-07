@@ -595,7 +595,7 @@ const IdUploadStep = ({ onUpload, loading }) => {
             transition: 'all 0.2s ease'
           }}
         >
-          {file ? `Selected: ${file.name}` : 'Choose ID Document'}
+          {file ? `Selected: ${file.name || 'Unknown file'}` : 'Choose ID Document'}
         </button>
       </div>
       
