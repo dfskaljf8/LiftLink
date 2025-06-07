@@ -659,6 +659,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
           <RoleSelectionStep 
             onSelectRole={startVerificationSession}
             loading={loading}
+            showChangeNotice={showRoleChangeNotice}
           />
         )}
         
