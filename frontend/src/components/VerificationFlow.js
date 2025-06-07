@@ -837,101 +837,121 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
   );
 };
 
-// Role Selection Step
+// Mobile-Optimized Role Selection Step
 const RoleSelectionStep = ({ onSelectRole, loading, showChangeNotice }) => {
   return (
-    <div className="glass-card" style={{
-      padding: 'var(--space-2xl)',
-      textAlign: 'center'
+    <div className="glass-card mobile-form auto-color-scheme" style={{
+      padding: '24px',
+      textAlign: 'center',
+      width: '100%',
+      boxSizing: 'border-box',
+      borderRadius: '12px'
     }}>
       {/* Role Change Notice */}
       {showChangeNotice && (
         <div style={{
           background: 'linear-gradient(135deg, rgba(196, 214, 0, 0.15), rgba(178, 255, 102, 0.1))',
           border: '1px solid rgba(196, 214, 0, 0.3)',
-          borderRadius: 'var(--border-radius)',
-          padding: 'var(--space-md)',
-          marginBottom: 'var(--space-lg)',
+          borderRadius: '12px',
+          padding: '16px',
+          marginBottom: '20px',
           color: '#C4D600',
-          fontSize: '14px',
-          animation: 'fadeInOut 3s ease-in-out'
+          fontSize: '0.95em',
+          animation: 'fadeInOut 3s ease-in-out',
+          lineHeight: '1.4'
         }}>
           ✨ You're back at role selection - choose the role that's right for you!
         </div>
       )}
       
-      <div style={{ marginBottom: 'var(--space-xl)' }}>
+      <div style={{ marginBottom: '24px' }}>
         <LiftLinkLogo size={60} animate={true} />
       </div>
       
-      <h3 style={{
-        fontSize: '24px',
+      <h3 className="mobile-header" style={{
+        fontSize: '1.4em',
         fontWeight: '600',
-        marginBottom: 'var(--space-md)'
+        marginBottom: '16px',
+        lineHeight: '1.3'
       }}>
         Welcome to LiftLink
       </h3>
       
       <p style={{
         color: 'var(--text-secondary)',
-        marginBottom: 'var(--space-xl)',
-        fontSize: '16px',
-        lineHeight: '1.5'
+        marginBottom: '24px',
+        fontSize: '1em',
+        lineHeight: '1.5',
+        padding: '0 8px'
       }}>
         To get started, please select your role. Both roles require age verification (18+).
         <br />
-        <span style={{ fontSize: '14px', color: 'var(--text-tertiary)' }}>
+        <span style={{ fontSize: '0.9em', color: 'var(--text-tertiary)', marginTop: '8px', display: 'block' }}>
           💡 Don't worry - you can go back and change your selection at any time.
         </span>
       </p>
       
-      <div style={{
+      <div className="mobile-form" style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: 'var(--space-lg)'
+        gap: '16px',
+        width: '100%'
       }}>
         <button
-          className="btn-primary"
+          className="btn-primary mobile-button"
           onClick={() => onSelectRole('trainee')}
           disabled={loading}
           style={{
-            padding: 'var(--space-lg)',
-            fontSize: '18px',
+            width: '100%',
+            minHeight: '56px',
+            fontSize: '1.1em',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 'var(--space-sm)'
+            gap: '12px',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            fontWeight: '600',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'rgba(255, 255, 255, 0.2)'
           }}
         >
-          <AnimatedStar size={24} color="white" />
+          <AnimatedStar size={28} color="white" />
           I'm Looking for a Trainer
         </button>
         
         <button
-          className="btn-secondary"
+          className="btn-secondary mobile-button"
           onClick={() => onSelectRole('trainer')}
           disabled={loading}
           style={{
-            padding: 'var(--space-lg)',
-            fontSize: '18px',
+            width: '100%',
+            minHeight: '56px',
+            fontSize: '1.1em',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 'var(--space-sm)'
+            gap: '12px',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            fontWeight: '600',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'rgba(196, 214, 0, 0.2)'
           }}
         >
-          <AnimatedDumbbell size={24} color="#C4D600" />
+          <AnimatedDumbbell size={28} color="#C4D600" />
           I'm a Fitness Trainer
         </button>
       </div>
       
       <div style={{
-        marginTop: 'var(--space-xl)',
-        padding: 'var(--space-lg)',
+        marginTop: '24px',
+        padding: '16px',
         background: 'rgba(196, 214, 0, 0.1)',
-        borderRadius: 'var(--border-radius)',
-        fontSize: '14px',
-        color: 'var(--text-secondary)'
+        borderRadius: '12px',
+        fontSize: '0.9em',
+        color: 'var(--text-secondary)',
+        lineHeight: '1.5'
       }}>
         <p style={{ margin: 0 }}>
           🔒 Your personal information is encrypted and secure.
