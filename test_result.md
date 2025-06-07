@@ -330,6 +330,9 @@ frontend:
       - working: true
         agent: "main"
         comment: "MOBILE OPTIMIZATION COMPLETE: Applied comprehensive mobile-first design following emergent.sh formatting guidelines. Key improvements: 1) iOS/Android safe area support with proper padding for notches and home indicators, 2) Touch-optimized components with minimum 48px button heights and 44px input heights, 3) Full viewport width (100vw) layout with proper box-sizing, 4) Enhanced typography with system fonts and responsive font sizes, 5) Touch-friendly interactions with WebkitTapHighlightColor and touchAction, 6) Mobile-optimized file upload buttons with larger touch targets, 7) Auto color scheme support for dark/light mode, 8) Improved spacing and margins for mobile screens, 9) Responsive image sizing and preview displays, 10) Enhanced form layouts with proper mobile input styling including custom select dropdowns. All components now work seamlessly on both iOS and Android devices with proper accessibility and performance optimizations."
+      - working: true
+        agent: "main"
+        comment: "SMOOTH SCROLLING ENHANCEMENT: Added comprehensive smooth scrolling behavior for enhanced mobile UX. Features include: 1) CSS scroll-behavior: smooth applied globally and to all containers, 2) Momentum scrolling (-webkit-overflow-scrolling: touch) for iOS devices, 3) Programmatic smooth scroll to top when navigating between verification steps, 4) Enhanced form focus scrolling with proper scroll-margin-top for mobile keyboards, 5) Overscroll behavior containment to prevent elastic bounce on content boundaries, 6) Scroll snap alignment for verification steps, 7) Smooth transitions between role selection, ID upload, selfie capture, and certification steps. The entire verification flow now provides fluid, native-like scrolling animations that enhance the mobile user experience and make navigation feel more responsive and polished."
 
 metadata:
   created_by: "main_agent"
