@@ -29,6 +29,18 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
 
   // Navigation helper function
   const goBack = () => {
+    // Add confirmation for steps where user might lose progress
+    const stepsWithProgress = ['selfie-capture', 'certification-upload'];
+    
+    if (stepsWithProgress.includes(currentStep) && !loading) {
+      const confirmBack = window.confirm(
+        'Are you sure you want to go back? You will need to re-upload your verification documents.'
+      );
+      if (!confirmBack) {
+        return;
+      }
+    }
+    
     setError(''); // Clear any errors when going back
     setUploadProgress(0); // Reset upload progress
     
