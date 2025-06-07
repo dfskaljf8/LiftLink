@@ -640,11 +640,16 @@ const SelfieStep = ({ onCapture, loading }) => {
 
   const handleFileSelect = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile) {
+    if (selectedFile && selectedFile instanceof File) {
       setFile(selectedFile);
       const reader = new FileReader();
       reader.onload = (e) => setPreview(e.target.result);
       reader.readAsDataURL(selectedFile);
+    } else if (selectedFile) {
+      // Handle case where selectedFile might not be a proper File object
+      console.warn('Selected file is not a proper File object:', selectedFile);
+      setFile(null);
+      setPreview(null);
     }
   };
 
