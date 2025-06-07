@@ -423,6 +423,24 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
             user-select: none;
           }
           
+          /* Smooth scrolling for enhanced mobile UX */
+          html {
+            scroll-behavior: smooth;
+            -webkit-scroll-behavior: smooth;
+          }
+          
+          /* Smooth scrolling for all scrollable containers */
+          * {
+            scroll-behavior: smooth;
+          }
+          
+          /* Enhanced mobile scrolling */
+          .mobile-scroll-container {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+          }
+          
           /* Safe area support for iOS */
           @supports (padding: max(0px)) {
             .mobile-safe-area {
