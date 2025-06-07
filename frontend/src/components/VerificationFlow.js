@@ -466,6 +466,25 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
             overscroll-behavior-y: contain;
           }
           
+          /* Smooth focus scrolling for form inputs */
+          input:focus, select:focus, textarea:focus {
+            scroll-margin-top: 100px;
+            scroll-behavior: smooth;
+          }
+          
+          /* Enhanced scroll snap for better mobile UX */
+          .verification-step {
+            scroll-snap-align: start;
+            scroll-margin-top: 80px;
+          }
+          
+          /* Momentum scrolling for iOS */
+          @supports (-webkit-overflow-scrolling: touch) {
+            .mobile-scroll-container {
+              -webkit-overflow-scrolling: touch;
+            }
+          }
+          
           /* Safe area support for iOS */
           @supports (padding: max(0px)) {
             .mobile-safe-area {
