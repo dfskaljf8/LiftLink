@@ -550,50 +550,54 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
           }
         `}
       </style>
-      {/* Progress Header */}
-      <div style={{
+      {/* Mobile-Optimized Progress Header */}
+      <div className="mobile-safe-area auto-color-scheme" style={{
         position: 'fixed',
-        top: '60px',
+        top: 'env(safe-area-inset-top, 0px)',
         left: 0,
         right: 0,
         background: 'var(--glass-bg)',
         backdropFilter: 'blur(20px)',
         borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-        padding: 'var(--space-md) var(--space-lg)',
-        zIndex: 100
+        padding: '16px',
+        zIndex: 100,
+        boxSizing: 'border-box'
       }}>
-        {/* Back Button */}
+        {/* Mobile-Optimized Back Button */}
         {showBackButton && (
           <button
-            className="verification-back-btn"
+            className="verification-back-btn mobile-button"
             onClick={goBack}
             disabled={loading}
             style={{
               position: 'absolute',
               top: '50%',
-              left: 'var(--space-lg)',
+              left: '16px',
               transform: 'translateY(-50%)',
               background: 'linear-gradient(135deg, rgba(196, 214, 0, 0.2), rgba(178, 255, 102, 0.1))',
               border: '1px solid rgba(196, 214, 0, 0.4)',
               borderRadius: '12px',
-              padding: '8px 12px',
+              minHeight: '48px',
+              padding: '12px 16px',
               color: '#C4D600',
-              fontSize: '14px',
+              fontSize: '1em',
               fontWeight: '500',
               cursor: loading ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
+              gap: '8px',
               transition: 'all 0.3s ease',
               opacity: loading ? 0.5 : 1,
               backdropFilter: 'blur(10px)',
-              zIndex: 101
+              zIndex: 101,
+              touchAction: 'manipulation',
+              WebkitTapHighlightColor: 'rgba(196, 214, 0, 0.2)'
             }}
             onMouseEnter={(e) => {
               if (!loading) {
                 e.target.style.background = 'linear-gradient(135deg, rgba(196, 214, 0, 0.3), rgba(178, 255, 102, 0.2))';
                 e.target.style.borderColor = 'rgba(196, 214, 0, 0.6)';
-                e.target.style.transform = 'translateY(-50%) scale(1.05)';
+                e.target.style.transform = 'translateY(-50%) scale(1.02)';
               }
             }}
             onMouseLeave={(e) => {
@@ -604,17 +608,17 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
               }
             }}
           >
-            {/* Cyberpunk arrow icon */}
+            {/* Touch-optimized arrow icon */}
             <svg 
-              width="14" 
-              height="14" 
+              width="16" 
+              height="16" 
               viewBox="0 0 24 24" 
               fill="none"
             >
               <path 
                 d="M19 12H5M5 12L12 19M5 12L12 5" 
                 stroke="currentColor" 
-                strokeWidth="2" 
+                strokeWidth="2.5" 
                 strokeLinecap="round" 
                 strokeLinejoin="round"
               />
@@ -627,22 +631,24 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: 'var(--space-sm)',
-          marginLeft: showBackButton ? '80px' : '0', // Add left margin when back button is present
+          marginBottom: '12px',
+          marginLeft: showBackButton ? '90px' : '0',
           transition: 'margin-left 0.3s ease'
         }}>
-          <h2 style={{
-            fontSize: '18px',
+          <h2 className="mobile-header" style={{
+            fontSize: '1.2em',
             fontWeight: '600',
-            margin: 0
+            margin: 0,
+            lineHeight: '1.4'
           }}>
             {steps[currentStep]?.title}
           </h2>
           <span style={{
-            fontSize: '14px',
-            color: 'var(--text-secondary)'
+            fontSize: '0.9em',
+            color: 'var(--text-secondary)',
+            whiteSpace: 'nowrap'
           }}>
-            Step {steps[currentStep]?.step} of {totalSteps}
+            {steps[currentStep]?.step}/{totalSteps}
           </span>
         </div>
         
