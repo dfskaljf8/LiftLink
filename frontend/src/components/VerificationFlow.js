@@ -322,6 +322,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
           setCurrentStep('verification-complete');
         }
         setUploadProgress(0);
+        scrollToTop();
       }, 1000);
       
     } catch (err) {
