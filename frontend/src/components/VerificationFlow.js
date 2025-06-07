@@ -431,6 +431,21 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
           .verification-back-btn svg {
             animation: matrixGlow 2s infinite;
           }
+          
+          @keyframes fadeInOut {
+            0% { 
+              opacity: 0; 
+              transform: translateY(-10px); 
+            }
+            10%, 90% { 
+              opacity: 1; 
+              transform: translateY(0); 
+            }
+            100% { 
+              opacity: 0; 
+              transform: translateY(-10px); 
+            }
+          }
         `}
       </style>
       {/* Progress Header */}
