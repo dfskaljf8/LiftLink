@@ -1,29 +1,76 @@
 {
   "expo": {
-    "name": "LiftLinkMobile",
-    "slug": "LiftLinkMobile",
+    "name": "LiftLink",
+    "slug": "liftlink",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "newArchEnabled": true,
+    "scheme": "liftlink",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#000000"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.liftlink.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSHealthUpdateUsageDescription": "LiftLink uses your health data to track your fitness progress, sync with trainers, and provide personalized workout insights.",
+        "NSHealthShareUsageDescription": "LiftLink needs access to your health data to provide comprehensive fitness tracking and sync with your trainer.",
+        "NSLocationWhenInUseUsageDescription": "LiftLink uses your location to verify session attendance and find nearby trainers.",
+        "NSCameraUsageDescription": "LiftLink uses the camera for ID verification, selfies, and fitness progress photos.",
+        "NSPhotoLibraryUsageDescription": "LiftLink needs access to your photo library to upload ID documents and certification photos.",
+        "NSContactsUsageDescription": "LiftLink can access your contacts to help you find friends who are already using the app."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#000000"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.liftlink.app",
+      "versionCode": 1,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "READ_CONTACTS"
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-location",
+      "expo-camera",
+      "expo-contacts",
+      "expo-image-picker",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "newArchEnabled": true
+          },
+          "android": {
+            "newArchEnabled": true
+          }
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id-here"
+      }
     }
   }
 }
