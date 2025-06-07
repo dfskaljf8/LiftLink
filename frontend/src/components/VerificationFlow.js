@@ -397,11 +397,80 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
         padding: 'var(--space-md) var(--space-lg)',
         zIndex: 100
       }}>
+        {/* Back Button */}
+        {showBackButton && (
+          <button
+            onClick={goBack}
+            disabled={loading}
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: 'var(--space-lg)',
+              transform: 'translateY(-50%)',
+              background: 'linear-gradient(135deg, rgba(196, 214, 0, 0.2), rgba(178, 255, 102, 0.1))',
+              border: '1px solid rgba(196, 214, 0, 0.4)',
+              borderRadius: '12px',
+              padding: '8px 12px',
+              color: '#C4D600',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'all 0.3s ease',
+              opacity: loading ? 0.5 : 1,
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 4px 12px rgba(196, 214, 0, 0.15)',
+              zIndex: 101
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.target.style.background = 'linear-gradient(135deg, rgba(196, 214, 0, 0.3), rgba(178, 255, 102, 0.2))';
+                e.target.style.borderColor = 'rgba(196, 214, 0, 0.6)';
+                e.target.style.boxShadow = '0 6px 20px rgba(196, 214, 0, 0.25)';
+                e.target.style.transform = 'translateY(-50%) scale(1.05)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) {
+                e.target.style.background = 'linear-gradient(135deg, rgba(196, 214, 0, 0.2), rgba(178, 255, 102, 0.1))';
+                e.target.style.borderColor = 'rgba(196, 214, 0, 0.4)';
+                e.target.style.boxShadow = '0 4px 12px rgba(196, 214, 0, 0.15)';
+                e.target.style.transform = 'translateY(-50%) scale(1)';
+              }
+            }}
+          >
+            {/* Cyberpunk arrow icon */}
+            <svg 
+              width="14" 
+              height="14" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              style={{ 
+                filter: 'drop-shadow(0 0 4px rgba(196, 214, 0, 0.5))',
+                animation: loading ? 'none' : 'pulse 2s infinite'
+              }}
+            >
+              <path 
+                d="M19 12H5M5 12L12 19M5 12L12 5" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              />
+            </svg>
+            Back
+          </button>
+        )}
+        
         <div style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: 'var(--space-sm)'
+          marginBottom: 'var(--space-sm)',
+          marginLeft: showBackButton ? '80px' : '0', // Add left margin when back button is present
+          transition: 'margin-left 0.3s ease'
         }}>
           <h2 style={{
             fontSize: '18px',
