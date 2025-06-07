@@ -1493,16 +1493,25 @@ async def get_connected_devices(current_user: dict = Depends(get_current_user)):
 @app.post("/api/health/auth/{provider}")
 async def initiate_health_auth(provider: str, current_user: dict = Depends(get_current_user)):
     """Initiate OAuth flow for health provider"""
-    # Mock OAuth URLs - in production, use actual provider OAuth endpoints
+    
+    # Get environment variables
+    google_client_id = os.environ.get('GOOGLE_FIT_CLIENT_ID')
+    fitbit_client_id = os.environ.get('FITBIT_CLIENT_ID')
+    garmin_api_key = os.environ.get('GARMIN_API_KEY')
+    
+    # Real OAuth URLs with actual client IDs
     oauth_urls = {
-        "google_fit": "https://accounts.google.com/oauth2/auth?client_id=mock&scope=fitness.activity.read",
-        "apple_health": "https://developer.apple.com/health-app/",
-        "fitbit": "https://www.fitbit.com/oauth2/authorize?client_id=mock&scope=activity",
-        "garmin": "https://connect.garmin.com/oauth/authorize?client_id=mock"
+        "google_fit": f"https://accounts.google.com/oauth2/auth?client_id={google_client_id}&response_type=code&scope=https://www.googleapis.com/auth/fitness.activity.read https://www.googleapis.com/auth/fitness.heart_rate.read https://www.googleapis.com/auth/fitness.sleep.read&redirect_uri=https://your-domain.com/auth/google/callback&access_type=offline",
+        "apple_health": "https://developer.apple.com/health-app/",  # Note: Apple HealthKit requires native iOS integration
+        "fitbit": f"https://www.fitbit.com/oauth2/authorize?response_type=code&client_id={fitbit_client_id}&scope=activity%20heartrate%20sleep%20weight&redirect_uri=https://your-domain.com/auth/fitbit/callback",
+        "garmin": f"https://connect.garmin.com/oauth/authorize?response_type=code&client_id={garmin_api_key}&redirect_uri=https://your-domain.com/auth/garmin/callback"
     }
     
     if provider not in oauth_urls:
         raise HTTPException(status_code=400, detail="Unsupported health provider")
+    
+    # Log the OAuth attempt
+    print(f"Initiating OAuth for {provider} with client_id: {google_client_id if provider == 'google_fit' else 'configured'}")
     
     return {"auth_url": oauth_urls[provider]}
 
