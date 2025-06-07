@@ -385,6 +385,38 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
       padding: 'var(--space-lg)',
       paddingTop: '80px'
     }}>
+      {/* CSS Animations for Matrix theme */}
+      <style>
+        {`
+          @keyframes matrixGlow {
+            0%, 100% { 
+              filter: drop-shadow(0 0 4px rgba(196, 214, 0, 0.5));
+              opacity: 0.8;
+            }
+            50% { 
+              filter: drop-shadow(0 0 8px rgba(196, 214, 0, 0.8));
+              opacity: 1;
+            }
+          }
+          
+          @keyframes backButtonPulse {
+            0%, 100% { 
+              box-shadow: 0 4px 12px rgba(196, 214, 0, 0.15);
+            }
+            50% { 
+              box-shadow: 0 4px 12px rgba(196, 214, 0, 0.25), 0 0 20px rgba(196, 214, 0, 0.1);
+            }
+          }
+          
+          .verification-back-btn {
+            animation: backButtonPulse 3s infinite;
+          }
+          
+          .verification-back-btn svg {
+            animation: matrixGlow 2s infinite;
+          }
+        `}
+      </style>
       {/* Progress Header */}
       <div style={{
         position: 'fixed',
