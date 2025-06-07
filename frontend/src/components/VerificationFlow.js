@@ -1335,7 +1335,7 @@ const SelfieStep = ({ onCapture, loading }) => {
   );
 };
 
-// Certification Upload Step (Trainer only)
+// Mobile-Optimized Certification Step (Trainer only)
 const CertificationStep = ({ onUpload, loading }) => {
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
@@ -1366,39 +1366,46 @@ const CertificationStep = ({ onUpload, loading }) => {
   };
 
   return (
-    <div className="glass-card" style={{ padding: 'var(--space-2xl)' }}>
-      <div style={{ textAlign: 'center', marginBottom: 'var(--space-xl)' }}>
+    <div className="glass-card mobile-form auto-color-scheme" style={{ 
+      padding: '24px', 
+      width: '100%', 
+      boxSizing: 'border-box',
+      borderRadius: '12px'
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
         <div style={{
-          width: '60px',
-          height: '60px',
+          width: '64px',
+          height: '64px',
           background: 'linear-gradient(45deg, #C4D600, #B2FF66)',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          margin: '0 auto var(--space-lg)',
-          fontSize: '24px'
+          margin: '0 auto 16px',
+          fontSize: '28px'
         }}>
           🏆
         </div>
         
-        <h3 style={{
-          fontSize: '20px',
+        <h3 className="mobile-header" style={{
+          fontSize: '1.3em',
           fontWeight: '600',
-          marginBottom: 'var(--space-sm)'
+          marginBottom: '8px',
+          lineHeight: '1.3'
         }}>
           Upload Certification
         </h3>
         
         <p style={{
           color: 'var(--text-secondary)',
-          fontSize: '14px'
+          fontSize: '0.95em',
+          lineHeight: '1.4'
         }}>
           Prove your fitness expertise with valid certifications
         </p>
       </div>
       
-      <div style={{ marginBottom: 'var(--space-xl)' }}>
+      <div style={{ marginBottom: '24px' }}>
         <input
           type="file"
           ref={fileInputRef}
@@ -1408,17 +1415,24 @@ const CertificationStep = ({ onUpload, loading }) => {
         />
         
         <button
+          className="mobile-button"
           onClick={() => fileInputRef.current?.click()}
           style={{
             width: '100%',
-            padding: 'var(--space-lg)',
+            minHeight: '56px',
+            padding: '16px 20px',
             border: '2px dashed rgba(196, 214, 0, 0.5)',
-            borderRadius: 'var(--border-radius)',
+            borderRadius: '12px',
             background: file ? 'rgba(196, 214, 0, 0.1)' : 'transparent',
             color: file ? '#C4D600' : 'var(--text-secondary)',
-            fontSize: '16px',
+            fontSize: '1em',
+            fontWeight: '500',
             cursor: 'pointer',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.2s ease',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'rgba(196, 214, 0, 0.2)',
+            lineHeight: '1.4',
+            textAlign: 'center'
           }}
         >
           {file ? `Selected: ${file.name || 'File selected'}` : 'Choose Certification Document'}
@@ -1426,25 +1440,29 @@ const CertificationStep = ({ onUpload, loading }) => {
       </div>
       
       <button
-        className="btn-primary"
+        className="btn-primary mobile-button"
         onClick={handleSubmit}
         disabled={loading || !file}
         style={{
           width: '100%',
-          padding: 'var(--space-lg)',
-          fontSize: '16px'
+          minHeight: '52px',
+          fontSize: '1.1em',
+          fontWeight: '600',
+          borderRadius: '12px',
+          touchAction: 'manipulation'
         }}
       >
         {loading ? 'Validating...' : 'Validate Certification'}
       </button>
       
       <div style={{
-        marginTop: 'var(--space-lg)',
-        padding: 'var(--space-md)',
+        marginTop: '20px',
+        padding: '16px',
         background: 'rgba(255, 68, 68, 0.1)',
-        borderRadius: 'var(--border-radius)',
-        fontSize: '12px',
-        color: '#FF4444'
+        borderRadius: '12px',
+        fontSize: '0.9em',
+        color: '#FF4444',
+        lineHeight: '1.5'
       }}>
         ⚠️ Real validation required:<br/>
         • Valid NASM, ACE, ISSA, ACSM, or CSCS certification<br/>
@@ -1454,12 +1472,13 @@ const CertificationStep = ({ onUpload, loading }) => {
       </div>
       
       <div style={{
-        marginTop: 'var(--space-md)',
-        padding: 'var(--space-md)',
+        marginTop: '16px',
+        padding: '16px',
         background: 'rgba(196, 214, 0, 0.1)',
-        borderRadius: 'var(--border-radius)',
-        fontSize: '12px',
-        color: 'var(--text-secondary)'
+        borderRadius: '12px',
+        fontSize: '0.9em',
+        color: 'var(--text-secondary)',
+        lineHeight: '1.5'
       }}>
         Accepted: NASM, ACE, ISSA, ACSM, CSCS certifications
       </div>
@@ -1467,14 +1486,17 @@ const CertificationStep = ({ onUpload, loading }) => {
   );
 };
 
-// Completion Step
+// Mobile-Optimized Completion Step
 const CompletionStep = ({ role, onComplete }) => {
   return (
-    <div className="glass-card" style={{
-      padding: 'var(--space-2xl)',
-      textAlign: 'center'
+    <div className="glass-card mobile-form auto-color-scheme" style={{
+      padding: '24px',
+      textAlign: 'center',
+      width: '100%',
+      boxSizing: 'border-box',
+      borderRadius: '12px'
     }}>
-      <div style={{ marginBottom: 'var(--space-xl)' }}>
+      <div style={{ marginBottom: '24px' }}>
         <div style={{
           width: '80px',
           height: '80px',
@@ -1483,39 +1505,43 @@ const CompletionStep = ({ role, onComplete }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          margin: '0 auto var(--space-lg)'
+          margin: '0 auto 20px'
         }}>
-          <AnimatedCheckmark size={40} color="white" />
+          <AnimatedCheckmark size={44} color="white" />
         </div>
         
-        <h3 style={{
-          fontSize: '24px',
+        <h3 className="mobile-header" style={{
+          fontSize: '1.4em',
           fontWeight: '600',
-          marginBottom: 'var(--space-md)',
-          color: '#C4D600'
+          marginBottom: '16px',
+          color: '#C4D600',
+          lineHeight: '1.3'
         }}>
           Verification Complete!
         </h3>
         
         <p style={{
           color: 'var(--text-secondary)',
-          fontSize: '16px',
-          marginBottom: 'var(--space-lg)'
+          fontSize: '1em',
+          marginBottom: '20px',
+          lineHeight: '1.5',
+          padding: '0 8px'
         }}>
           Welcome to LiftLink! Your {role} account is now verified and ready to use.
         </p>
         
         {role === 'trainer' && (
           <div style={{
-            padding: 'var(--space-lg)',
+            padding: '16px',
             background: 'rgba(196, 214, 0, 0.1)',
-            borderRadius: 'var(--border-radius)',
-            marginBottom: 'var(--space-lg)'
+            borderRadius: '12px',
+            marginBottom: '20px'
           }}>
             <p style={{
               margin: 0,
-              fontSize: '14px',
-              color: 'var(--text-primary)'
+              fontSize: '0.95em',
+              color: 'var(--text-primary)',
+              lineHeight: '1.5'
             }}>
               🎉 Congratulations! You now have access to the Trainer CRM Dashboard
               to manage your clients and grow your fitness business.
@@ -1525,19 +1551,22 @@ const CompletionStep = ({ role, onComplete }) => {
       </div>
       
       <button
-        className="btn-primary"
+        className="btn-primary mobile-button"
         onClick={onComplete}
         style={{
           width: '100%',
-          padding: 'var(--space-lg)',
-          fontSize: '18px',
+          minHeight: '56px',
+          fontSize: '1.1em',
+          fontWeight: '600',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 'var(--space-sm)'
+          gap: '12px',
+          borderRadius: '12px',
+          touchAction: 'manipulation'
         }}
       >
-        <AnimatedCoin size={24} color="white" />
+        <AnimatedCoin size={28} color="white" />
         {role === 'trainer' ? 'Access Trainer Dashboard' : 'Start Your Fitness Journey'}
       </button>
     </div>
