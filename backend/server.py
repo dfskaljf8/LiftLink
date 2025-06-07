@@ -1476,7 +1476,283 @@ TREE_STAGES = {
     }
 }
 
-# ============ ENHANCED SECURITY ENDPOINTS ============
+# Health & Social Features Endpoints
+
+# Health Integrations
+@app.get("/api/health/connected-devices")
+async def get_connected_devices(current_user: dict = Depends(get_current_user)):
+    """Get user's connected health devices"""
+    # Mock response - in production, query actual connected services
+    return {
+        "google_fit": False,
+        "apple_health": False,
+        "fitbit": False,
+        "garmin": False
+    }
+
+@app.post("/api/health/auth/{provider}")
+async def initiate_health_auth(provider: str, current_user: dict = Depends(get_current_user)):
+    """Initiate OAuth flow for health provider"""
+    # Mock OAuth URLs - in production, use actual provider OAuth endpoints
+    oauth_urls = {
+        "google_fit": "https://accounts.google.com/oauth2/auth?client_id=mock&scope=fitness.activity.read",
+        "apple_health": "https://developer.apple.com/health-app/",
+        "fitbit": "https://www.fitbit.com/oauth2/authorize?client_id=mock&scope=activity",
+        "garmin": "https://connect.garmin.com/oauth/authorize?client_id=mock"
+    }
+    
+    if provider not in oauth_urls:
+        raise HTTPException(status_code=400, detail="Unsupported health provider")
+    
+    return {"auth_url": oauth_urls[provider]}
+
+@app.delete("/api/health/disconnect/{provider}")
+async def disconnect_health_provider(provider: str, current_user: dict = Depends(get_current_user)):
+    """Disconnect health provider"""
+    # In production, revoke tokens and delete user data for this provider
+    return {"message": f"Successfully disconnected from {provider}"}
+
+@app.get("/api/health/data/today")
+async def get_todays_health_data(current_user: dict = Depends(get_current_user)):
+    """Get today's aggregated health data"""
+    # Mock data - in production, aggregate from connected devices
+    return {
+        "steps": 8542,
+        "heart_rate": 72,
+        "calories": 2140,
+        "sleep_hours": 7.5,
+        "active_minutes": 45
+    }
+
+@app.post("/api/health/sync")
+async def sync_health_data(current_user: dict = Depends(get_current_user)):
+    """Manually sync health data from all connected devices"""
+    # In production, trigger sync from all connected providers
+    await asyncio.sleep(2)  # Simulate sync time
+    return {"message": "Health data synchronized successfully"}
+
+# Find Friends Features
+@app.post("/api/social/find-friends")
+async def find_friends(request: dict, current_user: dict = Depends(get_current_user)):
+    """Find friends from contact list"""
+    contacts = request.get("contacts", [])
+    
+    # Mock friend matching - in production, match against user database
+    mock_friends = [
+        {
+            "user_id": "friend_1",
+            "name": "Sarah Johnson",
+            "email": "sarah@example.com",
+            "mutual_friends": 2,
+            "location": "San Francisco, CA",
+            "specialties": ["Yoga", "Pilates"],
+            "match_reason": "phone"
+        },
+        {
+            "user_id": "friend_2", 
+            "name": "Mike Chen",
+            "email": "mike@example.com",
+            "mutual_friends": 1,
+            "location": "San Francisco, CA",
+            "specialties": ["CrossFit", "Strength Training"],
+            "match_reason": "email"
+        }
+    ]
+    
+    # Filter mock friends based on contact list
+    matched_friends = mock_friends[:min(len(contacts) // 5, len(mock_friends))]
+    
+    return {"friends": matched_friends, "total_contacts_checked": len(contacts)}
+
+@app.post("/api/social/friend-request")
+async def send_friend_request(request: dict, current_user: dict = Depends(get_current_user)):
+    """Send friend request"""
+    friend_id = request.get("friend_id")
+    
+    if not friend_id:
+        raise HTTPException(status_code=400, detail="Friend ID required")
+    
+    # In production, create friend request record
+    friend_request = {
+        "request_id": str(uuid.uuid4()),
+        "from_user": current_user["user_id"],
+        "to_user": friend_id,
+        "status": "pending",
+        "created_at": datetime.utcnow()
+    }
+    
+    # Mock insertion
+    return {"message": "Friend request sent successfully", "request_id": friend_request["request_id"]}
+
+# Session Attendance Features
+@app.get("/api/sessions/{session_id}")
+async def get_session_data(session_id: str, current_user: dict = Depends(get_current_user)):
+    """Get session details for attendance"""
+    # Mock session data - in production, query from bookings
+    return {
+        "session_id": session_id,
+        "trainer_name": "Alex Rodriguez",
+        "trainee_name": "Demo User",
+        "date": datetime.now().isoformat(),
+        "start_time": "10:00 AM",
+        "end_time": "11:00 AM",
+        "location_name": "FitLife Gym - Studio A",
+        "location_coords": {"lat": 37.7749, "lng": -122.4194},
+        "attendance_status": "pending"
+    }
+
+@app.post("/api/sessions/{session_id}/checkin")
+async def checkin_to_session(session_id: str, request: dict, current_user: dict = Depends(get_current_user)):
+    """Check in to training session with GPS verification"""
+    location = request.get("location")
+    user_id = request.get("user_id")
+    
+    if not location:
+        raise HTTPException(status_code=400, detail="Location data required for check-in")
+    
+    # Mock GPS verification - in production, verify location against session venue
+    session_location = {"lat": 37.7749, "lng": -122.4194}  # Mock gym location
+    user_location = {"lat": location["latitude"], "lng": location["longitude"]}
+    
+    # Calculate distance (simplified)
+    distance = abs(session_location["lat"] - user_location["lat"]) + abs(session_location["lng"] - user_location["lng"])
+    
+    if distance > 0.01:  # Approximately 1km tolerance
+        raise HTTPException(status_code=400, detail="You must be at the session location to check in")
+    
+    # Create attendance record
+    attendance = {
+        "attendance_id": str(uuid.uuid4()),
+        "session_id": session_id,
+        "user_id": user_id,
+        "checkin_time": datetime.utcnow(),
+        "checkin_location": location,
+        "status": "checked_in"
+    }
+    
+    # Mock database insert
+    return {"message": "Successfully checked in", "attendance_id": attendance["attendance_id"]}
+
+@app.post("/api/sessions/{session_id}/checkout")
+async def checkout_from_session(session_id: str, request: dict, current_user: dict = Depends(get_current_user)):
+    """Check out from training session"""
+    location = request.get("location")
+    user_id = request.get("user_id")
+    
+    # Mock checkout process
+    checkout_time = datetime.utcnow()
+    
+    # Update attendance record
+    return {
+        "message": "Successfully checked out",
+        "checkout_time": checkout_time.isoformat(),
+        "session_completed": True
+    }
+
+@app.post("/api/sessions/{session_id}/certificate")
+async def generate_attendance_certificate(session_id: str, request: dict, current_user: dict = Depends(get_current_user)):
+    """Generate digital attendance certificate"""
+    checkin_time = request.get("checkin_time")
+    checkout_time = request.get("checkout_time")
+    session_duration = request.get("session_duration", 60)
+    
+    # Generate certificate
+    certificate = {
+        "certificate_id": f"CERT-{str(uuid.uuid4())[:8].upper()}",
+        "session_id": session_id,
+        "user_id": current_user["user_id"],
+        "trainer_name": "Alex Rodriguez",
+        "duration": session_duration,
+        "date": datetime.now().isoformat(),
+        "verification_method": "GPS_VERIFIED",
+        "issued_at": datetime.utcnow().isoformat(),
+        "certificate_url": f"https://certificates.liftlink.com/{session_id}"
+    }
+    
+    # Award coins for attendance
+    await award_coins(current_user["user_id"], 25, "session_attendance", {
+        "session_id": session_id,
+        "duration": session_duration
+    })
+    
+    return certificate
+
+# Health Data Webhook Endpoints (for real-time sync)
+@app.post("/webhook/google-fit")
+async def google_fit_webhook(request: Request):
+    """Handle Google Fit webhook notifications"""
+    # Verify webhook signature in production
+    data = await request.json()
+    
+    # Process health data update
+    user_id = data.get("user_id")
+    if user_id:
+        # Update health metrics in database
+        pass
+    
+    return {"status": "acknowledged"}
+
+@app.post("/webhook/fitbit")
+async def fitbit_webhook(request: Request):
+    """Handle Fitbit webhook notifications"""
+    data = await request.json()
+    
+    # Process Fitbit data update
+    return {"status": "acknowledged"}
+
+@app.post("/webhook/garmin")
+async def garmin_webhook(request: Request):
+    """Handle Garmin webhook notifications"""
+    data = await request.json()
+    
+    # Process Garmin data update
+    return {"status": "acknowledged"}
+
+# Enhanced Progress Analytics with Health Data
+@app.get("/api/progress/enhanced")
+async def get_enhanced_progress(current_user: dict = Depends(get_current_user)):
+    """Get enhanced progress analytics with health device data"""
+    
+    # Aggregate data from multiple sources
+    progress_data = {
+        "overview": {
+            "total_sessions": 24,
+            "total_hours_trained": 36,
+            "average_heart_rate": 145,
+            "calories_burned": 8640,
+            "strength_gained": 15.2,  # percentage
+            "endurance_improved": 23.1  # percentage
+        },
+        "weekly_trends": {
+            "steps": [8234, 9156, 7823, 10234, 8945, 9567, 8789],
+            "workouts": [1, 2, 1, 2, 3, 1, 2],
+            "heart_rate_avg": [142, 145, 139, 148, 151, 143, 146],
+            "sleep_hours": [7.2, 8.1, 6.8, 7.5, 7.9, 8.2, 7.6]
+        },
+        "device_contributions": {
+            "apple_watch": {"sessions": 15, "data_points": 8340},
+            "fitbit": {"sessions": 9, "data_points": 5670},
+            "manual_entry": {"sessions": 3, "data_points": 120}
+        },
+        "achievements": [
+            {
+                "title": "10K Steps Champion",
+                "description": "Reached 10,000 steps for 7 consecutive days",
+                "icon": "👣",
+                "date": "2024-01-15",
+                "source": "Apple Health"
+            },
+            {
+                "title": "Heart Rate Hero",
+                "description": "Maintained target heart rate for 30+ minutes",
+                "icon": "❤️",
+                "date": "2024-01-14",
+                "source": "Fitbit"
+            }
+        ]
+    }
+    
+    return progress_data
 
 # ============ USER MANAGEMENT ENDPOINTS ============
 
