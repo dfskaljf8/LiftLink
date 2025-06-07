@@ -241,6 +241,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
       setTimeout(() => {
         setCurrentStep('selfie-capture');
         setUploadProgress(0);
+        scrollToTop();
       }, 1000);
       
     } catch (err) {
