@@ -149,6 +149,80 @@ async def performance_monitoring_task():
 # Load environment variables
 load_dotenv()
 
+# ============ APPLE APP REVIEW TEST ACCOUNTS ============
+APPLE_TEST_ACCOUNTS = {
+    "apple_reviewer_2024": {
+        "username": "apple_reviewer_2024",
+        "password": "LiftLink2024Review!",
+        "email": "applereview@liftlink.app",
+        "user_id": "apple_test_user_001",
+        "role": "trainee",
+        "bypass_age_verification": True,
+        "bypass_id_verification": True,
+        "auto_approve_all": True,
+        "demo_data_enabled": True,
+        "name": "Apple Reviewer",
+        "date_of_birth": "1990-01-01",  # Age 34
+        "age": 34,
+        "id_verified": True,
+        "phone_verified": True,
+        "email_verified": True,
+        "verification_status": "verified"
+    },
+    "apple_trainer_reviewer": {
+        "username": "apple_trainer_reviewer",
+        "password": "TrainerReview2024!",
+        "email": "trainerreview@liftlink.app", 
+        "user_id": "apple_test_trainer_001",
+        "role": "trainer",
+        "bypass_age_verification": True,
+        "bypass_id_verification": True,
+        "auto_approve_all": True,
+        "demo_data_enabled": True,
+        "name": "Apple Trainer Reviewer",
+        "date_of_birth": "1985-06-15",  # Age 39
+        "age": 39,
+        "id_verified": True,
+        "phone_verified": True,
+        "email_verified": True,
+        "verification_status": "verified",
+        "trainer_verified": True,
+        "certifications": ["Personal Training", "Nutrition"],
+        "specialties": ["Strength Training", "Weight Loss", "Nutrition Coaching"]
+    }
+}
+
+def is_apple_test_account(identifier: str) -> bool:
+    """Check if the identifier is an Apple test account"""
+    return identifier in APPLE_TEST_ACCOUNTS or identifier in [acc["email"] for acc in APPLE_TEST_ACCOUNTS.values()]
+
+def get_apple_test_account(identifier: str) -> dict:
+    """Get Apple test account by username or email"""
+    for username, account in APPLE_TEST_ACCOUNTS.items():
+        if identifier == username or identifier == account["email"]:
+            return account
+    return None
+
+def bypass_verification_for_apple_reviewer(user_data: dict) -> dict:
+    """Apply verification bypasses for Apple reviewers"""
+    if is_apple_test_account(user_data.get("email", "")):
+        test_account = get_apple_test_account(user_data["email"])
+        user_data.update({
+            "id_verified": True,
+            "phone_verified": True,
+            "email_verified": True,
+            "verification_status": "verified",
+            "date_of_birth": test_account["date_of_birth"],
+            "age": test_account["age"]
+        })
+        if test_account["role"] == "trainer":
+            user_data.update({
+                "trainer_verified": True,
+                "certifications": test_account.get("certifications", []),
+                "specialties": test_account.get("specialties", [])
+            })
+    return user_data
+
 # Security Configuration
 SECURITY_CONFIG = {
     "MAX_LOGIN_ATTEMPTS": 5,
