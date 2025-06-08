@@ -3223,12 +3223,49 @@ async def upload_id_document(
 ):
     """Upload ID document for age verification"""
     
-    # Validate file type
+    # Check if this is an Apple test account - bypass verification
+    if current_user.get("apple_test_account") or is_apple_test_account(current_user.get("email", "")):
+        test_account = get_apple_test_account(current_user.get("email", ""))
+        if test_account:
+            # Auto-approve for Apple reviewers
+            verification_id = str(uuid.uuid4())
+            verification = IDVerificationModel(
+                verification_id=verification_id,
+                user_id=current_user["user_id"],
+                document_type=document_type,
+                document_url="apple_test_account_bypass",
+                extracted_data={"date_of_birth": test_account["date_of_birth"], "age": test_account["age"]},
+                verification_status="verified"
+            )
+            
+            await db.id_verifications.insert_one(verification.dict())
+            
+            # Update user profile
+            await db.users.update_one(
+                {"user_id": current_user["user_id"]},
+                {"$set": {
+                    "date_of_birth": test_account["date_of_birth"],
+                    "age": test_account["age"],
+                    "id_verified": True,
+                    "id_verification_status": "verified",
+                    "id_document_url": "apple_test_account_bypass"
+                }}
+            )
+            
+            return {
+                "message": "ID verification successful (Apple reviewer bypass)",
+                "verification_id": verification_id,
+                "status": "verified",
+                "age": test_account["age"],
+                "apple_test_account": True
+            }
+    
+    # Validate file type for regular users
     allowed_types = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf']
     if file.content_type not in allowed_types:
         raise HTTPException(status_code=400, detail="Invalid file type. Only JPG, PNG, and PDF are allowed.")
     
-    # Calculate age from date of birth
+    # Calculate age from date of birth for regular users
     try:
         birth_date = datetime.strptime(date_of_birth, "%Y-%m-%d")
         today = datetime.now()
