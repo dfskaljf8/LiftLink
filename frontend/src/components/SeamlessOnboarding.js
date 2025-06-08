@@ -323,12 +323,52 @@ const SeamlessOnboarding = ({ onComplete }) => {
 
 // Welcome Step Component
 const WelcomeStep = ({ nextStep, stepData }) => {
+  const [showAppleLogin, setShowAppleLogin] = useState(false);
+  const [loginForm, setLoginForm] = useState({ username: '', password: '' });
+  const [isLoading, setIsLoading] = useState(false);
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      nextStep();
+      if (!showAppleLogin) {
+        nextStep();
+      }
     }, 3000);
     return () => clearTimeout(timer);
-  }, [nextStep]);
+  }, [nextStep, showAppleLogin]);
+
+  const handleAppleLogin = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/apple-review/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          username: loginForm.username,
+          password: loginForm.password
+        })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('user_data', JSON.stringify(data.user));
+        
+        // Skip onboarding for Apple reviewers
+        window.location.reload();
+      } else {
+        alert('Invalid Apple reviewer credentials');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Login failed. Please try again.');
+    }
+    
+    setIsLoading(false);
+  };
 
   return (
     <div style={{
@@ -364,16 +404,163 @@ const WelcomeStep = ({ nextStep, stepData }) => {
         {stepData.subtitle}
       </p>
 
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: 'var(--space-md)',
-        marginTop: 'var(--space-xl)'
-      }}>
-        <AnimatedDumbbell size={32} color="#C4D600" />
-        <AnimatedFire size={32} />
-        <AnimatedTrophy size={32} active={true} />
-      </div>
+      {/* Apple Reviewer Login Section */}
+      {showAppleLogin ? (
+        <div style={{
+          background: 'rgba(196, 214, 0, 0.1)',
+          border: '1px solid rgba(196, 214, 0, 0.3)',
+          borderRadius: '12px',
+          padding: '24px',
+          marginBottom: '24px',
+          textAlign: 'left',
+          maxWidth: '400px',
+          margin: '0 auto 24px'
+        }}>
+          <h3 style={{
+            color: '#C4D600',
+            marginBottom: '16px',
+            textAlign: 'center'
+          }}>
+            🍎 Apple App Review Login
+          </h3>
+          
+          <form onSubmit={handleAppleLogin}>
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ 
+                display: 'block', 
+                color: '#fff', 
+                marginBottom: '8px',
+                fontSize: '14px'
+              }}>
+                Username
+              </label>
+              <input
+                type="text"
+                value={loginForm.username}
+                onChange={(e) => setLoginForm({...loginForm, username: e.target.value})}
+                placeholder="apple_reviewer_2024"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(196, 214, 0, 0.3)',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  color: '#fff',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+            
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ 
+                display: 'block', 
+                color: '#fff', 
+                marginBottom: '8px',
+                fontSize: '14px'
+              }}>
+                Password
+              </label>
+              <input
+                type="password"
+                value={loginForm.password}
+                onChange={(e) => setLoginForm({...loginForm, password: e.target.value})}
+                placeholder="LiftLink2024Review!"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(196, 214, 0, 0.3)',
+                  background: 'rgba(0, 0, 0, 0.3)',
+                  color: '#fff',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+            
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                type="submit"
+                disabled={isLoading}
+                style={{
+                  flex: 1,
+                  background: 'linear-gradient(45deg, #C4D600, #B2FF66)',
+                  color: '#000',
+                  border: 'none',
+                  padding: '12px 20px',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  opacity: isLoading ? 0.7 : 1
+                }}
+              >
+                {isLoading ? 'Logging in...' : 'Apple Review Login'}
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setShowAppleLogin(false)}
+                style={{
+                  background: 'transparent',
+                  color: '#C4D600',
+                  border: '1px solid #C4D600',
+                  padding: '12px 20px',
+                  borderRadius: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+          
+          <div style={{
+            marginTop: '16px',
+            padding: '12px',
+            background: 'rgba(0, 0, 0, 0.2)',
+            borderRadius: '6px',
+            fontSize: '12px',
+            color: '#888'
+          }}>
+            <p><strong>Test Accounts:</strong></p>
+            <p>• apple_reviewer_2024 (Trainee)</p>
+            <p>• apple_trainer_reviewer (Trainer)</p>
+            <p><em>All verifications bypassed for review</em></p>
+          </div>
+        </div>
+      ) : (
+        <>
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 'var(--space-md)',
+            marginBottom: 'var(--space-xl)'
+          }}>
+            <AnimatedDumbbell size={32} color="#C4D600" />
+            <AnimatedFire size={32} />
+            <AnimatedTrophy size={32} active={true} />
+          </div>
+          
+          {/* Small Apple Reviewer Access Button */}
+          <button
+            onClick={() => setShowAppleLogin(true)}
+            style={{
+              position: 'absolute',
+              bottom: '20px',
+              right: '20px',
+              background: 'rgba(196, 214, 0, 0.1)',
+              border: '1px solid rgba(196, 214, 0, 0.3)',
+              color: '#C4D600',
+              padding: '8px 12px',
+              borderRadius: '6px',
+              fontSize: '12px',
+              cursor: 'pointer',
+              zIndex: 1000
+            }}
+          >
+            🍎 Apple Review
+          </button>
+        </>
+      )}
 
       <style jsx>{`
         @keyframes slideInUp {
