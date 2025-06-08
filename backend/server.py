@@ -1852,6 +1852,119 @@ async def get_enhanced_progress(current_user: dict = Depends(get_current_user)):
     
     return progress_data
 
+# ============ APPLE REVIEWER ENDPOINTS ============
+
+@app.post("/api/apple-review/login")
+async def apple_reviewer_login(username: str, password: str):
+    """Special login endpoint for Apple reviewers with pre-configured test accounts"""
+    
+    # Check if it's a valid Apple test account
+    test_account = get_apple_test_account(username)
+    if not test_account:
+        # Try by email
+        test_account = get_apple_test_account(username)
+    
+    if not test_account or test_account["password"] != password:
+        raise HTTPException(status_code=401, detail="Invalid Apple reviewer credentials")
+    
+    # Create or update the test account in database
+    existing_user = await db.users.find_one({"user_id": test_account["user_id"]})
+    
+    if not existing_user:
+        # Create the test account
+        user_doc = {
+            "user_id": test_account["user_id"],
+            "name": test_account["name"],
+            "email": test_account["email"],
+            "role": test_account["role"],
+            "date_of_birth": test_account["date_of_birth"],
+            "age": test_account["age"],
+            "id_verified": True,
+            "phone_verified": True,
+            "email_verified": True,
+            "verification_status": "verified",
+            "created_at": datetime.utcnow(),
+            "last_login": datetime.utcnow(),
+            "apple_test_account": True,
+            "profile_completed": True
+        }
+        
+        if test_account["role"] == "trainer":
+            user_doc.update({
+                "trainer_verified": True,
+                "certifications": test_account.get("certifications", []),
+                "specialties": test_account.get("specialties", []),
+                "bio": "Apple Reviewer Test Trainer Account - Fully verified for app review purposes.",
+                "experience_years": 5,
+                "hourly_rate": 50.0,
+                "location": {"city": "Cupertino", "state": "CA", "country": "US"}
+            })
+        
+        await db.users.insert_one(user_doc)
+    else:
+        # Update last login
+        await db.users.update_one(
+            {"user_id": test_account["user_id"]},
+            {"$set": {"last_login": datetime.utcnow()}}
+        )
+    
+    # Generate JWT token
+    token_data = {
+        "user_id": test_account["user_id"],
+        "email": test_account["email"],
+        "role": test_account["role"],
+        "apple_test_account": True
+    }
+    
+    # For demo, return a simple token (in production, use proper JWT)
+    access_token = base64.b64encode(json.dumps(token_data).encode()).decode()
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "user_id": test_account["user_id"],
+            "name": test_account["name"],
+            "email": test_account["email"],
+            "role": test_account["role"],
+            "verification_status": "verified",
+            "apple_test_account": True
+        },
+        "message": "Apple reviewer login successful - all verifications bypassed"
+    }
+
+@app.get("/api/apple-review/test-accounts")
+async def get_apple_test_accounts():
+    """Get Apple reviewer test account information for App Store submission"""
+    
+    accounts_info = []
+    for username, account in APPLE_TEST_ACCOUNTS.items():
+        accounts_info.append({
+            "username": username,
+            "password": account["password"],
+            "email": account["email"],
+            "role": account["role"],
+            "purpose": f"Test {account['role']} account for Apple App Store review",
+            "features": [
+                "All age verification bypassed",
+                "All ID verification bypassed", 
+                "Auto-approved for all features",
+                "Demo data pre-loaded",
+                "Full app access without restrictions"
+            ]
+        })
+    
+    return {
+        "test_accounts": accounts_info,
+        "instructions": [
+            "Use these accounts for Apple App Store review testing",
+            "All verification steps are automatically bypassed",
+            "Accounts have full access to all app features",
+            "No actual verification documents needed",
+            "Demo data is pre-populated for testing"
+        ]
+    }
+
 # ============ USER MANAGEMENT ENDPOINTS ============
 
 @app.post("/api/users/register")
