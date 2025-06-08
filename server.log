@@ -1,0 +1,14 @@
+🌐 Starting LiftLink Download Server...
+=====================================
+✅ Download server running on port 8080
+🔗 Access your files at: http://localhost:8080
+📦 Direct download: http://localhost:8080/LiftLink_Deployment_Package.tar.gz
+📱 Screenshots: http://localhost:8080/screenshots-preview.html
+
+🎯 Instructions:
+1. Copy the server URL from your browser address bar
+2. Replace 'localhost' with the actual domain/IP
+3. Access the download page to get your files
+
+⚠️  Server will run until stopped with Ctrl+C
+
