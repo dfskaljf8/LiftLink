@@ -287,7 +287,7 @@ const TrainerSearchScreenshot = () => (
     <div className="filters-bar">
       <div className="filter-chip active">Strength Training</div>
       <div className="filter-chip">5 stars</div>
-      <div className="filter-chip">< 5 miles</div>
+      <div className="filter-chip">&lt; 5 miles</div>
       <div className="filter-chip">Available today</div>
     </div>
     
