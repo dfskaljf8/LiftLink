@@ -135,41 +135,50 @@ backend:
         agent: "testing"
         comment: "Session status endpoint is working correctly. Successfully verified that progress tracking works properly and role-specific step counts are correct (3 for trainee, 4 for trainer)."
 
-  - task: "POST /api/verification/enhanced-upload-id"
+  - task: "POST /api/auth/apple-review-login"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Implemented enhanced ID upload with session tracking. Need to test ID validation and age verification."
+        comment: "Implemented Apple review login endpoint with special test accounts for App Store review."
+      - working: true
+        agent: "testing"
+        comment: "Apple review login endpoint is working correctly. Successfully tested with both apple_reviewer_2024 and apple_trainer_reviewer credentials. The endpoint properly validates credentials, creates user accounts with appropriate role-specific fields, and returns the correct response with token and user data."
 
-  - task: "POST /api/verification/upload-selfie"
+  - task: "GET /api/auth/apple-test-accounts"
     implemented: true
-    working: "NA"
+    working: true
     file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Implemented selfie upload with liveness detection. Need to test face verification and liveness checks."
+        comment: "Implemented endpoint to get information about available Apple test accounts."
+      - working: true
+        agent: "testing"
+        comment: "Apple test accounts info endpoint is working correctly. It returns information about both trainee and trainer test accounts, including username, role, description, features, and verification bypass status."
 
-  - task: "POST /api/verification/enhanced-upload-certification"
+  - task: "POST /api/verification/apple-bypass"
     implemented: true
-    working: "NA"
-    file: "server.py, verification_service.py"
+    working: true
+    file: "server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Implemented REAL certification validation with OCR and pattern matching. Need to test that it properly validates real certifications and rejects invalid ones."
+        comment: "Implemented verification bypass endpoint for Apple reviewers to skip verification steps."
+      - working: true
+        agent: "testing"
+        comment: "Apple verification bypass endpoint is working correctly. Successfully tested bypassing ID verification, selfie verification, and certification verification (for trainer accounts). The endpoint properly updates the user's verification status in the database."
 
   - task: "GET /api/trainer/crm/overview"
     implemented: true
