@@ -422,6 +422,57 @@ const AppContent = () => {
             {mockUserProfile.name.charAt(0)}
           </div>
           
+          {/* Apple Reviewer Controls */}
+          {isAppleReviewer && (
+            <div style={{
+              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+              paddingTop: 'var(--space-md)',
+              marginTop: 'var(--space-md)'
+            }}>
+              <div style={{
+                fontSize: '12px',
+                color: '#007AFF',
+                fontWeight: '600',
+                marginBottom: 'var(--space-sm)',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                Apple Reviewer Tools
+              </div>
+              <button
+                onClick={() => setCurrentView('ipad-screenshots')}
+                style={{
+                  background: 'rgba(0, 122, 255, 0.2)',
+                  border: '1px solid #007AFF',
+                  color: '#007AFF',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  width: '100%',
+                  marginBottom: '8px'
+                }}
+              >
+                📱 iPad Screenshots
+              </button>
+              <button
+                onClick={() => window.open('?apple_review=true', '_blank')}
+                style={{
+                  background: 'rgba(0, 122, 255, 0.2)',
+                  border: '1px solid #007AFF',
+                  color: '#007AFF',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  cursor: 'pointer',
+                  width: '100%'
+                }}
+              >
+                🔄 New Review Session
+              </button>
+            </div>
+          )}
+          
           {/* Demo Reset Button */}
           <button
             onClick={resetVerification}
@@ -432,11 +483,13 @@ const AppContent = () => {
               padding: 'var(--space-xs)',
               borderRadius: 'var(--border-radius)',
               fontSize: '12px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              marginTop: 'var(--space-md)',
+              width: '100%'
             }}
             title="Reset Demo"
           >
-            🔄
+            🔄 Reset Demo
           </button>
         </div>
       </div>
