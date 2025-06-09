@@ -167,7 +167,14 @@ APPLE_TEST_ACCOUNTS = {
         "id_verified": True,
         "phone_verified": True,
         "email_verified": True,
-        "verification_status": "verified"
+        "verification_status": "verified",
+        "xp_points": 450,
+        "level": 5,
+        "lift_coins": 150,
+        "consecutive_days": 7,
+        "badges": ["first_session", "age_verified"],
+        "total_sessions": 12,
+        "created_at": datetime.utcnow() - timedelta(days=30)
     },
     "apple_trainer_reviewer": {
         "username": "apple_trainer_reviewer",
@@ -188,7 +195,16 @@ APPLE_TEST_ACCOUNTS = {
         "verification_status": "verified",
         "trainer_verified": True,
         "certifications": ["Personal Training", "Nutrition"],
-        "specialties": ["Strength Training", "Weight Loss", "Nutrition Coaching"]
+        "specialties": ["Strength Training", "Weight Loss", "Nutrition Coaching"],
+        "xp_points": 1250,
+        "level": 8,
+        "lift_coins": 750,
+        "consecutive_days": 15,
+        "badges": ["verified_trainer", "certification_master", "client_favorite"],
+        "total_sessions": 84,
+        "total_clients": 24,
+        "average_rating": 4.9,
+        "created_at": datetime.utcnow() - timedelta(days=120)
     }
 }
 
