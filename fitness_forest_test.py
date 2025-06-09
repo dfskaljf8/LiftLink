@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 # Get backend URL from frontend .env file
-BACKEND_URL = "https://be4d4521-6f88-4877-a540-dbeb459d9da4.preview.emergentagent.com"
+BACKEND_URL = "https://176e6fb8-dcdf-4fdf-8536-1d72612a36b6.preview.emergentagent.com"
 
 # Demo user credentials
 DEMO_USER_TOKEN = "demo_user"

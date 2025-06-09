@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'LiftLink',
   webDir: 'build',
   server: {
-    url: 'https://be4d4521-6f88-4877-a540-dbeb459d9da4.preview.emergentagent.com',
+    url: 'https://176e6fb8-dcdf-4fdf-8536-1d72612a36b6.preview.emergentagent.com',
     cleartext: true
   },
   plugins: {
