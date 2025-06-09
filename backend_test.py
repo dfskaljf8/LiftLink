@@ -642,16 +642,50 @@ def run_apple_review_tests(base_url):
         }
     )
     
-    reviewer_token = None
+    reviewer_user_id = None
     if success:
         print(f"Login successful: {response.get('message')}")
         print(f"User role: {response.get('user', {}).get('role')}")
         print(f"Bypass enabled: {response.get('bypass_enabled')}")
         print(f"Demo data: {response.get('demo_data')}")
         
-        # Save token for subsequent tests
-        reviewer_token = response.get('token')
+        # Save user_id for subsequent tests
         reviewer_user_id = response.get('user', {}).get('user_id')
+        
+        # For the bypass tests, we'll use the user_id directly as the token
+        # This is because the authentication middleware uses the token as the user_id
+        if reviewer_user_id:
+            tester.token = reviewer_user_id
+            
+            # Test ID verification bypass
+            success, response = tester.run_test(
+                "ID Verification Bypass (Reviewer)",
+                "POST",
+                "api/verification/apple-bypass",
+                200,
+                data={
+                    "type": "id"
+                }
+            )
+            
+            if success:
+                print(f"ID verification bypass: {response.get('message')}")
+                print(f"Verified: {response.get('verified')}")
+            
+            # Test selfie verification bypass
+            success, response = tester.run_test(
+                "Selfie Verification Bypass (Reviewer)",
+                "POST",
+                "api/verification/apple-bypass",
+                200,
+                data={
+                    "type": "selfie"
+                }
+            )
+            
+            if success:
+                print(f"Selfie verification bypass: {response.get('message')}")
+                print(f"Verified: {response.get('verified')}")
     
     # Test 3: Login with valid Apple trainer credentials
     success, response = tester.run_test(
@@ -665,16 +699,34 @@ def run_apple_review_tests(base_url):
         }
     )
     
-    trainer_token = None
+    trainer_user_id = None
     if success:
         print(f"Login successful: {response.get('message')}")
         print(f"User role: {response.get('user', {}).get('role')}")
         print(f"Bypass enabled: {response.get('bypass_enabled')}")
         print(f"Demo data: {response.get('demo_data')}")
         
-        # Save token for subsequent tests
-        trainer_token = response.get('token')
+        # Save user_id for subsequent tests
         trainer_user_id = response.get('user', {}).get('user_id')
+        
+        # For the bypass tests, we'll use the user_id directly as the token
+        if trainer_user_id:
+            tester.token = trainer_user_id
+            
+            # Test certification verification bypass
+            success, response = tester.run_test(
+                "Certification Verification Bypass (Trainer)",
+                "POST",
+                "api/verification/apple-bypass",
+                200,
+                data={
+                    "type": "certification"
+                }
+            )
+            
+            if success:
+                print(f"Certification verification bypass: {response.get('message')}")
+                print(f"Verified: {response.get('verified')}")
     
     # Test 4: Login with invalid credentials
     success, response = tester.run_test(
@@ -704,57 +756,6 @@ def run_apple_review_tests(base_url):
     
     if success:
         print("Successfully rejected missing credentials")
-    
-    # Test 6: ID verification bypass with reviewer account
-    if reviewer_token:
-        tester.token = reviewer_token
-        success, response = tester.run_test(
-            "ID Verification Bypass (Reviewer)",
-            "POST",
-            "api/verification/apple-bypass",
-            200,
-            data={
-                "type": "id"
-            }
-        )
-        
-        if success:
-            print(f"ID verification bypass: {response.get('message')}")
-            print(f"Verified: {response.get('verified')}")
-    
-    # Test 7: Selfie verification bypass with reviewer account
-    if reviewer_token:
-        tester.token = reviewer_token
-        success, response = tester.run_test(
-            "Selfie Verification Bypass (Reviewer)",
-            "POST",
-            "api/verification/apple-bypass",
-            200,
-            data={
-                "type": "selfie"
-            }
-        )
-        
-        if success:
-            print(f"Selfie verification bypass: {response.get('message')}")
-            print(f"Verified: {response.get('verified')}")
-    
-    # Test 8: Certification verification bypass with trainer account
-    if trainer_token:
-        tester.token = trainer_token
-        success, response = tester.run_test(
-            "Certification Verification Bypass (Trainer)",
-            "POST",
-            "api/verification/apple-bypass",
-            200,
-            data={
-                "type": "certification"
-            }
-        )
-        
-        if success:
-            print(f"Certification verification bypass: {response.get('message')}")
-            print(f"Verified: {response.get('verified')}")
     
     print(f"\n📊 Apple review authentication tests passed: {tester.tests_passed}/{tester.tests_run}")
     return tester.tests_passed == tester.tests_run
