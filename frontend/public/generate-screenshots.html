@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiftLink - Screenshot Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        /* iPad Portrait: 2048 × 2732px */
+        .screenshot-container.portrait {
+            width: 2048px;
+            height: 2732px;
+        }
+
+        /* iPad Landscape: 2732 × 2048px */
+        .screenshot-container.landscape {
+            width: 2732px;
+            height: 2048px;
+        }
+
+        .screenshot-container {
+            position: relative;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+            overflow: hidden;
+        }
+
+        /* Header */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 60px 80px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(196, 214, 0, 0.2);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #C4D600, #8BAE00);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .app-title {
+            font-size: 36px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .coins-display {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(196, 214, 0, 0.2);
+            padding: 16px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            color: #C4D600;
+            font-size: 20px;
+        }
+
+        .level-badge {
+            background: linear-gradient(135deg, #C4D600, #8BAE00);
+            color: #000;
+            padding: 16px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .user-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #C4D600;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 80px;
+            height: calc(100% - 184px);
+            overflow-y: auto;
+        }
+
+        /* Home Screen */
+        .hero-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 80px;
+            padding: 80px 0;
+            background: linear-gradient(135deg, rgba(196, 214, 0, 0.1) 0%, rgba(196, 214, 0, 0.05) 100%);
+            border-radius: 32px;
+            padding: 80px;
+        }
+
+        .hero-content h1 {
+            font-size: 72px;
+            font-weight: 700;
+            margin: 0 0 24px 0;
+            background: linear-gradient(135deg, #ffffff, #C4D600);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-content p {
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 0 0 32px 0;
+        }
+
+        .streak-display {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #C4D600;
+        }
+
+        .hero-dumbbell {
+            font-size: 160px;
+            opacity: 0.8;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+            margin-bottom: 80px;
+        }
+
+        .action-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(196, 214, 0, 0.2);
+            border-radius: 24px;
+            padding: 48px 32px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .action-card:hover {
+            border-color: #C4D600;
+            box-shadow: 0 8px 32px rgba(196, 214, 0, 0.2);
+        }
+
+        .action-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+        }
+
+        .action-card h3 {
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0 0 12px 0;
+            color: #ffffff;
+        }
+
+        .action-card p {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+
+        .progress-section h2 {
+            font-size: 48px;
+            font-weight: 600;
+            margin: 0 0 48px 0;
+            color: #ffffff;
+        }
+
+        .progress-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+
+        .progress-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(196, 214, 0, 0.2);
+            border-radius: 20px;
+            padding: 32px;
+        }
+
+        .progress-card h4 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 20px 0;
+            color: #ffffff;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #C4D600, #8BAE00);
+            border-radius: 6px;
+        }
+
+        .progress-value {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Trainer Search Screen */
+        .search-header {
+            margin-bottom: 40px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 24px 32px;
+            font-size: 24px;
+            margin-bottom: 32px;
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 24px;
+            margin-left: 16px;
+        }
+
+        .filters-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 48px;
+        }
+
+        .filter-chip {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-size: 18px;
+        }
+
+        .filter-chip.active {
+            background: #C4D600;
+            color: #000;
+            border-color: #C4D600;
+        }
+
+        .trainers-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+
+        .trainer-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 32px;
+        }
+
+        .trainer-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(196, 214, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .trainer-name {
+            font-size: 28px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0 0 8px 0;
+        }
+
+        .trainer-specialty {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+            margin: 0 0 16px 0;
+        }
+
+        .trainer-rating {
+            color: #C4D600;
+            font-size: 16px;
+            margin-bottom: 16px;
+        }
+
+        .trainer-price {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .hourly-rate {
+            font-size: 24px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .book-btn {
+            background: #C4D600;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        /* Screenshot Controls */
+        .screenshot-controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            z-index: 9999;
+            border: 1px solid #C4D600;
+        }
+
+        .controls h3 {
+            color: #C4D600;
+            margin: 0 0 16px 0;
+            font-size: 18px;
+        }
+
+        .controls button {
+            background: #C4D600;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .controls button:hover {
+            background: #8BAE00;
+        }
+
+        /* Health Integration Screen */
+        .integrations-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin-bottom: 64px;
+        }
+
+        .integration-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 48px;
+            text-align: center;
+        }
+
+        .device-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+        }
+
+        .integration-card h3 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0 0 16px 0;
+        }
+
+        .connection-status {
+            font-size: 18px;
+            margin-bottom: 24px;
+            padding: 8px 16px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .connection-status.connected {
+            background: rgba(0, 200, 0, 0.2);
+            color: #00ff00;
+        }
+
+        .connection-status.disconnected {
+            background: rgba(255, 100, 100, 0.2);
+            color: #ff6464;
+        }
+
+        .connect-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .connect-btn.connect {
+            background: #C4D600;
+            color: #000;
+        }
+
+        .connect-btn.disconnect {
+            background: rgba(255, 100, 100, 0.8);
+            color: #ffffff;
+        }
+
+        .activity-summary {
+            text-align: center;
+        }
+
+        .activity-summary h2 {
+            font-size: 48px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0 0 32px 0;
+        }
+
+        .activity-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .activity-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 32px;
+            text-align: center;
+        }
+
+        .activity-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .activity-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #C4D600;
+            margin: 0 0 8px 0;
+        }
+
+        .activity-label {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="screenshot-controls">
+        <h3>📱 Screenshot Generator</h3>
+        <button onclick="showHomeScreen()">Home</button>
+        <button onclick="showTrainerSearch()">Trainer Search</button>
+        <button onclick="showHealthDevices()">Health Devices</button>
+        <button onclick="downloadScreenshot()">📥 Download PNG</button>
+        <button onclick="toggleOrientation()">🔄 Rotate</button>
+    </div>
+
+    <div id="screenshotContainer" class="screenshot-container portrait">
+        <!-- Home Screen Content -->
+        <div id="homeScreen" class="screen-content">
+            <div class="app-header">
+                <div class="header-left">
+                    <div class="logo">🏋️</div>
+                    <div class="app-title">LiftLink</div>
+                </div>
+                <div class="header-right">
+                    <div class="coins-display">
+                        🪙 150
+                    </div>
+                    <div class="level-badge">Lv. 5</div>
+                    <div class="user-avatar">D</div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="hero-section">
+                    <div class="hero-content">
+                        <h1>Welcome back, Demo!</h1>
+                        <p>Ready to crush your fitness goals today?</p>
+                        <div class="streak-display">
+                            🔥 7 day streak
+                        </div>
+                    </div>
+                    <div class="hero-dumbbell">🏋️‍♂️</div>
+                </div>
+
+                <div class="quick-actions">
+                    <div class="action-card">
+                        <div class="action-icon">🔍</div>
+                        <h3>Find Trainers</h3>
+                        <p>Discover certified trainers near you</p>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">📊</div>
+                        <h3>Track Progress</h3>
+                        <p>View your fitness analytics</p>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">🏆</div>
+                        <h3>Achievements</h3>
+                        <p>Unlock new badges and rewards</p>
+                    </div>
+                    <div class="action-card">
+                        <div class="action-icon">👥</div>
+                        <h3>Social Hub</h3>
+                        <p>Connect with fitness friends</p>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <h2>Your Progress</h2>
+                    <div class="progress-cards">
+                        <div class="progress-card">
+                            <h4>XP Points</h4>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 75%"></div>
+                            </div>
+                            <div class="progress-value">450 / 600</div>
+                        </div>
+                        <div class="progress-card">
+                            <h4>Weekly Goal</h4>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 60%"></div>
+                            </div>
+                            <div class="progress-value">3 / 5 sessions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trainer Search Screen -->
+        <div id="trainerScreen" class="screen-content" style="display: none;">
+            <div class="app-header">
+                <div class="header-left">
+                    <div class="logo">🏋️</div>
+                    <div class="app-title">Find Trainers</div>
+                </div>
+                <div class="header-right">
+                    <div class="coins-display">
+                        🪙 150
+                    </div>
+                    <div class="level-badge">Lv. 5</div>
+                    <div class="user-avatar">D</div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="search-header">
+                    <div class="search-bar">
+                        🔍 <input type="text" placeholder="Search trainers near you..." value="Strength training" readonly>
+                    </div>
+                    <div class="filters-bar">
+                        <div class="filter-chip active">Strength Training</div>
+                        <div class="filter-chip">5 stars</div>
+                        <div class="filter-chip">< 5 miles</div>
+                        <div class="filter-chip">Available today</div>
+                    </div>
+                </div>
+
+                <div class="trainers-grid">
+                    <div class="trainer-card">
+                        <div class="trainer-avatar">👩‍💪</div>
+                        <h3 class="trainer-name">Sarah Johnson</h3>
+                        <p class="trainer-specialty">Strength Training</p>
+                        <div class="trainer-rating">⭐ 4.9 (127 reviews) • 📍 2.3 miles</div>
+                        <div class="trainer-price">
+                            <span class="hourly-rate">$85/hour</span>
+                            <button class="book-btn">Book Session</button>
+                        </div>
+                    </div>
+
+                    <div class="trainer-card">
+                        <div class="trainer-avatar">👨‍💪</div>
+                        <h3 class="trainer-name">Mike Rodriguez</h3>
+                        <p class="trainer-specialty">CrossFit & HIIT</p>
+                        <div class="trainer-rating">⭐ 4.8 (203 reviews) • 📍 1.8 miles</div>
+                        <div class="trainer-price">
+                            <span class="hourly-rate">$95/hour</span>
+                            <button class="book-btn">Book Session</button>
+                        </div>
+                    </div>
+
+                    <div class="trainer-card">
+                        <div class="trainer-avatar">🏋️</div>
+                        <h3 class="trainer-name">Alex Chen</h3>
+                        <p class="trainer-specialty">Powerlifting</p>
+                        <div class="trainer-rating">⭐ 5.0 (89 reviews) • 📍 3.1 miles</div>
+                        <div class="trainer-price">
+                            <span class="hourly-rate">$110/hour</span>
+                            <button class="book-btn">Book Session</button>
+                        </div>
+                    </div>
+
+                    <div class="trainer-card">
+                        <div class="trainer-avatar">👩‍🏫</div>
+                        <h3 class="trainer-name">Emma Davis</h3>
+                        <p class="trainer-specialty">Yoga & Flexibility</p>
+                        <div class="trainer-rating">⭐ 4.9 (156 reviews) • 📍 1.5 miles</div>
+                        <div class="trainer-price">
+                            <span class="hourly-rate">$75/hour</span>
+                            <button class="book-btn">Book Session</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Health Devices Screen -->
+        <div id="healthScreen" class="screen-content" style="display: none;">
+            <div class="app-header">
+                <div class="header-left">
+                    <div class="logo">🏋️</div>
+                    <div class="app-title">Health Devices</div>
+                </div>
+                <div class="header-right">
+                    <div class="coins-display">
+                        🪙 150
+                    </div>
+                    <div class="level-badge">Lv. 5</div>
+                    <div class="user-avatar">D</div>
+                </div>
+            </div>
+
+            <div class="main-content">
+                <div class="integrations-grid">
+                    <div class="integration-card">
+                        <div class="device-icon">🍎</div>
+                        <h3>Apple Health</h3>
+                        <div class="connection-status connected">✓ Connected</div>
+                        <button class="connect-btn disconnect">Disconnect</button>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="device-icon">📱</div>
+                        <h3>Google Fit</h3>
+                        <div class="connection-status disconnected">Not Connected</div>
+                        <button class="connect-btn connect">Connect</button>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="device-icon">⌚</div>
+                        <h3>Fitbit</h3>
+                        <div class="connection-status connected">✓ Connected</div>
+                        <button class="connect-btn disconnect">Disconnect</button>
+                    </div>
+
+                    <div class="integration-card">
+                        <div class="device-icon">🏃</div>
+                        <h3>Garmin Connect</h3>
+                        <div class="connection-status disconnected">Not Connected</div>
+                        <button class="connect-btn connect">Connect</button>
+                    </div>
+                </div>
+
+                <div class="activity-summary">
+                    <h2>Today's Activity</h2>
+                    <div class="activity-cards">
+                        <div class="activity-card">
+                            <div class="activity-icon">👟</div>
+                            <div class="activity-value">8,542</div>
+                            <div class="activity-label">Steps</div>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-icon">❤️</div>
+                            <div class="activity-value">72</div>
+                            <div class="activity-label">BPM</div>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-icon">🔥</div>
+                            <div class="activity-value">2,140</div>
+                            <div class="activity-label">Calories</div>
+                        </div>
+                        <div class="activity-card">
+                            <div class="activity-icon">😴</div>
+                            <div class="activity-value">7.5h</div>
+                            <div class="activity-label">Sleep</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showHomeScreen() {
+            hideAllScreens();
+            document.getElementById('homeScreen').style.display = 'block';
+        }
+
+        function showTrainerSearch() {
+            hideAllScreens();
+            document.getElementById('trainerScreen').style.display = 'block';
+        }
+
+        function showHealthDevices() {
+            hideAllScreens();
+            document.getElementById('healthScreen').style.display = 'block';
+        }
+
+        function hideAllScreens() {
+            document.querySelectorAll('.screen-content').forEach(screen => {
+                screen.style.display = 'none';
+            });
+        }
+
+        function toggleOrientation() {
+            const container = document.getElementById('screenshotContainer');
+            if (container.classList.contains('portrait')) {
+                container.classList.remove('portrait');
+                container.classList.add('landscape');
+            } else {
+                container.classList.remove('landscape');
+                container.classList.add('portrait');
+            }
+        }
+
+        function downloadScreenshot() {
+            // Get the current screen name
+            let screenName = 'home';
+            if (document.getElementById('trainerScreen').style.display !== 'none') {
+                screenName = 'trainer-search';
+            } else if (document.getElementById('healthScreen').style.display !== 'none') {
+                screenName = 'health-devices';
+            }
+
+            const container = document.getElementById('screenshotContainer');
+            const orientation = container.classList.contains('landscape') ? 'landscape' : 'portrait';
+            
+            // Hide controls temporarily
+            document.querySelector('.screenshot-controls').style.display = 'none';
+            
+            // Use html2canvas to capture the screenshot
+            html2canvas(container, {
+                width: container.offsetWidth,
+                height: container.offsetHeight,
+                scale: 1,
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: '#0a0a0a'
+            }).then(canvas => {
+                // Create download link
+                const link = document.createElement('a');
+                link.download = `liftlink-${screenName}-${orientation}-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                // Show controls again
+                document.querySelector('.screenshot-controls').style.display = 'block';
+            });
+        }
+
+        // Load html2canvas from CDN
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>
