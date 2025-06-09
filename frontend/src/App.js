@@ -192,11 +192,49 @@ const AppContent = () => {
     triggerCelebration('onboarding_complete');
   };
   
-  // Show onboarding for completely new users
-  if (showOnboarding && !onboardingComplete) {
+  // Handle Apple reviewer login
+  const handleAppleReviewLogin = (userData) => {
+    setIsAppleReviewer(true);
+    setUserVerified(true);
+    setUserRole(userData.user.role);
+    setOnboardingComplete(true);
+    setShowOnboarding(false);
+    setShowAppleReviewLogin(false);
+    setIsFirstTime(false);
+    
+    // Update mock user profile with Apple reviewer data
+    mockUserProfile.name = userData.user.name;
+    mockUserProfile.role = userData.user.role;
+    mockUserProfile.xp_points = userData.user.xp_points;
+    mockUserProfile.level = userData.user.level;
+    mockUserProfile.lift_coins = userData.user.lift_coins;
+    mockUserProfile.consecutive_days = userData.user.consecutive_days;
+    mockUserProfile.verified = true;
+    mockUserProfile.token = userData.token;
+    
+    // Save to localStorage
+    localStorage.setItem('liftlink_verification', JSON.stringify({
+      verified: true,
+      role: userData.user.role,
+      isAppleReviewer: true,
+      completedAt: new Date().toISOString()
+    }));
+    
+    // Navigate to appropriate view
+    if (userData.user.role === 'trainer') {
+      setCurrentView('trainer-crm');
+    } else {
+      setCurrentView('home');
+    }
+    
+    triggerCelebration('apple_review_login');
+  };
+
+  // Show Apple Review Login if requested
+  if (showAppleReviewLogin) {
     return (
       <div className="professional-app">
-        <SeamlessOnboarding onComplete={handleOnboardingComplete} />
+        <AppleReviewLogin onLogin={handleAppleReviewLogin} />
       </div>
     );
   }
