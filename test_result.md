@@ -351,8 +351,6 @@ metadata:
 
 test_plan:
   current_focus:
-    - "POST /api/verification/start-session"
-    - "GET /api/verification/session/{session_id}/status"
     - "POST /api/verification/enhanced-upload-id"
     - "POST /api/verification/upload-selfie"
     - "POST /api/verification/enhanced-upload-certification"
