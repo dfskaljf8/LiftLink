@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiftLink - iPad Screenshots Download</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .logo {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        
+        h1 {
+            font-size: 36px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff, #C4D600);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+        }
+        
+        .success-banner {
+            background: linear-gradient(135deg, #C4D600, #8BAE00);
+            color: #000;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 40px;
+            font-size: 18px;
+        }
+        
+        .screenshots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .screenshot-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .screenshot-card:hover {
+            transform: translateY(-4px);
+            border-color: #C4D600;
+            box-shadow: 0 8px 32px rgba(196, 214, 0, 0.2);
+        }
+        
+        .screenshot-preview {
+            width: 100px;
+            height: 133px;
+            background: linear-gradient(135deg, #C4D600, #8BAE00);
+            border-radius: 12px;
+            margin: 0 auto 16px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: #000;
+        }
+        
+        .screenshot-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: #ffffff;
+        }
+        
+        .screenshot-card p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0 0 16px 0;
+        }
+        
+        .dimensions {
+            font-size: 12px;
+            color: #C4D600;
+            margin-bottom: 16px;
+            font-family: 'SF Mono', Monaco, monospace;
+        }
+        
+        .download-btn {
+            background: #C4D600;
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .download-btn:hover {
+            background: #8BAE00;
+            transform: translateY(-1px);
+        }
+        
+        .bulk-download {
+            background: rgba(0, 122, 255, 0.1);
+            border: 1px solid #007AFF;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .bulk-download h3 {
+            color: #007AFF;
+            margin: 0 0 16px 0;
+        }
+        
+        .file-list {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        
+        .file-name {
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 14px;
+        }
+        
+        .file-size {
+            color: #C4D600;
+            font-size: 12px;
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 24px;
+        }
+        
+        .instructions h3 {
+            color: #C4D600;
+            margin: 0 0 16px 0;
+        }
+        
+        .step {
+            background: rgba(255, 255, 255, 0.03);
+            border-left: 3px solid #C4D600;
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .step strong {
+            color: #C4D600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">📱</div>
+            <h1>LiftLink iPad Screenshots</h1>
+            <p class="subtitle">Ready-to-upload PNG files for App Store Connect</p>
+        </div>
+        
+        <div class="success-banner">
+            ✅ All 6 iPad screenshots generated successfully! Ready for App Store submission.
+        </div>
+        
+        <div class="screenshots-grid">
+            <div class="screenshot-card">
+                <div class="screenshot-preview">🏠</div>
+                <h3>Home Dashboard</h3>
+                <p>Main dashboard with user progress, gamification, and quick actions</p>
+                <div class="dimensions">2048 × 2732 px (Portrait)</div>
+                <a href="screenshots/01-Home-Dashboard-Portrait.png" download class="download-btn">
+                    📥 Download PNG
+                </a>
+            </div>
+            
+            <div class="screenshot-card">
+                <div class="screenshot-preview">🔍</div>
+                <h3>Trainer Search</h3>
+                <p>Browse and book certified fitness trainers with filtering</p>
+                <div class="dimensions">2048 × 2732 px (Portrait)</div>
+                <a href="screenshots/02-Trainer-Search-Portrait.png" download class="download-btn">
+                    📥 Download PNG
+                </a>
+            </div>
+            
+            <div class="screenshot-card">
+                <div class="screenshot-preview">📱</div>
+                <h3>Health Integrations</h3>
+                <p>Connect fitness devices and track comprehensive health data</p>
+                <div class="dimensions">2048 × 2732 px (Portrait)</div>
+                <a href="screenshots/03-Health-Integrations-Portrait.png" download class="download-btn">
+                    📥 Download PNG
+                </a>
+            </div>
+            
+            <div class="screenshot-card">
+                <div class="screenshot-preview">📊</div>
+                <h3>Progress Analytics</h3>
+                <p>Detailed fitness analytics, charts, and goal tracking</p>
+                <div class="dimensions">2732 × 2048 px (Landscape)</div>
+                <a href="screenshots/04-Progress-Analytics-Landscape.png" download class="download-btn">
+                    📥 Download PNG
+                </a>
+            </div>
+            
+            <div class="screenshot-card">
+                <div class="screenshot-preview">👥</div>
+                <h3>Social Hub</h3>
+                <p>Friends activity, leaderboards, and social fitness features</p>
+                <div class="dimensions">2048 × 2732 px (Portrait)</div>
+                <a href="screenshots/05-Social-Hub-Portrait.png" download class="download-btn">
+                    📥 Download PNG
+                </a>
+            </div>
+            
+            <div class="screenshot-card">
+                <div class="screenshot-preview">📍</div>
+                <h3>Session Check-in</h3>
+                <p>GPS-verified training session attendance and certification</p>
+                <div class="dimensions">2048 × 2732 px (Portrait)</div>
+                <a href="screenshots/06-Session-Checkin-Portrait.png" download class="download-btn">
+                    📥 Download PNG
+                </a>
+            </div>
+        </div>
+        
+        <div class="bulk-download">
+            <h3>📦 All Files Generated</h3>
+            <p>6 high-quality iPad screenshots ready for App Store Connect upload</p>
+            
+            <div class="file-list">
+                <div class="file-item">
+                    <span class="file-name">01-Home-Dashboard-Portrait.png</span>
+                    <span class="file-size">37 KB</span>
+                </div>
+                <div class="file-item">
+                    <span class="file-name">02-Trainer-Search-Portrait.png</span>
+                    <span class="file-size">40 KB</span>
+                </div>
+                <div class="file-item">
+                    <span class="file-name">03-Health-Integrations-Portrait.png</span>
+                    <span class="file-size">36 KB</span>
+                </div>
+                <div class="file-item">
+                    <span class="file-name">04-Progress-Analytics-Landscape.png</span>
+                    <span class="file-size">34 KB</span>
+                </div>
+                <div class="file-item">
+                    <span class="file-name">05-Social-Hub-Portrait.png</span>
+                    <span class="file-size">38 KB</span>
+                </div>
+                <div class="file-item">
+                    <span class="file-name">06-Session-Checkin-Portrait.png</span>
+                    <span class="file-size">41 KB</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>📋 App Store Connect Upload Instructions</h3>
+            
+            <div class="step">
+                <strong>Step 1:</strong> Log into App Store Connect and navigate to your LiftLink app
+            </div>
+            
+            <div class="step">
+                <strong>Step 2:</strong> Go to "App Information" → "App Store Preview" section
+            </div>
+            
+            <div class="step">
+                <strong>Step 3:</strong> Select "iPad Pro (6th generation)" as the device type
+            </div>
+            
+            <div class="step">
+                <strong>Step 4:</strong> Upload the 6 PNG files downloaded from this page
+            </div>
+            
+            <div class="step">
+                <strong>Step 5:</strong> Add descriptive captions for each screenshot highlighting key features
+            </div>
+            
+            <div class="step">
+                <strong>Step 6:</strong> Arrange screenshots in order: Home → Search → Health → Analytics → Social → Session
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 40px;">
+            <p style="color: rgba(255, 255, 255, 0.6); font-size: 14px;">
+                🚀 Your LiftLink app is ready for App Store submission!
+            </p>
+        </div>
+    </div>
+</body>
+</html>
