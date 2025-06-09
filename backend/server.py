@@ -1791,6 +1791,168 @@ async def award_coins(user_id: str, amount: int, reason: str, metadata: dict = N
     # In production, save to database and update user balance
     return coin_award
 
+# ============ APPLE REVIEW AUTHENTICATION ENDPOINTS ============
+
+@app.post("/api/auth/apple-review-login")
+async def apple_review_login(request: dict):
+    """Special login endpoint for Apple reviewers with test accounts"""
+    username = request.get("username")
+    password = request.get("password")
+    
+    if not username or not password:
+        raise HTTPException(status_code=400, detail="Username and password required")
+    
+    # Check if this is an Apple test account
+    if username not in APPLE_TEST_ACCOUNTS:
+        raise HTTPException(status_code=401, detail="Invalid Apple test account credentials")
+    
+    test_account = APPLE_TEST_ACCOUNTS[username]
+    
+    # Verify password
+    if password != test_account["password"]:
+        raise HTTPException(status_code=401, detail="Invalid password for Apple test account")
+    
+    # Create or update user in database with Apple test account data
+    user_data = {
+        "user_id": test_account["user_id"],
+        "email": test_account["email"],
+        "name": test_account["name"],
+        "role": test_account["role"],
+        "xp_points": test_account.get("xp_points", 0),
+        "level": test_account.get("level", 1),
+        "lift_coins": test_account.get("lift_coins", 0),
+        "consecutive_days": test_account.get("consecutive_days", 0),
+        "badges": test_account.get("badges", []),
+        "id_verified": True,
+        "phone_verified": True,
+        "email_verified": True,
+        "verification_status": "verified",
+        "created_at": test_account.get("created_at", datetime.utcnow()),
+        "last_login": datetime.utcnow(),
+        "apple_test_account": True,  # Flag for special handling
+        "verification_bypass": True
+    }
+    
+    # Add trainer-specific fields
+    if test_account["role"] == "trainer":
+        user_data.update({
+            "trainer_verified": True,
+            "certifications": test_account.get("certifications", []),
+            "specialties": test_account.get("specialties", []),
+            "total_clients": test_account.get("total_clients", 0),
+            "average_rating": test_account.get("average_rating", 0.0),
+            "total_sessions": test_account.get("total_sessions", 0)
+        })
+    
+    # Upsert user in database
+    await db.users.update_one(
+        {"user_id": test_account["user_id"]},
+        {"$set": user_data},
+        upsert=True
+    )
+    
+    # Return user data with auth token
+    return {
+        "success": True,
+        "user": user_data,
+        "token": f"apple_test_{test_account['user_id']}",
+        "message": f"Logged in as Apple {test_account['role']} reviewer",
+        "bypass_enabled": True,
+        "demo_data": test_account["demo_data_enabled"]
+    }
+
+@app.get("/api/auth/apple-test-accounts")
+async def get_apple_test_accounts():
+    """Get available Apple test accounts for review purposes"""
+    accounts_info = []
+    
+    for username, account in APPLE_TEST_ACCOUNTS.items():
+        accounts_info.append({
+            "username": username,
+            "role": account["role"],
+            "description": f"Apple {account['role'].title()} Reviewer Account",
+            "features": get_account_features(account["role"]),
+            "bypass_enabled": True,
+            "demo_data": account["demo_data_enabled"]
+        })
+    
+    return {"test_accounts": accounts_info}
+
+def get_account_features(role: str) -> List[str]:
+    """Get list of features available for each account role"""
+    if role == "trainer":
+        return [
+            "Trainer CRM Dashboard",
+            "Client Management System", 
+            "Session Analytics",
+            "Revenue Tracking",
+            "Certification Verification",
+            "Booking Management",
+            "Performance Insights"
+        ]
+    else:  # trainee
+        return [
+            "Age & ID Verification (Bypassed)",
+            "Trainer Discovery & Search",
+            "Health Device Integrations",
+            "Social Features & Friends",
+            "Progress Analytics",
+            "Session Booking",
+            "Achievement System",
+            "LiftCoin Rewards"
+        ]
+
+@app.post("/api/verification/apple-bypass")
+async def apple_verification_bypass(request: dict, current_user: dict = Depends(get_current_user)):
+    """Special endpoint for Apple reviewers to bypass verification steps"""
+    
+    # Check if this is an Apple test account
+    if not current_user.get("apple_test_account"):
+        raise HTTPException(status_code=403, detail="Verification bypass only available for Apple test accounts")
+    
+    verification_type = request.get("type")  # "id", "age", "selfie", "certification"
+    
+    if verification_type == "id":
+        # Mark ID as verified
+        await db.users.update_one(
+            {"user_id": current_user["user_id"]},
+            {"$set": {
+                "id_verified": True,
+                "id_verification_status": "verified",
+                "age_verified": True,
+                "date_of_birth": current_user.get("date_of_birth"),
+                "age": current_user.get("age")
+            }}
+        )
+        return {"message": "ID verification bypassed for Apple reviewer", "verified": True}
+    
+    elif verification_type == "selfie":
+        # Mark selfie as verified
+        await db.users.update_one(
+            {"user_id": current_user["user_id"]},
+            {"$set": {
+                "selfie_verified": True,
+                "face_match_verified": True,
+                "liveness_verified": True
+            }}
+        )
+        return {"message": "Selfie verification bypassed for Apple reviewer", "verified": True}
+    
+    elif verification_type == "certification" and current_user.get("role") == "trainer":
+        # Mark certifications as verified
+        await db.users.update_one(
+            {"user_id": current_user["user_id"]},
+            {"$set": {
+                "trainer_verified": True,
+                "certifications_verified": True,
+                "verification_status": "verified"
+            }}
+        )
+        return {"message": "Certification verification bypassed for Apple trainer reviewer", "verified": True}
+    
+    else:
+        raise HTTPException(status_code=400, detail="Invalid verification type or insufficient permissions")
+
 # Health Data Webhook Endpoints (for real-time sync)
 @app.post("/webhook/google-fit")
 async def google_fit_webhook(request: Request):
