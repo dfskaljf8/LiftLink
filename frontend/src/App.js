@@ -74,6 +74,19 @@ const AppContent = () => {
 
   // Check if user needs verification on first load
   useEffect(() => {
+    // Check for Apple reviewer mode from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('apple_review') === 'true' || urlParams.get('mode') === 'apple_review') {
+      setShowAppleReviewLogin(true);
+      return;
+    }
+
+    // Check if iPad screenshot mode is requested
+    if (urlParams.get('screenshots') === 'ipad' || urlParams.get('mode') === 'screenshots') {
+      setCurrentView('ipad-screenshots');
+      return;
+    }
+    
     // Check if onboarding was completed
     const savedOnboarding = localStorage.getItem('liftlink_onboarding');
     if (savedOnboarding) {
@@ -93,6 +106,11 @@ const AppContent = () => {
       setUserVerified(verificationData.verified);
       setUserRole(verificationData.role);
       setIsFirstTime(false);
+      
+      // Check if it's an Apple reviewer account
+      if (verificationData.isAppleReviewer) {
+        setIsAppleReviewer(true);
+      }
     }
   }, []);
 
