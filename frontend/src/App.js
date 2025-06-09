@@ -279,6 +279,8 @@ const AppContent = () => {
     setIsFirstTime(true);
     setOnboardingComplete(false);
     setShowOnboarding(true);
+    setIsAppleReviewer(false);
+    setShowAppleReviewLogin(false);
     localStorage.removeItem('liftlink_verification');
     localStorage.removeItem('liftlink_onboarding');
     setCurrentView('home');
