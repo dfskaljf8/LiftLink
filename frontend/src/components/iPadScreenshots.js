@@ -28,6 +28,14 @@ const iPadScreenshots = () => {
   useEffect(() => {
     // Apply iPad-specific viewport settings
     document.body.classList.add('ipad-screenshot-mode');
+    
+    // Check URL parameters for specific screen
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedScreen = urlParams.get('screen');
+    if (requestedScreen && screenshotModes.includes(requestedScreen)) {
+      setScreenshotMode(requestedScreen);
+    }
+    
     return () => {
       document.body.classList.remove('ipad-screenshot-mode');
     };
