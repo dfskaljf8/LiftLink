@@ -239,6 +239,15 @@ const AppContent = () => {
     );
   }
 
+  // Show onboarding for completely new users
+  if (showOnboarding && !onboardingComplete) {
+    return (
+      <div className="professional-app">
+        <SeamlessOnboarding onComplete={handleOnboardingComplete} />
+      </div>
+    );
+  }
+
   // Handle verification completion
   const handleVerificationComplete = (verificationData) => {
     setUserVerified(true);
@@ -249,6 +258,7 @@ const AppContent = () => {
     localStorage.setItem('liftlink_verification', JSON.stringify({
       verified: true,
       role: verificationData.role,
+      isAppleReviewer: isAppleReviewer,
       completedAt: new Date().toISOString()
     }));
     
