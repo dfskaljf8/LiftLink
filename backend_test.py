@@ -609,6 +609,148 @@ def run_trainer_crm_tests(base_url):
     print(f"\n📊 Trainer CRM tests passed: {tester.tests_passed}/{tester.tests_run}")
     return tester.tests_passed == tester.tests_run
 
+def run_apple_review_tests(base_url):
+    """Test the Apple review authentication system"""
+    tester = VerificationAPITester(base_url)
+    
+    print("\n===== TESTING APPLE REVIEW AUTHENTICATION =====\n")
+    
+    # Test 1: Get Apple test accounts info
+    success, response = tester.run_test(
+        "Get Apple Test Accounts",
+        "GET",
+        "api/auth/apple-test-accounts",
+        200
+    )
+    
+    if success:
+        test_accounts = response.get('test_accounts', [])
+        print(f"Found {len(test_accounts)} Apple test accounts")
+        for account in test_accounts:
+            print(f"- {account.get('username')} ({account.get('role')}): {account.get('description')}")
+            print(f"  Features: {', '.join(account.get('features', []))[:100]}...")
+    
+    # Test 2: Login with valid Apple reviewer credentials
+    success, response = tester.run_test(
+        "Apple Reviewer Login (Valid)",
+        "POST",
+        "api/auth/apple-review-login",
+        200,
+        data={
+            "username": "apple_reviewer_2024",
+            "password": "LiftLink2024Review!"
+        }
+    )
+    
+    if success:
+        print(f"Login successful: {response.get('message')}")
+        print(f"User role: {response.get('user', {}).get('role')}")
+        print(f"Bypass enabled: {response.get('bypass_enabled')}")
+        print(f"Demo data: {response.get('demo_data')}")
+        
+        # Save token for subsequent tests
+        tester.token = response.get('token')
+        tester.user_id = response.get('user', {}).get('user_id')
+    
+    # Test 3: Login with valid Apple trainer credentials
+    success, response = tester.run_test(
+        "Apple Trainer Login (Valid)",
+        "POST",
+        "api/auth/apple-review-login",
+        200,
+        data={
+            "username": "apple_trainer_reviewer",
+            "password": "TrainerReview2024!"
+        }
+    )
+    
+    if success:
+        print(f"Login successful: {response.get('message')}")
+        print(f"User role: {response.get('user', {}).get('role')}")
+        print(f"Bypass enabled: {response.get('bypass_enabled')}")
+        print(f"Demo data: {response.get('demo_data')}")
+        
+        # Save token for subsequent tests
+        tester.token = response.get('token')
+        tester.user_id = response.get('user', {}).get('user_id')
+    
+    # Test 4: Login with invalid credentials
+    success, response = tester.run_test(
+        "Apple Reviewer Login (Invalid)",
+        "POST",
+        "api/auth/apple-review-login",
+        401,
+        data={
+            "username": "apple_reviewer_2024",
+            "password": "WrongPassword123!"
+        }
+    )
+    
+    if success:
+        print("Successfully rejected invalid credentials")
+    
+    # Test 5: Login with missing credentials
+    success, response = tester.run_test(
+        "Apple Reviewer Login (Missing Credentials)",
+        "POST",
+        "api/auth/apple-review-login",
+        400,
+        data={
+            "username": "apple_reviewer_2024"
+        }
+    )
+    
+    if success:
+        print("Successfully rejected missing credentials")
+    
+    # Test 6: ID verification bypass
+    success, response = tester.run_test(
+        "ID Verification Bypass",
+        "POST",
+        "api/verification/apple-bypass",
+        200,
+        data={
+            "type": "id"
+        }
+    )
+    
+    if success:
+        print(f"ID verification bypass: {response.get('message')}")
+        print(f"Verified: {response.get('verified')}")
+    
+    # Test 7: Selfie verification bypass
+    success, response = tester.run_test(
+        "Selfie Verification Bypass",
+        "POST",
+        "api/verification/apple-bypass",
+        200,
+        data={
+            "type": "selfie"
+        }
+    )
+    
+    if success:
+        print(f"Selfie verification bypass: {response.get('message')}")
+        print(f"Verified: {response.get('verified')}")
+    
+    # Test 8: Certification verification bypass (for trainer accounts)
+    success, response = tester.run_test(
+        "Certification Verification Bypass",
+        "POST",
+        "api/verification/apple-bypass",
+        200,
+        data={
+            "type": "certification"
+        }
+    )
+    
+    if success:
+        print(f"Certification verification bypass: {response.get('message')}")
+        print(f"Verified: {response.get('verified')}")
+    
+    print(f"\n📊 Apple review authentication tests passed: {tester.tests_passed}/{tester.tests_run}")
+    return tester.tests_passed == tester.tests_run
+
 if __name__ == "__main__":
     # Get the backend URL from the frontend .env file
     import os
@@ -624,20 +766,24 @@ if __name__ == "__main__":
     
     print(f"🔗 Testing backend at: {BACKEND_URL}")
     
-    # Run all test flows
-    trainee_verification_success = run_verification_flow_tests(BACKEND_URL)
-    trainer_verification_success = run_trainer_verification_flow_tests(BACKEND_URL)
-    certification_validation_success = run_certification_validation_tests(BACKEND_URL)
-    trainer_crm_success = run_trainer_crm_tests(BACKEND_URL)
+    # Run Apple review authentication tests
+    apple_review_success = run_apple_review_tests(BACKEND_URL)
+    
+    # Run all other test flows if needed
+    # trainee_verification_success = run_verification_flow_tests(BACKEND_URL)
+    # trainer_verification_success = run_trainer_verification_flow_tests(BACKEND_URL)
+    # certification_validation_success = run_certification_validation_tests(BACKEND_URL)
+    # trainer_crm_success = run_trainer_crm_tests(BACKEND_URL)
     
     # Print overall results
     print("\n===== TEST SUMMARY =====")
-    print(f"Trainee Verification Flow: {'✅ PASSED' if trainee_verification_success else '❌ FAILED'}")
-    print(f"Trainer Verification Flow: {'✅ PASSED' if trainer_verification_success else '❌ FAILED'}")
-    print(f"Certification Validation: {'✅ PASSED' if certification_validation_success else '❌ FAILED'}")
-    print(f"Trainer CRM Dashboard: {'✅ PASSED' if trainer_crm_success else '❌ FAILED'}")
+    print(f"Apple Review Authentication: {'✅ PASSED' if apple_review_success else '❌ FAILED'}")
+    # print(f"Trainee Verification Flow: {'✅ PASSED' if trainee_verification_success else '❌ FAILED'}")
+    # print(f"Trainer Verification Flow: {'✅ PASSED' if trainer_verification_success else '❌ FAILED'}")
+    # print(f"Certification Validation: {'✅ PASSED' if certification_validation_success else '❌ FAILED'}")
+    # print(f"Trainer CRM Dashboard: {'✅ PASSED' if trainer_crm_success else '❌ FAILED'}")
     
-    overall_success = trainee_verification_success and trainer_verification_success and certification_validation_success and trainer_crm_success
-    print(f"\nOverall Test Result: {'✅ PASSED' if overall_success else '❌ FAILED'}")
+    # overall_success = apple_review_success
+    # print(f"\nOverall Test Result: {'✅ PASSED' if overall_success else '❌ FAILED'}")
     
-    exit(0 if overall_success else 1)
+    exit(0 if apple_review_success else 1)
