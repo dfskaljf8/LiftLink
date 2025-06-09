@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiftLink - Apple App Review Portal</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0f0f0f 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        h1 {
+            font-size: 32px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #ffffff, #C4D600);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 40px;
+        }
+        
+        .access-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .access-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 32px 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .access-card:hover {
+            transform: translateY(-4px);
+            border-color: #C4D600;
+            box-shadow: 0 8px 32px rgba(196, 214, 0, 0.2);
+        }
+        
+        .access-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .access-card h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 8px 0;
+            color: #ffffff;
+        }
+        
+        .access-card p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0 0 20px 0;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #C4D600, #8BAE00);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(196, 214, 0, 0.3);
+        }
+        
+        .credentials-section {
+            background: rgba(0, 122, 255, 0.1);
+            border: 1px solid #007AFF;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 40px 0;
+            text-align: left;
+        }
+        
+        .credentials-section h3 {
+            color: #007AFF;
+            margin: 0 0 20px 0;
+            font-size: 20px;
+            text-align: center;
+        }
+        
+        .credential-row {
+            display: grid;
+            grid-template-columns: 1fr 2fr 2fr;
+            gap: 16px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            align-items: center;
+        }
+        
+        .credential-row strong {
+            color: #C4D600;
+        }
+        
+        .credential-value {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #C4D600;
+        }
+        
+        .features-list {
+            text-align: left;
+            margin-top: 20px;
+        }
+        
+        .features-list ul {
+            columns: 2;
+            column-gap: 24px;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .features-list li {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            break-inside: avoid;
+        }
+        
+        .features-list li:before {
+            content: '✓';
+            color: #C4D600;
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        
+        .quick-links {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .quick-link {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🏋️‍♂️</div>
+        <h1>LiftLink App Review Portal</h1>
+        <p class="subtitle">Comprehensive fitness platform ready for Apple App Store review</p>
+        
+        <div class="access-grid">
+            <div class="access-card" onclick="window.open('?apple_review=true', '_blank')">
+                <div class="access-icon">🍎</div>
+                <h3>Apple Review Login</h3>
+                <p>Access the app with pre-configured Apple reviewer accounts</p>
+                <a href="?apple_review=true" class="btn">Start Review Session</a>
+            </div>
+            
+            <div class="access-card" onclick="window.open('?mode=screenshots', '_blank')">
+                <div class="access-icon">📱</div>
+                <h3>iPad Screenshots</h3>
+                <p>View optimized iPad Pro 13" display screenshots for App Store</p>
+                <a href="?mode=screenshots" class="btn">View Screenshots</a>
+            </div>
+            
+            <div class="access-card" onclick="window.open('/', '_blank')">
+                <div class="access-icon">🏠</div>
+                <h3>Live App Demo</h3>
+                <p>Experience the full application with standard user flow</p>
+                <a href="/" class="btn">Try Demo</a>
+            </div>
+        </div>
+        
+        <div class="credentials-section">
+            <h3>🔐 Apple Test Account Credentials</h3>
+            <div class="credential-row">
+                <strong>Account Type</strong>
+                <strong>Username</strong>
+                <strong>Password</strong>
+            </div>
+            <div class="credential-row">
+                <span>Trainee (User)</span>
+                <span class="credential-value">apple_reviewer_2024</span>
+                <span class="credential-value">LiftLink2024Review!</span>
+            </div>
+            <div class="credential-row">
+                <span>Trainer (Pro)</span>
+                <span class="credential-value">apple_trainer_reviewer</span>
+                <span class="credential-value">TrainerReview2024!</span>
+            </div>
+            
+            <div class="features-list">
+                <h4 style="color: #C4D600; margin: 20px 0 12px 0;">🚀 Key Features Available for Review</h4>
+                <ul>
+                    <li>Age & ID Verification System</li>
+                    <li>Trainer Discovery & Booking</li>
+                    <li>Health Device Integrations</li>
+                    <li>Social Features & Friend Discovery</li>
+                    <li>Progress Analytics & Goal Tracking</li>
+                    <li>Session Attendance with GPS</li>
+                    <li>Trainer CRM Dashboard</li>
+                    <li>LiftCoin Rewards System</li>
+                    <li>Real-time Messaging</li>
+                    <li>Payment Processing (Test Mode)</li>
+                    <li>Achievement & Badge System</li>
+                    <li>Multi-language Support</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="quick-links">
+            <a href="direct-downloads.html" class="quick-link">📦 Download Materials</a>
+            <a href="ipad-screenshots.html" class="quick-link">📱 iPad Screenshots Info</a>
+            <a href="mailto:support@liftlink.app" class="quick-link">📧 Contact Support</a>
+            <a href="https://docs.liftlink.app" class="quick-link">📚 Documentation</a>
+        </div>
+    </div>
+    
+    <script>
+        // Add interactive enhancements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Copy credentials on click
+            document.querySelectorAll('.credential-value').forEach(element => {
+                element.addEventListener('click', function() {
+                    navigator.clipboard.writeText(this.textContent).then(() => {
+                        const original = this.textContent;
+                        this.textContent = 'Copied!';
+                        this.style.background = 'rgba(196, 214, 0, 0.3)';
+                        setTimeout(() => {
+                            this.textContent = original;
+                            this.style.background = 'rgba(0, 0, 0, 0.3)';
+                        }, 1000);
+                    });
+                });
+                
+                element.style.cursor = 'pointer';
+                element.title = 'Click to copy';
+            });
+        });
+    </script>
+</body>
+</html>
