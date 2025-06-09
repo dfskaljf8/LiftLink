@@ -52,6 +52,8 @@ const AppContent = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
+  const [showAppleReviewLogin, setShowAppleReviewLogin] = useState(false);
+  const [isAppleReviewer, setIsAppleReviewer] = useState(false);
 
   // Mock user profile data with verification status
   const mockUserProfile = {
