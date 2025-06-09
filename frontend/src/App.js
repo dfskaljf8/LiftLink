@@ -543,6 +543,11 @@ const AppContent = () => {
           <TrainerCRM userProfile={mockUserProfile} />
         )}
         
+        {/* iPad Screenshots View */}
+        {currentView === 'ipad-screenshots' && (
+          <iPadScreenshots />
+        )}
+        
         {/* Placeholder for help */}
         {currentView === 'help' && (
           <div style={{
@@ -591,6 +596,46 @@ const AppContent = () => {
                     <li>• Certification Requirements</li>
                     <li>• Revenue Analytics</li>
                   </ul>
+                </div>
+              )}
+              
+              {/* Apple Reviewer Help */}
+              {isAppleReviewer && (
+                <div style={{
+                  marginBottom: 'var(--space-lg)',
+                  padding: 'var(--space-md)',
+                  background: 'rgba(0, 122, 255, 0.1)',
+                  borderRadius: 'var(--border-radius)',
+                  textAlign: 'left'
+                }}>
+                  <h4 style={{ fontSize: '16px', marginBottom: 'var(--space-sm)' }}>
+                    Apple Reviewer Access:
+                  </h4>
+                  <ul style={{ 
+                    fontSize: '14px', 
+                    color: 'var(--text-secondary)',
+                    listStyle: 'none',
+                    padding: 0
+                  }}>
+                    <li>• All verification bypasses enabled</li>
+                    <li>• Demo data pre-populated</li>
+                    <li>• Full feature access</li>
+                    <li>• Safe test environment</li>
+                  </ul>
+                  <button 
+                    onClick={() => setCurrentView('ipad-screenshots')}
+                    style={{
+                      background: '#007AFF',
+                      color: 'white',
+                      border: 'none',
+                      padding: '8px 16px',
+                      borderRadius: '8px',
+                      marginTop: '8px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    View iPad Screenshots
+                  </button>
                 </div>
               )}
               
