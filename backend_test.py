@@ -87,211 +87,6 @@ class VerificationAPITester:
             print(f"User profile: {json.dumps(response, indent=2)}")
         return success
     
-    def test_start_verification_session(self, role):
-        """Test starting a verification session"""
-        success, response = self.run_test(
-            f"Start Verification Session as {role}",
-            "POST",
-            "api/verification/start-session",
-            200,
-            data={"role": role}
-        )
-        
-        if success and "session_id" in response:
-            self.session_id = response["session_id"]
-            print(f"Session ID: {self.session_id}")
-            print(f"Role: {response.get('role')}")
-            print(f"Next step: {response.get('next_step')}")
-            print(f"Steps completed: {response.get('steps_completed')}")
-            print(f"Total steps: {response.get('total_steps')}")
-        
-        return success
-    
-    def test_get_verification_status(self):
-        """Test getting verification session status"""
-        if not self.session_id:
-            print("❌ No session ID available. Start a session first.")
-            return False
-        
-        success, response = self.run_test(
-            "Get Verification Session Status",
-            "GET",
-            f"api/verification/session/{self.session_id}/status",
-            200
-        )
-        
-        if success:
-            print(f"Session ID: {response.get('session_id')}")
-            print(f"Role: {response.get('role')}")
-            print(f"Current step: {response.get('current_step')}")
-            print(f"Steps completed: {response.get('steps_completed')}")
-            print(f"Is complete: {response.get('is_complete')}")
-            print(f"Total steps: {response.get('total_steps')}")
-        
-        return success
-    
-    def test_upload_id(self, file_path, date_of_birth, document_type="drivers_license"):
-        """Test uploading an ID document"""
-        if not self.session_id:
-            print("❌ No session ID available. Start a session first.")
-            return False
-        
-        try:
-            with open(file_path, 'rb') as f:
-                file_data = f.read()
-                
-            files = {
-                'file': (os.path.basename(file_path), file_data, 'image/jpeg')
-            }
-            
-            data = {
-                'session_id': self.session_id,
-                'date_of_birth': date_of_birth,
-                'document_type': document_type
-            }
-            
-            success, response = self.run_test(
-                "Upload ID Document",
-                "POST",
-                "api/verification/enhanced-upload-id",
-                200,
-                data=data,
-                files=files
-            )
-            
-            if success and "verification_id" in response:
-                self.verification_id = response["verification_id"]
-                print(f"Verification ID: {self.verification_id}")
-                print(f"Age: {response.get('age')}")
-                print(f"Next step: {response.get('next_step')}")
-                print(f"Verification score: {response.get('verification_score')}")
-            
-            return success
-            
-        except Exception as e:
-            print(f"❌ Failed to upload ID: {str(e)}")
-            return False
-    
-    def test_upload_selfie(self, file_path):
-        """Test uploading a selfie"""
-        if not self.session_id:
-            print("❌ No session ID available. Start a session first.")
-            return False
-        
-        try:
-            with open(file_path, 'rb') as f:
-                file_data = f.read()
-                
-            files = {
-                'file': (os.path.basename(file_path), file_data, 'image/jpeg')
-            }
-            
-            data = {
-                'session_id': self.session_id
-            }
-            
-            success, response = self.run_test(
-                "Upload Selfie",
-                "POST",
-                "api/verification/upload-selfie",
-                200,
-                data=data,
-                files=files
-            )
-            
-            if success and "verification_id" in response:
-                print(f"Verification ID: {response.get('verification_id')}")
-                print(f"Face match score: {response.get('face_match_score')}")
-                print(f"Liveness score: {response.get('liveness_score')}")
-                print(f"Next step: {response.get('next_step')}")
-            
-            return success
-            
-        except Exception as e:
-            print(f"❌ Failed to upload selfie: {str(e)}")
-            return False
-    
-    def test_upload_certification(self, file_path):
-        """Test uploading a certification document"""
-        if not self.session_id:
-            print("❌ No session ID available. Start a session first.")
-            return False
-        
-        try:
-            with open(file_path, 'rb') as f:
-                file_data = f.read()
-                
-            files = {
-                'file': (os.path.basename(file_path), file_data, 'application/pdf' if file_path.endswith('.pdf') else 'image/jpeg')
-            }
-            
-            data = {
-                'session_id': self.session_id
-            }
-            
-            success, response = self.run_test(
-                "Upload Certification",
-                "POST",
-                "api/verification/enhanced-upload-certification",
-                200,
-                data=data,
-                files=files
-            )
-            
-            if success and "certification_id" in response:
-                print(f"Certification ID: {response.get('certification_id')}")
-                print(f"Certification type: {response.get('cert_type')}")
-                print(f"Confidence score: {response.get('confidence_score')}")
-                print(f"XP awarded: {response.get('xp_awarded')}")
-                print(f"Coins awarded: {response.get('coins_awarded')}")
-                print(f"Badge awarded: {response.get('badge_awarded')}")
-                print(f"Is complete: {response.get('is_complete')}")
-                print(f"Next step: {response.get('next_step')}")
-            
-            return success
-            
-        except Exception as e:
-            print(f"❌ Failed to upload certification: {str(e)}")
-            return False
-    
-    def test_upload_invalid_certification(self, file_path):
-        """Test uploading an invalid certification document"""
-        if not self.session_id:
-            print("❌ No session ID available. Start a session first.")
-            return False
-        
-        try:
-            with open(file_path, 'rb') as f:
-                file_data = f.read()
-                
-            files = {
-                'file': (os.path.basename(file_path), file_data, 'image/jpeg')
-            }
-            
-            data = {
-                'session_id': self.session_id
-            }
-            
-            # We expect this to fail with 400 Bad Request
-            success, response = self.run_test(
-                "Upload Invalid Certification",
-                "POST",
-                "api/verification/enhanced-upload-certification",
-                400,
-                data=data,
-                files=files
-            )
-            
-            # For invalid certification, we expect a 400 error
-            if success:
-                print("✅ Successfully rejected invalid certification")
-            
-            return success
-            
-        except Exception as e:
-            print(f"❌ Failed during invalid certification test: {str(e)}")
-            return False
-    
     def test_get_trainer_crm_overview(self):
         """Test getting trainer CRM dashboard overview"""
         success, response = self.run_test(
@@ -411,165 +206,6 @@ class VerificationAPITester:
         
         return success
 
-def create_test_files():
-    """Create test files for ID, selfie, and certification uploads"""
-    # Create a directory for test files
-    os.makedirs("/app/tests/test_files", exist_ok=True)
-    
-    # Create a mock ID image
-    with open("/app/tests/test_files/mock_id.jpg", "w") as f:
-        f.write("This is a mock ID image file")
-    
-    # Create a mock selfie image
-    with open("/app/tests/test_files/mock_selfie.jpg", "w") as f:
-        f.write("This is a mock selfie image file")
-    
-    # Create a mock valid certification PDF
-    with open("/app/tests/test_files/valid_certification.pdf", "w") as f:
-        f.write("NASM Certified Personal Trainer\nCertification Number: ABC123456\nIssued to: Demo Trainer\nIssue Date: 01/01/2023\nExpiry Date: 01/01/2025\nNational Academy of Sports Medicine\nwww.nasm.org")
-    
-    # Create a mock invalid certification image
-    with open("/app/tests/test_files/invalid_certification.jpg", "w") as f:
-        f.write("This is not a valid certification document")
-    
-    print("✅ Created test files in /app/tests/test_files/")
-
-def run_verification_flow_tests(base_url):
-    """Test the verification flow for a trainee"""
-    tester = VerificationAPITester(base_url)
-    
-    print("\n===== TESTING TRAINEE VERIFICATION FLOW =====\n")
-    
-    # Create test files
-    create_test_files()
-    
-    # Test login as user
-    if not tester.test_login("user@demo.com", "demo123"):
-        print("❌ Login failed, stopping tests")
-        return False
-    
-    # Test getting user profile
-    if not tester.test_get_user_profile():
-        print("❌ Failed to get user profile, stopping tests")
-        return False
-    
-    # Test starting a verification session as trainee
-    if not tester.test_start_verification_session("trainee"):
-        print("❌ Failed to start verification session, stopping tests")
-        return False
-    
-    # Test getting verification status
-    if not tester.test_get_verification_status():
-        print("❌ Failed to get verification status")
-    
-    # Test uploading ID
-    if not tester.test_upload_id("/app/tests/test_files/mock_id.jpg", "1990-01-01"):
-        print("❌ Failed to upload ID")
-    
-    # Test getting updated verification status
-    if not tester.test_get_verification_status():
-        print("❌ Failed to get updated verification status")
-    
-    # Test uploading selfie
-    if not tester.test_upload_selfie("/app/tests/test_files/mock_selfie.jpg"):
-        print("❌ Failed to upload selfie")
-    
-    # Test getting final verification status
-    if not tester.test_get_verification_status():
-        print("❌ Failed to get final verification status")
-    
-    print(f"\n📊 Trainee verification flow tests passed: {tester.tests_passed}/{tester.tests_run}")
-    return tester.tests_passed == tester.tests_run
-
-def run_trainer_verification_flow_tests(base_url):
-    """Test the verification flow for a trainer"""
-    tester = VerificationAPITester(base_url)
-    
-    print("\n===== TESTING TRAINER VERIFICATION FLOW =====\n")
-    
-    # Test login as user who will become a trainer
-    if not tester.test_login("user@demo.com", "demo123"):
-        print("❌ Login failed, stopping tests")
-        return False
-    
-    # Test getting user profile
-    if not tester.test_get_user_profile():
-        print("❌ Failed to get user profile, stopping tests")
-        return False
-    
-    # Test starting a verification session as trainer
-    if not tester.test_start_verification_session("trainer"):
-        print("❌ Failed to start verification session, stopping tests")
-        return False
-    
-    # Test getting verification status
-    if not tester.test_get_verification_status():
-        print("❌ Failed to get verification status")
-    
-    # Test uploading ID
-    if not tester.test_upload_id("/app/tests/test_files/mock_id.jpg", "1990-01-01"):
-        print("❌ Failed to upload ID")
-    
-    # Test getting updated verification status
-    if not tester.test_get_verification_status():
-        print("❌ Failed to get updated verification status")
-    
-    # Test uploading selfie
-    if not tester.test_upload_selfie("/app/tests/test_files/mock_selfie.jpg"):
-        print("❌ Failed to upload selfie")
-    
-    # Test getting updated verification status
-    if not tester.test_get_verification_status():
-        print("❌ Failed to get updated verification status")
-    
-    # Test uploading valid certification
-    if not tester.test_upload_certification("/app/tests/test_files/valid_certification.pdf"):
-        print("❌ Failed to upload valid certification")
-    
-    # Test getting final verification status
-    if not tester.test_get_verification_status():
-        print("❌ Failed to get final verification status")
-    
-    print(f"\n📊 Trainer verification flow tests passed: {tester.tests_passed}/{tester.tests_run}")
-    return tester.tests_passed == tester.tests_run
-
-def run_certification_validation_tests(base_url):
-    """Test the certification validation functionality"""
-    tester = VerificationAPITester(base_url)
-    
-    print("\n===== TESTING CERTIFICATION VALIDATION =====\n")
-    
-    # Test login as user
-    if not tester.test_login("user@demo.com", "demo123"):
-        print("❌ Login failed, stopping tests")
-        return False
-    
-    # Test starting a verification session as trainer
-    if not tester.test_start_verification_session("trainer"):
-        print("❌ Failed to start verification session, stopping tests")
-        return False
-    
-    # Test uploading ID (required before certification)
-    if not tester.test_upload_id("/app/tests/test_files/mock_id.jpg", "1990-01-01"):
-        print("❌ Failed to upload ID")
-        return False
-    
-    # Test uploading selfie (required before certification)
-    if not tester.test_upload_selfie("/app/tests/test_files/mock_selfie.jpg"):
-        print("❌ Failed to upload selfie")
-        return False
-    
-    # Test uploading invalid certification (should be rejected)
-    if not tester.test_upload_invalid_certification("/app/tests/test_files/invalid_certification.jpg"):
-        print("❌ Failed during invalid certification test")
-    
-    # Test uploading valid certification
-    if not tester.test_upload_certification("/app/tests/test_files/valid_certification.pdf"):
-        print("❌ Failed to upload valid certification")
-    
-    print(f"\n📊 Certification validation tests passed: {tester.tests_passed}/{tester.tests_run}")
-    return tester.tests_passed == tester.tests_run
-
 def run_trainer_crm_tests(base_url):
     """Test the trainer CRM dashboard endpoints"""
     tester = VerificationAPITester(base_url)
@@ -607,6 +243,196 @@ def run_trainer_crm_tests(base_url):
             print(f"❌ Failed to get analytics for period: {period}")
     
     print(f"\n📊 Trainer CRM tests passed: {tester.tests_passed}/{tester.tests_run}")
+    return tester.tests_passed == tester.tests_run
+
+def run_analytics_tests(base_url):
+    """Test the analytics endpoints"""
+    tester = VerificationAPITester(base_url)
+    
+    print("\n===== TESTING ANALYTICS ENDPOINTS =====\n")
+    
+    # Test login as user
+    if not tester.test_login("user@demo.com", "demo123"):
+        print("❌ User login failed, stopping tests")
+        return False
+    
+    # Test getting analytics overview with different time ranges
+    for time_range in ["week", "month", "year", "all"]:
+        success, response = tester.run_test(
+            f"Get Analytics Overview ({time_range})",
+            "GET",
+            "api/analytics/overview",
+            200,
+            params={"time_range": time_range}
+        )
+        
+        if success:
+            print(f"Time range: {response.get('time_range')}")
+            print(f"Start date: {response.get('start_date')}")
+            print(f"End date: {response.get('end_date')}")
+            print(f"Total workouts: {response.get('total_workouts')}")
+            print(f"Total calories: {response.get('total_calories')}")
+            print(f"Average heart rate: {response.get('average_heart_rate')}")
+            print(f"Workout trend data points: {len(response.get('workout_trend', []))}")
+        else:
+            print(f"❌ Failed to get analytics overview for time range: {time_range}")
+    
+    # Test getting goals analytics
+    success, response = tester.run_test(
+        "Get Goals Analytics",
+        "GET",
+        "api/analytics/goals",
+        200
+    )
+    
+    if success:
+        goals = response.get('goals', [])
+        print(f"Total goals: {len(goals)}")
+        if goals:
+            print(f"First goal: {json.dumps(goals[0], indent=2)}")
+    else:
+        print("❌ Failed to get goals analytics")
+    
+    # Test getting achievements analytics
+    success, response = tester.run_test(
+        "Get Achievements Analytics",
+        "GET",
+        "api/analytics/achievements",
+        200
+    )
+    
+    if success:
+        achievements = response.get('achievements', [])
+        print(f"Total achievements: {len(achievements)}")
+        if achievements:
+            print(f"First achievement: {json.dumps(achievements[0], indent=2)}")
+    else:
+        print("❌ Failed to get achievements analytics")
+    
+    print(f"\n📊 Analytics tests passed: {tester.tests_passed}/{tester.tests_run}")
+    return tester.tests_passed == tester.tests_run
+
+def run_trainer_marketplace_tests(base_url):
+    """Test the trainer marketplace endpoints"""
+    tester = VerificationAPITester(base_url)
+    
+    print("\n===== TESTING TRAINER MARKETPLACE =====\n")
+    
+    # Test login as user
+    if not tester.test_login("user@demo.com", "demo123"):
+        print("❌ User login failed, stopping tests")
+        return False
+    
+    # Test getting trainers with no filters
+    success, response = tester.run_test(
+        "Get All Trainers",
+        "GET",
+        "api/trainers",
+        200
+    )
+    
+    trainer_id = None
+    if success:
+        trainers = response.get('trainers', [])
+        print(f"Total trainers: {len(trainers)}")
+        if trainers:
+            print(f"First trainer: {json.dumps(trainers[0], indent=2)}")
+            trainer_id = trainers[0].get('trainer_id')
+    else:
+        print("❌ Failed to get trainers")
+    
+    # Test getting trainers with specialty filter
+    success, response = tester.run_test(
+        "Get Trainers by Specialty",
+        "GET",
+        "api/trainers",
+        200,
+        params={"specialty": "Strength Training"}
+    )
+    
+    if success:
+        trainers = response.get('trainers', [])
+        print(f"Trainers with Strength Training specialty: {len(trainers)}")
+    else:
+        print("❌ Failed to get trainers by specialty")
+    
+    # Test getting trainers with price range filter
+    success, response = tester.run_test(
+        "Get Trainers by Price Range",
+        "GET",
+        "api/trainers",
+        200,
+        params={"min_price": 30, "max_price": 100}
+    )
+    
+    if success:
+        trainers = response.get('trainers', [])
+        print(f"Trainers in price range $30-$100: {len(trainers)}")
+    else:
+        print("❌ Failed to get trainers by price range")
+    
+    # Test getting trainers with rating filter
+    success, response = tester.run_test(
+        "Get Trainers by Rating",
+        "GET",
+        "api/trainers",
+        200,
+        params={"min_rating": 4.0}
+    )
+    
+    if success:
+        trainers = response.get('trainers', [])
+        print(f"Trainers with rating >= 4.0: {len(trainers)}")
+    else:
+        print("❌ Failed to get trainers by rating")
+    
+    # Test getting trainers with multiple filters
+    success, response = tester.run_test(
+        "Get Trainers with Multiple Filters",
+        "GET",
+        "api/trainers",
+        200,
+        params={
+            "specialty": "Nutrition Coaching",
+            "min_rating": 4.0,
+            "max_price": 80
+        }
+    )
+    
+    if success:
+        trainers = response.get('trainers', [])
+        print(f"Trainers matching multiple filters: {len(trainers)}")
+    else:
+        print("❌ Failed to get trainers with multiple filters")
+    
+    # Test booking a session with a trainer
+    if trainer_id:
+        # Get tomorrow's date for the session
+        tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%dT10:00:00")
+        
+        success, response = tester.run_test(
+            "Book Trainer Session",
+            "POST",
+            f"api/trainers/{trainer_id}/book",
+            200,
+            data={
+                "session_date": tomorrow,
+                "duration_hours": 1.0
+            }
+        )
+        
+        if success:
+            print(f"Booking ID: {response.get('booking_id')}")
+            print(f"Session date: {response.get('session_date')}")
+            print(f"Trainer name: {response.get('trainer_name')}")
+            print(f"Total amount: ${response.get('total_amount')}")
+            print(f"Payment status: {response.get('payment_status')}")
+        else:
+            print("❌ Failed to book trainer session")
+    else:
+        print("⚠️ Skipping booking test - no trainer ID available")
+    
+    print(f"\n📊 Trainer marketplace tests passed: {tester.tests_passed}/{tester.tests_run}")
     return tester.tests_passed == tester.tests_run
 
 def run_apple_review_tests(base_url):
@@ -775,24 +601,20 @@ if __name__ == "__main__":
     
     print(f"🔗 Testing backend at: {BACKEND_URL}")
     
-    # Run Apple review authentication tests
+    # Run all tests
     apple_review_success = run_apple_review_tests(BACKEND_URL)
-    
-    # Run all other test flows if needed
-    # trainee_verification_success = run_verification_flow_tests(BACKEND_URL)
-    # trainer_verification_success = run_trainer_verification_flow_tests(BACKEND_URL)
-    # certification_validation_success = run_certification_validation_tests(BACKEND_URL)
-    # trainer_crm_success = run_trainer_crm_tests(BACKEND_URL)
+    trainer_crm_success = run_trainer_crm_tests(BACKEND_URL)
+    analytics_success = run_analytics_tests(BACKEND_URL)
+    trainer_marketplace_success = run_trainer_marketplace_tests(BACKEND_URL)
     
     # Print overall results
     print("\n===== TEST SUMMARY =====")
     print(f"Apple Review Authentication: {'✅ PASSED' if apple_review_success else '❌ FAILED'}")
-    # print(f"Trainee Verification Flow: {'✅ PASSED' if trainee_verification_success else '❌ FAILED'}")
-    # print(f"Trainer Verification Flow: {'✅ PASSED' if trainer_verification_success else '❌ FAILED'}")
-    # print(f"Certification Validation: {'✅ PASSED' if certification_validation_success else '❌ FAILED'}")
-    # print(f"Trainer CRM Dashboard: {'✅ PASSED' if trainer_crm_success else '❌ FAILED'}")
+    print(f"Trainer CRM Dashboard: {'✅ PASSED' if trainer_crm_success else '❌ FAILED'}")
+    print(f"Analytics Endpoints: {'✅ PASSED' if analytics_success else '❌ FAILED'}")
+    print(f"Trainer Marketplace: {'✅ PASSED' if trainer_marketplace_success else '❌ FAILED'}")
     
-    # overall_success = apple_review_success
-    # print(f"\nOverall Test Result: {'✅ PASSED' if overall_success else '❌ FAILED'}")
+    overall_success = apple_review_success and trainer_crm_success and analytics_success and trainer_marketplace_success
+    print(f"\nOverall Test Result: {'✅ PASSED' if overall_success else '❌ FAILED'}")
     
-    exit(0 if apple_review_success else 1)
+    exit(0 if overall_success else 1)
