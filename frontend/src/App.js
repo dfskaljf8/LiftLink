@@ -623,10 +623,12 @@ const AppContent = () => {
         )}
         
         {currentView === 'trainers' && (
-          <EnhancedTrainerSearch 
-            searchQuery="" 
+          <TrainerMarketplace 
             userProfile={mockUserProfile}
-            userLocation={userLocation}
+            onTrainerSelect={(trainer) => {
+              triggerCelebration('trainer_selected');
+              // Handle trainer selection
+            }}
           />
         )}
         
