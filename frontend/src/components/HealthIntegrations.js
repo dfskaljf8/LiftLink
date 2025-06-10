@@ -268,6 +268,9 @@ const HealthIntegrations = ({ userProfile }) => {
         </p>
       </div>
 
+      {/* HealthKit Notice */}
+      <HealthKitNotice />
+
       {/* Today's Health Summary */}
       <div className="glass-card" style={{
         padding: '20px',
