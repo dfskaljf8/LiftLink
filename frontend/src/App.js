@@ -593,8 +593,8 @@ const AppContent = () => {
           <FitnessForestScreen userProfile={mockUserProfile} />
         )}
         
-        {currentView === 'enhanced-analytics' && (
-          <EnhancedProgressAnalytics userProfile={mockUserProfile} />
+        {currentView === 'analytics' && (
+          <ComprehensiveAnalytics userProfile={mockUserProfile} />
         )}
         
         {currentView === 'health-devices' && (
