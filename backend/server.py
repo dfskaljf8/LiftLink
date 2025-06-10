@@ -1953,20 +1953,129 @@ async def apple_verification_bypass(request: dict, current_user: dict = Depends(
     else:
         raise HTTPException(status_code=400, detail="Invalid verification type or insufficient permissions")
 
-# Health Data Webhook Endpoints (for real-time sync)
-@app.post("/webhook/google-fit")
-async def google_fit_webhook(request: Request):
-    """Handle Google Fit webhook notifications"""
-    # Verify webhook signature in production
-    data = await request.json()
-    
-    # Process health data update
-    user_id = data.get("user_id")
-    if user_id:
-        # Update health metrics in database
-        pass
-    
-    return {"status": "acknowledged"}
+# ============ TRAINER MARKETPLACE ENDPOINTS ============
+
+@app.get("/api/trainers")
+async def get_trainers(
+    specialty: Optional[str] = None,
+    price_range: Optional[str] = None,
+    rating: Optional[float] = None,
+    distance: Optional[float] = None,
+    availability: Optional[str] = None,
+    sort_by: str = "rating"
+):
+    """Get verified trainers with filtering and sorting"""
+    try:
+        # In production, this would query the trainers database
+        # For now, return mock data that matches frontend expectations
+        trainers = [
+            {
+                "id": "trainer_001",
+                "name": "Sarah Johnson",
+                "specialty": "Strength Training",
+                "rating": 4.9,
+                "reviewCount": 127,
+                "hourlyRate": 85,
+                "distance": 2.3,
+                "verified": True,
+                "availability": "Today"
+            }
+            # Additional trainers would be returned here
+        ]
+        
+        return {"trainers": trainers, "total": len(trainers)}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/trainers/{trainer_id}/book")
+async def book_trainer_session(trainer_id: str, booking_data: dict):
+    """Book a session with a trainer"""
+    try:
+        # In production, this would create a booking record
+        booking = {
+            "booking_id": f"booking_{datetime.utcnow().timestamp()}",
+            "trainer_id": trainer_id,
+            "user_id": booking_data.get("user_id"),
+            "session_type": booking_data.get("session_type"),
+            "datetime": booking_data.get("datetime"),
+            "notes": booking_data.get("notes"),
+            "status": "pending",
+            "created_at": datetime.utcnow().isoformat()
+        }
+        
+        return {"success": True, "booking": booking}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============ ANALYTICS ENDPOINTS ============
+
+@app.get("/api/analytics/overview")
+async def get_analytics_overview(
+    timeRange: str = "week",
+    user_id: Optional[str] = None
+):
+    """Get comprehensive analytics overview"""
+    try:
+        # In production, this would aggregate data from workout sessions, health data, etc.
+        analytics = {
+            "overview": {
+                "totalSessions": 24,
+                "totalMinutes": 1680,
+                "caloriesBurned": 3240,
+                "consistencyScore": 92
+            },
+            "workouts": {
+                "weeklyData": [
+                    {"day": "Mon", "sessions": 1, "minutes": 75, "calories": 320},
+                    {"day": "Tue", "sessions": 0, "minutes": 0, "calories": 0},
+                    # ... more days
+                ]
+            }
+        }
+        
+        return {"success": True, "data": analytics, "timeRange": timeRange}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/analytics/goals")
+async def get_user_goals(user_id: Optional[str] = None):
+    """Get user's fitness goals and progress"""
+    try:
+        goals = [
+            {
+                "id": "goal_1",
+                "title": "Lose 10 pounds",
+                "target": 10,
+                "current": 7.2,
+                "progress": 72,
+                "status": "on-track"
+            }
+            # Additional goals would be returned here
+        ]
+        
+        return {"success": True, "goals": goals}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/analytics/achievements")
+async def get_user_achievements(user_id: Optional[str] = None):
+    """Get user's earned achievements"""
+    try:
+        achievements = [
+            {
+                "id": "ach_1",
+                "title": "First Week Complete",
+                "description": "Completed your first week of workouts",
+                "earnedDate": "2025-05-15",
+                "icon": "🎉",
+                "rarity": "common"
+            }
+            # Additional achievements would be returned here
+        ]
+        
+        return {"success": True, "achievements": achievements}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/webhook/fitbit")
 async def fitbit_webhook(request: Request):
