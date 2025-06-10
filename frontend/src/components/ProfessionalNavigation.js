@@ -84,10 +84,10 @@ const ProfessionalSidebar = ({ isOpen, toggleSidebar, setCurrentView, currentVie
       icon: <AnimatedTree size={20} growth={userProfile?.level * 10 || 50} />
     },
     { 
-      id: 'enhanced-analytics', 
-      label: 'Enhanced Analytics', 
-      icon: <AnimatedChart size={20} active={currentView === 'enhanced-analytics'} />,
-      subtitle: 'Health device insights'
+      id: 'analytics', 
+      label: 'Analytics', 
+      icon: <AnimatedChart size={20} active={currentView === 'analytics'} />,
+      subtitle: 'Comprehensive progress tracking'
     },
     { 
       id: 'social', 
