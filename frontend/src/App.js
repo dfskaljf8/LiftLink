@@ -80,9 +80,8 @@ import SeamlessOnboarding from './components/SeamlessOnboarding';
 import HealthIntegrations from './components/HealthIntegrations';
 import FindFriends from './components/FindFriends';
 import SessionAttendance from './components/SessionAttendance';
-import EnhancedProgressAnalytics from './components/EnhancedProgressAnalytics';
-import iPadScreenshots from './components/iPadScreenshots';
-import AppleReviewLogin from './components/AppleReviewLogin';
+import TrainerMarketplace from './components/TrainerMarketplace';
+import ComprehensiveAnalytics from './components/ComprehensiveAnalytics';
 
 // Main App Component - Clean and Simple
 const App = () => {
