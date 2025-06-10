@@ -1,7 +1,9 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
+  "name": "liftlink-app",
+  "version": "2.0.0",
+  "description": "LiftLink - Comprehensive Fitness Platform with Verified Trainer Marketplace",
   "private": true,
+  "homepage": "./",
   "dependencies": {
     "@capacitor-community/contacts": "^7.0.0",
     "@capacitor/android": "^7.3.0",
