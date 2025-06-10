@@ -361,15 +361,20 @@ metadata:
   test_sequence: 0
   run_ui: false
 
-test_plan:
-  current_focus:
-    - "POST /api/verification/enhanced-upload-id"
-    - "POST /api/verification/upload-selfie"
-    - "POST /api/verification/enhanced-upload-certification"
-    - "GET /api/trainer/crm/overview"
-    - "GET /api/trainer/crm/clients"
-    - "GET /api/trainer/crm/client/{client_id}"
-    - "GET /api/trainer/crm/analytics"
+  - task: "GET /api/analytics/overview"
+    implemented: true
+    working: true
+    file: "server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented analytics overview endpoint with time range filtering."
+      - working: true
+        agent: "testing"
+        comment: "Analytics overview endpoint is working correctly. Successfully tested with different time range parameters (week, month, year, all) and verified that it returns the expected data structure. The endpoint correctly handles the time range parameter."
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
