@@ -1,3 +1,6 @@
+import React, { useState, useEffect } from 'react';
+import ErrorBoundary from './ErrorBoundary';
+
 // ============ PRIVACY & CONTACTS POLICY ============
 /*
 CONTACTS UPLOAD CLARIFICATION:
