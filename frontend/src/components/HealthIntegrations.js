@@ -9,6 +9,47 @@ const HealthIntegrations = ({ userProfile }) => {
     fitbit: false,
     garmin: false
   });
+  const [showHealthKitNotice, setShowHealthKitNotice] = useState(true);
+  
+  // HealthKit Notice Component
+  const HealthKitNotice = () => (
+    <div style={{
+      background: 'rgba(0, 122, 255, 0.1)',
+      border: '1px solid #007AFF',
+      borderRadius: '16px',
+      padding: '20px',
+      margin: '20px 0',
+      display: showHealthKitNotice ? 'block' : 'none'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '12px' }}>
+        <span style={{ fontSize: '24px', marginRight: '12px' }}>🍎</span>
+        <h3 style={{ margin: 0, color: '#007AFF', fontSize: '18px' }}>
+          Apple HealthKit Integration
+        </h3>
+        <button 
+          onClick={() => setShowHealthKitNotice(false)}
+          style={{
+            marginLeft: 'auto',
+            background: 'none',
+            border: 'none',
+            color: '#007AFF',
+            cursor: 'pointer',
+            fontSize: '18px'
+          }}
+        >
+          ×
+        </button>
+      </div>
+      <p style={{ 
+        margin: 0, 
+        color: 'rgba(255, 255, 255, 0.8)',
+        fontSize: '14px',
+        lineHeight: '1.5'
+      }}>
+        <strong>This app uses Apple HealthKit to sync your fitness data</strong> including steps, heart rate, calories, and workout information. Your health data is private, secure, and remains under your control. You can manage permissions in iOS Settings → Privacy & Security → Health.
+      </p>
+    </div>
+  );
   const [healthData, setHealthData] = useState({
     steps: 0,
     heart_rate: 0,
