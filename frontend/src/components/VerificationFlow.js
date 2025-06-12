@@ -220,8 +220,20 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
     scrollToTop();
   };
 
-  // Skip certification (trainer only)
-  const skipCertification = () => {
+  // Skip selfie verification
+  const skipSelfieVerification = () => {
+    setVerificationData(prev => ({
+      ...prev,
+      selfieVerified: false // Mark as skipped, not verified
+    }));
+    
+    if (verificationData.role === 'trainer') {
+      setCurrentStep('certification-upload');
+    } else {
+      setCurrentStep('verification-complete');
+    }
+    scrollToTop();
+  };
     setVerificationData(prev => ({
       ...prev,
       certificationVerified: false // Mark as skipped, not verified
