@@ -1143,7 +1143,7 @@ const RoleSelectionStep = ({ onSelectRole, loading, showChangeNotice, bypassMode
 };
 
 // Mobile-Optimized ID Upload Step
-const IdUploadStep = ({ onUpload, loading }) => {
+const IdUploadStep = ({ onUpload, onSkip, loading }) => {
   const [file, setFile] = useState(null);
   const [documentType, setDocumentType] = useState('drivers_license');
   const [dateOfBirth, setDateOfBirth] = useState('');
@@ -1172,6 +1172,12 @@ const IdUploadStep = ({ onUpload, loading }) => {
       return;
     }
     onUpload(file, documentType, dateOfBirth);
+  };
+
+  const handleSkip = () => {
+    if (window.confirm('Are you sure you want to skip ID verification? This may limit some app features.')) {
+      onSkip();
+    }
   };
 
   return (
