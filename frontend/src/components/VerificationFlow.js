@@ -1652,21 +1652,42 @@ const CertificationStep = ({ onUpload, onSkip, loading }) => {
         </button>
       </div>
       
-      <button
-        className="btn-primary mobile-button"
-        onClick={handleSubmit}
-        disabled={loading || !file}
-        style={{
-          width: '100%',
-          minHeight: '52px',
-          fontSize: '1.1em',
-          fontWeight: '600',
-          borderRadius: '12px',
-          touchAction: 'manipulation'
-        }}
-      >
-        {loading ? 'Validating...' : 'Validate Certification'}
-      </button>
+      <div style={{ display: 'flex', gap: '12px' }}>
+        <button
+          className="mobile-button"
+          onClick={handleSkip}
+          disabled={loading}
+          style={{
+            flex: 1,
+            minHeight: '52px',
+            fontSize: '1.1em',
+            fontWeight: '600',
+            borderRadius: '12px',
+            touchAction: 'manipulation',
+            background: 'rgba(255, 255, 255, 0.1)',
+            border: '1px solid rgba(255, 255, 255, 0.3)',
+            color: 'var(--text-secondary)'
+          }}
+        >
+          Skip
+        </button>
+        
+        <button
+          className="btn-primary mobile-button"
+          onClick={handleSubmit}
+          disabled={loading || !file}
+          style={{
+            flex: 2,
+            minHeight: '52px',
+            fontSize: '1.1em',
+            fontWeight: '600',
+            borderRadius: '12px',
+            touchAction: 'manipulation'
+          }}
+        >
+          {loading ? 'Validating...' : 'Validate Certification'}
+        </button>
+      </div>
       
       <div style={{
         marginTop: '20px',
