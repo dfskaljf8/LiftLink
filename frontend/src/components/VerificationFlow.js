@@ -1543,7 +1543,7 @@ const SelfieStep = ({ onCapture, loading }) => {
 };
 
 // Mobile-Optimized Certification Step (Trainer only)
-const CertificationStep = ({ onUpload, loading }) => {
+const CertificationStep = ({ onUpload, onSkip, loading }) => {
   const [file, setFile] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -1570,6 +1570,12 @@ const CertificationStep = ({ onUpload, loading }) => {
       return;
     }
     onUpload(file);
+  };
+
+  const handleSkip = () => {
+    if (window.confirm('Are you sure you want to skip certification upload? You can add certifications later in your profile.')) {
+      onSkip();
+    }
   };
 
   return (
