@@ -209,8 +209,27 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
     }
   };
 
-  // Upload ID document
-  const uploadIdDocument = async (file, documentType, dateOfBirth) => {
+  // Skip ID verification
+  const skipIdVerification = () => {
+    setVerificationData(prev => ({
+      ...prev,
+      idVerified: false // Mark as skipped, not verified
+    }));
+    
+    setCurrentStep('selfie-capture');
+    scrollToTop();
+  };
+
+  // Skip certification (trainer only)
+  const skipCertification = () => {
+    setVerificationData(prev => ({
+      ...prev,
+      certificationVerified: false // Mark as skipped, not verified
+    }));
+    
+    setCurrentStep('verification-complete');
+    scrollToTop();
+  };
     setLoading(true);
     setError('');
     setUploadProgress(0);
