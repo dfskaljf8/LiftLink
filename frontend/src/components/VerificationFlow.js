@@ -758,13 +758,57 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
           }}>
             {steps[currentStep]?.title}
           </h2>
-          <span style={{
-            fontSize: '0.9em',
-            color: 'var(--text-secondary)',
-            whiteSpace: 'nowrap'
-          }}>
-            {steps[currentStep]?.step}/{totalSteps}
-          </span>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{
+              fontSize: '0.9em',
+              color: 'var(--text-secondary)',
+              whiteSpace: 'nowrap'
+            }}>
+              {steps[currentStep]?.step}/{totalSteps}
+            </span>
+            
+            {/* Skip button for skippable steps */}
+            {(currentStep === 'id-upload' || currentStep === 'certification-upload') && (
+              <button
+                onClick={() => {
+                  if (currentStep === 'id-upload') {
+                    skipIdVerification();
+                  } else if (currentStep === 'certification-upload') {
+                    skipCertification();
+                  }
+                }}
+                disabled={loading}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  border: '1px solid rgba(255, 255, 255, 0.3)',
+                  color: 'var(--text-secondary)',
+                  padding: '6px 12px',
+                  borderRadius: '8px',
+                  fontSize: '0.85em',
+                  fontWeight: '500',
+                  cursor: 'pointer',
+                  touchAction: 'manipulation',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading) {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading) {
+                    e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                    e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+                  }
+                }}
+              >
+                Skip
+              </button>
+            )}
+          </div>
         </div>
         
         {/* Progress Bar */}
