@@ -517,7 +517,7 @@ const TrainerMarketplace = ({ userProfile, onTrainerSelect }) => {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '16px' }}>
               <span style={{ fontSize: '48px', marginRight: '16px' }}>
-                {selectedTrainer.avatar}
+                {selectedTrainer.name.charAt(0)}
               </span>
               <div>
                 <h3 style={{ margin: 0, color: '#ffffff' }}>{selectedTrainer.name}</h3>
