@@ -234,6 +234,9 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
     }
     scrollToTop();
   };
+
+  // Skip certification (trainer only)
+  const skipCertification = () => {
     setVerificationData(prev => ({
       ...prev,
       certificationVerified: false // Mark as skipped, not verified
