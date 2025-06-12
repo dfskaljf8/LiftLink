@@ -230,6 +230,9 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
     setCurrentStep('verification-complete');
     scrollToTop();
   };
+
+  // Upload ID document
+  const uploadIdDocument = async (file, documentType, dateOfBirth) => {
     setLoading(true);
     setError('');
     setUploadProgress(0);
