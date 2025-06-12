@@ -74,7 +74,7 @@ import BookingsView from './components/BookingsView';
 import MessagesView from './components/MessagesView';
 import ProfileView from './components/ProfileView';
 import EnhancedSettings, { ThemeProvider } from './components/EnhancedSettings';
-import VerificationFlow from './components/VerificationFlow';
+import VerificationFlow from './components/CleanVerificationFlow';
 import TrainerCRM from './components/TrainerCRM';
 import SeamlessOnboarding from './components/SeamlessOnboarding';
 import HealthIntegrations from './components/HealthIntegrations';
