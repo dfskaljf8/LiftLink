@@ -929,6 +929,7 @@ const VerificationFlow = ({ onComplete, userProfile = null }) => {
           <div className="verification-step">
             <IdUploadStep 
               onUpload={uploadIdDocument}
+              onSkip={skipIdVerification}
               loading={loading}
             />
           </div>
