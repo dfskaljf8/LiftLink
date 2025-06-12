@@ -23,7 +23,7 @@ const TrainerMarketplace = ({ userProfile, onTrainerSelect }) => {
       {
         id: 'trainer_001',
         name: 'Sarah Johnson',
-        avatar: '👩‍💪',
+        avatar: 'SJ',
         specialty: 'Strength Training',
         secondarySpecialties: ['Weight Loss', 'Muscle Building'],
         rating: 4.9,
@@ -46,7 +46,7 @@ const TrainerMarketplace = ({ userProfile, onTrainerSelect }) => {
       {
         id: 'trainer_002',
         name: 'Mike Rodriguez',
-        avatar: '👨‍💪',
+        avatar: 'MR',
         specialty: 'CrossFit & HIIT',
         secondarySpecialties: ['Cardio', 'Athletic Performance'],
         rating: 4.8,
@@ -69,7 +69,7 @@ const TrainerMarketplace = ({ userProfile, onTrainerSelect }) => {
       {
         id: 'trainer_003',
         name: 'Alex Chen',
-        avatar: '🏋️',
+        avatar: 'AC',
         specialty: 'Powerlifting',
         secondarySpecialties: ['Strength Training', 'Competition Prep'],
         rating: 5.0,
@@ -92,7 +92,7 @@ const TrainerMarketplace = ({ userProfile, onTrainerSelect }) => {
       {
         id: 'trainer_004',
         name: 'Emma Davis',
-        avatar: '👩‍🏫',
+        avatar: 'ED',
         specialty: 'Yoga & Flexibility',
         secondarySpecialties: ['Mindfulness', 'Injury Recovery'],
         rating: 4.9,
@@ -115,7 +115,7 @@ const TrainerMarketplace = ({ userProfile, onTrainerSelect }) => {
       {
         id: 'trainer_005',
         name: 'David Kim',
-        avatar: '🥊',
+        avatar: 'DK',
         specialty: 'Boxing & MMA',
         secondarySpecialties: ['Self Defense', 'Cardio Conditioning'],
         rating: 4.7,
@@ -138,7 +138,7 @@ const TrainerMarketplace = ({ userProfile, onTrainerSelect }) => {
       {
         id: 'trainer_006',
         name: 'Lisa Thompson',
-        avatar: '🏃‍♀️',
+        avatar: 'LT',
         specialty: 'Running & Endurance',
         secondarySpecialties: ['Marathon Training', 'Injury Prevention'],
         rating: 4.8,
