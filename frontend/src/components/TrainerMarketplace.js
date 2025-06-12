@@ -318,9 +318,11 @@ const TrainerMarketplace = ({ userProfile, onTrainerSelect }) => {
           background: 'rgba(196, 214, 0, 0.2)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
+          fontWeight: 'bold',
+          color: '#C4D600'
         }}>
-          {trainer.avatar}
+          {trainer.name.charAt(0)}
         </div>
         
         <div style={{ flex: 1 }}>
