@@ -1,0 +1,54 @@
+{
+  "name": "liftlink-platform",
+  "version": "2.0.0",
+  "description": "LiftLink - Comprehensive Fitness Platform with Mobile & Web Applications",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "LiftLinkMobile"
+  ],
+  "scripts": {
+    "dev": "concurrently \"yarn workspace frontend start\" \"yarn workspace liftlinkmobile start\"",
+    "build": "yarn workspace frontend build",
+    "build:mobile": "yarn workspace liftlinkmobile build",
+    "build:android": "yarn workspace liftlinkmobile build:android:production",
+    "build:ios": "yarn workspace liftlinkmobile build:ios",
+    "start:frontend": "yarn workspace frontend start",
+    "start:mobile": "yarn workspace liftlinkmobile start",
+    "test": "yarn workspace frontend test",
+    "test:mobile": "yarn workspace liftlinkmobile test",
+    "install:all": "yarn install && cd frontend && yarn install && cd ../LiftLinkMobile && yarn install",
+    "clean": "rm -rf node_modules frontend/node_modules LiftLinkMobile/node_modules",
+    "deploy:android": "yarn workspace liftlinkmobile submit:android",
+    "deploy:ios": "yarn workspace liftlinkmobile submit:ios",
+    "validate:android": "./test-android-build.sh"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": ">=1.22.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/liftlink/platform.git"
+  },
+  "keywords": [
+    "fitness",
+    "health",
+    "training",
+    "mobile",
+    "react-native",
+    "expo",
+    "react",
+    "fastapi",
+    "mongodb"
+  ],
+  "author": "LiftLink Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/liftlink/platform/issues"
+  },
+  "homepage": "https://liftlink.app"
+}
