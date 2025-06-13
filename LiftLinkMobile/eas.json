@@ -5,30 +5,38 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
+      "android": {
+        "buildType": "aab",
+        "resourceClass": "medium"
+      },
       "ios": {
         "resourceClass": "m-medium"
-      },
-      "android": {
-        "resourceClass": "medium"
       }
     }
   },
   "submit": {
     "production": {
+      "android": {
+        "serviceAccountKeyPath": "./google-play-service-account.json",
+        "track": "internal",
+        "releaseStatus": "draft"
+      },
       "ios": {
         "appleId": "lift.link.email@gmail.com",
         "ascAppId": "will-be-configured-during-build",
         "appleTeamId": "will-be-auto-detected"
-      },
-      "android": {
-        "serviceAccountKeyPath": "path/to/api-key.json",
-        "track": "production"
       }
     }
   }
