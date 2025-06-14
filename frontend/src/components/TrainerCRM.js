@@ -36,6 +36,10 @@ const TrainerCRM = ({ userProfile }) => {
         case 'analytics':
           endpoint = '/api/trainer/crm/analytics';
           break;
+        case 'ai-assistant':
+          // No API call needed for AI assistant
+          setLoading(false);
+          return;
         default:
           endpoint = '/api/trainer/crm/overview';
       }
@@ -69,7 +73,8 @@ const TrainerCRM = ({ userProfile }) => {
   const crmViews = [
     { key: 'overview', label: 'Overview', icon: '📊' },
     { key: 'clients', label: 'Clients', icon: '👥' },
-    { key: 'analytics', label: 'Analytics', icon: '📈' }
+    { key: 'analytics', label: 'Analytics', icon: '📈' },
+    { key: 'ai-assistant', label: 'AI Assistant', icon: '🤖' }
   ];
 
   return (
@@ -199,8 +204,153 @@ const TrainerCRM = ({ userProfile }) => {
           {activeView === 'analytics' && (
             <AnalyticsDashboard data={crmData.analytics} />
           )}
+
+          {activeView === 'ai-assistant' && (
+            <AIAssistantDashboard userProfile={userProfile} />
+          )}
         </>
       )}
+    </div>
+  );
+};
+
+// AI Assistant Dashboard Component
+const AIAssistantDashboard = ({ userProfile }) => {
+  return (
+    <div>
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.05)',
+        borderRadius: '20px',
+        padding: '24px',
+        border: '1px solid rgba(196, 214, 0, 0.3)',
+        marginBottom: '32px'
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          marginBottom: '20px'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #C4D600, #B2FF66)',
+            borderRadius: '12px',
+            padding: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <span style={{ fontSize: '24px' }}>🤖</span>
+          </div>
+          <div>
+            <h2 style={{ 
+              margin: '0 0 4px 0', 
+              color: '#ffffff', 
+              fontSize: '24px',
+              fontWeight: '700'
+            }}>
+              AI Business Assistant
+            </h2>
+            <p style={{ 
+              margin: 0, 
+              color: 'rgba(255, 255, 255, 0.7)',
+              fontSize: '16px'
+            }}>
+              Get AI-powered insights for your training business
+            </p>
+          </div>
+        </div>
+        
+        {/* AI Chat Interface */}
+        <div style={{
+          background: 'rgba(0, 0, 0, 0.3)',
+          borderRadius: '16px',
+          padding: '16px',
+          border: '1px solid rgba(196, 214, 0, 0.2)',
+          height: '600px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <iframe 
+            src="https://app.relevanceai.com/agents/bcbe5a/9ca4a28df27a-44f4-8786-dd1756011081/8d932862-d19b-446a-80f7-387a5090d8a3/share?hide_tool_steps=false&hide_file_uploads=false&hide_conversation_list=false&bubble_style=agent&primary_color=%23685FFF&bubble_icon=pd%2Fchat&input_placeholder_text=Type+your+message...&hide_logo=false&hide_description=false" 
+            width="100%" 
+            height="100%" 
+            frameBorder="0"
+            style={{
+              borderRadius: '12px',
+              background: 'transparent'
+            }}
+            title="LiftLink AI Business Assistant"
+          />
+        </div>
+        
+        {/* AI Business Features Info */}
+        <div style={{
+          marginTop: '20px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '16px'
+        }}>
+          <div style={{
+            background: 'rgba(196, 214, 0, 0.1)',
+            padding: '16px',
+            borderRadius: '12px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '20px', marginBottom: '8px' }}>💼</div>
+            <h4 style={{ margin: '0 0 4px 0', color: '#C4D600', fontSize: '14px' }}>
+              Business Insights
+            </h4>
+            <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255, 255, 255, 0.7)' }}>
+              Revenue optimization and growth strategies
+            </p>
+          </div>
+          
+          <div style={{
+            background: 'rgba(196, 214, 0, 0.1)',
+            padding: '16px',
+            borderRadius: '12px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '20px', marginBottom: '8px' }}>👥</div>
+            <h4 style={{ margin: '0 0 4px 0', color: '#C4D600', fontSize: '14px' }}>
+              Client Management
+            </h4>
+            <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255, 255, 255, 0.7)' }}>
+              Smart client engagement recommendations
+            </p>
+          </div>
+          
+          <div style={{
+            background: 'rgba(196, 214, 0, 0.1)',
+            padding: '16px',
+            borderRadius: '12px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '20px', marginBottom: '8px' }}>📈</div>
+            <h4 style={{ margin: '0 0 4px 0', color: '#C4D600', fontSize: '14px' }}>
+              Performance Analysis
+            </h4>
+            <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255, 255, 255, 0.7)' }}>
+              Data-driven business performance insights
+            </p>
+          </div>
+          
+          <div style={{
+            background: 'rgba(196, 214, 0, 0.1)',
+            padding: '16px',
+            borderRadius: '12px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '20px', marginBottom: '8px' }}>🎯</div>
+            <h4 style={{ margin: '0 0 4px 0', color: '#C4D600', fontSize: '14px' }}>
+              Marketing Support
+            </h4>
+            <p style={{ margin: 0, fontSize: '12px', color: 'rgba(255, 255, 255, 0.7)' }}>
+              AI-generated marketing content and strategies
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
