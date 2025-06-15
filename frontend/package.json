@@ -28,7 +28,10 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "install:legacy": "npm install --legacy-peer-deps",
+    "install:force": "npm install --force",
+    "audit:fix": "npm audit fix --force"
   },
   "browserslist": {
     "production": [
@@ -53,5 +56,18 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3"
+  },
+  "overrides": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "nth-check": "^2.1.1",
+    "postcss": "^8.4.49",
+    "webpack-dev-server": "^5.2.1"
+  },
+  "resolutions": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "nth-check": "^2.1.1",
+    "postcss": "^8.4.49"
   }
 }
