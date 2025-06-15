@@ -12,7 +12,7 @@ const TrainerMarketplace = ({ userProfile, onTrainerSelect }) => {
   const [distance, setDistance] = useState('all');
   const [availability, setAvailability] = useState('all');
   const [sortBy, setSortBy] = useState('rating');
-  const [viewMode, setViewMode] = useState('grid'); // grid or list
+  const [viewMode, setViewMode] = useState('grid'); // grid, list, or ai-matchmaker
   const [selectedTrainer, setSelectedTrainer] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [favoriteTrainers, setFavoriteTrainers] = useState([]);
