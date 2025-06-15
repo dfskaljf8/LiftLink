@@ -927,4 +927,4 @@ const ComprehensiveAnalytics = ({ userProfile }) => {
   );
 };
 
-export default ComprehensiveAnalytics;
+export default ComprehensiveAnalytics;// Updated with AI Accountability Coach
