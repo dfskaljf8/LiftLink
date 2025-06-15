@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatedCard } from '../DelightfulComponents';
 import { LiftLinkLogo, AnimatedDumbbell } from './AnimatedSVGs';
+import AIFitnessMatchmaker from "./AIFitnessMatchmaker";
 
 const TrainerMarketplace = ({ userProfile, onTrainerSelect }) => {
   const [trainers, setTrainers] = useState([]);
