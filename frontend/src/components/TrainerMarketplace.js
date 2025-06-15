@@ -693,6 +693,68 @@ const TrainerMarketplace = ({ userProfile, onTrainerSelect }) => {
         </p>
       </div>
 
+
+      {/* View Mode Selector */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '8px',
+        marginBottom: '32px'
+      }}>
+        <button
+          onClick={() => setViewMode('grid')}
+          style={{
+            background: viewMode === 'grid' ? '#C4D600' : 'rgba(255, 255, 255, 0.1)',
+            color: viewMode === 'grid' ? '#000' : '#ffffff',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}
+        >
+          📋 Browse All
+        </button>
+        <button
+          onClick={() => setViewMode('list')}
+          style={{
+            background: viewMode === 'list' ? '#C4D600' : 'rgba(255, 255, 255, 0.1)',
+            color: viewMode === 'list' ? '#000' : '#ffffff',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}
+        >
+          📋 List View
+        </button>
+        <button
+          onClick={() => setViewMode('ai-matchmaker')}
+          style={{
+            background: viewMode === 'ai-matchmaker' ? '#C4D600' : 'rgba(255, 255, 255, 0.1)',
+            color: viewMode === 'ai-matchmaker' ? '#000' : '#ffffff',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: '500'
+          }}
+        >
+          🎯 AI Matchmaker
+        </button>
+      </div>
+
+      {/* AI Fitness Matchmaker View */}
+      {viewMode === 'ai-matchmaker' && <AIFitnessMatchmaker />}
+
+      {/* Regular Marketplace Views */}
+      {viewMode !== 'ai-matchmaker' && (
+        <>
+
       {/* Search and Filters */}
       <div style={{
         background: 'rgba(255, 255, 255, 0.05)',
@@ -993,6 +1055,9 @@ const TrainerMarketplace = ({ userProfile, onTrainerSelect }) => {
           </p>
         </div>
       )}
+        </>
+      )}
+
 
       {/* Booking Modal */}
       {showBookingModal && <BookingModal />}
