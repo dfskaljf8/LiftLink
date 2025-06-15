@@ -513,7 +513,7 @@ const ComprehensiveAnalytics = ({ userProfile }) => {
         </div>
 
         <div style={{ display: 'flex', gap: '8px' }}>
-          {['overview', 'workouts', 'health', 'goals', 'ai-insights'].map(metric => (
+          {['overview', 'workouts', 'health', 'goals', 'accountability-coach'].map(metric => (
             <button
               key={metric}
               onClick={() => setSelectedMetric(metric)}
@@ -528,7 +528,7 @@ const ComprehensiveAnalytics = ({ userProfile }) => {
                 fontWeight: '500'
               }}
             >
-              {metric === 'ai-insights' ? '🤖 AI Insights' : metric.charAt(0).toUpperCase() + metric.slice(1)}
+              {metric === 'accountability-coach' ? '🧠 AI Coach' : metric.charAt(0).toUpperCase() + metric.slice(1)}
             </button>
           ))}
         </div>
