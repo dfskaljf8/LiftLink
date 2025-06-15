@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AnimatedCard } from '../DelightfulComponents';
 import { AnimatedCoin, AnimatedFire } from './AnimatedSVGs';
+import AIAccountabilityCoach from "./AIAccountabilityCoach";
 
 const ComprehensiveAnalytics = ({ userProfile }) => {
   const [timeRange, setTimeRange] = useState('week');
