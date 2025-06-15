@@ -786,8 +786,8 @@ const ComprehensiveAnalytics = ({ userProfile }) => {
         </div>
       )}
 
-      {/* AI Insights Section */}
-      {selectedMetric === 'ai-insights' && (
+      {/* AI Accountability Coach Section */}
+      {selectedMetric === 'accountability-coach' && (
         <div>
           <div style={{
             background: 'rgba(255, 255, 255, 0.05)',
@@ -924,6 +924,9 @@ const ComprehensiveAnalytics = ({ userProfile }) => {
           </div>
         </div>
       )}
+
+      {/* AI Accountability Coach Section */}
+      {selectedMetric === 'accountability-coach' && <AIAccountabilityCoach />}
     </div>
   );
 };
