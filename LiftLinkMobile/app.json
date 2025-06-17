@@ -82,16 +82,6 @@
           }
         }
       ]
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "e6a916da-e23e-43fa-bf9e-b6ae530290be"
-      },
-      "googleFitClientId": "464466068216-4sfg6htsflfler6ri9f9hqbsvgl7n7ij.apps.googleusercontent.com",
-      "googleCalendarClientId": "464466068216-4sfg6htsflfler6ri9f9hqbsvgl7n7ij.apps.googleusercontent.com",
-      "googleWalletClientId": "464466068216-4sfg6htsflfler6ri9f9hqbsvgl7n7ij.apps.googleusercontent.com",
-      "androidMapsApiKey": "AIzaSyBVm5QTzo9Kx8PvQ5zg3E4VgSpp3S_hKFQ",
-      "iosMapsApiKey": "AIzaSyBVm5QTzo9Kx8PvQ5zg3E4VgSpp3S_hKFQ"
-    }
+    ]
   }
 }
