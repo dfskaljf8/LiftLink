@@ -1,0 +1,118 @@
+#!/bin/bash
+
+echo "🔧 EAS Project Registration Fix"
+echo "==============================="
+
+cd /app/LiftLinkMobile
+
+echo "🎯 Fixing EAS project ID issue..."
+
+# Fix 1: Remove the invalid projectId to let EAS create a new one
+echo "📝 Removing invalid projectId from app.json..."
+sed -i 's/"projectId": "e6a916da-e23e-43fa-bf9e-b6ae530290be"/"projectId": ""/g' app.json
+
+# Alternative: Create app.json without projectId first
+echo "📝 Creating clean app.json without projectId..."
+cat > app.json << 'EOF'
+{
+  "expo": {
+    "name": "LiftLink",
+    "slug": "liftlink",
+    "version": "1.0.1",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "scheme": "liftlink",
+    "description": "Professional fitness training platform with verified trainers, health tracking, and personalized workout plans. Connect with certified trainers and achieve your fitness goals.",
+    "primaryColor": "#C4D600",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.liftlink.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSHealthUpdateUsageDescription": "LiftLink uses your health data to track your fitness progress, sync with trainers, and provide personalized workout insights.",
+        "NSHealthShareUsageDescription": "LiftLink needs access to your health data to provide comprehensive fitness tracking and sync with your trainer.",
+        "NSLocationWhenInUseUsageDescription": "LiftLink uses your location to verify session attendance and find nearby trainers.",
+        "NSCameraUsageDescription": "LiftLink uses the camera for ID verification, selfies, and fitness progress photos.",
+        "NSPhotoLibraryUsageDescription": "LiftLink needs access to your photo library to upload ID documents and certification photos.",
+        "NSContactsUsageDescription": "LiftLink can access your contacts to help you find friends who are already using the app."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#000000"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.liftlink.app",
+      "versionCode": 1,
+      "compileSdkVersion": 34,
+      "targetSdkVersion": 34,
+      "minSdkVersion": 21,
+      "permissions": [
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "READ_CONTACTS",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "VIBRATE",
+        "WAKE_LOCK",
+        "RECEIVE_BOOT_COMPLETED"
+      ],
+      "playStoreUrl": "https://play.google.com/store/apps/details?id=com.liftlink.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBVm5QTzo9Kx8PvQ5zg3E4VgSpp3S_hKFQ"
+        }
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-location",
+      "expo-camera",
+      "expo-contacts",
+      "expo-image-picker",
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
+            "minSdkVersion": 21,
+            "buildToolsVersion": "34.0.0"
+          }
+        }
+      ]
+    ]
+  }
+}
+EOF
+
+echo ""
+echo "✅ EAS Project ID fixed!"
+echo ""
+echo "🚀 Now run these commands:"
+echo "  1. eas login"
+echo "  2. eas project:init"
+echo "  3. eas build --platform android --profile production"
+echo ""
+echo "💡 Commands will:"
+echo "  - Login with your EAS account"
+echo "  - Create/register the project"
+echo "  - Generate a new valid projectId"
+echo "  - Start the build process"
