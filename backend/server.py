@@ -1568,7 +1568,126 @@ TREE_STAGES = {
 
 # Health & Social Features Endpoints
 
-# Health Integrations
+# Stripe Payment Processing
+@app.post("/api/payments/create-intent")
+async def create_payment_intent(request: Request):
+    try:
+        import stripe
+        
+        # Set Stripe API key
+        stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
+        
+        data = await request.json()
+        amount = data.get('amount')  # Amount in cents
+        currency = data.get('currency', 'usd')
+        description = data.get('description', 'LiftLink Training Session')
+        metadata = data.get('metadata', {})
+        
+        # Create PaymentIntent
+        intent = stripe.PaymentIntent.create(
+            amount=amount,
+            currency=currency,
+            description=description,
+            metadata=metadata,
+            automatic_payment_methods={
+                'enabled': True,
+            },
+        )
+        
+        return {
+            "client_secret": intent.client_secret,
+            "payment_intent_id": intent.id
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Payment intent creation failed: {str(e)}")
+
+@app.post("/api/payments/confirm")
+async def confirm_payment(request: Request):
+    try:
+        data = await request.json()
+        payment_intent_id = data.get('payment_intent_id')
+        session_details = data.get('session_details')
+        
+        # Store payment record in database
+        payment_record = {
+            "payment_intent_id": payment_intent_id,
+            "amount": data.get('amount'),
+            "currency": data.get('currency', 'usd'),
+            "status": "completed",
+            "session_details": session_details,
+            "created_at": datetime.utcnow(),
+            "user_id": session_details.get('userId'),
+            "trainer_id": session_details.get('trainerId')
+        }
+        
+        # Insert payment record
+        payments_collection = db["payments"]
+        result = await payments_collection.insert_one(payment_record)
+        
+        # Update session status to paid
+        sessions_collection = db["sessions"]
+        await sessions_collection.update_one(
+            {"_id": session_details.get('sessionId')},
+            {"$set": {"payment_status": "paid", "payment_id": str(result.inserted_id)}}
+        )
+        
+        # Award LiftCoins to user (50 coins per session)
+        users_collection = db["users"]
+        await users_collection.update_one(
+            {"_id": session_details.get('userId')},
+            {"$inc": {"liftcoins": 50}}
+        )
+        
+        return {
+            "success": True,
+            "payment_id": str(result.inserted_id),
+            "message": "Payment confirmed and session booked!"
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Payment confirmation failed: {str(e)}")
+
+# LiftCoins Rewards System
+@app.post("/api/rewards/redeem")
+async def redeem_reward(request: Request):
+    try:
+        data = await request.json()
+        reward_id = data.get('rewardId')
+        user_id = data.get('userId')
+        coins_cost = data.get('coinsCost')
+        
+        users_collection = db["users"]
+        
+        # Check user has enough coins
+        user = await users_collection.find_one({"_id": user_id})
+        if not user or user.get('liftcoins', 0) < coins_cost:
+            raise HTTPException(status_code=400, detail="Insufficient LiftCoins")
+        
+        # Deduct coins and record redemption
+        await users_collection.update_one(
+            {"_id": user_id},
+            {
+                "$inc": {"liftcoins": -coins_cost},
+                "$push": {
+                    "redeemed_rewards": {
+                        "reward_id": reward_id,
+                        "coins_cost": coins_cost,
+                        "redeemed_at": datetime.utcnow(),
+                        "status": "active"
+                    }
+                }
+            }
+        )
+        
+        return {
+            "success": True,
+            "message": "Reward redeemed successfully!",
+            "remaining_coins": user.get('liftcoins', 0) - coins_cost
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Reward redemption failed: {str(e)}")
 @app.get("/api/health/connected-devices")
 async def get_connected_devices(current_user: dict = Depends(get_current_user)):
     """Get user's connected health devices"""
