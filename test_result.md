@@ -198,11 +198,11 @@ frontend:
 
   - task: "Dark/Light Mode Toggle"
     implemented: true
-    working: false
+    working: true
     file: "/app/frontend/src/App.js"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
@@ -210,6 +210,9 @@ frontend:
       - working: false
         agent: "testing"
         comment: "Dark/Light mode toggle button was not found in the mobile view. The toggle is implemented in the code but may not be accessible or visible in the mobile interface. The toggle works in desktop view but needs to be fixed for mobile."
+      - working: true
+        agent: "testing"
+        comment: "The Dark/Light mode toggle is now properly implemented in the mobile view. The Theme button is visible in the bottom navigation bar as the 6th item. The toggle works correctly, switching between dark and light modes. The icon changes between 🌞 (for dark mode) and 🌙 (for light mode) as expected. The theme changes are applied consistently across the UI."
 
   - task: "Dashboard & Session Management"
     implemented: true
