@@ -193,6 +193,8 @@ const LiftCoin = ({ count, animate = false, size = "md" }) => {
 
 // Mobile-First Bottom Navigation
 const BottomNavigation = ({ activeTab, setActiveTab, darkMode }) => {
+  const { toggleDarkMode } = useContext(AppContext);
+  
   const navItems = [
     { id: 'dashboard', label: 'Home', icon: '🏠' },
     { id: 'trainers', label: 'Trainers', icon: '💪' },
@@ -218,6 +220,14 @@ const BottomNavigation = ({ activeTab, setActiveTab, darkMode }) => {
             <span className="text-xs font-medium">{item.label}</span>
           </button>
         ))}
+        {/* Theme Toggle for Mobile */}
+        <button
+          onClick={toggleDarkMode}
+          className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-lg transition-all ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
+        >
+          <span className="text-xl">{darkMode ? '🌞' : '🌙'}</span>
+          <span className="text-xs font-medium">Theme</span>
+        </button>
       </div>
     </nav>
   );
