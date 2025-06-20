@@ -249,11 +249,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Cyberpunk-Themed Onboarding Experience"
-    - "Tree Progression Visual System"
-    - "Frontend-Backend Integration"
-  stuck_tasks: []
-  test_all: true
+    - "Dark/Light Mode Toggle"
+  stuck_tasks:
+    - "Dark/Light Mode Toggle"
+  test_all: false
   test_priority: "high_first"
 
 agent_communication:
@@ -261,3 +260,5 @@ agent_communication:
     message: "Initial implementation complete. Built comprehensive LiftLink platform with cyberpunk-themed UI, 10-level tree progression system, session management, LiftCoins rewards, and dark/light mode toggle. All core features implemented and ready for testing. Priority focus on user flow: registration -> onboarding -> dashboard -> session completion -> tree growth."
   - agent: "testing"
     message: "Completed comprehensive testing of all backend APIs. Created backend_test.py to test the complete user journey from registration to profile management to session completion and tree progression. All backend APIs are working correctly. User registration works for both fitness enthusiasts and trainers. Tree progression system correctly calculates levels based on sessions and consistency streak. Session management properly updates user stats and awards LiftCoins. User profile management including dark mode toggle works as expected. All backend tests PASSED."
+  - agent: "testing"
+    message: "Completed testing of frontend features. The onboarding flow, tree progression system, dashboard, session management, and frontend-backend integration all work correctly. Mobile bottom navigation and desktop side navigation work as expected. Glass morphism cards render properly with blur effects. The only issue found is with the Dark/Light mode toggle which is not accessible in the mobile view. This needs to be fixed to ensure the toggle is visible and functional on mobile devices."
