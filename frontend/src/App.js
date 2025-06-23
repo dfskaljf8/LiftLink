@@ -1161,8 +1161,287 @@ const TrainersSection = ({ user }) => {
 // Tree Section Component - Detailed Tree Progression
 const TreeSection = ({ user, treeProgress }) => {
   const { darkMode } = useContext(AppContext);
+  const [selectedLevel, setSelectedLevel] = useState(null);
+
+  const treeData = [
+    { level: 'seed', name: 'Seed', description: 'Every great journey begins with a single seed', threshold: 0 },
+    { level: 'sprout', name: 'Sprout', description: 'Your first steps toward fitness greatness', threshold: 5 },
+    { level: 'sapling', name: 'Sapling', description: 'Growing stronger with each workout', threshold: 15 },
+    { level: 'young_tree', name: 'Young Tree', description: 'Building a solid foundation', threshold: 30 },
+    { level: 'mature_tree', name: 'Mature Tree', description: 'Consistent growth and development', threshold: 50 },
+    { level: 'strong_oak', name: 'Strong Oak', description: 'Resilient and steadfast in your journey', threshold: 75 },
+    { level: 'mighty_pine', name: 'Mighty Pine', description: 'Reaching new heights of fitness', threshold: 105 },
+    { level: 'ancient_elm', name: 'Ancient Elm', description: 'Wisdom gained through experience', threshold: 140 },
+    { level: 'giant_sequoia', name: 'Giant Sequoia', description: 'Towering achievement in fitness', threshold: 180 },
+    { level: 'redwood', name: 'Redwood', description: 'The pinnacle of fitness mastery', threshold: 225 }
+  ];
+
+  const currentScore = (treeProgress?.total_sessions || 0) + ((treeProgress?.consistency_streak || 0) * 2);
+  const currentLevelIndex = treeData.findIndex(tree => tree.level === treeProgress?.current_level) || 0;
 
   return (
+    <div className="space-y-6">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h1 className={`text-2xl md:text-3xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Your Growth Journey
+        </h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
+            <div className="text-center mb-4">
+              <TreeSVG level={treeProgress?.current_level || 'seed'} size={80} />
+            </div>
+            <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              Current Level
+            </h3>
+            <p className={`text-2xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+              {treeProgress?.current_level?.replace('_', ' ') || 'Seed'}
+            </p>
+          </div>
+          
+          <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
+            <div className="text-4xl mb-2">💪</div>
+            <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              Progress Score
+            </h3>
+            <p className={`text-2xl font-bold ${darkMode ? 'text-yellow-400' : 'text-green-600'}`}>
+              {currentScore}
+            </p>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Sessions + (Streak × 2)
+            </p>
+          </div>
+          
+          <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
+            <LiftCoin count={treeProgress?.lift_coins || 0} size="lg" />
+            <h3 className={`text-lg font-bold mt-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              LiftCoins
+            </h3>
+          </div>
+        </div>
+      </div>
+
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h2 className={`text-xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          All Growth Levels
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {treeData.map((tree, index) => {
+            const isUnlocked = index <= currentLevelIndex;
+            const isCurrent = tree.level === treeProgress?.current_level;
+            
+            return (
+              <div
+                key={tree.level}
+                className={`p-4 rounded-lg border-2 transition-all cursor-pointer ${
+                  isCurrent 
+                    ? (darkMode ? 'border-green-400 bg-green-900/30' : 'border-blue-500 bg-blue-100')
+                    : isUnlocked
+                    ? (darkMode ? 'border-gray-600 hover:border-gray-500 bg-gray-800/30' : 'border-gray-300 hover:border-gray-400 bg-gray-50')
+                    : (darkMode ? 'border-gray-800 bg-gray-900/50' : 'border-gray-200 bg-gray-100')
+                } ${!isUnlocked ? 'opacity-50' : ''}`}
+                onClick={() => isUnlocked && setSelectedLevel(tree)}
+              >
+                <div className="text-center">
+                  <div className="mb-2 relative">
+                    <TreeSVG level={tree.level} size={60} />
+                    {isCurrent && (
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center">
+                        <span className="text-xs">👑</span>
+                      </div>
+                    )}
+                    {!isUnlocked && (
+                      <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
+                        <SVGIcons.Lock size={24} color="#666" />
+                      </div>
+                    )}
+                  </div>
+                  <h3 className={`text-sm font-bold ${
+                    isCurrent 
+                      ? (darkMode ? 'text-green-400' : 'text-blue-600')
+                      : (darkMode ? 'text-white' : 'text-gray-900')
+                  }`}>
+                    {tree.name}
+                  </h3>
+                  <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Score: {tree.threshold}+
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {selectedLevel && (
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+          <div className="flex justify-between items-start mb-4">
+            <h3 className={`text-xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+              {selectedLevel.name}
+            </h3>
+            <button 
+              onClick={() => setSelectedLevel(null)}
+              className={`text-2xl ${darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'}`}
+            >
+              ×
+            </button>
+          </div>
+          <div className="flex items-center space-x-6">
+            <TreeSVG level={selectedLevel.level} size={100} />
+            <div className="flex-1">
+              <p className={`text-lg mb-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                {selectedLevel.description}
+              </p>
+              <div className="space-y-2">
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <strong>Required Score:</strong> {selectedLevel.threshold}+
+                </p>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <strong>Your Score:</strong> {currentScore}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Sessions Section Component
+const SessionsSection = ({ user, sessions, onCompleteSession }) => {
+  const { darkMode } = useContext(AppContext);
+  const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState('all');
+
+  const handleQuickSession = async (sessionType, duration) => {
+    setLoading(true);
+    try {
+      await onCompleteSession();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredSessions = sessions.filter(session => {
+    if (filter === 'all') return true;
+    return session.session_type.toLowerCase().includes(filter.toLowerCase());
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h1 className={`text-2xl md:text-3xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Workout Sessions
+        </h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <button
+            onClick={() => handleQuickSession('Cardio Workout', 30)}
+            disabled={loading}
+            className={`p-4 rounded-lg border-2 transition-all ${
+              darkMode 
+                ? 'border-red-500 hover:bg-red-900/20 text-red-400' 
+                : 'border-red-400 hover:bg-red-50 text-red-600'
+            } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <div className="text-3xl mb-2">🏃‍♂️</div>
+            <h3 className="font-bold">Cardio Session</h3>
+            <p className="text-sm opacity-75">30 minutes • 50 LiftCoins</p>
+          </button>
+          
+          <button
+            onClick={() => handleQuickSession('Strength Training', 45)}
+            disabled={loading}
+            className={`p-4 rounded-lg border-2 transition-all ${
+              darkMode 
+                ? 'border-blue-500 hover:bg-blue-900/20 text-blue-400' 
+                : 'border-blue-400 hover:bg-blue-50 text-blue-600'
+            } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <div className="text-3xl mb-2">💪</div>
+            <h3 className="font-bold">Strength Training</h3>
+            <p className="text-sm opacity-75">45 minutes • 50 LiftCoins</p>
+          </button>
+          
+          <button
+            onClick={() => handleQuickSession('Flexibility Workout', 20)}
+            disabled={loading}
+            className={`p-4 rounded-lg border-2 transition-all ${
+              darkMode 
+                ? 'border-green-500 hover:bg-green-900/20 text-green-400' 
+                : 'border-green-400 hover:bg-green-50 text-green-600'
+            } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <div className="text-3xl mb-2">🧘‍♀️</div>
+            <h3 className="font-bold">Flexibility</h3>
+            <p className="text-sm opacity-75">20 minutes • 50 LiftCoins</p>
+          </button>
+        </div>
+      </div>
+
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className={`text-xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+            Session History
+          </h2>
+          <select
+            className={`px-3 py-2 rounded-lg border ${
+              darkMode 
+                ? 'bg-gray-800/50 border-gray-600 text-white' 
+                : 'bg-white border-gray-300 text-gray-900'
+            } focus:ring-2 focus:ring-green-400 focus:border-transparent`}
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <option value="all">All Sessions</option>
+            <option value="workout">Workout Sessions</option>
+            <option value="cardio">Cardio</option>
+            <option value="strength">Strength</option>
+          </select>
+        </div>
+        
+        {filteredSessions.length > 0 ? (
+          <div className="space-y-3">
+            {filteredSessions.map(session => (
+              <div key={session.id} className={`p-4 rounded-lg border ${
+                darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
+              }`}>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <h3 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {session.session_type}
+                    </h3>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Duration: {session.duration_minutes} minutes
+                    </p>
+                    <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                      {new Date(session.created_at).toLocaleDateString()} at {new Date(session.created_at).toLocaleTimeString()}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <LiftCoin count={50} size="sm" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <SVGIcons.Sessions size={48} className={`mx-auto mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+            <h3 className={`text-lg font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>No sessions yet</h3>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Complete your first workout to start tracking your progress!</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Dashboard Component
+const Dashboard = ({ user, treeProgress, onCompleteSession }) => {
+  const { darkMode } = useContext(AppContext);
     <div className="space-y-6">
       <div className="text-center md:text-left">
         <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'} mb-2`}>
