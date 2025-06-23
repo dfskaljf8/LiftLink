@@ -668,6 +668,12 @@ def run_all_tests():
     print(f"Backend URL: {BACKEND_URL}")
     print_separator()
     
+    # Test email validation and user existence check
+    existence_user = test_email_validation_and_user_existence()
+    
+    # Test user login
+    login_user = test_user_login()
+    
     # Test user registration
     user = test_user_registration()
     
@@ -677,6 +683,9 @@ def run_all_tests():
         
         # Test user profile management
         test_user_profile_management(user)
+    
+    # Test complete user journey
+    test_complete_user_journey()
     
     # Print test results summary
     print_separator()
