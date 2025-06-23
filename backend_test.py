@@ -14,7 +14,11 @@ test_results = {
     "tree_progression": {"success": False, "details": ""},
     "session_management": {"success": False, "details": ""},
     "user_profile": {"success": False, "details": ""},
-    "tree_progress_endpoint": {"success": False, "details": ""}
+    "tree_progress_endpoint": {"success": False, "details": ""},
+    "email_validation": {"success": False, "details": ""},
+    "user_existence_check": {"success": False, "details": ""},
+    "user_login": {"success": False, "details": ""},
+    "complete_user_journey": {"success": False, "details": ""}
 }
 
 def print_separator():
