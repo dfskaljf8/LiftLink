@@ -5,11 +5,12 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr, validator
 from typing import List, Optional
 import uuid
 from datetime import datetime
 from enum import Enum
+import re
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -56,10 +57,10 @@ class TreeLevel(str, Enum):
     GIANT_SEQUOIA = "giant_sequoia"
     REDWOOD = "redwood"
 
-# Models
+# Enhanced Models with proper validation
 class UserProfile(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    email: str
+    email: EmailStr
     role: UserRole
     fitness_goals: List[FitnessGoal] = []
     experience_level: Optional[ExperienceLevel] = None
@@ -72,10 +73,46 @@ class UserProfile(BaseModel):
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 class UserProfileCreate(BaseModel):
-    email: str
+    email: EmailStr
     role: UserRole
     fitness_goals: List[FitnessGoal] = []
     experience_level: Optional[ExperienceLevel] = None
+
+    @validator('email')
+    def validate_email(cls, v):
+        # Additional email validation beyond EmailStr
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, str(v)):
+            raise ValueError('Invalid email format')
+        return v
+
+    @validator('fitness_goals')
+    def validate_fitness_goals(cls, v):
+        if not v or len(v) == 0:
+            raise ValueError('At least one fitness goal is required')
+        return v
+
+    @validator('role')
+    def validate_role(cls, v):
+        if v not in [UserRole.FITNESS_ENTHUSIAST, UserRole.TRAINER]:
+            raise ValueError('Invalid role')
+        return v
+
+class UserLogin(BaseModel):
+    email: EmailStr
+
+    @validator('email')
+    def validate_email(cls, v):
+        # Additional email validation beyond EmailStr
+        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        if not re.match(email_pattern, str(v)):
+            raise ValueError('Invalid email format')
+        return v
+
+class UserExistenceCheck(BaseModel):
+    email: EmailStr
+    exists: bool
+    user_data: Optional[dict] = None
 
 class UserProfileUpdate(BaseModel):
     fitness_goals: Optional[List[FitnessGoal]] = None
@@ -126,24 +163,74 @@ def get_tree_progress(total_sessions: int, consistency_streak: int) -> TreeLevel
 async def root():
     return {"message": "Welcome to LiftLink Platform! 🏆"}
 
+@api_router.post("/check-user", response_model=UserExistenceCheck)
+async def check_user_existence(user_check: UserLogin):
+    """Check if a user exists by email"""
+    try:
+        user = await db.users.find_one({"email": user_check.email})
+        if user:
+            # Remove MongoDB's _id field and return user data
+            user.pop('_id', None)
+            return UserExistenceCheck(
+                email=user_check.email,
+                exists=True,
+                user_data=user
+            )
+        else:
+            return UserExistenceCheck(
+                email=user_check.email,
+                exists=False,
+                user_data=None
+            )
+    except Exception as e:
+        logger.error(f"Error checking user existence: {e}")
+        raise HTTPException(status_code=500, detail="Error checking user existence")
+
+@api_router.post("/login", response_model=UserProfile)
+async def login_user(login_data: UserLogin):
+    """Login existing user"""
+    user = await db.users.find_one({"email": login_data.email})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found. Please sign up first.")
+    
+    # Remove MongoDB's _id field
+    user.pop('_id', None)
+    return UserProfile(**user)
+
 @api_router.post("/users", response_model=UserProfile)
 async def create_user(user_data: UserProfileCreate):
+    """Register new user"""
+    # Check if email already exists
+    existing_user = await db.users.find_one({"email": user_data.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered. Please sign in instead.")
+    
+    # Validate required fields for fitness enthusiasts
+    if user_data.role == UserRole.FITNESS_ENTHUSIAST:
+        if not user_data.experience_level:
+            raise HTTPException(status_code=400, detail="Experience level is required for fitness enthusiasts")
+        if not user_data.fitness_goals or len(user_data.fitness_goals) == 0:
+            raise HTTPException(status_code=400, detail="At least one fitness goal is required")
+    
+    # Create user profile
     user_dict = user_data.dict()
     user_obj = UserProfile(**user_dict)
     
-    # Check if email already exists
-    existing_user = await db.users.find_one({"email": user_obj.email})
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    
-    await db.users.insert_one(user_obj.dict())
-    return user_obj
+    try:
+        await db.users.insert_one(user_obj.dict())
+        return user_obj
+    except Exception as e:
+        logger.error(f"Error creating user: {e}")
+        raise HTTPException(status_code=500, detail="Error creating user account")
 
 @api_router.get("/users/{user_id}", response_model=UserProfile)
 async def get_user(user_id: str):
     user = await db.users.find_one({"id": user_id})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    # Remove MongoDB's _id field
+    user.pop('_id', None)
     return UserProfile(**user)
 
 @api_router.get("/users/email/{email}", response_model=UserProfile)
@@ -151,6 +238,9 @@ async def get_user_by_email(email: str):
     user = await db.users.find_one({"email": email})
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    # Remove MongoDB's _id field
+    user.pop('_id', None)
     return UserProfile(**user)
 
 @api_router.put("/users/{user_id}", response_model=UserProfile)
@@ -165,6 +255,7 @@ async def update_user(user_id: str, update_data: UserProfileUpdate):
     await db.users.update_one({"id": user_id}, {"$set": update_dict})
     
     updated_user = await db.users.find_one({"id": user_id})
+    updated_user.pop('_id', None)
     return UserProfile(**updated_user)
 
 @api_router.post("/sessions", response_model=Session)
