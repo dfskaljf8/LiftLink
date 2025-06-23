@@ -965,11 +965,201 @@ const EnhancedGoogleMap = ({ trainers = [], selectedTrainer, onTrainerSelect }) 
   );
 };
 
-// All existing components (Dashboard, TrainersSection, RewardsSection, etc.) remain the same as in the previous implementation
-// I'll include the essential ones here but keep the rest unchanged
+// Trainers Section Component
+const TrainersSection = ({ user }) => {
+  const { darkMode } = useContext(AppContext);
+  const [trainers, setTrainers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
-// Dashboard Component
-const Dashboard = ({ user, treeProgress, onCompleteSession }) => {
+  useEffect(() => {
+    // Mock trainer data - in real app, this would come from API
+    setTimeout(() => {
+      setTrainers([
+        {
+          id: '1',
+          name: 'Sarah Johnson',
+          specialties: ['Weight Loss', 'HIIT', 'Nutrition'],
+          experience: '5 years',
+          rating: 4.9,
+          sessions: 250,
+          price: '$75/session',
+          image: '👩‍💼',
+          location: 'Downtown Gym',
+          bio: 'Certified personal trainer specializing in weight loss and high-intensity training.'
+        },
+        {
+          id: '2',
+          name: 'Mike Chen',
+          specialties: ['Strength Training', 'Powerlifting', 'Muscle Building'],
+          experience: '8 years',
+          rating: 4.8,
+          sessions: 400,
+          price: '$85/session',
+          image: '👨‍💪',
+          location: 'Iron House Gym',
+          bio: 'Former competitive powerlifter focused on building strength and muscle mass.'
+        },
+        {
+          id: '3',
+          name: 'Emily Rodriguez',
+          specialties: ['Yoga', 'Flexibility', 'Mindfulness'],
+          experience: '6 years',
+          rating: 5.0,
+          sessions: 300,
+          price: '$60/session',
+          image: '🧘‍♀️',
+          location: 'Zen Fitness Studio',
+          bio: 'Certified yoga instructor combining physical fitness with mental wellness.'
+        },
+        {
+          id: '4',
+          name: 'David Kim',
+          specialties: ['CrossFit', 'Functional Training', 'Athletic Performance'],
+          experience: '7 years',
+          rating: 4.7,
+          sessions: 350,
+          price: '$80/session',
+          image: '🏃‍♂️',
+          location: 'CrossFit Elite',
+          bio: 'Former athlete specializing in functional movement and performance training.'
+        }
+      ]);
+      setLoading(false);
+    }, 1000);
+  }, []);
+
+  const filteredTrainers = trainers.filter(trainer => {
+    const matchesSearch = trainer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         trainer.specialties.some(spec => spec.toLowerCase().includes(searchTerm.toLowerCase()));
+    const matchesFilter = filter === 'all' || trainer.specialties.some(spec => 
+      spec.toLowerCase().includes(filter.toLowerCase())
+    );
+    return matchesSearch && matchesFilter;
+  });
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6 text-center`}>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto mb-4"></div>
+          <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Finding the best trainers for you...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h1 className={`text-2xl md:text-3xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Find Your Perfect Trainer
+        </h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search trainers or specialties..."
+              className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
+                darkMode 
+                  ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              } focus:ring-2 focus:ring-green-400 focus:border-transparent`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <SVGIcons.Trainers size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </div>
+          
+          <select
+            className={`px-4 py-3 rounded-lg border ${
+              darkMode 
+                ? 'bg-gray-800/50 border-gray-600 text-white' 
+                : 'bg-white border-gray-300 text-gray-900'
+            } focus:ring-2 focus:ring-green-400 focus:border-transparent`}
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <option value="all">All Specialties</option>
+            <option value="weight">Weight Loss</option>
+            <option value="strength">Strength Training</option>
+            <option value="yoga">Yoga</option>
+            <option value="crossfit">CrossFit</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredTrainers.map(trainer => (
+          <div key={trainer.id} className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6 hover:scale-105 transition-transform duration-200`}>
+            <div className="text-center mb-4">
+              <div className="text-6xl mb-2">{trainer.image}</div>
+              <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{trainer.name}</h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{trainer.location}</p>
+            </div>
+            
+            <div className="space-y-3 mb-4">
+              <div className="flex justify-between items-center">
+                <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Experience:</span>
+                <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{trainer.experience}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Rating:</span>
+                <div className="flex items-center space-x-1">
+                  <span className="text-yellow-400">⭐</span>
+                  <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{trainer.rating}</span>
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Sessions:</span>
+                <span className={`text-sm font-medium ${darkMode ? 'text-green-400' : 'text-green-600'}`}>{trainer.sessions}</span>
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>Specialties:</p>
+              <div className="flex flex-wrap gap-1">
+                {trainer.specialties.map(specialty => (
+                  <span key={specialty} className={`px-2 py-1 text-xs rounded-full ${
+                    darkMode ? 'bg-green-900/50 text-green-400' : 'bg-green-100 text-green-700'
+                  }`}>
+                    {specialty}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-4`}>{trainer.bio}</p>
+            
+            <div className="flex justify-between items-center">
+              <span className={`text-lg font-bold ${darkMode ? 'text-yellow-400' : 'text-green-600'}`}>{trainer.price}</span>
+              <button className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                darkMode 
+                  ? 'bg-green-600 hover:bg-green-700 text-white' 
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}>
+                Book Session
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {filteredTrainers.length === 0 && (
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-8 text-center`}>
+          <SVGIcons.Trainers size={48} className={`mx-auto mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+          <h3 className={`text-lg font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>No trainers found</h3>
+          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Try adjusting your search or filter criteria</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Tree Section Component - Detailed Tree Progression
+const TreeSection = ({ user, treeProgress }) => {
   const { darkMode } = useContext(AppContext);
 
   return (
