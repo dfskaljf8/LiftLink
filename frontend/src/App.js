@@ -1178,6 +1178,23 @@ const TreeSection = ({ user, treeProgress }) => {
 
   const currentScore = (treeProgress?.total_sessions || 0) + ((treeProgress?.consistency_streak || 0) * 2);
   const currentLevelIndex = treeData.findIndex(tree => tree.level === treeProgress?.current_level) || 0;
+  const [selectedLevel, setSelectedLevel] = useState(null);
+
+  const treeData = [
+    { level: 'seed', name: 'Seed', description: 'Every great journey begins with a single seed', threshold: 0 },
+    { level: 'sprout', name: 'Sprout', description: 'Your first steps toward fitness greatness', threshold: 5 },
+    { level: 'sapling', name: 'Sapling', description: 'Growing stronger with each workout', threshold: 15 },
+    { level: 'young_tree', name: 'Young Tree', description: 'Building a solid foundation', threshold: 30 },
+    { level: 'mature_tree', name: 'Mature Tree', description: 'Consistent growth and development', threshold: 50 },
+    { level: 'strong_oak', name: 'Strong Oak', description: 'Resilient and steadfast in your journey', threshold: 75 },
+    { level: 'mighty_pine', name: 'Mighty Pine', description: 'Reaching new heights of fitness', threshold: 105 },
+    { level: 'ancient_elm', name: 'Ancient Elm', description: 'Wisdom gained through experience', threshold: 140 },
+    { level: 'giant_sequoia', name: 'Giant Sequoia', description: 'Towering achievement in fitness', threshold: 180 },
+    { level: 'redwood', name: 'Redwood', description: 'The pinnacle of fitness mastery', threshold: 225 }
+  ];
+
+  const currentScore = (treeProgress?.total_sessions || 0) + ((treeProgress?.consistency_streak || 0) * 2);
+  const currentLevelIndex = treeData.findIndex(tree => tree.level === treeProgress?.current_level) || 0;
 
   return (
     <div className="space-y-6">
