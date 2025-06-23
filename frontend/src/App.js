@@ -1178,7 +1178,6 @@ const TreeSection = ({ user, treeProgress }) => {
 
   const currentScore = (treeProgress?.total_sessions || 0) + ((treeProgress?.consistency_streak || 0) * 2);
   const currentLevelIndex = treeData.findIndex(tree => tree.level === treeProgress?.current_level) || 0;
-  const [selectedLevel, setSelectedLevel] = useState(null);
 
   const treeData = [
     { level: 'seed', name: 'Seed', description: 'Every great journey begins with a single seed', threshold: 0 },
