@@ -882,89 +882,6 @@ const SideNavigation = ({ activeTab, setActiveTab, darkMode }) => {
   );
 };
 
-// Enhanced Google Maps Component (keeping existing implementation)
-const EnhancedGoogleMap = ({ trainers = [], selectedTrainer, onTrainerSelect }) => {
-  const [mapLoaded, setMapLoaded] = useState(false);
-  
-  useEffect(() => {
-    if (!window.google && GOOGLE_MAPS_API_KEY && GOOGLE_MAPS_API_KEY !== 'demo_key_replace_with_real_key') {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
-      script.onload = () => setMapLoaded(true);
-      document.head.appendChild(script);
-    } else if (window.google) {
-      setMapLoaded(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (mapLoaded && window.google) {
-      const map = new window.google.maps.Map(document.getElementById('enhanced-trainer-map'), {
-        center: { lat: 37.7749, lng: -122.4194 },
-        zoom: 13,
-        styles: [
-          {
-            featureType: "all",
-            elementType: "geometry",
-            stylers: [{ color: "#1a1a1a" }]
-          },
-          {
-            featureType: "all",
-            elementType: "labels.text.fill",
-            stylers: [{ color: "#C4D600" }]
-          },
-          {
-            featureType: "water",
-            elementType: "geometry",
-            stylers: [{ color: "#0a0a0a" }]
-          }
-        ]
-      });
-
-      trainers.forEach((trainer, index) => {
-        const marker = new window.google.maps.Marker({
-          position: { 
-            lat: 37.7749 + (Math.random() - 0.5) * 0.02, 
-            lng: -122.4194 + (Math.random() - 0.5) * 0.02 
-          },
-          map: map,
-          title: trainer.name,
-          icon: {
-            url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
-              <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="20" cy="20" r="18" fill="${selectedTrainer?.id === trainer.id ? '#FFD700' : '#C4D600'}" stroke="#000" stroke-width="2"/>
-                <circle cx="20" cy="20" r="10" fill="#fff" opacity="0.9"/>
-                <text x="20" y="24" text-anchor="middle" font-size="12" fill="#000">💪</text>
-              </svg>
-            `)}`,
-            scaledSize: new window.google.maps.Size(40, 40)
-          }
-        });
-
-        marker.addListener('click', () => {
-          onTrainerSelect(trainer);
-        });
-      });
-    }
-  }, [mapLoaded, trainers, selectedTrainer, onTrainerSelect]);
-
-  return (
-    <div className="w-full h-64 md:h-96 rounded-xl overflow-hidden shadow-lg">
-      {GOOGLE_MAPS_API_KEY === 'demo_key_replace_with_real_key' ? (
-        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-900 rounded-xl">
-          <div className="text-center p-6">
-            <div className="text-4xl mb-4">🗺️</div>
-            <p className="text-gray-600 dark:text-gray-400 mb-2 font-medium">Interactive Map Preview</p>
-            <p className="text-sm text-gray-500">Configure Google Maps API key to enable live trainer locations</p>
-          </div>
-        </div>
-      ) : (
-        <div id="enhanced-trainer-map" className="w-full h-full"></div>
-      )}
-    </div>
-  );
-};
-
 // Trainers Section Component
 const TrainersSection = ({ user }) => {
   const { darkMode } = useContext(AppContext);
@@ -1162,22 +1079,6 @@ const TrainersSection = ({ user }) => {
 const TreeSection = ({ user, treeProgress }) => {
   const { darkMode } = useContext(AppContext);
   const [selectedLevel, setSelectedLevel] = useState(null);
-
-  const treeData = [
-    { level: 'seed', name: 'Seed', description: 'Every great journey begins with a single seed', threshold: 0 },
-    { level: 'sprout', name: 'Sprout', description: 'Your first steps toward fitness greatness', threshold: 5 },
-    { level: 'sapling', name: 'Sapling', description: 'Growing stronger with each workout', threshold: 15 },
-    { level: 'young_tree', name: 'Young Tree', description: 'Building a solid foundation', threshold: 30 },
-    { level: 'mature_tree', name: 'Mature Tree', description: 'Consistent growth and development', threshold: 50 },
-    { level: 'strong_oak', name: 'Strong Oak', description: 'Resilient and steadfast in your journey', threshold: 75 },
-    { level: 'mighty_pine', name: 'Mighty Pine', description: 'Reaching new heights of fitness', threshold: 105 },
-    { level: 'ancient_elm', name: 'Ancient Elm', description: 'Wisdom gained through experience', threshold: 140 },
-    { level: 'giant_sequoia', name: 'Giant Sequoia', description: 'Towering achievement in fitness', threshold: 180 },
-    { level: 'redwood', name: 'Redwood', description: 'The pinnacle of fitness mastery', threshold: 225 }
-  ];
-
-  const currentScore = (treeProgress?.total_sessions || 0) + ((treeProgress?.consistency_streak || 0) * 2);
-  const currentLevelIndex = treeData.findIndex(tree => tree.level === treeProgress?.current_level) || 0;
 
   const treeData = [
     { level: 'seed', name: 'Seed', description: 'Every great journey begins with a single seed', threshold: 0 },
@@ -1455,20 +1356,490 @@ const SessionsSection = ({ user, sessions, onCompleteSession }) => {
   );
 };
 
+// Rewards Section Component
+const RewardsSection = ({ user, treeProgress }) => {
+  const { darkMode } = useContext(AppContext);
+  const [activeTab, setActiveTab] = useState('earn');
+
+  const rewardCategories = [
+    {
+      id: 'badges',
+      name: 'Achievement Badges',
+      items: [
+        { id: 'first_session', name: 'First Steps', description: 'Complete your first workout', earned: true, coins: 25 },
+        { id: 'week_streak', name: 'Week Warrior', description: '7-day consistency streak', earned: (treeProgress?.consistency_streak || 0) >= 7, coins: 100 },
+        { id: 'month_streak', name: 'Monthly Master', description: '30-day consistency streak', earned: (treeProgress?.consistency_streak || 0) >= 30, coins: 500 },
+        { id: 'tree_level_5', name: 'Growing Strong', description: 'Reach Tree Level 5', earned: false, coins: 200 },
+        { id: 'hundred_sessions', name: 'Century Club', description: 'Complete 100 sessions', earned: false, coins: 1000 }
+      ]
+    }
+  ];
+
+  const quickEarnMethods = [
+    { action: 'Complete a workout session', coins: 50, icon: '💪' },
+    { action: 'Maintain 7-day streak', coins: 100, icon: '🔥' },
+    { action: 'Invite a friend', coins: 200, icon: '👥' },
+    { action: 'Complete weekly challenge', coins: 150, icon: '🏆' },
+    { action: 'Update your profile', coins: 25, icon: '👤' },
+    { action: 'Rate a trainer', coins: 30, icon: '⭐' }
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+            Rewards Center
+          </h1>
+          <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-3 rounded-lg`}>
+            <LiftCoin count={treeProgress?.lift_coins || 0} size="lg" />
+          </div>
+        </div>
+        
+        <div className="flex space-x-1 mb-6">
+          <button
+            onClick={() => setActiveTab('earn')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'earn'
+                ? (darkMode ? 'bg-green-600 text-white' : 'bg-blue-600 text-white')
+                : (darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900')
+            }`}
+          >
+            Earn Coins
+          </button>
+          <button
+            onClick={() => setActiveTab('achievements')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'achievements'
+                ? (darkMode ? 'bg-green-600 text-white' : 'bg-blue-600 text-white')
+                : (darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900')
+            }`}
+          >
+            Achievements
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'earn' && (
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+          <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+            Quick Ways to Earn LiftCoins
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {quickEarnMethods.map((method, index) => (
+              <div key={index} className={`p-4 rounded-lg border ${
+                darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <span className="text-2xl">{method.icon}</span>
+                    <span className={`${darkMode ? 'text-white' : 'text-gray-900'}`}>{method.action}</span>
+                  </div>
+                  <LiftCoin count={method.coins} size="sm" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'achievements' && (
+        <div className="space-y-6">
+          {rewardCategories.map(category => (
+            <div key={category.id} className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+              <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+                {category.name}
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {category.items.map(item => (
+                  <div key={item.id} className={`p-4 rounded-lg border-2 ${
+                    item.earned 
+                      ? (darkMode ? 'border-green-500 bg-green-900/20' : 'border-green-400 bg-green-50')
+                      : (darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50')
+                  }`}>
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className={`font-bold ${
+                        item.earned 
+                          ? (darkMode ? 'text-green-400' : 'text-green-600')
+                          : (darkMode ? 'text-white' : 'text-gray-900')
+                      }`}>
+                        {item.name}
+                      </h3>
+                      {item.earned && <span className="text-green-400 text-xl">✓</span>}
+                    </div>
+                    <p className={`text-sm mb-3 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {item.description}
+                    </p>
+                    <LiftCoin count={item.coins} size="sm" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Friends Section Component
+const FriendsSection = ({ user }) => {
+  const { darkMode } = useContext(AppContext);
+  const [activeTab, setActiveTab] = useState('friends');
+  const [friends, setFriends] = useState([]);
+
+  useEffect(() => {
+    // Mock data - in real app, this would come from API
+    setFriends([
+      { id: '1', name: 'Alex Johnson', level: 'mature_tree', coins: 2500, streak: 15, avatar: '🧑‍💼' },
+      { id: '2', name: 'Maria Garcia', level: 'strong_oak', coins: 3200, streak: 22, avatar: '👩‍💻' },
+      { id: '3', name: 'David Kim', level: 'sapling', coins: 1100, streak: 8, avatar: '👨‍🎨' }
+    ]);
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h1 className={`text-2xl md:text-3xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Friends & Community
+        </h1>
+        
+        <div className="flex space-x-1 mb-6">
+          <button
+            onClick={() => setActiveTab('friends')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'friends'
+                ? (darkMode ? 'bg-green-600 text-white' : 'bg-blue-600 text-white')
+                : (darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900')
+            }`}
+          >
+            Friends ({friends.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('leaderboard')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              activeTab === 'leaderboard'
+                ? (darkMode ? 'bg-green-600 text-white' : 'bg-blue-600 text-white')
+                : (darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900')
+            }`}
+          >
+            Leaderboard
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'friends' && (
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className={`text-xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+              Your Friends
+            </h2>
+            <button className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              darkMode ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}>
+              Add Friend
+            </button>
+          </div>
+          
+          <div className="space-y-4">
+            {friends.map(friend => (
+              <div key={friend.id} className={`p-4 rounded-lg border ${
+                darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="text-3xl">{friend.avatar}</div>
+                    <div>
+                      <h3 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {friend.name}
+                      </h3>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        Level: {friend.level.replace('_', ' ')} • {friend.streak} day streak
+                      </p>
+                    </div>
+                  </div>
+                  <LiftCoin count={friend.coins} size="sm" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'leaderboard' && (
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+          <h2 className={`text-xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+            Weekly Leaderboard
+          </h2>
+          <div className="text-center py-8">
+            <div className="text-4xl mb-4">🏆</div>
+            <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Leaderboard coming soon!</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Analytics Section Component
+const AnalyticsSection = ({ user, treeProgress, sessions }) => {
+  const { darkMode } = useContext(AppContext);
+
+  return (
+    <div className="space-y-6">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h1 className={`text-2xl md:text-3xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Progress Analytics
+        </h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
+            <SVGIcons.Sessions size={32} className={`mx-auto mb-2 ${darkMode ? 'text-blue-400' : 'text-blue-600'}`} />
+            <div className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              {treeProgress?.total_sessions || 0}
+            </div>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total Sessions</p>
+          </div>
+          
+          <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
+            <LiftCoin count={treeProgress?.lift_coins || 0} size="md" />
+            <p className={`text-sm mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total Coins</p>
+          </div>
+          
+          <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
+            <div className="text-3xl mb-2">🔥</div>
+            <div className={`text-2xl font-bold ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>
+              {treeProgress?.consistency_streak || 0}
+            </div>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Day Streak</p>
+          </div>
+          
+          <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
+            <TreeSVG level={treeProgress?.current_level || 'seed'} size={32} />
+            <div className={`text-lg font-bold mt-2 ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
+              {treeProgress?.current_level?.replace('_', ' ') || 'Seed'}
+            </div>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Current Level</p>
+          </div>
+        </div>
+      </div>
+
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Recent Progress
+        </h2>
+        <div className="text-center py-8">
+          <SVGIcons.Analytics size={48} className={`mx-auto mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+          <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Detailed analytics coming soon!</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Settings Section Component
+const SettingsSection = ({ user, onLogout }) => {
+  const { darkMode, toggleDarkMode } = useContext(AppContext);
+
+  return (
+    <div className="space-y-6">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h1 className={`text-2xl md:text-3xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Settings
+        </h1>
+      </div>
+
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Profile Information
+        </h2>
+        <div className="space-y-4">
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Email
+            </label>
+            <input
+              type="email"
+              value={user?.email || ''}
+              className={`w-full px-3 py-2 rounded-lg border ${
+                darkMode 
+                  ? 'bg-gray-800/50 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              } focus:ring-2 focus:ring-green-400 focus:border-transparent`}
+              disabled
+            />
+          </div>
+          
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Role
+            </label>
+            <select
+              className={`w-full px-3 py-2 rounded-lg border ${
+                darkMode 
+                  ? 'bg-gray-800/50 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              } focus:ring-2 focus:ring-green-400 focus:border-transparent`}
+            >
+              <option value="fitness_enthusiast">Fitness Enthusiast</option>
+              <option value="trainer">Professional Trainer</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Appearance Settings
+        </h2>
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              Dark Mode
+            </h3>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              Toggle between light and dark themes
+            </p>
+          </div>
+          <button
+            onClick={toggleDarkMode}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              darkMode ? 'bg-green-600' : 'bg-gray-300'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                darkMode ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+      </div>
+
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h2 className={`text-xl font-bold mb-4 text-red-400`}>
+          Account Actions
+        </h2>
+        <button
+          onClick={onLogout}
+          className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+        >
+          Sign Out
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Profile Section Component (for mobile)
+const ProfileSection = ({ user, treeProgress, onLogout }) => {
+  const { darkMode } = useContext(AppContext);
+
+  return (
+    <div className="space-y-6">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6 text-center`}>
+        <div className="mb-4">
+          <div className="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl text-white">👤</span>
+          </div>
+          <h1 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            {user?.email || 'User'}
+          </h1>
+          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+            {user?.role?.replace('_', ' ') || 'Fitness Enthusiast'}
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <div className="text-center">
+            <div className={`text-xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+              {treeProgress?.total_sessions || 0}
+            </div>
+            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Sessions</p>
+          </div>
+          <div className="text-center">
+            <div className={`text-xl font-bold ${darkMode ? 'text-yellow-400' : 'text-green-600'}`}>
+              {treeProgress?.lift_coins || 0}
+            </div>
+            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>LiftCoins</p>
+          </div>
+          <div className="text-center">
+            <div className={`text-xl font-bold ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>
+              {treeProgress?.consistency_streak || 0}
+            </div>
+            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Streak</p>
+          </div>
+        </div>
+      </div>
+
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h2 className={`text-lg font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Current Tree Level
+        </h2>
+        <div className="flex items-center space-x-4">
+          <TreeSVG level={treeProgress?.current_level || 'seed'} size={60} />
+          <div className="flex-1">
+            <h3 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              {treeProgress?.current_level?.replace('_', ' ') || 'Seed'}
+            </h3>
+            <div className={`w-full ${darkMode ? 'bg-gray-800' : 'bg-gray-200'} rounded-full h-2 mt-2`}>
+              <div 
+                className={`${darkMode ? 'bg-gradient-to-r from-green-400 to-yellow-400' : 'bg-gradient-to-r from-blue-400 to-green-400'} h-2 rounded-full`}
+                style={{ width: `${treeProgress?.progress_percentage || 0}%` }}
+              ></div>
+            </div>
+            <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              {Math.round(treeProgress?.progress_percentage || 0)}% to next level
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h2 className={`text-lg font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Quick Actions
+        </h2>
+        <div className="space-y-3">
+          <button className={`w-full p-3 rounded-lg border transition-colors ${
+            darkMode 
+              ? 'border-gray-600 hover:bg-gray-800/50 text-white' 
+              : 'border-gray-300 hover:bg-gray-50 text-gray-900'
+          }`}>
+            Edit Profile
+          </button>
+          <button 
+            onClick={onLogout}
+            className="w-full p-3 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Dashboard Component
 const Dashboard = ({ user, treeProgress, onCompleteSession }) => {
   const { darkMode } = useContext(AppContext);
-    <div className="space-y-6">
-      <div className="text-center md:text-left">
-        <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'} mb-2`}>
-          Welcome back, {user.email.split('@')[0]}! 👋
-        </h1>
-        <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-          Ready to continue your fitness journey?
-        </p>
+
+  return (
+    <div className="space-y-6 md:space-y-8">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6 md:p-8`}>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'} mb-2`}>
+              Welcome back, {user?.email?.split('@')[0] || 'Fitness Champion'}! 🚀
+            </h1>
+            <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              Ready to grow your fitness tree today?
+            </p>
+          </div>
+          <TreeSVG level={treeProgress?.current_level || 'seed'} size={80} />
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6">
         <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
           <div className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'} mb-1`}>
             {treeProgress?.total_sessions || 0}
@@ -1476,7 +1847,7 @@ const Dashboard = ({ user, treeProgress, onCompleteSession }) => {
           <p className={`text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Sessions</p>
         </div>
         <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
-          <div className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-yellow-400' : 'text-orange-600'} mb-1`}>
+          <div className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-orange-400' : 'text-orange-600'} mb-1`}>
             {treeProgress?.consistency_streak || 0}
           </div>
           <p className={`text-xs md:text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Streak</p>
@@ -1616,6 +1987,22 @@ function App() {
     switch(activeTab) {
       case 'dashboard':
         return <Dashboard user={user} treeProgress={treeProgress} onCompleteSession={completeSession} />;
+      case 'trainers':
+        return <TrainersSection user={user} />;
+      case 'tree':
+        return <TreeSection user={user} treeProgress={treeProgress} />;
+      case 'sessions':
+        return <SessionsSection user={user} sessions={sessions} onCompleteSession={completeSession} />;
+      case 'rewards':
+        return <RewardsSection user={user} treeProgress={treeProgress} />;
+      case 'friends':
+        return <FriendsSection user={user} />;
+      case 'analytics':
+        return <AnalyticsSection user={user} treeProgress={treeProgress} sessions={sessions} />;
+      case 'settings':
+        return <SettingsSection user={user} onLogout={handleLogout} />;
+      case 'profile':
+        return <ProfileSection user={user} treeProgress={treeProgress} onLogout={handleLogout} />;
       default:
         return <Dashboard user={user} treeProgress={treeProgress} onCompleteSession={completeSession} />;
     }
