@@ -2005,7 +2005,364 @@ const TreeSection = ({ user, treeProgress }) => {
   );
 };
 
-// Sessions Section Component
+// Fitness Integration Section Component
+const FitnessIntegrationSection = ({ user }) => {
+  const { darkMode } = useContext(AppContext);
+  const [fitbitConnected, setFitbitConnected] = useState(false);
+  const [googleFitConnected, setGoogleFitConnected] = useState(false);
+  const [syncStatus, setSyncStatus] = useState('idle');
+  const [lastSync, setLastSync] = useState(null);
+  const [fitnessData, setFitnessData] = useState({});
+
+  useEffect(() => {
+    // Check connection status
+    checkConnectionStatus();
+    if (fitbitConnected || googleFitConnected) {
+      fetchFitnessData();
+    }
+  }, [fitbitConnected, googleFitConnected]);
+
+  const checkConnectionStatus = async () => {
+    try {
+      const response = await axios.get(`${API}/fitness/status/${user.id}`);
+      setFitbitConnected(response.data.fitbit_connected);
+      setGoogleFitConnected(response.data.google_fit_connected);
+      setLastSync(response.data.last_sync);
+    } catch (error) {
+      console.error('Failed to check fitness connection status:', error);
+    }
+  };
+
+  const connectFitbit = async () => {
+    try {
+      const response = await axios.get(`${API}/fitbit/login`);
+      window.location.href = response.data.authorization_url;
+    } catch (error) {
+      console.error('Failed to connect to Fitbit:', error);
+      alert('Failed to connect to Fitbit. Please try again.');
+    }
+  };
+
+  const connectGoogleFit = async () => {
+    try {
+      const response = await axios.get(`${API}/google-fit/login`);
+      window.location.href = response.data.authorization_url;
+    } catch (error) {
+      console.error('Failed to connect to Google Fit:', error);
+      alert('Failed to connect to Google Fit. Please try again.');
+    }
+  };
+
+  const syncData = async () => {
+    setSyncStatus('syncing');
+    try {
+      const response = await axios.post(`${API}/sync/workouts`, { user_id: user.id });
+      setSyncStatus('success');
+      setLastSync(new Date().toISOString());
+      fetchFitnessData();
+      alert(`Successfully synced ${response.data.synced_workouts} workouts!`);
+    } catch (error) {
+      setSyncStatus('error');
+      console.error('Failed to sync fitness data:', error);
+      alert('Failed to sync fitness data. Please try again.');
+    }
+  };
+
+  const fetchFitnessData = async () => {
+    try {
+      const response = await axios.get(`${API}/fitness/data/${user.id}`);
+      setFitnessData(response.data);
+    } catch (error) {
+      console.error('Failed to fetch fitness data:', error);
+    }
+  };
+
+  const disconnectFitbit = async () => {
+    try {
+      await axios.delete(`${API}/fitbit/disconnect/${user.id}`);
+      setFitbitConnected(false);
+      alert('Fitbit disconnected successfully!');
+    } catch (error) {
+      console.error('Failed to disconnect Fitbit:', error);
+      alert('Failed to disconnect Fitbit. Please try again.');
+    }
+  };
+
+  const disconnectGoogleFit = async () => {
+    try {
+      await axios.delete(`${API}/google-fit/disconnect/${user.id}`);
+      setGoogleFitConnected(false);
+      alert('Google Fit disconnected successfully!');
+    } catch (error) {
+      console.error('Failed to disconnect Google Fit:', error);
+      alert('Failed to disconnect Google Fit. Please try again.');
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h1 className={`text-2xl md:text-3xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Fitness Device Integration
+        </h1>
+        <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} mb-6`}>
+          Connect your fitness trackers and apps to automatically sync your workouts to LiftLink
+        </p>
+      </div>
+
+      {/* Connection Status */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Fitbit Integration */}
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="text-3xl">⌚</div>
+              <div>
+                <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Fitbit
+                </h3>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Connect your Fitbit device
+                </p>
+              </div>
+            </div>
+            <div className={`w-3 h-3 rounded-full ${fitbitConnected ? 'bg-green-400' : 'bg-gray-400'}`}></div>
+          </div>
+          
+          {fitbitConnected ? (
+            <div className="space-y-3">
+              <div className={`p-3 rounded-lg ${darkMode ? 'bg-green-900/20' : 'bg-green-50'}`}>
+                <p className={`text-sm ${darkMode ? 'text-green-400' : 'text-green-700'}`}>
+                  ✓ Connected and syncing data
+                </p>
+              </div>
+              <div className="flex space-x-2">
+                <button 
+                  onClick={syncData}
+                  disabled={syncStatus === 'syncing'}
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                    syncStatus === 'syncing' 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : darkMode 
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                      : 'bg-blue-500 hover:bg-blue-600 text-white'
+                  }`}
+                >
+                  {syncStatus === 'syncing' ? 'Syncing...' : 'Sync Now'}
+                </button>
+                <button 
+                  onClick={disconnectFitbit}
+                  className="px-4 py-2 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg font-medium transition-colors"
+                >
+                  Disconnect
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button 
+              onClick={connectFitbit}
+              className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
+                darkMode 
+                  ? 'bg-green-600 hover:bg-green-700 text-white' 
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
+              Connect Fitbit
+            </button>
+          )}
+        </div>
+
+        {/* Google Fit Integration */}
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <div className="text-3xl">📱</div>
+              <div>
+                <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Google Fit
+                </h3>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Connect your Google Fit data
+                </p>
+              </div>
+            </div>
+            <div className={`w-3 h-3 rounded-full ${googleFitConnected ? 'bg-green-400' : 'bg-gray-400'}`}></div>
+          </div>
+          
+          {googleFitConnected ? (
+            <div className="space-y-3">
+              <div className={`p-3 rounded-lg ${darkMode ? 'bg-green-900/20' : 'bg-green-50'}`}>
+                <p className={`text-sm ${darkMode ? 'text-green-400' : 'text-green-700'}`}>
+                  ✓ Connected and syncing data
+                </p>
+              </div>
+              <div className="flex space-x-2">
+                <button 
+                  onClick={syncData}
+                  disabled={syncStatus === 'syncing'}
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                    syncStatus === 'syncing' 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : darkMode 
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                      : 'bg-blue-500 hover:bg-blue-600 text-white'
+                  }`}
+                >
+                  {syncStatus === 'syncing' ? 'Syncing...' : 'Sync Now'}
+                </button>
+                <button 
+                  onClick={disconnectGoogleFit}
+                  className="px-4 py-2 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg font-medium transition-colors"
+                >
+                  Disconnect
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button 
+              onClick={connectGoogleFit}
+              className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
+                darkMode 
+                  ? 'bg-green-600 hover:bg-green-700 text-white' 
+                  : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
+              Connect Google Fit
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Sync Status */}
+      {(fitbitConnected || googleFitConnected) && (
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+          <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+            Sync Status
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className={`text-2xl font-bold ${darkMode ? 'text-blue-400' : 'text-blue-600'} mb-1`}>
+                {fitnessData.total_workouts || 0}
+              </div>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Synced Workouts
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className={`text-2xl font-bold ${darkMode ? 'text-green-400' : 'text-green-600'} mb-1`}>
+                {fitnessData.this_week || 0}
+              </div>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                This Week
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className={`text-2xl font-bold ${darkMode ? 'text-purple-400' : 'text-purple-600'} mb-1`}>
+                {fitnessData.avg_duration || 0}min
+              </div>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Avg Duration
+              </p>
+            </div>
+          </div>
+          
+          {lastSync && (
+            <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Last sync: {new Date(lastSync).toLocaleString()}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Recent Synced Workouts */}
+      {fitnessData.recent_workouts && fitnessData.recent_workouts.length > 0 && (
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+          <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+            Recent Synced Workouts
+          </h2>
+          
+          <div className="space-y-3">
+            {fitnessData.recent_workouts.slice(0, 5).map((workout, index) => (
+              <div key={index} className={`p-4 rounded-lg border ${
+                darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
+              }`}>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {workout.activity_type}
+                    </h3>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {workout.duration} minutes • {workout.calories} calories
+                    </p>
+                    <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                      {new Date(workout.date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <div className={`text-sm font-medium ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
+                      From {workout.source}
+                    </div>
+                    {workout.auto_confirmed && (
+                      <div className={`text-xs ${darkMode ? 'text-blue-400' : 'text-blue-600'}`}>
+                        Auto-confirmed
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Setup Instructions */}
+      {!fitbitConnected && !googleFitConnected && (
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+          <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+            Why Connect Your Fitness Devices?
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="text-center">
+              <div className="text-3xl mb-2">🔄</div>
+              <h3 className={`font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                Automatic Sync
+              </h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Your workouts are automatically detected and recorded
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="text-3xl mb-2">📊</div>
+              <h3 className={`font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                Better Analytics
+              </h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Get detailed insights from your fitness tracker data
+              </p>
+            </div>
+            
+            <div className="text-center">
+              <div className="text-3xl mb-2">🎯</div>
+              <h3 className={`font-bold mb-2 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                Accurate Tracking
+              </h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Real heart rate, calories, and duration data
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 const SessionsSection = ({ user, sessions, onCompleteSession }) => {
   const { darkMode } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
