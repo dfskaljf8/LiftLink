@@ -1550,15 +1550,28 @@ const TrainerProfile = ({ user }) => {
     </div>
   );
 };
+// Trainers Section Component (updated with Google Maps)
 const TrainersSection = ({ user }) => {
   const { darkMode } = useContext(AppContext);
   const [trainers, setTrainers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [selectedTrainer, setSelectedTrainer] = useState(null);
 
   useEffect(() => {
-    // Mock trainer data - in real app, this would come from API
+    // Load Google Maps
+    if (!window.google && GOOGLE_MAPS_API_KEY && GOOGLE_MAPS_API_KEY !== 'your_google_maps_api_key_here') {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
+      script.onload = () => setMapLoaded(true);
+      document.head.appendChild(script);
+    } else if (window.google) {
+      setMapLoaded(true);
+    }
+
+    // Mock trainer data with locations
     setTimeout(() => {
       setTrainers([
         {
@@ -1571,6 +1584,9 @@ const TrainersSection = ({ user }) => {
           price: '$75/session',
           image: '👩‍💼',
           location: 'Downtown Gym',
+          address: '123 Main St, Downtown',
+          lat: 40.7128,
+          lng: -74.0060,
           bio: 'Certified personal trainer specializing in weight loss and high-intensity training.'
         },
         {
@@ -1583,6 +1599,9 @@ const TrainersSection = ({ user }) => {
           price: '$85/session',
           image: '👨‍💪',
           location: 'Iron House Gym',
+          address: '456 Oak Ave, Midtown',
+          lat: 40.7589,
+          lng: -73.9851,
           bio: 'Former competitive powerlifter focused on building strength and muscle mass.'
         },
         {
@@ -1595,6 +1614,9 @@ const TrainersSection = ({ user }) => {
           price: '$60/session',
           image: '🧘‍♀️',
           location: 'Zen Fitness Studio',
+          address: '789 Pine St, Uptown',
+          lat: 40.7831,
+          lng: -73.9712,
           bio: 'Certified yoga instructor combining physical fitness with mental wellness.'
         },
         {
@@ -1607,6 +1629,9 @@ const TrainersSection = ({ user }) => {
           price: '$80/session',
           image: '🏃‍♂️',
           location: 'CrossFit Elite',
+          address: '321 Elm St, Downtown',
+          lat: 40.7505,
+          lng: -73.9934,
           bio: 'Former athlete specializing in functional movement and performance training.'
         }
       ]);
@@ -1675,69 +1700,89 @@ const TrainersSection = ({ user }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredTrainers.map(trainer => (
-          <div key={trainer.id} className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6 hover:scale-105 transition-transform duration-200`}>
-            <div className="text-center mb-4">
-              <div className="text-6xl mb-2">{trainer.image}</div>
-              <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{trainer.name}</h3>
-              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{trainer.location}</p>
-            </div>
-            
-            <div className="space-y-3 mb-4">
-              <div className="flex justify-between items-center">
-                <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Experience:</span>
-                <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{trainer.experience}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Rating:</span>
-                <div className="flex items-center space-x-1">
-                  <span className="text-yellow-400">⭐</span>
-                  <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{trainer.rating}</span>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Map Section */}
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+          <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+            Trainer Locations
+          </h2>
+          <div className="h-96 rounded-lg overflow-hidden">
+            {mapLoaded && GOOGLE_MAPS_API_KEY !== 'your_google_maps_api_key_here' ? (
+              <TrainerMap trainers={filteredTrainers} selectedTrainer={selectedTrainer} onTrainerSelect={setSelectedTrainer} />
+            ) : (
+              <div className={`h-full flex items-center justify-center ${darkMode ? 'bg-gray-800' : 'bg-gray-200'} rounded-lg`}>
+                <div className="text-center">
+                  <div className="text-4xl mb-4">🗺️</div>
+                  <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Map will appear here with Google Maps API
+                  </p>
                 </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Sessions:</span>
-                <span className={`text-sm font-medium ${darkMode ? 'text-green-400' : 'text-green-600'}`}>{trainer.sessions}</span>
-              </div>
-            </div>
-            
-            <div className="mb-4">
-              <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>Specialties:</p>
-              <div className="flex flex-wrap gap-1">
-                {trainer.specialties.map(specialty => (
-                  <span key={specialty} className={`px-2 py-1 text-xs rounded-full ${
-                    darkMode ? 'bg-green-900/50 text-green-400' : 'bg-green-100 text-green-700'
-                  }`}>
-                    {specialty}
-                  </span>
-                ))}
-              </div>
-            </div>
-            
-            <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-4`}>{trainer.bio}</p>
-            
-            <div className="flex justify-between items-center">
-              <span className={`text-lg font-bold ${darkMode ? 'text-yellow-400' : 'text-green-600'}`}>{trainer.price}</span>
-              <button className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                darkMode 
-                  ? 'bg-green-600 hover:bg-green-700 text-white' 
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
-              }`}>
-                Book Session
-              </button>
-            </div>
+            )}
           </div>
-        ))}
-      </div>
-      
-      {filteredTrainers.length === 0 && (
-        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-8 text-center`}>
-          <SVGIcons.Trainers size={48} className={`mx-auto mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
-          <h3 className={`text-lg font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>No trainers found</h3>
-          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Try adjusting your search or filter criteria</p>
         </div>
-      )}
+
+        {/* Trainers List */}
+        <div className="space-y-4">
+          <h2 className={`text-xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+            Available Trainers ({filteredTrainers.length})
+          </h2>
+          
+          {filteredTrainers.map(trainer => (
+            <div 
+              key={trainer.id} 
+              className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 hover:scale-105 transition-transform duration-200 cursor-pointer ${
+                selectedTrainer?.id === trainer.id ? 'ring-2 ring-green-400' : ''
+              }`}
+              onClick={() => setSelectedTrainer(trainer)}
+            >
+              <div className="flex items-start space-x-4">
+                <div className="text-4xl">{trainer.image}</div>
+                <div className="flex-1">
+                  <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{trainer.name}</h3>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{trainer.location}</p>
+                  <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>{trainer.address}</p>
+                  
+                  <div className="flex items-center space-x-4 mt-2">
+                    <div className="flex items-center space-x-1">
+                      <span className="text-yellow-400">⭐</span>
+                      <span className={`text-sm ${darkMode ? 'text-white' : 'text-gray-900'}`}>{trainer.rating}</span>
+                    </div>
+                    <span className={`text-sm ${darkMode ? 'text-green-400' : 'text-green-600'}`}>{trainer.sessions} sessions</span>
+                    <span className={`text-sm font-bold ${darkMode ? 'text-yellow-400' : 'text-green-600'}`}>{trainer.price}</span>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {trainer.specialties.slice(0, 2).map(specialty => (
+                      <span key={specialty} className={`px-2 py-1 text-xs rounded-full ${
+                        darkMode ? 'bg-green-900/50 text-green-400' : 'bg-green-100 text-green-700'
+                      }`}>
+                        {specialty}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                
+                <button className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                  darkMode 
+                    ? 'bg-green-600 hover:bg-green-700 text-white' 
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                }`}>
+                  Book
+                </button>
+              </div>
+            </div>
+          ))}
+          
+          {filteredTrainers.length === 0 && (
+            <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-8 text-center`}>
+              <SVGIcons.Trainers size={48} className={`mx-auto mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+              <h3 className={`text-lg font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>No trainers found</h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Try adjusting your search or filter criteria</p>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
