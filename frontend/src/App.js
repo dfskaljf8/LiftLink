@@ -1550,6 +1550,73 @@ const TrainerProfile = ({ user }) => {
     </div>
   );
 };
+
+// Google Maps Component for Trainers
+const TrainerMap = ({ trainers, selectedTrainer, onTrainerSelect }) => {
+  const mapRef = React.useRef(null);
+  const mapInstanceRef = React.useRef(null);
+  const markersRef = React.useRef([]);
+
+  useEffect(() => {
+    if (window.google && mapRef.current) {
+      // Initialize map
+      mapInstanceRef.current = new window.google.maps.Map(mapRef.current, {
+        center: { lat: 40.7589, lng: -73.9851 }, // Default to NYC
+        zoom: 12,
+        styles: [
+          {
+            featureType: 'all',
+            elementType: 'geometry.fill',
+            stylers: [{ color: '#1a1a1a' }]
+          },
+          {
+            featureType: 'water',
+            elementType: 'geometry',
+            stylers: [{ color: '#0f4c75' }]
+          }
+        ]
+      });
+
+      // Clear existing markers
+      markersRef.current.forEach(marker => marker.setMap(null));
+      markersRef.current = [];
+
+      // Add markers for trainers
+      trainers.forEach(trainer => {
+        const marker = new window.google.maps.Marker({
+          position: { lat: trainer.lat, lng: trainer.lng },
+          map: mapInstanceRef.current,
+          title: trainer.name,
+          icon: {
+            url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+              <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="20" cy="20" r="18" fill="#C4D600" stroke="#fff" stroke-width="2"/>
+                <text x="20" y="26" text-anchor="middle" font-size="20" fill="#000">💪</text>
+              </svg>
+            `)
+          }
+        });
+
+        // Add click listener
+        marker.addListener('click', () => {
+          onTrainerSelect(trainer);
+        });
+
+        markersRef.current.push(marker);
+      });
+    }
+  }, [trainers, onTrainerSelect]);
+
+  // Highlight selected trainer
+  useEffect(() => {
+    if (selectedTrainer && mapInstanceRef.current) {
+      mapInstanceRef.current.setCenter({ lat: selectedTrainer.lat, lng: selectedTrainer.lng });
+      mapInstanceRef.current.setZoom(15);
+    }
+  }, [selectedTrainer]);
+
+  return <div ref={mapRef} className="w-full h-full" />;
+};
 // Trainers Section Component (updated with Google Maps)
 const TrainersSection = ({ user }) => {
   const { darkMode } = useContext(AppContext);
