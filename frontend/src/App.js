@@ -2261,20 +2261,86 @@ const RewardsSection = ({ user, treeProgress }) => {
   );
 };
 
-// Friends Section Component
+// Friends Section Component (Enhanced with functional features)
 const FriendsSection = ({ user }) => {
   const { darkMode } = useContext(AppContext);
   const [activeTab, setActiveTab] = useState('friends');
   const [friends, setFriends] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [showAddFriend, setShowAddFriend] = useState(false);
+  const [friendEmail, setFriendEmail] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     // Mock data - in real app, this would come from API
     setFriends([
-      { id: '1', name: 'Alex Johnson', level: 'mature_tree', coins: 2500, streak: 15, avatar: '🧑‍💼' },
-      { id: '2', name: 'Maria Garcia', level: 'strong_oak', coins: 3200, streak: 22, avatar: '👩‍💻' },
-      { id: '3', name: 'David Kim', level: 'sapling', coins: 1100, streak: 8, avatar: '👨‍🎨' }
+      { id: '1', name: 'Alex Johnson', level: 'mature_tree', coins: 2500, streak: 15, avatar: '🧑‍💼', status: 'online' },
+      { id: '2', name: 'Maria Garcia', level: 'strong_oak', coins: 3200, streak: 22, avatar: '👩‍💻', status: 'offline' },
+      { id: '3', name: 'David Kim', level: 'sapling', coins: 1100, streak: 8, avatar: '👨‍🎨', status: 'online' }
+    ]);
+    
+    setRequests([
+      { id: '4', name: 'Sarah Wilson', level: 'young_tree', avatar: '👩‍🔬', mutualFriends: 2 },
+      { id: '5', name: 'Mike Chen', level: 'mature_tree', avatar: '👨‍💼', mutualFriends: 1 }
+    ]);
+    
+    setLeaderboard([
+      { id: '1', name: 'Maria Garcia', level: 'strong_oak', coins: 3200, streak: 22, avatar: '👩‍💻', rank: 1, weeklyProgress: 450 },
+      { id: '2', name: 'You', level: 'sapling', coins: 1850, streak: 5, avatar: '👤', rank: 2, weeklyProgress: 320 },
+      { id: '3', name: 'Alex Johnson', level: 'mature_tree', coins: 2500, streak: 15, avatar: '🧑‍💼', rank: 3, weeklyProgress: 280 },
+      { id: '4', name: 'David Kim', level: 'sapling', coins: 1100, streak: 8, avatar: '👨‍🎨', rank: 4, weeklyProgress: 220 },
+      { id: '5', name: 'Sarah Wilson', level: 'young_tree', coins: 950, streak: 12, avatar: '👩‍🔬', rank: 5, weeklyProgress: 180 },
+      { id: '6', name: 'Mike Chen', level: 'mature_tree', coins: 2100, streak: 18, avatar: '👨‍💼', rank: 6, weeklyProgress: 150 },
+      { id: '7', name: 'Emily Brown', level: 'sapling', coins: 880, streak: 6, avatar: '👩‍🎓', rank: 7, weeklyProgress: 120 },
+      { id: '8', name: 'James Lee', level: 'young_tree', coins: 720, streak: 4, avatar: '👨‍🚀', rank: 8, weeklyProgress: 100 }
     ]);
   }, []);
+
+  const acceptRequest = (requestId) => {
+    const request = requests.find(r => r.id === requestId);
+    if (request) {
+      setFriends([...friends, { 
+        ...request, 
+        coins: Math.floor(Math.random() * 2000) + 500, 
+        streak: Math.floor(Math.random() * 20) + 1,
+        status: 'online'
+      }]);
+      setRequests(requests.filter(r => r.id !== requestId));
+    }
+  };
+
+  const rejectRequest = (requestId) => {
+    setRequests(requests.filter(r => r.id !== requestId));
+  };
+
+  const handleAddFriend = async () => {
+    if (!friendEmail.trim()) return;
+    
+    // Simulate API call
+    try {
+      // Mock adding friend request
+      const newRequest = {
+        id: Date.now().toString(),
+        name: friendEmail.split('@')[0],
+        level: 'sapling',
+        avatar: '👤',
+        mutualFriends: 0
+      };
+      
+      alert(`Friend request sent to ${friendEmail}!`);
+      setFriendEmail('');
+      setShowAddFriend(false);
+      
+      // In real app, this would send a friend request
+    } catch (error) {
+      alert('Failed to send friend request. Please try again.');
+    }
+  };
+
+  const filteredFriends = friends.filter(friend => 
+    friend.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
@@ -2295,6 +2361,21 @@ const FriendsSection = ({ user }) => {
             Friends ({friends.length})
           </button>
           <button
+            onClick={() => setActiveTab('requests')}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors relative ${
+              activeTab === 'requests'
+                ? (darkMode ? 'bg-green-600 text-white' : 'bg-blue-600 text-white')
+                : (darkMode ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900')
+            }`}
+          >
+            Requests
+            {requests.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {requests.length}
+              </span>
+            )}
+          </button>
+          <button
             onClick={() => setActiveTab('leaderboard')}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               activeTab === 'leaderboard'
@@ -2313,35 +2394,142 @@ const FriendsSection = ({ user }) => {
             <h2 className={`text-xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
               Your Friends
             </h2>
-            <button className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              darkMode ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
-            }`}>
+            <button 
+              onClick={() => setShowAddFriend(true)}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                darkMode ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
               Add Friend
             </button>
           </div>
+
+          {/* Search Friends */}
+          <div className="mb-4">
+            <input
+              type="text"
+              placeholder="Search friends..."
+              className={`w-full px-4 py-2 rounded-lg border ${
+                darkMode 
+                  ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              } focus:ring-2 focus:ring-green-400 focus:border-transparent`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
           
-          <div className="space-y-4">
-            {friends.map(friend => (
-              <div key={friend.id} className={`p-4 rounded-lg border ${
-                darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="text-3xl">{friend.avatar}</div>
-                    <div>
-                      <h3 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                        {friend.name}
-                      </h3>
-                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                        Level: {friend.level.replace('_', ' ')} • {friend.streak} day streak
-                      </p>
+          {filteredFriends.length > 0 ? (
+            <div className="space-y-4">
+              {filteredFriends.map(friend => (
+                <div key={friend.id} className={`p-4 rounded-lg border ${
+                  darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="relative">
+                        <div className="text-3xl">{friend.avatar}</div>
+                        <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full ${
+                          friend.status === 'online' ? 'bg-green-400' : 'bg-gray-400'
+                        }`}></div>
+                      </div>
+                      <div>
+                        <h3 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {friend.name}
+                        </h3>
+                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          Level: {friend.level.replace('_', ' ')} • {friend.streak} day streak
+                        </p>
+                        <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                          {friend.status === 'online' ? '🟢 Online' : '⚫ Offline'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <LiftCoin count={friend.coins} size="sm" />
+                      <div className="flex space-x-2 mt-2">
+                        <button className={`px-3 py-1 text-xs rounded-lg ${
+                          darkMode ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-500 hover:bg-blue-600 text-white'
+                        }`}>
+                          Challenge
+                        </button>
+                        <button className={`px-3 py-1 text-xs rounded-lg ${
+                          darkMode ? 'bg-gray-600 hover:bg-gray-700 text-white' : 'bg-gray-500 hover:bg-gray-600 text-white'
+                        }`}>
+                          Message
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <LiftCoin count={friend.coins} size="sm" />
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <SVGIcons.Friends size={48} className={`mx-auto mb-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+              <h3 className={`text-lg font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                {searchTerm ? 'No friends found' : 'No friends yet'}
+              </h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                {searchTerm ? 'Try a different search term' : 'Add friends to compete and motivate each other!'}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === 'requests' && (
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+          <h2 className={`text-xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+            Friend Requests
+          </h2>
+          
+          {requests.length > 0 ? (
+            <div className="space-y-4">
+              {requests.map(request => (
+                <div key={request.id} className={`p-4 rounded-lg border ${
+                  darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="text-3xl">{request.avatar}</div>
+                      <div>
+                        <h3 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                          {request.name}
+                        </h3>
+                        <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                          Level: {request.level.replace('_', ' ')}
+                        </p>
+                        <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                          {request.mutualFriends} mutual friends
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button 
+                        onClick={() => acceptRequest(request.id)}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm"
+                      >
+                        Accept
+                      </button>
+                      <button 
+                        onClick={() => rejectRequest(request.id)}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm"
+                      >
+                        Decline
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="text-4xl mb-4">📭</div>
+              <h3 className={`text-lg font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>No pending requests</h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>You're all caught up!</p>
+            </div>
+          )}
         </div>
       )}
 
@@ -2350,9 +2538,121 @@ const FriendsSection = ({ user }) => {
           <h2 className={`text-xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
             Weekly Leaderboard
           </h2>
-          <div className="text-center py-8">
-            <div className="text-4xl mb-4">🏆</div>
-            <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Leaderboard coming soon!</p>
+          
+          <div className="space-y-3">
+            {leaderboard.map(user => (
+              <div key={user.id} className={`p-4 rounded-lg border ${
+                user.name === 'You' 
+                  ? (darkMode ? 'border-green-500 bg-green-900/20' : 'border-blue-500 bg-blue-50')
+                  : (darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50')
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${
+                      user.rank === 1 ? 'bg-yellow-400 text-black' :
+                      user.rank === 2 ? 'bg-gray-300 text-black' :
+                      user.rank === 3 ? 'bg-orange-400 text-black' :
+                      (darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900')
+                    }`}>
+                      {user.rank}
+                    </div>
+                    <div className="text-2xl">{user.avatar}</div>
+                    <div>
+                      <h3 className={`font-bold ${
+                        user.name === 'You' 
+                          ? (darkMode ? 'text-green-400' : 'text-blue-600')
+                          : (darkMode ? 'text-white' : 'text-gray-900')
+                      }`}>
+                        {user.name}
+                      </h3>
+                      <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {user.level.replace('_', ' ')} • {user.streak} day streak
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="text-right">
+                    <LiftCoin count={user.coins} size="sm" />
+                    <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      +{user.weeklyProgress} this week
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className={`mt-6 p-4 rounded-lg border-2 border-dashed ${
+            darkMode ? 'border-gray-600' : 'border-gray-300'
+          }`}>
+            <div className="text-center">
+              <div className="text-2xl mb-2">🏆</div>
+              <h3 className={`font-bold mb-1 ${darkMode ? 'text-yellow-400' : 'text-yellow-600'}`}>
+                Weekly Challenge
+              </h3>
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Earn 500+ LiftCoins this week to climb the leaderboard!
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Friend Modal */}
+      {showAddFriend && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className={`max-w-md w-full ${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+            <h3 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+              Add Friend
+            </h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Friend's Email
+                </label>
+                <input
+                  type="email"
+                  placeholder="Enter email address"
+                  className={`w-full px-3 py-2 rounded-lg border ${
+                    darkMode 
+                      ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400' 
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  } focus:ring-2 focus:ring-green-400 focus:border-transparent`}
+                  value={friendEmail}
+                  onChange={(e) => setFriendEmail(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleAddFriend()}
+                />
+              </div>
+              
+              <div className="flex space-x-3">
+                <button 
+                  onClick={() => setShowAddFriend(false)}
+                  className={`flex-1 px-4 py-2 rounded-lg border font-medium transition-colors ${
+                    darkMode 
+                      ? 'border-gray-600 hover:bg-gray-800/50 text-white' 
+                      : 'border-gray-300 hover:bg-gray-50 text-gray-900'
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleAddFriend}
+                  disabled={!friendEmail.trim()}
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                    !friendEmail.trim() 
+                      ? 'opacity-50 cursor-not-allowed' 
+                      : ''
+                  } ${
+                    darkMode 
+                      ? 'bg-green-600 hover:bg-green-700 text-white' 
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                >
+                  Send Request
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
