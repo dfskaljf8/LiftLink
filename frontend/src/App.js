@@ -884,7 +884,672 @@ const SideNavigation = ({ activeTab, setActiveTab, darkMode }) => {
   );
 };
 
-// Trainers Section Component
+// Trainer CRM Dashboard - Main Component
+const TrainerDashboard = ({ user, onLogout }) => {
+  const { darkMode, toggleDarkMode } = useContext(AppContext);
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  return (
+    <div className={`min-h-screen transition-all duration-500 ${darkMode ? 'cyberpunk-bg' : 'light-mode-bg'}`}>
+      <TrainerSideNavigation activeTab={activeTab} setActiveTab={setActiveTab} darkMode={darkMode} />
+      <TrainerMobileNavigation activeTab={activeTab} setActiveTab={setActiveTab} darkMode={darkMode} />
+      
+      <header className={`hidden md:block fixed top-0 left-64 right-0 ${darkMode ? 'bg-black/95' : 'bg-white/95'} backdrop-blur-md border-b ${darkMode ? 'border-green-400/30' : 'border-gray-200'} p-4 z-30`}>
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <LiftLinkLogo size={40} showTagline={false} />
+            <span className={`text-lg font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>Trainer Portal</span>
+          </div>
+          <div className="flex items-center space-x-4">
+            <button 
+              onClick={toggleDarkMode}
+              className={`p-2 rounded-lg transition-colors ${darkMode ? 'bg-gray-800 text-yellow-400' : 'bg-gray-200 text-gray-600'}`}
+            >
+              <SVGIcons.Theme size={20} darkMode={darkMode} />
+            </button>
+            <div className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              {user?.email}
+            </div>
+            <button 
+              onClick={onLogout}
+              className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="md:pl-64 md:pt-20 p-4 md:p-6 pb-20 md:pb-6">
+        <div className="max-w-7xl mx-auto">
+          {renderTrainerContent(activeTab, user)}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+// Trainer Side Navigation
+const TrainerSideNavigation = ({ activeTab, setActiveTab, darkMode }) => {
+  const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: SVGIcons.Home },
+    { id: 'clients', label: 'Client Management', icon: SVGIcons.Profile },
+    { id: 'checkin', label: 'Check-in System', icon: SVGIcons.Sessions },
+    { id: 'schedule', label: 'My Schedule', icon: SVGIcons.Analytics },
+    { id: 'earnings', label: 'Earnings', icon: SVGIcons.Rewards },
+    { id: 'reviews', label: 'Reviews & Ratings', icon: SVGIcons.Friends },
+    { id: 'profile', label: 'My Profile', icon: SVGIcons.Settings }
+  ];
+
+  return (
+    <nav className={`hidden md:block fixed left-0 top-0 h-full w-64 ${darkMode ? 'bg-black/95' : 'bg-white/95'} backdrop-blur-md border-r ${darkMode ? 'border-green-400/30' : 'border-gray-200'} z-40 transition-all duration-300`}>
+      <div className="p-4">
+        <div className="flex items-center space-x-2">
+          <LiftLinkLogo size={40} showTagline={false} />
+          <span className={`text-sm font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>Trainer</span>
+        </div>
+      </div>
+      
+      <div className="px-4 space-y-2">
+        {navItems.map(item => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
+              activeTab === item.id 
+                ? (darkMode ? 'bg-green-900/50 text-green-400 border border-green-400/50 shadow-lg' : 'bg-blue-100 text-blue-600 border border-blue-300 shadow-lg')
+                : (darkMode ? 'text-gray-300 hover:bg-gray-800/50' : 'text-gray-600 hover:bg-gray-100')
+            }`}
+          >
+            <item.icon 
+              size={20} 
+              color={activeTab === item.id ? (darkMode ? '#C4D600' : '#3b82f6') : 'currentColor'}
+            />
+            <span className="font-medium">{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+};
+
+// Trainer Mobile Navigation
+const TrainerMobileNavigation = ({ activeTab, setActiveTab, darkMode }) => {
+  const { toggleDarkMode } = useContext(AppContext);
+  
+  const navItems = [
+    { id: 'dashboard', label: 'Home', icon: SVGIcons.Home },
+    { id: 'clients', label: 'Clients', icon: SVGIcons.Profile },
+    { id: 'checkin', label: 'Check-in', icon: SVGIcons.Sessions },
+    { id: 'schedule', label: 'Schedule', icon: SVGIcons.Analytics },
+    { id: 'earnings', label: 'Earnings', icon: SVGIcons.Rewards }
+  ];
+
+  return (
+    <nav className={`md:hidden fixed bottom-0 left-0 right-0 ${darkMode ? 'bg-black/95' : 'bg-white/95'} backdrop-blur-md border-t ${darkMode ? 'border-green-400/30' : 'border-gray-200'} z-50`}>
+      <div className="flex justify-around py-2">
+        {navItems.map(item => (
+          <button
+            key={item.id}
+            onClick={() => setActiveTab(item.id)}
+            className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-lg transition-all ${
+              activeTab === item.id 
+                ? (darkMode ? 'text-green-400' : 'text-blue-600')
+                : (darkMode ? 'text-gray-400' : 'text-gray-500')
+            }`}
+          >
+            <item.icon 
+              size={20} 
+              color={activeTab === item.id ? (darkMode ? '#C4D600' : '#3b82f6') : 'currentColor'}
+            />
+            <span className="text-xs font-medium">{item.label}</span>
+          </button>
+        ))}
+        <button
+          onClick={toggleDarkMode}
+          className={`flex flex-col items-center space-y-1 px-3 py-2 rounded-lg transition-all ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
+        >
+          <SVGIcons.Theme size={20} darkMode={darkMode} />
+          <span className="text-xs font-medium">Theme</span>
+        </button>
+      </div>
+    </nav>
+  );
+};
+
+// Trainer Dashboard Content
+const TrainerDashboardMain = ({ user }) => {
+  const { darkMode } = useContext(AppContext);
+  const [clients, setClients] = useState([]);
+  const [todaysSessions, setTodaysSessions] = useState([]);
+  const [earnings, setEarnings] = useState({});
+
+  useEffect(() => {
+    // Mock data - in real app, this would come from API
+    setClients([
+      { id: '1', name: 'John Smith', email: 'john@example.com', nextSession: '2025-01-08 10:00', status: 'active' },
+      { id: '2', name: 'Sarah Wilson', email: 'sarah@example.com', nextSession: '2025-01-08 14:00', status: 'active' },
+      { id: '3', name: 'Mike Johnson', email: 'mike@example.com', nextSession: '2025-01-09 09:00', status: 'pending' }
+    ]);
+    
+    setTodaysSessions([
+      { id: '1', clientName: 'John Smith', time: '10:00 AM', duration: '60 min', status: 'upcoming' },
+      { id: '2', clientName: 'Sarah Wilson', time: '2:00 PM', duration: '45 min', status: 'upcoming' },
+      { id: '3', clientName: 'Alex Brown', time: '4:00 PM', duration: '60 min', status: 'completed' }
+    ]);
+    
+    setEarnings({
+      today: 225,
+      thisWeek: 1250,
+      thisMonth: 4800,
+      pending: 150
+    });
+  }, []);
+
+  return (
+    <div className="space-y-6">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'} mb-2`}>
+          Welcome back, {user?.email?.split('@')[0]}! 💪
+        </h1>
+        <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+          Ready to help your clients reach their fitness goals?
+        </p>
+      </div>
+
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
+          <div className="text-3xl mb-2">👥</div>
+          <div className={`text-2xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+            {clients.length}
+          </div>
+          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Active Clients</p>
+        </div>
+        
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
+          <div className="text-3xl mb-2">📅</div>
+          <div className={`text-2xl font-bold ${darkMode ? 'text-blue-400' : 'text-green-600'}`}>
+            {todaysSessions.length}
+          </div>
+          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Today's Sessions</p>
+        </div>
+        
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
+          <div className="text-3xl mb-2">💰</div>
+          <div className={`text-2xl font-bold ${darkMode ? 'text-yellow-400' : 'text-green-600'}`}>
+            ${earnings.thisWeek}
+          </div>
+          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>This Week</p>
+        </div>
+        
+        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-4 text-center`}>
+          <div className="text-3xl mb-2">⭐</div>
+          <div className={`text-2xl font-bold ${darkMode ? 'text-purple-400' : 'text-purple-600'}`}>
+            4.9
+          </div>
+          <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Rating</p>
+        </div>
+      </div>
+
+      {/* Today's Schedule */}
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Today's Schedule
+        </h2>
+        <div className="space-y-3">
+          {todaysSessions.map(session => (
+            <div key={session.id} className={`p-4 rounded-lg border ${
+              darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
+            }`}>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {session.clientName}
+                  </h3>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {session.time} • {session.duration}
+                  </p>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  session.status === 'completed' 
+                    ? 'bg-green-100 text-green-800' 
+                    : session.status === 'upcoming'
+                    ? 'bg-blue-100 text-blue-800'
+                    : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {session.status}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Clients */}
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Recent Clients
+        </h2>
+        <div className="space-y-3">
+          {clients.slice(0, 3).map(client => (
+            <div key={client.id} className={`p-4 rounded-lg border ${
+              darkMode ? 'border-gray-700 bg-gray-800/30' : 'border-gray-200 bg-gray-50'
+            }`}>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {client.name}
+                  </h3>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    Next: {client.nextSession}
+                  </p>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  client.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {client.status}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Client Management Component
+const TrainerClientManagement = ({ user }) => {
+  const { darkMode } = useContext(AppContext);
+  const [clients, setClients] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+
+  useEffect(() => {
+    // Mock data - in real app, this would come from API
+    setClients([
+      {
+        id: '1',
+        name: 'John Smith',
+        email: 'john@example.com',
+        phone: '+1 (555) 123-4567',
+        joinDate: '2024-12-01',
+        status: 'active',
+        totalSessions: 24,
+        lastSession: '2025-01-05',
+        fitnessGoals: ['weight_loss', 'cardio'],
+        notes: 'Making great progress with cardio. Needs help with nutrition planning.'
+      },
+      {
+        id: '2',
+        name: 'Sarah Wilson',
+        email: 'sarah@example.com',
+        phone: '+1 (555) 234-5678',
+        joinDate: '2024-11-15',
+        status: 'active',
+        totalSessions: 32,
+        lastSession: '2025-01-06',
+        fitnessGoals: ['muscle_building', 'strength'],
+        notes: 'Strong dedication. Ready for advanced strength training programs.'
+      },
+      {
+        id: '3',
+        name: 'Mike Johnson',
+        email: 'mike@example.com',
+        phone: '+1 (555) 345-6789',
+        joinDate: '2024-12-20',
+        status: 'pending',
+        totalSessions: 3,
+        lastSession: '2024-12-28',
+        fitnessGoals: ['general_fitness'],
+        notes: 'New client. Assessing current fitness level and preferences.'
+      }
+    ]);
+  }, []);
+
+  const filteredClients = clients.filter(client => {
+    const matchesSearch = client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         client.email.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilter = filterStatus === 'all' || client.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h1 className={`text-2xl md:text-3xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Client Management
+        </h1>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search clients..."
+              className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
+                darkMode 
+                  ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              } focus:ring-2 focus:ring-green-400 focus:border-transparent`}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            <SVGIcons.Profile size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          </div>
+          
+          <select
+            className={`px-4 py-3 rounded-lg border ${
+              darkMode 
+                ? 'bg-gray-800/50 border-gray-600 text-white' 
+                : 'bg-white border-gray-300 text-gray-900'
+            } focus:ring-2 focus:ring-green-400 focus:border-transparent`}
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+          >
+            <option value="all">All Clients</option>
+            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {filteredClients.map(client => (
+          <div key={client.id} className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                <h3 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {client.name}
+                </h3>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {client.email}
+                </p>
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {client.phone}
+                </p>
+              </div>
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                client.status === 'active' 
+                  ? 'bg-green-100 text-green-800' 
+                  : client.status === 'pending'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'bg-red-100 text-red-800'
+              }`}>
+                {client.status}
+              </span>
+            </div>
+            
+            <div className="space-y-3 mb-4">
+              <div className="flex justify-between">
+                <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Total Sessions:</span>
+                <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{client.totalSessions}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Last Session:</span>
+                <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{client.lastSession}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>Member Since:</span>
+                <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{client.joinDate}</span>
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>Fitness Goals:</p>
+              <div className="flex flex-wrap gap-1">
+                {client.fitnessGoals.map(goal => (
+                  <span key={goal} className={`px-2 py-1 text-xs rounded-full ${
+                    darkMode ? 'bg-green-900/50 text-green-400' : 'bg-green-100 text-green-700'
+                  }`}>
+                    {goal.replace('_', ' ')}
+                  </span>
+                ))}
+              </div>
+            </div>
+            
+            <div className="mb-4">
+              <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>Notes:</p>
+              <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{client.notes}</p>
+            </div>
+            
+            <div className="flex space-x-2">
+              <button className={`flex-1 px-3 py-2 rounded-lg font-medium transition-colors ${
+                darkMode 
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                  : 'bg-blue-500 hover:bg-blue-600 text-white'
+              }`}>
+                View Details
+              </button>
+              <button className={`flex-1 px-3 py-2 rounded-lg border font-medium transition-colors ${
+                darkMode 
+                  ? 'border-gray-600 hover:bg-gray-800/50 text-white' 
+                  : 'border-gray-300 hover:bg-gray-50 text-gray-900'
+              }`}>
+                Schedule Session
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Check-in System Component
+const TrainerCheckinSystem = ({ user }) => {
+  const { darkMode } = useContext(AppContext);
+  const [pendingCheckins, setPendingCheckins] = useState([]);
+  const [todayCheckins, setTodayCheckins] = useState([]);
+
+  useEffect(() => {
+    // Mock data - in real app, this would come from API
+    setPendingCheckins([
+      {
+        id: '1',
+        clientName: 'John Smith',
+        sessionTime: '10:00 AM',
+        sessionType: 'Personal Training',
+        duration: '60 min',
+        status: 'waiting'
+      },
+      {
+        id: '2',
+        clientName: 'Sarah Wilson',
+        sessionTime: '2:00 PM',
+        sessionType: 'Strength Training',
+        duration: '45 min',
+        status: 'waiting'
+      }
+    ]);
+    
+    setTodayCheckins([
+      {
+        id: '3',
+        clientName: 'Mike Johnson',
+        sessionTime: '8:00 AM',
+        sessionType: 'Cardio Training',
+        duration: '45 min',
+        status: 'completed',
+        checkinTime: '7:58 AM'
+      }
+    ]);
+  }, []);
+
+  const handleCheckin = (sessionId) => {
+    const session = pendingCheckins.find(s => s.id === sessionId);
+    if (session) {
+      // Move to completed
+      setTodayCheckins([...todayCheckins, { 
+        ...session, 
+        status: 'completed', 
+        checkinTime: new Date().toLocaleTimeString('en-US', { 
+          hour: 'numeric', 
+          minute: '2-digit',
+          hour12: true 
+        })
+      }]);
+      // Remove from pending
+      setPendingCheckins(pendingCheckins.filter(s => s.id !== sessionId));
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h1 className={`text-2xl md:text-3xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Check-in System
+        </h1>
+        <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+          Confirm client arrivals and manage session check-ins
+        </p>
+      </div>
+
+      {/* Pending Check-ins */}
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Pending Check-ins ({pendingCheckins.length})
+        </h2>
+        
+        {pendingCheckins.length > 0 ? (
+          <div className="space-y-4">
+            {pendingCheckins.map(session => (
+              <div key={session.id} className={`p-4 rounded-lg border-2 border-yellow-400 bg-yellow-400/10`}>
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {session.clientName}
+                    </h3>
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      {session.sessionTime} • {session.sessionType} • {session.duration}
+                    </p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button 
+                      onClick={() => handleCheckin(session.id)}
+                      className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                      ✓ Check In
+                    </button>
+                    <button className="px-4 py-2 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg font-medium transition-colors">
+                      ✗ No Show
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <div className="text-4xl mb-4">✅</div>
+            <h3 className={`text-lg font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              All caught up!
+            </h3>
+            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+              No pending check-ins at the moment
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Today's Completed Check-ins */}
+      <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
+        <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
+          Today's Completed Sessions ({todayCheckins.length})
+        </h2>
+        
+        <div className="space-y-3">
+          {todayCheckins.map(session => (
+            <div key={session.id} className={`p-4 rounded-lg border ${
+              darkMode ? 'border-green-600 bg-green-900/20' : 'border-green-400 bg-green-50'
+            }`}>
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className={`font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {session.clientName}
+                  </h3>
+                  <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {session.sessionTime} • {session.sessionType} • {session.duration}
+                  </p>
+                  <p className={`text-xs ${darkMode ? 'text-green-400' : 'text-green-600'}`}>
+                    Checked in at: {session.checkinTime}
+                  </p>
+                </div>
+                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                  Completed
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Function to render trainer content based on active tab
+const renderTrainerContent = (activeTab, user) => {
+  switch(activeTab) {
+    case 'dashboard':
+      return <TrainerDashboardMain user={user} />;
+    case 'clients':
+      return <TrainerClientManagement user={user} />;
+    case 'checkin':
+      return <TrainerCheckinSystem user={user} />;
+    case 'schedule':
+      return <TrainerSchedule user={user} />;
+    case 'earnings':
+      return <TrainerEarnings user={user} />;
+    case 'reviews':
+      return <TrainerReviews user={user} />;
+    case 'profile':
+      return <TrainerProfile user={user} />;
+    default:
+      return <TrainerDashboardMain user={user} />;
+  }
+};
+
+// Placeholder components for other trainer sections
+const TrainerSchedule = ({ user }) => {
+  const { darkMode } = useContext(AppContext);
+  return (
+    <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6 text-center`}>
+      <h1 className={`text-2xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>Schedule Management</h1>
+      <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Schedule management coming soon!</p>
+    </div>
+  );
+};
+
+const TrainerEarnings = ({ user }) => {
+  const { darkMode } = useContext(AppContext);
+  return (
+    <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6 text-center`}>
+      <h1 className={`text-2xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>Earnings Dashboard</h1>
+      <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Earnings tracking coming soon!</p>
+    </div>
+  );
+};
+
+const TrainerReviews = ({ user }) => {
+  const { darkMode } = useContext(AppContext);
+  return (
+    <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6 text-center`}>
+      <h1 className={`text-2xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>Reviews & Ratings</h1>
+      <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Reviews management coming soon!</p>
+    </div>
+  );
+};
+
+const TrainerProfile = ({ user }) => {
+  const { darkMode } = useContext(AppContext);
+  return (
+    <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6 text-center`}>
+      <h1 className={`text-2xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>Trainer Profile</h1>
+      <p className={`${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Profile management coming soon!</p>
+    </div>
+  );
+};
 const TrainersSection = ({ user }) => {
   const { darkMode } = useContext(AppContext);
   const [trainers, setTrainers] = useState([]);
