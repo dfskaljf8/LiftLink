@@ -3732,7 +3732,7 @@ function App() {
   const renderContent = () => {
     switch(activeTab) {
       case 'dashboard':
-        return <Dashboard user={user} treeProgress={treeProgress} onCompleteSession={completeSession} />;
+        return <Dashboard user={user} treeProgress={treeProgress} />;
       case 'trainers':
         return <TrainersSection user={user} />;
       case 'tree':
@@ -3752,7 +3752,7 @@ function App() {
       case 'profile':
         return <ProfileSection user={user} treeProgress={treeProgress} onLogout={handleLogout} />;
       default:
-        return <Dashboard user={user} treeProgress={treeProgress} onCompleteSession={completeSession} />;
+        return <Dashboard user={user} treeProgress={treeProgress} />;
     }
   };
 
