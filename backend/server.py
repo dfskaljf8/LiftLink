@@ -264,7 +264,7 @@ async def get_user(user_id: str):
         role=user["role"],
         fitness_goals=user["fitness_goals"],
         experience_level=user["experience_level"],
-        created_at=user["created_at"]
+        created_at=user["created_at"].isoformat() if isinstance(user["created_at"], datetime) else user["created_at"]
     )
 
 @api_router.put("/users/{user_id}", response_model=UserResponse)
