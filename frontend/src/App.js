@@ -3713,21 +3713,10 @@ function App() {
   };
 
   const completeSession = async () => {
-    try {
-      await axios.post(`${API}/sessions`, {
-        user_id: user.id,
-        session_type: 'Workout Session',
-        duration_minutes: 45
-      });
-      
-      fetchTreeProgress();
-      fetchSessions();
-      
-      alert('🎉 Session completed! You earned 50 LiftCoins!');
-    } catch (error) {
-      console.error('Failed to create session:', error);
-      alert('Failed to complete session. Please try again.');
-    }
+    // This function is deprecated - sessions are now created through:
+    // 1. Trainer confirmation via check-in system
+    // 2. Automatic sync from fitness devices (Fitbit, Google Fit, etc.)
+    alert('Sessions are now automatically tracked through your fitness devices or confirmed by trainers. Visit the Fitness section to connect your devices!');
   };
 
   const toggleDarkMode = () => {
