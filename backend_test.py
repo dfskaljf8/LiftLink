@@ -1123,6 +1123,73 @@ def test_complete_user_journey():
         
     return True
 
+def run_focused_tests():
+    """Run focused tests for Phase 2 features as specified in test_result.md"""
+    print("Starting LiftLink Platform Backend API Tests - Phase 2 Focus")
+    print(f"Backend URL: {BACKEND_URL}")
+    print("Testing: Fitness API Integration & Session Management Overhaul")
+    print_separator()
+    
+    # Create a test user for fitness integration tests
+    print("Creating test user for fitness integration tests...")
+    test_email = f"fitness_test_{uuid.uuid4()}@example.com"
+    user_data = {
+        "email": test_email,
+        "role": "fitness_enthusiast",
+        "fitness_goals": ["weight_loss", "general_fitness"],
+        "experience_level": "intermediate"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/users", json=user_data)
+    
+    if response.status_code == 200:
+        user = response.json()
+        print(f"Created test user: {user['id']}")
+        
+        # Test Phase 2 Fitness Integration Features
+        test_fitness_connection_status(user)
+        test_fitness_oauth_flows()
+        test_fitness_data_sync(user)
+        test_fitness_disconnection(user)
+        test_enhanced_session_management(user)
+        
+    else:
+        print(f"ERROR: Failed to create test user. Status code: {response.status_code}")
+        print("Cannot proceed with fitness integration tests without a user")
+    
+    # Print focused test results summary
+    print_separator()
+    print("PHASE 2 TEST RESULTS SUMMARY")
+    print_separator()
+    
+    # Focus on Phase 2 specific tests
+    phase2_tests = [
+        "fitness_connection_status",
+        "fitness_oauth_flows", 
+        "fitness_data_sync",
+        "enhanced_session_management",
+        "fitness_disconnection"
+    ]
+    
+    all_passed = True
+    for test_name in phase2_tests:
+        if test_name in test_results:
+            result = test_results[test_name]
+            status = "PASSED" if result["success"] else "FAILED"
+            details = result["details"] if result["details"] else "No issues found"
+            
+            print(f"{test_name}: {status}")
+            print(f"Details: {details}")
+            print()
+            
+            if not result["success"]:
+                all_passed = False
+    
+    if all_passed:
+        print("All Phase 2 tests PASSED!")
+    else:
+        print("Some Phase 2 tests FAILED. See details above.")
+
 def run_all_tests():
     print("Starting LiftLink Platform Backend API Tests")
     print(f"Backend URL: {BACKEND_URL}")
