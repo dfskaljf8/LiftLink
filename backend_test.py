@@ -435,27 +435,61 @@ def test_email_validation_and_user_existence():
 
 def test_user_login():
     print_separator()
-    print("TESTING USER LOGIN")
+    print("TESTING USER LOGIN - PYDANTIC VALIDATION FIX")
     print_separator()
     
-    # Create a user for login test
-    print("Creating a user for login test...")
-    test_email = f"login_test_{uuid.uuid4()}@example.com"
-    user_data = {
-        "email": test_email,
+    # Create multiple users with different data types to test Pydantic validation fix
+    test_users = []
+    
+    # Test 1: Create user with enum values (new format)
+    print("Creating user with enum values (new format)...")
+    test_email_1 = f"login_test_enum_{uuid.uuid4()}@example.com"
+    user_data_1 = {
+        "email": test_email_1,
         "role": "fitness_enthusiast",
         "fitness_goals": ["weight_loss", "general_fitness"],
         "experience_level": "beginner"
     }
     
-    response = requests.post(f"{BACKEND_URL}/users", json=user_data)
+    response = requests.post(f"{BACKEND_URL}/users", json=user_data_1)
     
     if response.status_code == 200:
-        created_user = response.json()
-        print(f"Created user with email: {test_email}")
+        created_user_1 = response.json()
+        print(f"Created user 1 with email: {test_email_1}")
+        test_users.append((created_user_1, test_email_1, "enum_format"))
+    else:
+        print(f"ERROR: Failed to create user 1. Status code: {response.status_code}")
+        print(f"Response: {response.text}")
+        test_results["user_login"]["details"] += f"Failed to create user 1. Status code: {response.status_code}. "
+    
+    # Test 2: Create user with trainer role
+    print("\nCreating user with trainer role...")
+    test_email_2 = f"login_test_trainer_{uuid.uuid4()}@example.com"
+    user_data_2 = {
+        "email": test_email_2,
+        "role": "trainer",
+        "fitness_goals": ["sport_training", "rehabilitation"],
+        "experience_level": "expert"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/users", json=user_data_2)
+    
+    if response.status_code == 200:
+        created_user_2 = response.json()
+        print(f"Created user 2 with email: {test_email_2}")
+        test_users.append((created_user_2, test_email_2, "trainer_role"))
+    else:
+        print(f"ERROR: Failed to create user 2. Status code: {response.status_code}")
+        print(f"Response: {response.text}")
+        test_results["user_login"]["details"] += f"Failed to create user 2. Status code: {response.status_code}. "
+    
+    # Now test login for each user to verify Pydantic validation fix
+    login_success_count = 0
+    
+    for created_user, test_email, user_type in test_users:
+        print(f"\n--- Testing login for {user_type} user ---")
+        print(f"Testing login with email: {test_email}")
         
-        # Test login with valid email
-        print("\nTesting login with valid email...")
         login_data = {
             "email": test_email
         }
@@ -464,42 +498,109 @@ def test_user_login():
         
         if response.status_code == 200:
             logged_in_user = response.json()
-            print(f"Successfully logged in user: {json.dumps(logged_in_user, indent=2)}")
+            print(f"✅ Successfully logged in {user_type} user")
+            print(f"Login response: {json.dumps(logged_in_user, indent=2)}")
             
-            # Verify user data matches
-            if logged_in_user["id"] == created_user["id"] and logged_in_user["email"] == test_email:
-                print("Login returned correct user data")
-                test_results["user_login"]["success"] = True
+            # Verify UserResponse structure and data types
+            required_fields = ["id", "email", "role", "fitness_goals", "experience_level", "created_at"]
+            missing_fields = [field for field in required_fields if field not in logged_in_user]
+            
+            if missing_fields:
+                print(f"❌ ERROR: Missing fields in login response: {missing_fields}")
+                test_results["user_login"]["details"] += f"Missing fields in {user_type} login response: {missing_fields}. "
+                continue
+            
+            # Verify data types are correct (strings, not enum objects)
+            validation_errors = []
+            
+            # Check that role is a string
+            if not isinstance(logged_in_user["role"], str):
+                validation_errors.append(f"role should be string but got {type(logged_in_user['role'])}")
+            
+            # Check that fitness_goals is a list of strings
+            if not isinstance(logged_in_user["fitness_goals"], list):
+                validation_errors.append(f"fitness_goals should be list but got {type(logged_in_user['fitness_goals'])}")
+            elif logged_in_user["fitness_goals"]:
+                for i, goal in enumerate(logged_in_user["fitness_goals"]):
+                    if not isinstance(goal, str):
+                        validation_errors.append(f"fitness_goals[{i}] should be string but got {type(goal)}")
+            
+            # Check that experience_level is a string
+            if not isinstance(logged_in_user["experience_level"], str):
+                validation_errors.append(f"experience_level should be string but got {type(logged_in_user['experience_level'])}")
+            
+            # Check that email and id match
+            if logged_in_user["email"] != test_email:
+                validation_errors.append(f"email mismatch: expected {test_email}, got {logged_in_user['email']}")
+            
+            if logged_in_user["id"] != created_user["id"]:
+                validation_errors.append(f"id mismatch: expected {created_user['id']}, got {logged_in_user['id']}")
+            
+            if validation_errors:
+                print(f"❌ ERROR: Validation errors for {user_type} user:")
+                for error in validation_errors:
+                    print(f"   - {error}")
+                test_results["user_login"]["details"] += f"Validation errors for {user_type} user: {'; '.join(validation_errors)}. "
             else:
-                print(f"ERROR: Login returned incorrect user data")
-                test_results["user_login"]["details"] += f"Login returned incorrect user data. "
-        else:
-            print(f"ERROR: Failed to login with valid email. Status code: {response.status_code}")
+                print(f"✅ All validation checks passed for {user_type} user")
+                print(f"   - Role: {logged_in_user['role']} (type: {type(logged_in_user['role']).__name__})")
+                print(f"   - Fitness goals: {logged_in_user['fitness_goals']} (all strings: {all(isinstance(g, str) for g in logged_in_user['fitness_goals'])})")
+                print(f"   - Experience level: {logged_in_user['experience_level']} (type: {type(logged_in_user['experience_level']).__name__})")
+                login_success_count += 1
+                
+        elif response.status_code == 500:
+            print(f"❌ CRITICAL ERROR: Login failed with 500 Internal Server Error for {user_type} user")
             print(f"Response: {response.text}")
-            test_results["user_login"]["details"] += f"Failed to login with valid email. Status code: {response.status_code}. "
-            
-        # Test login with non-existent email
-        print("\nTesting login with non-existent email...")
-        non_existent_email = f"non_existent_{uuid.uuid4()}@example.com"
-        login_data = {
-            "email": non_existent_email
-        }
-        
-        response = requests.post(f"{BACKEND_URL}/login", json=login_data)
-        
-        if response.status_code == 404:
-            print("Successfully rejected login with non-existent email")
+            print("This indicates the Pydantic validation fix may not be working correctly!")
+            test_results["user_login"]["details"] += f"500 Internal Server Error for {user_type} user - Pydantic validation issue. "
         else:
-            print(f"ERROR: Login with non-existent email should fail but got status code: {response.status_code}")
-            test_results["user_login"]["details"] += f"Login with non-existent email not properly handled. Status code: {response.status_code}. "
-            
-        return created_user
+            print(f"❌ ERROR: Failed to login {user_type} user. Status code: {response.status_code}")
+            print(f"Response: {response.text}")
+            test_results["user_login"]["details"] += f"Failed to login {user_type} user. Status code: {response.status_code}. "
+    
+    # Test login with non-existent email
+    print("\n--- Testing login with non-existent email ---")
+    non_existent_email = f"non_existent_{uuid.uuid4()}@example.com"
+    login_data = {
+        "email": non_existent_email
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/login", json=login_data)
+    
+    if response.status_code == 404:
+        print("✅ Successfully rejected login with non-existent email")
+        login_success_count += 1  # Count this as a success since it behaved correctly
     else:
-        print(f"ERROR: Failed to create user for login test. Status code: {response.status_code}")
-        print(f"Response: {response.text}")
-        test_results["user_login"]["details"] += f"Failed to create user for login test. Status code: {response.status_code}. "
+        print(f"❌ ERROR: Login with non-existent email should return 404 but got status code: {response.status_code}")
+        test_results["user_login"]["details"] += f"Login with non-existent email returned {response.status_code} instead of 404. "
+    
+    # Test login with invalid email format
+    print("\n--- Testing login with invalid email format ---")
+    invalid_login_data = {
+        "email": "invalid-email-format"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/login", json=invalid_login_data)
+    
+    if response.status_code == 422:
+        print("✅ Successfully rejected login with invalid email format")
+        login_success_count += 1  # Count this as a success
+    else:
+        print(f"❌ ERROR: Login with invalid email should return 422 but got status code: {response.status_code}")
+        test_results["user_login"]["details"] += f"Login with invalid email returned {response.status_code} instead of 422. "
+    
+    # Determine overall success
+    expected_successes = len(test_users) + 2  # Created users + non-existent email + invalid email
+    if login_success_count >= expected_successes:
+        print(f"\n✅ LOGIN ENDPOINT TEST PASSED: {login_success_count}/{expected_successes} tests successful")
+        print("🎉 Pydantic validation fix is working correctly!")
+        test_results["user_login"]["success"] = True
+        return test_users[0][0] if test_users else None  # Return first created user
+    else:
+        print(f"\n❌ LOGIN ENDPOINT TEST FAILED: Only {login_success_count}/{expected_successes} tests successful")
+        print("⚠️  Pydantic validation fix may need further investigation")
         
-    return False
+    return test_users[0][0] if test_users else None
 
 def test_fitness_connection_status(user):
     """Test fitness device connection status API"""
