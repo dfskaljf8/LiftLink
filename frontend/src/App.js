@@ -3637,8 +3637,8 @@ const Dashboard = ({ user, treeProgress }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6 text-center space-y-2`}>
           <div className="text-3xl">⌚</div>
-          <div className="text-lg font-bold">Connect Fitness Device</div>
-          <div className="text-sm opacity-75">Auto-track your workouts</div>
+          <div className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Connect Fitness Device</div>
+          <div className={`text-sm opacity-75 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Auto-track your workouts</div>
           <button className={`mt-4 px-4 py-2 rounded-lg font-medium transition-colors ${
             darkMode 
               ? 'bg-green-600 hover:bg-green-700 text-white' 
@@ -3650,8 +3650,8 @@ const Dashboard = ({ user, treeProgress }) => {
         
         <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6 text-center space-y-2`}>
           <div className="text-3xl">👨‍💼</div>
-          <div className="text-lg font-bold">Find Trainers</div>
-          <div className="text-sm opacity-75">Book sessions with professionals</div>
+          <div className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Find Trainers</div>
+          <div className={`text-sm opacity-75 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Book sessions with professionals</div>
           <button className={`mt-4 px-4 py-2 rounded-lg font-medium transition-colors ${
             darkMode 
               ? 'bg-blue-600 hover:bg-blue-700 text-white' 
