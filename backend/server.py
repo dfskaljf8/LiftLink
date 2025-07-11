@@ -206,12 +206,19 @@ async def login_user(request: LoginRequest):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
+    # Convert fitness_goals from enum values to strings if needed
+    fitness_goals = user["fitness_goals"]
+    if fitness_goals and isinstance(fitness_goals[0], str):
+        fitness_goals_str = fitness_goals
+    else:
+        fitness_goals_str = [goal.value if hasattr(goal, 'value') else str(goal) for goal in fitness_goals]
+    
     return UserResponse(
         id=user["id"],
         email=user["email"],
-        role=user["role"],
-        fitness_goals=user["fitness_goals"],
-        experience_level=user["experience_level"],
+        role=user["role"].value if hasattr(user["role"], 'value') else user["role"],
+        fitness_goals=fitness_goals_str,
+        experience_level=user["experience_level"].value if hasattr(user["experience_level"], 'value') else user["experience_level"],
         created_at=user["created_at"]
     )
 
