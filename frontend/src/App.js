@@ -3418,18 +3418,18 @@ const SettingsSection = ({ user, onLogout }) => {
           
           <div>
             <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-              Role
+              Account Type
             </label>
-            <select
-              className={`w-full px-3 py-2 rounded-lg border ${
-                darkMode 
-                  ? 'bg-gray-800/50 border-gray-600 text-white' 
-                  : 'bg-white border-gray-300 text-gray-900'
-              } focus:ring-2 focus:ring-green-400 focus:border-transparent`}
-            >
-              <option value="fitness_enthusiast">Fitness Enthusiast</option>
-              <option value="trainer">Professional Trainer</option>
-            </select>
+            <div className={`w-full px-3 py-2 rounded-lg border ${
+              darkMode 
+                ? 'bg-gray-800/50 border-gray-600 text-white' 
+                : 'bg-white border-gray-300 text-gray-900'
+            } cursor-not-allowed opacity-75`}>
+              {user?.role === 'trainer' ? 'Professional Trainer' : 'Fitness Enthusiast'}
+            </div>
+            <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              Account type cannot be changed. Contact support if you need to upgrade to a trainer account.
+            </p>
           </div>
         </div>
       </div>
