@@ -150,6 +150,30 @@ backend:
         agent: "testing"
         comment: "Session management system works correctly. Successfully created multiple sessions and verified that user stats (total_sessions, consistency_streak, lift_coins) are properly updated. Each session correctly awards 50 LiftCoins. Session history retrieval works as expected."
 
+  - task: "Fitness API Integration - Backend Endpoints"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented fitness integration endpoints: /api/fitness/status, /api/fitbit/login, /api/fitbit/callback, /api/google-fit/login, /api/google-fit/callback, /api/sync/workouts, /api/fitness/data, and disconnect endpoints. Added support for OAuth2 flows and workout data synchronization."
+
+  - task: "Session Management Overhaul - Check-in System"
+    implemented: true
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented trainer-confirmed check-in system with endpoints: /api/sessions/{session_id}/request-checkin, /api/users/{user_id}/pending-checkins, /api/users/{user_id}/upcoming-sessions. Removed manual session creation capabilities from trainee dashboard."
+
   - task: "Settings & User Profile Management"
     implemented: true
     working: true
