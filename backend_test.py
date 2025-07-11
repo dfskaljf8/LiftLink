@@ -18,7 +18,13 @@ test_results = {
     "email_validation": {"success": False, "details": ""},
     "user_existence_check": {"success": False, "details": ""},
     "user_login": {"success": False, "details": ""},
-    "complete_user_journey": {"success": False, "details": ""}
+    "complete_user_journey": {"success": False, "details": ""},
+    "fitness_connection_status": {"success": False, "details": ""},
+    "fitness_oauth_flows": {"success": False, "details": ""},
+    "fitness_data_sync": {"success": False, "details": ""},
+    "enhanced_session_management": {"success": False, "details": ""},
+    "fitness_disconnection": {"success": False, "details": ""},
+    "enhanced_tree_progress": {"success": False, "details": ""}
 }
 
 def print_separator():
