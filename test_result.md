@@ -190,6 +190,30 @@ backend:
         comment: "User profile management works correctly. Successfully retrieved user profile by ID and verified all fields. Profile updates work properly, including dark_mode toggle, fitness_goals changes, and experience_level updates. All changes persist correctly."
 
 frontend:
+  - task: "Fitness Integration UI - Frontend Components"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented FitnessIntegrationSection component with Fitbit and Google Fit connection flows, sync functionality, fitness data display, and disconnect options. Added fitness navigation tab and integrated with main app routing."
+
+  - task: "Google Maps Integration - API Key Configuration"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/.env"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Added Google Maps API key (AIzaSyBVm5QTzo9Kx8PvQ5zg3E4VgSpp3S_hKFQ) to frontend environment variables. This enables Google Maps functionality in the TrainersSection for showing trainer locations."
+
   - task: "Cyberpunk-Themed Onboarding Experience"
     implemented: true
     working: true
