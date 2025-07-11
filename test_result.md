@@ -152,27 +152,33 @@ backend:
 
   - task: "Fitness API Integration - Backend Endpoints"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented fitness integration endpoints: /api/fitness/status, /api/fitbit/login, /api/fitbit/callback, /api/google-fit/login, /api/google-fit/callback, /api/sync/workouts, /api/fitness/data, and disconnect endpoints. Added support for OAuth2 flows and workout data synchronization."
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested all fitness integration endpoints. Fixed missing httpx dependency by adding it to requirements.txt. All endpoints work correctly: GET /api/fitness/status/{user_id} returns proper connection status, OAuth login endpoints return appropriate 501 errors for unconfigured credentials, OAuth callback endpoints handle invalid requests with 400 errors, POST /api/sync/workouts successfully syncs mock workout data, GET /api/fitness/data/{user_id} returns proper fitness statistics, and DELETE disconnect endpoints work correctly for both Fitbit and Google Fit. All response formats and error handling are appropriate."
 
   - task: "Session Management Overhaul - Check-in System"
     implemented: true
-    working: "NA"
+    working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: "NA"
         agent: "main"
         comment: "Implemented trainer-confirmed check-in system with endpoints: /api/sessions/{session_id}/request-checkin, /api/users/{user_id}/pending-checkins, /api/users/{user_id}/upcoming-sessions. Removed manual session creation capabilities from trainee dashboard."
+      - working: true
+        agent: "testing"
+        comment: "Successfully tested enhanced session management system. All new endpoints work correctly: POST /api/sessions/{session_id}/request-checkin returns proper confirmation message, GET /api/users/{user_id}/pending-checkins returns empty array as expected for new users, GET /api/users/{user_id}/upcoming-sessions returns mock upcoming session data with proper structure. Session creation now supports multiple sources (manual, trainer, fitbit, google_fit) with proper field validation including calories, heart_rate_avg, trainer_id, and scheduled_time. All session types are correctly stored and retrieved."
 
   - task: "Settings & User Profile Management"
     implemented: true
