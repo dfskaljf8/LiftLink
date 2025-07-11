@@ -1,30 +1,42 @@
-from fastapi import FastAPI, APIRouter, HTTPException
-from dotenv import load_dotenv
-from starlette.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
-import os
-import logging
-from pathlib import Path
-from pydantic import BaseModel, Field, EmailStr, validator
+from pydantic import BaseModel, EmailStr, Field, validator
 from typing import List, Optional
-import uuid
-from datetime import datetime
 from enum import Enum
+import uuid
+import os
+from datetime import datetime, timedelta
+import httpx
+from urllib.parse import urlencode
 import re
+import logging
 
-ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
-
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
-
-# Create the main app without a prefix
 app = FastAPI()
 
-# Create a router with the /api prefix
-api_router = APIRouter(prefix="/api")
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# MongoDB setup
+MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+client = AsyncIOMotorClient(MONGO_URL)
+db = client.test_database
+
+# API Router
+from fastapi import APIRouter
+api_router = APIRouter()
+
+# Fitness API credentials
+FITBIT_CLIENT_ID = os.environ.get('FITBIT_CLIENT_ID', 'your_fitbit_client_id_here')
+FITBIT_CLIENT_SECRET = os.environ.get('FITBIT_CLIENT_SECRET', 'your_fitbit_client_secret_here')
+GOOGLE_FIT_CLIENT_ID = os.environ.get('GOOGLE_FIT_CLIENT_ID', 'your_google_fit_client_id_here')
+GOOGLE_FIT_CLIENT_SECRET = os.environ.get('GOOGLE_FIT_CLIENT_SECRET', 'your_google_fit_client_secret_here')
 
 # Enums
 class UserRole(str, Enum):
@@ -57,298 +69,546 @@ class TreeLevel(str, Enum):
     GIANT_SEQUOIA = "giant_sequoia"
     REDWOOD = "redwood"
 
-# Enhanced Models with proper validation
-class UserProfile(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+class SessionSource(str, Enum):
+    MANUAL = "manual"
+    TRAINER = "trainer"
+    FITBIT = "fitbit"
+    GOOGLE_FIT = "google_fit"
+
+# Models
+class User(BaseModel):
     email: EmailStr
     role: UserRole
-    fitness_goals: List[FitnessGoal] = []
-    experience_level: Optional[ExperienceLevel] = None
-    tree_level: TreeLevel = TreeLevel.SEED
-    total_sessions: int = 0
-    consistency_streak: int = 0
-    lift_coins: int = 0
-    dark_mode: bool = True
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    fitness_goals: List[FitnessGoal]
+    experience_level: ExperienceLevel
 
-class UserProfileCreate(BaseModel):
-    email: EmailStr
-    role: UserRole
-    fitness_goals: List[FitnessGoal] = []
-    experience_level: Optional[ExperienceLevel] = None
+class UserResponse(BaseModel):
+    id: str
+    email: str
+    role: str
+    fitness_goals: List[str]
+    experience_level: str
+    created_at: str
 
-    @validator('email')
-    def validate_email(cls, v):
-        # Additional email validation beyond EmailStr
-        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if not re.match(email_pattern, str(v)):
-            raise ValueError('Invalid email format')
-        return v
-
-    @validator('fitness_goals')
-    def validate_fitness_goals(cls, v):
-        if not v or len(v) == 0:
-            raise ValueError('At least one fitness goal is required')
-        return v
-
-    @validator('role')
-    def validate_role(cls, v):
-        if v not in [UserRole.FITNESS_ENTHUSIAST, UserRole.TRAINER]:
-            raise ValueError('Invalid role')
-        return v
-
-class UserLogin(BaseModel):
+class CheckUserRequest(BaseModel):
     email: EmailStr
 
-    @validator('email')
-    def validate_email(cls, v):
-        # Additional email validation beyond EmailStr
-        email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        if not re.match(email_pattern, str(v)):
-            raise ValueError('Invalid email format')
-        return v
-
-class UserExistenceCheck(BaseModel):
-    email: EmailStr
+class CheckUserResponse(BaseModel):
     exists: bool
-    user_data: Optional[dict] = None
+    user_id: Optional[str] = None
 
-class UserProfileUpdate(BaseModel):
-    fitness_goals: Optional[List[FitnessGoal]] = None
-    experience_level: Optional[ExperienceLevel] = None
-    dark_mode: Optional[bool] = None
+class LoginRequest(BaseModel):
+    email: EmailStr
 
 class Session(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
+    trainer_id: Optional[str] = None
     session_type: str
     duration_minutes: int
-    lift_coins_earned: int = 50
-    completed_at: datetime = Field(default_factory=datetime.utcnow)
+    source: SessionSource = SessionSource.MANUAL
+    calories: Optional[int] = None
+    heart_rate_avg: Optional[int] = None
+    scheduled_time: Optional[str] = None
 
-class SessionCreate(BaseModel):
+class SessionResponse(BaseModel):
+    id: str
     user_id: str
+    trainer_id: Optional[str]
     session_type: str
     duration_minutes: int
+    source: str
+    calories: Optional[int]
+    heart_rate_avg: Optional[int]
+    created_at: str
+    scheduled_time: Optional[str]
 
-# Helper functions
-def get_tree_progress(total_sessions: int, consistency_streak: int) -> TreeLevel:
-    """Calculate tree level based on sessions and consistency"""
-    total_score = total_sessions + (consistency_streak * 2)
+class TreeProgress(BaseModel):
+    total_sessions: int
+    consistency_streak: int
+    current_level: str
+    lift_coins: int
+    progress_percentage: float
+
+class FitnessConnectionStatus(BaseModel):
+    fitbit_connected: bool
+    google_fit_connected: bool
+    last_sync: Optional[str]
+
+class FitnessData(BaseModel):
+    total_workouts: int
+    this_week: int
+    avg_duration: int
+    recent_workouts: List[dict]
+
+# Utility functions
+def generate_id():
+    return str(uuid.uuid4())
+
+async def get_user_by_email(email: str):
+    return await db.users.find_one({"email": email})
+
+async def get_user_by_id(user_id: str):
+    return await db.users.find_one({"id": user_id})
+
+def calculate_tree_level(total_sessions: int, consistency_streak: int) -> TreeLevel:
+    score = total_sessions + (consistency_streak * 2)
     
-    if total_score >= 500:
-        return TreeLevel.REDWOOD
-    elif total_score >= 350:
-        return TreeLevel.GIANT_SEQUOIA
-    elif total_score >= 250:
-        return TreeLevel.ANCIENT_ELM
-    elif total_score >= 175:
-        return TreeLevel.MIGHTY_PINE
-    elif total_score >= 120:
-        return TreeLevel.STRONG_OAK
-    elif total_score >= 80:
-        return TreeLevel.MATURE_TREE
-    elif total_score >= 50:
-        return TreeLevel.YOUNG_TREE
-    elif total_score >= 25:
-        return TreeLevel.SAPLING
-    elif total_score >= 10:
-        return TreeLevel.SPROUT
-    else:
-        return TreeLevel.SEED
+    if score >= 225: return TreeLevel.REDWOOD
+    elif score >= 180: return TreeLevel.GIANT_SEQUOIA
+    elif score >= 140: return TreeLevel.ANCIENT_ELM
+    elif score >= 105: return TreeLevel.MIGHTY_PINE
+    elif score >= 75: return TreeLevel.STRONG_OAK
+    elif score >= 50: return TreeLevel.MATURE_TREE
+    elif score >= 30: return TreeLevel.YOUNG_TREE
+    elif score >= 15: return TreeLevel.SAPLING
+    elif score >= 5: return TreeLevel.SPROUT
+    else: return TreeLevel.SEED
+
+def calculate_progress_percentage(current_level: TreeLevel, score: int) -> float:
+    thresholds = {
+        TreeLevel.SEED: (0, 5),
+        TreeLevel.SPROUT: (5, 15),
+        TreeLevel.SAPLING: (15, 30),
+        TreeLevel.YOUNG_TREE: (30, 50),
+        TreeLevel.MATURE_TREE: (50, 75),
+        TreeLevel.STRONG_OAK: (75, 105),
+        TreeLevel.MIGHTY_PINE: (105, 140),
+        TreeLevel.ANCIENT_ELM: (140, 180),
+        TreeLevel.GIANT_SEQUOIA: (180, 225),
+        TreeLevel.REDWOOD: (225, 300)
+    }
+    
+    if current_level not in thresholds:
+        return 0.0
+    
+    current_min, next_min = thresholds[current_level]
+    if score >= next_min:
+        return 100.0
+    
+    progress = ((score - current_min) / (next_min - current_min)) * 100
+    return max(0.0, min(100.0, progress))
 
 # API Routes
-@api_router.get("/")
-async def root():
-    return {"message": "Welcome to LiftLink Platform! 🏆"}
 
-@api_router.post("/check-user", response_model=UserExistenceCheck)
-async def check_user_existence(user_check: UserLogin):
-    """Check if a user exists by email"""
-    try:
-        user = await db.users.find_one({"email": user_check.email})
-        if user:
-            # Remove MongoDB's _id field and return user data
-            user.pop('_id', None)
-            return UserExistenceCheck(
-                email=user_check.email,
-                exists=True,
-                user_data=user
-            )
-        else:
-            return UserExistenceCheck(
-                email=user_check.email,
-                exists=False,
-                user_data=None
-            )
-    except Exception as e:
-        logger.error(f"Error checking user existence: {e}")
-        raise HTTPException(status_code=500, detail="Error checking user existence")
+# User authentication and management
+@api_router.post("/check-user", response_model=CheckUserResponse)
+async def check_user_exists(request: CheckUserRequest):
+    """Check if a user exists by email for smart authentication routing"""
+    user = await get_user_by_email(request.email)
+    if user:
+        return CheckUserResponse(exists=True, user_id=user["id"])
+    return CheckUserResponse(exists=False)
 
-@api_router.post("/login", response_model=UserProfile)
-async def login_user(login_data: UserLogin):
-    """Login existing user"""
-    user = await db.users.find_one({"email": login_data.email})
+@api_router.post("/login", response_model=UserResponse)
+async def login_user(request: LoginRequest):
+    """Sign in existing user"""
+    user = await get_user_by_email(request.email)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found. Please sign up first.")
+        raise HTTPException(status_code=404, detail="User not found")
     
-    # Remove MongoDB's _id field
-    user.pop('_id', None)
-    return UserProfile(**user)
+    return UserResponse(
+        id=user["id"],
+        email=user["email"],
+        role=user["role"],
+        fitness_goals=user["fitness_goals"],
+        experience_level=user["experience_level"],
+        created_at=user["created_at"]
+    )
 
-@api_router.post("/users", response_model=UserProfile)
-async def create_user(user_data: UserProfileCreate):
-    """Register new user"""
-    # Check if email already exists
-    existing_user = await db.users.find_one({"email": user_data.email})
+@api_router.post("/users", response_model=UserResponse)
+async def create_user(user: User):
+    """Create new user account"""
+    # Check if user already exists
+    existing_user = await get_user_by_email(user.email)
     if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered. Please sign in instead.")
+        raise HTTPException(status_code=400, detail="User already exists")
     
-    # Validate required fields for fitness enthusiasts
-    if user_data.role == UserRole.FITNESS_ENTHUSIAST:
-        if not user_data.experience_level:
-            raise HTTPException(status_code=400, detail="Experience level is required for fitness enthusiasts")
-        if not user_data.fitness_goals or len(user_data.fitness_goals) == 0:
-            raise HTTPException(status_code=400, detail="At least one fitness goal is required")
+    user_id = generate_id()
+    user_doc = {
+        "id": user_id,
+        "email": user.email,
+        "role": user.role.value,
+        "fitness_goals": [goal.value for goal in user.fitness_goals],
+        "experience_level": user.experience_level.value,
+        "created_at": datetime.now().isoformat()
+    }
     
-    # Create user profile
-    user_dict = user_data.dict()
-    user_obj = UserProfile(**user_dict)
+    await db.users.insert_one(user_doc)
     
-    try:
-        await db.users.insert_one(user_obj.dict())
-        return user_obj
-    except Exception as e:
-        logger.error(f"Error creating user: {e}")
-        raise HTTPException(status_code=500, detail="Error creating user account")
+    return UserResponse(
+        id=user_id,
+        email=user.email,
+        role=user.role.value,
+        fitness_goals=[goal.value for goal in user.fitness_goals],
+        experience_level=user.experience_level.value,
+        created_at=user_doc["created_at"]
+    )
 
-@api_router.get("/users/{user_id}", response_model=UserProfile)
+@api_router.get("/users/{user_id}", response_model=UserResponse)
 async def get_user(user_id: str):
-    user = await db.users.find_one({"id": user_id})
+    """Get user by ID"""
+    user = await get_user_by_id(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    # Remove MongoDB's _id field
-    user.pop('_id', None)
-    return UserProfile(**user)
+    return UserResponse(
+        id=user["id"],
+        email=user["email"],
+        role=user["role"],
+        fitness_goals=user["fitness_goals"],
+        experience_level=user["experience_level"],
+        created_at=user["created_at"]
+    )
 
-@api_router.get("/users/email/{email}", response_model=UserProfile)
-async def get_user_by_email(email: str):
-    user = await db.users.find_one({"email": email})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    # Remove MongoDB's _id field
-    user.pop('_id', None)
-    return UserProfile(**user)
-
-@api_router.put("/users/{user_id}", response_model=UserProfile)
-async def update_user(user_id: str, update_data: UserProfileUpdate):
-    user = await db.users.find_one({"id": user_id})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    update_dict = {k: v for k, v in update_data.dict().items() if v is not None}
-    update_dict["updated_at"] = datetime.utcnow()
-    
-    await db.users.update_one({"id": user_id}, {"$set": update_dict})
-    
-    updated_user = await db.users.find_one({"id": user_id})
-    updated_user.pop('_id', None)
-    return UserProfile(**updated_user)
-
-@api_router.post("/sessions", response_model=Session)
-async def create_session(session_data: SessionCreate):
-    # Verify user exists
-    user = await db.users.find_one({"id": session_data.user_id})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    # Create session
-    session_obj = Session(**session_data.dict())
-    await db.sessions.insert_one(session_obj.dict())
-    
-    # Update user stats
-    new_total_sessions = user["total_sessions"] + 1
-    new_consistency_streak = user["consistency_streak"] + 1
-    new_lift_coins = user["lift_coins"] + session_obj.lift_coins_earned
-    new_tree_level = get_tree_progress(new_total_sessions, new_consistency_streak)
-    
-    await db.users.update_one(
-        {"id": session_data.user_id},
-        {
-            "$set": {
-                "total_sessions": new_total_sessions,
-                "consistency_streak": new_consistency_streak,
-                "lift_coins": new_lift_coins,
-                "tree_level": new_tree_level,
-                "updated_at": datetime.utcnow()
-            }
-        }
+@api_router.put("/users/{user_id}", response_model=UserResponse)
+async def update_user(user_id: str, user_update: User):
+    """Update user profile"""
+    result = await db.users.update_one(
+        {"id": user_id},
+        {"$set": {
+            "role": user_update.role.value,
+            "fitness_goals": [goal.value for goal in user_update.fitness_goals],
+            "experience_level": user_update.experience_level.value
+        }}
     )
     
-    return session_obj
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    updated_user = await get_user_by_id(user_id)
+    return UserResponse(
+        id=updated_user["id"],
+        email=updated_user["email"],
+        role=updated_user["role"],
+        fitness_goals=updated_user["fitness_goals"],
+        experience_level=updated_user["experience_level"],
+        created_at=updated_user["created_at"]
+    )
 
-@api_router.get("/users/{user_id}/sessions", response_model=List[Session])
-async def get_user_sessions(user_id: str):
-    sessions = await db.sessions.find({"user_id": user_id}).to_list(1000)
-    return [Session(**session) for session in sessions]
-
-@api_router.get("/users/{user_id}/tree-progress")
-async def get_tree_progress_info(user_id: str):
-    user = await db.users.find_one({"id": user_id})
+# Fitness Integration APIs
+@api_router.get("/fitness/status/{user_id}", response_model=FitnessConnectionStatus)
+async def get_fitness_connection_status(user_id: str):
+    """Get fitness device connection status"""
+    user = await get_user_by_id(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    current_score = user["total_sessions"] + (user["consistency_streak"] * 2)
-    current_level = user["tree_level"]
+    return FitnessConnectionStatus(
+        fitbit_connected=user.get("fitbit_connected", False),
+        google_fit_connected=user.get("google_fit_connected", False),
+        last_sync=user.get("last_sync")
+    )
+
+@api_router.get("/fitbit/login")
+async def fitbit_login():
+    """Initiate Fitbit OAuth flow"""
+    if FITBIT_CLIENT_ID == 'your_fitbit_client_id_here':
+        raise HTTPException(status_code=501, detail="Fitbit integration not configured")
     
-    # Calculate next level requirements
-    level_thresholds = {
-        "seed": 10,
-        "sprout": 25,
-        "sapling": 50,
-        "young_tree": 80,
-        "mature_tree": 120,
-        "strong_oak": 175,
-        "mighty_pine": 250,
-        "ancient_elm": 350,
-        "giant_sequoia": 500,
-        "redwood": 500  # Max level
+    params = {
+        "client_id": FITBIT_CLIENT_ID,
+        "response_type": "code",
+        "scope": "activity heartrate sleep",
+        "redirect_uri": f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/fitbit/callback"
     }
     
-    next_threshold = level_thresholds.get(current_level, 500)
-    progress_percentage = min((current_score / next_threshold) * 100, 100) if next_threshold > 0 else 100
-    
-    return {
-        "current_level": current_level,
-        "current_score": current_score,
-        "next_threshold": next_threshold,
-        "progress_percentage": progress_percentage,
-        "total_sessions": user["total_sessions"],
-        "consistency_streak": user["consistency_streak"],
-        "lift_coins": user["lift_coins"]
+    authorization_url = f"https://www.fitbit.com/oauth2/authorize?{urlencode(params)}"
+    return {"authorization_url": authorization_url}
+
+@api_router.get("/fitbit/callback")
+async def fitbit_callback(code: str, user_id: str = None):
+    """Handle Fitbit OAuth callback"""
+    token_data = {
+        "client_id": FITBIT_CLIENT_ID,
+        "grant_type": "authorization_code",
+        "redirect_uri": f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/fitbit/callback",
+        "code": code
     }
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "https://api.fitbit.com/oauth2/token",
+            data=token_data,
+            auth=(FITBIT_CLIENT_ID, FITBIT_CLIENT_SECRET)
+        )
+        
+        if response.status_code != 200:
+            raise HTTPException(status_code=400, detail="Failed to exchange code for token")
+        
+        token_info = response.json()
+        
+        if user_id:
+            await db.users.update_one(
+                {"id": user_id},
+                {"$set": {
+                    "fitbit_token": token_info,
+                    "fitbit_connected": True
+                }}
+            )
+    
+    return {"message": "Fitbit connected successfully"}
 
-# Include the router in the main app
-app.include_router(api_router)
+@api_router.get("/google-fit/login")
+async def google_fit_login():
+    """Initiate Google Fit OAuth flow"""
+    if GOOGLE_FIT_CLIENT_ID == 'your_google_fit_client_id_here':
+        raise HTTPException(status_code=501, detail="Google Fit integration not configured")
+    
+    params = {
+        "client_id": GOOGLE_FIT_CLIENT_ID,
+        "response_type": "code",
+        "scope": "https://www.googleapis.com/auth/fitness.activity.read",
+        "redirect_uri": f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/google-fit/callback",
+        "access_type": "offline"
+    }
+    
+    authorization_url = f"https://accounts.google.com/o/oauth2/auth?{urlencode(params)}"
+    return {"authorization_url": authorization_url}
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+@api_router.get("/google-fit/callback")
+async def google_fit_callback(code: str, user_id: str = None):
+    """Handle Google Fit OAuth callback"""
+    token_data = {
+        "client_id": GOOGLE_FIT_CLIENT_ID,
+        "client_secret": GOOGLE_FIT_CLIENT_SECRET,
+        "grant_type": "authorization_code",
+        "redirect_uri": f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/google-fit/callback",
+        "code": code
+    }
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            "https://oauth2.googleapis.com/token",
+            data=token_data
+        )
+        
+        if response.status_code != 200:
+            raise HTTPException(status_code=400, detail="Failed to exchange code for token")
+        
+        token_info = response.json()
+        
+        if user_id:
+            await db.users.update_one(
+                {"id": user_id},
+                {"$set": {
+                    "google_fit_token": token_info,
+                    "google_fit_connected": True
+                }}
+            )
+    
+    return {"message": "Google Fit connected successfully"}
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+@api_router.post("/sync/workouts")
+async def sync_fitness_data(request: dict):
+    """Sync fitness data from connected devices"""
+    user_id = request.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=400, detail="User ID required")
+    
+    user = await get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    synced_workouts = 0
+    
+    # Mock sync process - in real implementation, this would fetch from APIs
+    mock_workouts = [
+        {
+            "activity_type": "Running",
+            "duration": 30,
+            "calories": 250,
+            "date": datetime.now().isoformat(),
+            "source": SessionSource.FITBIT if user.get("fitbit_connected") else SessionSource.GOOGLE_FIT
+        },
+        {
+            "activity_type": "Weight Training",
+            "duration": 45,
+            "calories": 180,
+            "date": (datetime.now() - timedelta(days=1)).isoformat(),
+            "source": SessionSource.FITBIT if user.get("fitbit_connected") else SessionSource.GOOGLE_FIT
+        }
+    ]
+    
+    # Create sessions from synced data
+    for workout in mock_workouts:
+        session_id = generate_id()
+        session_doc = {
+            "id": session_id,
+            "user_id": user_id,
+            "session_type": workout["activity_type"],
+            "duration_minutes": workout["duration"],
+            "calories": workout["calories"],
+            "source": workout["source"].value,
+            "created_at": workout["date"]
+        }
+        
+        await db.sessions.insert_one(session_doc)
+        synced_workouts += 1
+    
+    # Update last sync time
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {"last_sync": datetime.now().isoformat()}}
+    )
+    
+    return {"synced_workouts": synced_workouts}
 
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()
+@api_router.get("/fitness/data/{user_id}", response_model=FitnessData)
+async def get_fitness_data(user_id: str):
+    """Get fitness data and statistics"""
+    user = await get_user_by_id(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Get fitness sessions from the last 30 days
+    sessions_cursor = db.sessions.find({
+        "user_id": user_id,
+        "source": {"$in": ["fitbit", "google_fit", "trainer"]}
+    }).sort("created_at", -1).limit(10)
+    
+    sessions = await sessions_cursor.to_list(length=10)
+    
+    # Calculate stats
+    total_workouts = len(sessions)
+    this_week_count = sum(1 for s in sessions if 
+        datetime.fromisoformat(s["created_at"]) > datetime.now() - timedelta(days=7))
+    avg_duration = sum(s.get("duration_minutes", 0) for s in sessions) // max(len(sessions), 1)
+    
+    recent_workouts = [
+        {
+            "activity_type": s["session_type"],
+            "duration": s["duration_minutes"],
+            "calories": s.get("calories", 200),
+            "date": s["created_at"],
+            "source": s["source"],
+            "auto_confirmed": s["source"] in ["fitbit", "google_fit"]
+        }
+        for s in sessions[:5]
+    ]
+    
+    return FitnessData(
+        total_workouts=total_workouts,
+        this_week=this_week_count,
+        avg_duration=avg_duration,
+        recent_workouts=recent_workouts
+    )
+
+@api_router.delete("/fitbit/disconnect/{user_id}")
+async def disconnect_fitbit(user_id: str):
+    """Disconnect Fitbit from user account"""
+    result = await db.users.update_one(
+        {"id": user_id},
+        {"$unset": {"fitbit_token": "", "fitbit_connected": ""}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "Fitbit disconnected successfully"}
+
+@api_router.delete("/google-fit/disconnect/{user_id}")
+async def disconnect_google_fit(user_id: str):
+    """Disconnect Google Fit from user account"""
+    result = await db.users.update_one(
+        {"id": user_id},
+        {"$unset": {"google_fit_token": "", "google_fit_connected": ""}}
+    )
+    
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"message": "Google Fit disconnected successfully"}
+
+# Session Management with Check-in System
+@api_router.post("/sessions", response_model=SessionResponse)
+async def create_session(session: Session):
+    """Create a new session (primarily used by trainers and fitness sync)"""
+    session_id = generate_id()
+    session_doc = {
+        "id": session_id,
+        "user_id": session.user_id,
+        "trainer_id": session.trainer_id,
+        "session_type": session.session_type,
+        "duration_minutes": session.duration_minutes,
+        "source": session.source.value,
+        "calories": session.calories,
+        "heart_rate_avg": session.heart_rate_avg,
+        "scheduled_time": session.scheduled_time,
+        "created_at": datetime.now().isoformat()
+    }
+    
+    await db.sessions.insert_one(session_doc)
+    
+    return SessionResponse(**session_doc)
+
+@api_router.get("/users/{user_id}/sessions", response_model=List[SessionResponse])
+async def get_user_sessions(user_id: str):
+    """Get all sessions for a user"""
+    sessions_cursor = db.sessions.find({"user_id": user_id}).sort("created_at", -1)
+    sessions = await sessions_cursor.to_list(length=100)
+    
+    return [SessionResponse(**session) for session in sessions]
+
+@api_router.get("/users/{user_id}/upcoming-sessions")
+async def get_upcoming_sessions(user_id: str):
+    """Get upcoming scheduled sessions for a user"""
+    # Mock upcoming sessions - in real app, this would query scheduled sessions
+    return [
+        {
+            "id": "upcoming_1",
+            "session_type": "Personal Training",
+            "scheduled_time": (datetime.now() + timedelta(hours=2)).isoformat(),
+            "trainer_name": "Sarah Johnson"
+        }
+    ]
+
+@api_router.get("/users/{user_id}/pending-checkins")
+async def get_pending_checkins(user_id: str):
+    """Get pending check-in requests for a user"""
+    # Mock pending check-ins - in real app, this would query pending requests
+    return []
+
+@api_router.post("/sessions/{session_id}/request-checkin")
+async def request_checkin(session_id: str):
+    """Request check-in from trainer for a session"""
+    # Mock check-in request - in real app, this would notify the trainer
+    return {"message": "Check-in request sent to trainer"}
+
+# Tree progress calculation with enhanced tracking
+@api_router.get("/users/{user_id}/tree-progress", response_model=TreeProgress)
+async def get_tree_progress(user_id: str):
+    """Calculate and return user's tree progression"""
+    sessions_cursor = db.sessions.find({"user_id": user_id})
+    sessions = await sessions_cursor.to_list(length=None)
+    
+    total_sessions = len(sessions)
+    
+    # Calculate consistency streak (mock calculation)
+    consistency_streak = min(total_sessions, 7)  # Simple mock
+    
+    # Calculate tree level and progress
+    current_level = calculate_tree_level(total_sessions, consistency_streak)
+    score = total_sessions + (consistency_streak * 2)
+    progress_percentage = calculate_progress_percentage(current_level, score)
+    
+    # Calculate LiftCoins (50 per session + streak bonus)
+    lift_coins = (total_sessions * 50) + (consistency_streak * 10)
+    
+    return TreeProgress(
+        total_sessions=total_sessions,
+        consistency_streak=consistency_streak,
+        current_level=current_level.value,
+        lift_coins=lift_coins,
+        progress_percentage=progress_percentage
+    )
+
+# Add API router to app
+app.include_router(api_router, prefix="/api")
+
+@app.get("/")
+async def root():
+    return {"message": "LiftLink API is running! 🚀 Enhanced with Fitness Integration"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8001)
