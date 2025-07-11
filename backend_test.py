@@ -1143,6 +1143,16 @@ def run_all_tests():
         
         # Test user profile management
         test_user_profile_management(user)
+        
+        # Test Phase 2 Fitness Integration Features
+        test_fitness_connection_status(user)
+        test_fitness_data_sync(user)
+        test_enhanced_session_management(user)
+        test_fitness_disconnection(user)
+        test_enhanced_tree_progress(user)
+    
+    # Test fitness OAuth flows (doesn't need user)
+    test_fitness_oauth_flows()
     
     # Test complete user journey
     test_complete_user_journey()
