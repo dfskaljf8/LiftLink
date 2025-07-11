@@ -3738,7 +3738,9 @@ function App() {
       case 'tree':
         return <TreeSection user={user} treeProgress={treeProgress} />;
       case 'sessions':
-        return <SessionsSection user={user} sessions={sessions} onCompleteSession={completeSession} />;
+        return <SessionsSection user={user} sessions={sessions} />;
+      case 'fitness':
+        return <FitnessIntegrationSection user={user} />;
       case 'rewards':
         return <RewardsSection user={user} treeProgress={treeProgress} />;
       case 'friends':
