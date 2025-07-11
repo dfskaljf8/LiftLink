@@ -299,7 +299,11 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Fitness API Integration - Backend Endpoints"
+    - "Session Management Overhaul - Check-in System"
+    - "Fitness Integration UI - Frontend Components"
+    - "Google Maps Integration - API Key Configuration"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
