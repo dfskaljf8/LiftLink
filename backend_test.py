@@ -501,6 +501,460 @@ def test_user_login():
         
     return False
 
+def test_fitness_connection_status(user):
+    """Test fitness device connection status API"""
+    if not user:
+        print("Cannot test fitness connection status without a valid user")
+        return False
+        
+    print_separator()
+    print("TESTING FITNESS CONNECTION STATUS API")
+    print_separator()
+    
+    user_id = user["id"]
+    
+    # Test getting fitness connection status
+    print(f"Getting fitness connection status for user {user_id}")
+    response = requests.get(f"{BACKEND_URL}/fitness/status/{user_id}")
+    
+    if response.status_code == 200:
+        status = response.json()
+        print(f"Fitness connection status: {json.dumps(status, indent=2)}")
+        
+        # Verify response structure
+        required_fields = ["fitbit_connected", "google_fit_connected", "last_sync"]
+        missing_fields = [field for field in required_fields if field not in status]
+        
+        if missing_fields:
+            print(f"ERROR: Missing fields in fitness status response: {missing_fields}")
+            test_results["fitness_connection_status"]["details"] += f"Missing fields: {missing_fields}. "
+            return False
+        
+        # Verify initial values (should be False for new user)
+        if status["fitbit_connected"] == False and status["google_fit_connected"] == False:
+            print("Initial fitness connection status is correct (both disconnected)")
+            test_results["fitness_connection_status"]["success"] = True
+            return True
+        else:
+            print(f"ERROR: Expected both connections to be False but got fitbit: {status['fitbit_connected']}, google_fit: {status['google_fit_connected']}")
+            test_results["fitness_connection_status"]["details"] += f"Initial connection status incorrect. "
+            return False
+    else:
+        print(f"ERROR: Failed to get fitness connection status. Status code: {response.status_code}")
+        print(f"Response: {response.text}")
+        test_results["fitness_connection_status"]["details"] += f"Failed to get fitness connection status. Status code: {response.status_code}. "
+        return False
+
+def test_fitness_oauth_flows():
+    """Test fitness OAuth initiation flows"""
+    print_separator()
+    print("TESTING FITNESS OAUTH FLOWS")
+    print_separator()
+    
+    # Test Fitbit OAuth initiation
+    print("Testing Fitbit OAuth initiation...")
+    response = requests.get(f"{BACKEND_URL}/fitbit/login")
+    
+    if response.status_code == 501:
+        result = response.json()
+        print(f"Fitbit OAuth response: {json.dumps(result, indent=2)}")
+        
+        if "not configured" in result.get("detail", "").lower():
+            print("Successfully returned proper error for unconfigured Fitbit credentials")
+        else:
+            print(f"ERROR: Expected 'not configured' error but got: {result.get('detail')}")
+            test_results["fitness_oauth_flows"]["details"] += f"Fitbit OAuth error message incorrect. "
+    else:
+        print(f"ERROR: Expected status code 501 for unconfigured Fitbit but got: {response.status_code}")
+        test_results["fitness_oauth_flows"]["details"] += f"Fitbit OAuth status code incorrect. Expected 501 but got {response.status_code}. "
+    
+    # Test Google Fit OAuth initiation
+    print("\nTesting Google Fit OAuth initiation...")
+    response = requests.get(f"{BACKEND_URL}/google-fit/login")
+    
+    if response.status_code == 501:
+        result = response.json()
+        print(f"Google Fit OAuth response: {json.dumps(result, indent=2)}")
+        
+        if "not configured" in result.get("detail", "").lower():
+            print("Successfully returned proper error for unconfigured Google Fit credentials")
+            test_results["fitness_oauth_flows"]["success"] = True
+            return True
+        else:
+            print(f"ERROR: Expected 'not configured' error but got: {result.get('detail')}")
+            test_results["fitness_oauth_flows"]["details"] += f"Google Fit OAuth error message incorrect. "
+    else:
+        print(f"ERROR: Expected status code 501 for unconfigured Google Fit but got: {response.status_code}")
+        test_results["fitness_oauth_flows"]["details"] += f"Google Fit OAuth status code incorrect. Expected 501 but got {response.status_code}. "
+    
+    return False
+
+def test_fitness_data_sync(user):
+    """Test fitness data sync functionality"""
+    if not user:
+        print("Cannot test fitness data sync without a valid user")
+        return False
+        
+    print_separator()
+    print("TESTING FITNESS DATA SYNC")
+    print_separator()
+    
+    user_id = user["id"]
+    
+    # Test sync workouts
+    print(f"Testing workout sync for user {user_id}")
+    sync_data = {
+        "user_id": user_id
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/sync/workouts", json=sync_data)
+    
+    if response.status_code == 200:
+        result = response.json()
+        print(f"Sync workouts response: {json.dumps(result, indent=2)}")
+        
+        # Verify response structure
+        if "synced_workouts" in result:
+            synced_count = result["synced_workouts"]
+            print(f"Successfully synced {synced_count} workouts")
+            
+            if synced_count > 0:
+                print("Mock sync process worked correctly")
+            else:
+                print("WARNING: No workouts were synced (this might be expected for mock data)")
+        else:
+            print("ERROR: Missing 'synced_workouts' field in response")
+            test_results["fitness_data_sync"]["details"] += f"Missing synced_workouts field. "
+            return False
+    else:
+        print(f"ERROR: Failed to sync workouts. Status code: {response.status_code}")
+        print(f"Response: {response.text}")
+        test_results["fitness_data_sync"]["details"] += f"Failed to sync workouts. Status code: {response.status_code}. "
+        return False
+    
+    # Test get fitness data
+    print(f"\nTesting get fitness data for user {user_id}")
+    response = requests.get(f"{BACKEND_URL}/fitness/data/{user_id}")
+    
+    if response.status_code == 200:
+        fitness_data = response.json()
+        print(f"Fitness data response: {json.dumps(fitness_data, indent=2)}")
+        
+        # Verify response structure
+        required_fields = ["total_workouts", "this_week", "avg_duration", "recent_workouts"]
+        missing_fields = [field for field in required_fields if field not in fitness_data]
+        
+        if missing_fields:
+            print(f"ERROR: Missing fields in fitness data response: {missing_fields}")
+            test_results["fitness_data_sync"]["details"] += f"Missing fields in fitness data: {missing_fields}. "
+            return False
+        
+        # Verify data types
+        if (isinstance(fitness_data["total_workouts"], int) and 
+            isinstance(fitness_data["this_week"], int) and
+            isinstance(fitness_data["avg_duration"], int) and
+            isinstance(fitness_data["recent_workouts"], list)):
+            print("Fitness data structure and types are correct")
+            test_results["fitness_data_sync"]["success"] = True
+            return True
+        else:
+            print("ERROR: Fitness data types are incorrect")
+            test_results["fitness_data_sync"]["details"] += f"Fitness data types incorrect. "
+            return False
+    else:
+        print(f"ERROR: Failed to get fitness data. Status code: {response.status_code}")
+        print(f"Response: {response.text}")
+        test_results["fitness_data_sync"]["details"] += f"Failed to get fitness data. Status code: {response.status_code}. "
+        return False
+
+def test_enhanced_session_management(user):
+    """Test enhanced session management with new fields"""
+    if not user:
+        print("Cannot test enhanced session management without a valid user")
+        return False
+        
+    print_separator()
+    print("TESTING ENHANCED SESSION MANAGEMENT")
+    print_separator()
+    
+    user_id = user["id"]
+    
+    # Test creating sessions with different sources and new fields
+    session_types = [
+        {
+            "source": "manual",
+            "session_type": "Manual Workout",
+            "duration_minutes": 45,
+            "calories": 300,
+            "heart_rate_avg": 140
+        },
+        {
+            "source": "trainer",
+            "session_type": "Personal Training",
+            "duration_minutes": 60,
+            "calories": 400,
+            "heart_rate_avg": 155,
+            "trainer_id": "trainer_123",
+            "scheduled_time": (datetime.now() + timedelta(hours=1)).isoformat()
+        },
+        {
+            "source": "fitbit",
+            "session_type": "Running",
+            "duration_minutes": 30,
+            "calories": 250,
+            "heart_rate_avg": 160
+        },
+        {
+            "source": "google_fit",
+            "session_type": "Cycling",
+            "duration_minutes": 40,
+            "calories": 280,
+            "heart_rate_avg": 145
+        }
+    ]
+    
+    created_sessions = []
+    
+    for i, session_data in enumerate(session_types):
+        print(f"\nCreating {session_data['source']} session...")
+        session_data["user_id"] = user_id
+        
+        response = requests.post(f"{BACKEND_URL}/sessions", json=session_data)
+        
+        if response.status_code == 200:
+            session = response.json()
+            print(f"Created session: {json.dumps(session, indent=2)}")
+            created_sessions.append(session)
+            
+            # Verify all fields are present
+            required_fields = ["id", "user_id", "session_type", "duration_minutes", "source", "created_at"]
+            missing_fields = [field for field in required_fields if field not in session]
+            
+            if missing_fields:
+                print(f"ERROR: Missing fields in session response: {missing_fields}")
+                test_results["enhanced_session_management"]["details"] += f"Missing fields in {session_data['source']} session: {missing_fields}. "
+                return False
+            
+            # Verify field values
+            if (session["source"] == session_data["source"] and
+                session["duration_minutes"] == session_data["duration_minutes"] and
+                session.get("calories") == session_data.get("calories") and
+                session.get("heart_rate_avg") == session_data.get("heart_rate_avg")):
+                print(f"Session fields correctly set for {session_data['source']} source")
+            else:
+                print(f"ERROR: Session field values incorrect for {session_data['source']} source")
+                test_results["enhanced_session_management"]["details"] += f"Field values incorrect for {session_data['source']} session. "
+                return False
+        else:
+            print(f"ERROR: Failed to create {session_data['source']} session. Status code: {response.status_code}")
+            print(f"Response: {response.text}")
+            test_results["enhanced_session_management"]["details"] += f"Failed to create {session_data['source']} session. Status code: {response.status_code}. "
+            return False
+    
+    # Test upcoming sessions endpoint
+    print(f"\nTesting upcoming sessions for user {user_id}")
+    response = requests.get(f"{BACKEND_URL}/users/{user_id}/upcoming-sessions")
+    
+    if response.status_code == 200:
+        upcoming = response.json()
+        print(f"Upcoming sessions: {json.dumps(upcoming, indent=2)}")
+        
+        if isinstance(upcoming, list):
+            print("Upcoming sessions endpoint works correctly")
+        else:
+            print("ERROR: Upcoming sessions should return a list")
+            test_results["enhanced_session_management"]["details"] += f"Upcoming sessions format incorrect. "
+            return False
+    else:
+        print(f"ERROR: Failed to get upcoming sessions. Status code: {response.status_code}")
+        test_results["enhanced_session_management"]["details"] += f"Failed to get upcoming sessions. Status code: {response.status_code}. "
+        return False
+    
+    # Test pending check-ins endpoint
+    print(f"\nTesting pending check-ins for user {user_id}")
+    response = requests.get(f"{BACKEND_URL}/users/{user_id}/pending-checkins")
+    
+    if response.status_code == 200:
+        pending = response.json()
+        print(f"Pending check-ins: {json.dumps(pending, indent=2)}")
+        
+        if isinstance(pending, list):
+            print("Pending check-ins endpoint works correctly")
+        else:
+            print("ERROR: Pending check-ins should return a list")
+            test_results["enhanced_session_management"]["details"] += f"Pending check-ins format incorrect. "
+            return False
+    else:
+        print(f"ERROR: Failed to get pending check-ins. Status code: {response.status_code}")
+        test_results["enhanced_session_management"]["details"] += f"Failed to get pending check-ins. Status code: {response.status_code}. "
+        return False
+    
+    # Test request check-in
+    if created_sessions:
+        session_id = created_sessions[0]["id"]
+        print(f"\nTesting request check-in for session {session_id}")
+        response = requests.post(f"{BACKEND_URL}/sessions/{session_id}/request-checkin")
+        
+        if response.status_code == 200:
+            result = response.json()
+            print(f"Check-in request response: {json.dumps(result, indent=2)}")
+            
+            if "message" in result:
+                print("Check-in request endpoint works correctly")
+                test_results["enhanced_session_management"]["success"] = True
+                return True
+            else:
+                print("ERROR: Check-in request should return a message")
+                test_results["enhanced_session_management"]["details"] += f"Check-in request response format incorrect. "
+                return False
+        else:
+            print(f"ERROR: Failed to request check-in. Status code: {response.status_code}")
+            test_results["enhanced_session_management"]["details"] += f"Failed to request check-in. Status code: {response.status_code}. "
+            return False
+    
+    return False
+
+def test_fitness_disconnection(user):
+    """Test fitness device disconnection APIs"""
+    if not user:
+        print("Cannot test fitness disconnection without a valid user")
+        return False
+        
+    print_separator()
+    print("TESTING FITNESS DISCONNECTION APIS")
+    print_separator()
+    
+    user_id = user["id"]
+    
+    # Test Fitbit disconnection
+    print(f"Testing Fitbit disconnection for user {user_id}")
+    response = requests.delete(f"{BACKEND_URL}/fitbit/disconnect/{user_id}")
+    
+    if response.status_code == 200:
+        result = response.json()
+        print(f"Fitbit disconnect response: {json.dumps(result, indent=2)}")
+        
+        if "message" in result and "disconnected" in result["message"].lower():
+            print("Fitbit disconnection works correctly")
+        else:
+            print("ERROR: Fitbit disconnect response format incorrect")
+            test_results["fitness_disconnection"]["details"] += f"Fitbit disconnect response format incorrect. "
+            return False
+    else:
+        print(f"ERROR: Failed to disconnect Fitbit. Status code: {response.status_code}")
+        print(f"Response: {response.text}")
+        test_results["fitness_disconnection"]["details"] += f"Failed to disconnect Fitbit. Status code: {response.status_code}. "
+        return False
+    
+    # Test Google Fit disconnection
+    print(f"\nTesting Google Fit disconnection for user {user_id}")
+    response = requests.delete(f"{BACKEND_URL}/google-fit/disconnect/{user_id}")
+    
+    if response.status_code == 200:
+        result = response.json()
+        print(f"Google Fit disconnect response: {json.dumps(result, indent=2)}")
+        
+        if "message" in result and "disconnected" in result["message"].lower():
+            print("Google Fit disconnection works correctly")
+            test_results["fitness_disconnection"]["success"] = True
+            return True
+        else:
+            print("ERROR: Google Fit disconnect response format incorrect")
+            test_results["fitness_disconnection"]["details"] += f"Google Fit disconnect response format incorrect. "
+            return False
+    else:
+        print(f"ERROR: Failed to disconnect Google Fit. Status code: {response.status_code}")
+        print(f"Response: {response.text}")
+        test_results["fitness_disconnection"]["details"] += f"Failed to disconnect Google Fit. Status code: {response.status_code}. "
+        return False
+
+def test_enhanced_tree_progress(user):
+    """Test enhanced tree progress with different session sources"""
+    if not user:
+        print("Cannot test enhanced tree progress without a valid user")
+        return False
+        
+    print_separator()
+    print("TESTING ENHANCED TREE PROGRESS WITH SESSION SOURCES")
+    print_separator()
+    
+    user_id = user["id"]
+    
+    # Create sessions from different sources
+    session_sources = ["manual", "trainer", "fitbit", "google_fit"]
+    
+    for source in session_sources:
+        print(f"\nCreating {source} session for tree progress test...")
+        session_data = {
+            "user_id": user_id,
+            "session_type": f"{source.title()} Workout",
+            "duration_minutes": 30,
+            "source": source,
+            "calories": 200,
+            "heart_rate_avg": 140
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/sessions", json=session_data)
+        
+        if response.status_code != 200:
+            print(f"ERROR: Failed to create {source} session. Status code: {response.status_code}")
+            test_results["enhanced_tree_progress"]["details"] += f"Failed to create {source} session. "
+            return False
+    
+    # Check tree progress after creating sessions from all sources
+    print(f"\nChecking tree progress after creating sessions from all sources...")
+    response = requests.get(f"{BACKEND_URL}/users/{user_id}/tree-progress")
+    
+    if response.status_code == 200:
+        progress = response.json()
+        print(f"Enhanced tree progress: {json.dumps(progress, indent=2)}")
+        
+        # Verify response structure
+        required_fields = ["total_sessions", "consistency_streak", "current_level", "lift_coins", "progress_percentage"]
+        missing_fields = [field for field in required_fields if field not in progress]
+        
+        if missing_fields:
+            print(f"ERROR: Missing fields in tree progress response: {missing_fields}")
+            test_results["enhanced_tree_progress"]["details"] += f"Missing fields: {missing_fields}. "
+            return False
+        
+        # Verify that sessions from all sources are counted
+        if progress["total_sessions"] >= len(session_sources):
+            print(f"Tree progress correctly counts sessions from all sources: {progress['total_sessions']} total sessions")
+            
+            # Verify LiftCoins calculation
+            expected_min_coins = len(session_sources) * 50  # 50 coins per session minimum
+            if progress["lift_coins"] >= expected_min_coins:
+                print(f"LiftCoins calculation works with multiple session sources: {progress['lift_coins']} coins")
+                
+                # Verify tree level progression
+                if progress["current_level"] in ["seed", "sprout", "sapling", "young_tree", "mature_tree", "strong_oak", "mighty_pine", "ancient_elm", "giant_sequoia", "redwood"]:
+                    print(f"Tree level is valid: {progress['current_level']}")
+                    
+                    # Verify progress percentage
+                    if 0 <= progress["progress_percentage"] <= 100:
+                        print(f"Progress percentage is valid: {progress['progress_percentage']}%")
+                        test_results["enhanced_tree_progress"]["success"] = True
+                        return True
+                    else:
+                        print(f"ERROR: Progress percentage out of range: {progress['progress_percentage']}")
+                        test_results["enhanced_tree_progress"]["details"] += f"Progress percentage out of range. "
+                else:
+                    print(f"ERROR: Invalid tree level: {progress['current_level']}")
+                    test_results["enhanced_tree_progress"]["details"] += f"Invalid tree level. "
+            else:
+                print(f"ERROR: LiftCoins calculation incorrect. Expected at least {expected_min_coins} but got {progress['lift_coins']}")
+                test_results["enhanced_tree_progress"]["details"] += f"LiftCoins calculation incorrect. "
+        else:
+            print(f"ERROR: Total sessions count incorrect. Expected at least {len(session_sources)} but got {progress['total_sessions']}")
+            test_results["enhanced_tree_progress"]["details"] += f"Session count incorrect. "
+    else:
+        print(f"ERROR: Failed to get enhanced tree progress. Status code: {response.status_code}")
+        print(f"Response: {response.text}")
+        test_results["enhanced_tree_progress"]["details"] += f"Failed to get tree progress. Status code: {response.status_code}. "
+    
+    return False
+
 def test_complete_user_journey():
     print_separator()
     print("TESTING COMPLETE USER JOURNEY")
