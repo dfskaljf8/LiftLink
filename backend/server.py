@@ -219,7 +219,7 @@ async def login_user(request: LoginRequest):
         role=user["role"].value if hasattr(user["role"], 'value') else user["role"],
         fitness_goals=fitness_goals_str,
         experience_level=user["experience_level"].value if hasattr(user["experience_level"], 'value') else user["experience_level"],
-        created_at=user["created_at"]
+        created_at=user["created_at"].isoformat() if isinstance(user["created_at"], datetime) else user["created_at"]
     )
 
 @api_router.post("/users", response_model=UserResponse)
