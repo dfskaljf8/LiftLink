@@ -849,6 +849,7 @@ const SideNavigation = ({ activeTab, setActiveTab, darkMode }) => {
     { id: 'tree', label: 'My Tree', icon: SVGIcons.Tree },
     { id: 'trainers', label: 'Find Trainers', icon: SVGIcons.Trainers },
     { id: 'sessions', label: 'Sessions', icon: SVGIcons.Sessions },
+    { id: 'fitness', label: 'Fitness Devices', icon: SVGIcons.Analytics },
     { id: 'rewards', label: 'Rewards', icon: SVGIcons.Rewards },
     { id: 'friends', label: 'Friends', icon: SVGIcons.Friends },
     { id: 'analytics', label: 'Analytics', icon: SVGIcons.Analytics },
