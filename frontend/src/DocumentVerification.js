@@ -128,7 +128,7 @@ const DocumentVerification = ({ user, userRole, onVerificationComplete, darkMode
       reader.onload = async (e) => {
         const base64Data = e.target.result;
         
-        const response = await axios.post(`${API}/verify-fitness-certification`, {
+        const response = await axios.post(`${API}/api/verify-fitness-certification`, {
           user_id: user.id,
           user_email: user.email,
           cert_type: certType,
