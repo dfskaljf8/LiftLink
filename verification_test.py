@@ -91,12 +91,19 @@ def test_government_id_verification():
             created_users.append(user)
             print(f"✅ Created user: {user['id']}")
             
-            # Verify initial verification status
-            if not user.get("age_verified", True):  # Should be False initially
-                print("✅ User created with age_verified=False as expected")
+            # Verify initial verification status by checking the verification status endpoint
+            status_response = requests.get(f"{BACKEND_URL}/verification-status/{user['id']}")
+            if status_response.status_code == 200:
+                status = status_response.json()
+                if status.get("age_verified") == False:
+                    print("✅ User created with age_verified=False as expected")
+                else:
+                    print("❌ ERROR: User should be created with age_verified=False")
+                    verification_test_results["enhanced_user_creation"]["details"] += f"User not created with age_verified=False. "
+                    continue
             else:
-                print("❌ ERROR: User should be created with age_verified=False")
-                verification_test_results["enhanced_user_creation"]["details"] += f"User not created with age_verified=False. "
+                print("❌ ERROR: Could not check verification status")
+                verification_test_results["enhanced_user_creation"]["details"] += f"Could not check verification status. "
                 continue
             
             # Now test government ID verification
