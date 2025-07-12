@@ -205,14 +205,10 @@ async def check_user_exists(request: CheckUserRequest):
 
 @api_router.post("/login", response_model=UserResponse)
 async def login_user(request: LoginRequest):
-    """Sign in existing user with email verification check"""
+    """Sign in existing user"""
     user = await get_user_by_email(request.email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    # Check if email is verified
-    if not user.get("email_verified", False):
-        raise HTTPException(status_code=403, detail="Email not verified. Please check your email for verification code.")
     
     # Convert fitness_goals from enum values to strings if needed
     fitness_goals = user["fitness_goals"]
