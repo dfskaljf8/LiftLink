@@ -2,6 +2,9 @@ import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 
 const API = process.env.REACT_APP_BACKEND_URL;
+const STRIPE_PUBLISHABLE_KEY = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY;
+
+const API = process.env.REACT_APP_BACKEND_URL;
 
 // Enhanced Trainer Schedule Component
 export const TrainerSchedule = ({ user }) => {
