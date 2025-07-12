@@ -621,6 +621,10 @@ async def get_tree_progress(user_id: str):
     )
 
 # Import new services
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 from email_service import EmailService, generate_verification_code
 from payment_service import PaymentService
 from calendar_service import CalendarService
