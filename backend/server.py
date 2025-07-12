@@ -684,6 +684,111 @@ class ReviewData(BaseModel):
     date: str
     session_type: str
 
+# Document Verification Endpoints
+@api_router.post("/verify-government-id", response_model=VerificationResponse)
+async def verify_government_id(request: GovernmentIdRequest):
+    """Verify government ID for age verification"""
+    try:
+        result = verification_service.process_government_id(
+            request.image_data, 
+            request.user_id, 
+            request.user_email
+        )
+        
+        # Update user verification status in database
+        if result["age_verified"]:
+            await db.users.update_one(
+                {"id": request.user_id},
+                {"$set": {
+                    "age_verified": True,
+                    "verification_status": "age_verified",
+                    "id_verification_date": datetime.now().isoformat()
+                }}
+            )
+        else:
+            await db.users.update_one(
+                {"id": request.user_id},
+                {"$set": {
+                    "verification_status": "rejected",
+                    "rejection_reason": result.get("rejection_reason"),
+                    "id_verification_date": datetime.now().isoformat()
+                }}
+            )
+        
+        return VerificationResponse(
+            status=result["status"],
+            age_verified=result["age_verified"],
+            rejection_reason=result.get("rejection_reason")
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/verify-fitness-certification", response_model=VerificationResponse)
+async def verify_fitness_certification(request: CertificationRequest):
+    """Verify fitness certification for trainers"""
+    try:
+        result = verification_service.process_fitness_certification(
+            request.image_data,
+            request.cert_type,
+            request.user_id,
+            request.user_email
+        )
+        
+        # Update user verification status in database
+        if result["cert_verified"]:
+            await db.users.update_one(
+                {"id": request.user_id},
+                {"$set": {
+                    "cert_verified": True,
+                    "certification_type": request.cert_type,
+                    "verification_status": "fully_verified",
+                    "cert_verification_date": datetime.now().isoformat(),
+                    "cert_expiry_date": result.get("expiry_date")
+                }}
+            )
+        else:
+            await db.users.update_one(
+                {"id": request.user_id},
+                {"$set": {
+                    "verification_status": "rejected",
+                    "rejection_reason": result.get("rejection_reason"),
+                    "cert_verification_date": datetime.now().isoformat()
+                }}
+            )
+        
+        return VerificationResponse(
+            status=result["status"],
+            cert_verified=result["cert_verified"],
+            rejection_reason=result.get("rejection_reason")
+        )
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/verification-status/{user_id}")
+async def get_verification_status(user_id: str):
+    """Get user's verification status"""
+    try:
+        user = await get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        return {
+            "user_id": user_id,
+            "age_verified": user.get("age_verified", False),
+            "cert_verified": user.get("cert_verified", False),
+            "verification_status": user.get("verification_status", "pending"),
+            "certification_type": user.get("certification_type"),
+            "rejection_reason": user.get("rejection_reason"),
+            "requires_certification": user.get("role") == "trainer"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # Trainer Schedule Management
 @api_router.get("/trainer/{trainer_id}/schedule")
