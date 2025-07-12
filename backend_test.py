@@ -1916,6 +1916,45 @@ def run_all_tests():
     else:
         print("Some tests FAILED. See details above.")
 
+def run_new_features_tests():
+    """Run tests specifically for the newly implemented Stripe payment integration"""
+    print("Starting LiftLink Stripe Payment Integration Tests")
+    print(f"Backend URL: {BACKEND_URL}")
+    print_separator()
+    
+    # Test the new Stripe payment integration
+    test_stripe_payment_integration()
+    
+    # Also test enhanced trainer features that work with payments
+    test_enhanced_trainer_features()
+    
+    # Print test results summary
+    print_separator()
+    print("STRIPE INTEGRATION TEST RESULTS SUMMARY")
+    print_separator()
+    
+    stripe_tests = ["stripe_payment_integration", "trainer_features"]
+    all_passed = True
+    
+    for test_name in stripe_tests:
+        if test_name in test_results:
+            result = test_results[test_name]
+            status = "PASSED" if result["success"] else "FAILED"
+            details = result["details"] if result["details"] else "No issues found"
+            
+            print(f"{test_name}: {status}")
+            print(f"Details: {details}")
+            print()
+            
+            if not result["success"]:
+                all_passed = False
+    
+    if all_passed:
+        print("✅ All Stripe integration tests PASSED!")
+        print("🎉 Real Stripe payment integration is working correctly!")
+    else:
+        print("❌ Some Stripe integration tests FAILED. See details above.")
+
 if __name__ == "__main__":
-    # Run tests for the newly implemented features as requested in the review
+    # Run tests for the newly implemented Stripe payment integration as requested in the review
     run_new_features_tests()
