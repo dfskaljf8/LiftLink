@@ -1330,6 +1330,200 @@ def test_email_verification_system():
     print("✅ Email verification system tests completed")
     return True
 
+def test_stripe_payment_integration():
+    """Test the newly implemented Stripe payment integration"""
+    print_separator()
+    print("TESTING STRIPE PAYMENT INTEGRATION")
+    print_separator()
+    
+    trainer_id = "trainer_test_456"
+    client_id = "client_test_789"
+    session_id = "session_test_123"
+    
+    # Test 1: Get session cost
+    print("Step 1: Testing get session cost...")
+    response = requests.get(f"{BACKEND_URL}/payments/session-cost/{trainer_id}")
+    
+    if response.status_code == 200:
+        cost_data = response.json()
+        print(f"✅ Session cost retrieved: {json.dumps(cost_data, indent=2)}")
+        
+        # Verify response structure
+        required_fields = ["trainer_id", "session_type", "cost_cents", "cost_dollars", "currency"]
+        missing_fields = [field for field in required_fields if field not in cost_data]
+        
+        if missing_fields:
+            print(f"❌ ERROR: Missing fields in session cost response: {missing_fields}")
+            test_results["stripe_payment_integration"]["details"] += f"Missing fields in session cost: {missing_fields}. "
+            return False
+        
+        # Verify cost values
+        if cost_data["cost_cents"] == 7500 and cost_data["cost_dollars"] == 75.0:
+            print("✅ Session cost values are correct")
+        else:
+            print(f"❌ ERROR: Expected cost $75.00 but got ${cost_data['cost_dollars']}")
+            test_results["stripe_payment_integration"]["details"] += f"Session cost values incorrect. "
+            return False
+    else:
+        print(f"❌ ERROR: Failed to get session cost. Status code: {response.status_code}")
+        test_results["stripe_payment_integration"]["details"] += f"Failed to get session cost. Status code: {response.status_code}. "
+        return False
+    
+    # Test 2: Create Stripe checkout session
+    print("\nStep 2: Testing create Stripe checkout session...")
+    checkout_request = {
+        "amount": 7500,  # $75.00
+        "trainer_id": trainer_id,
+        "client_email": "test.client@example.com",
+        "session_details": {
+            "trainer_name": "Sarah Johnson",
+            "session_type": "personal_training",
+            "duration": 60
+        }
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/payments/create-session-checkout", json=checkout_request)
+    
+    if response.status_code == 200:
+        checkout_data = response.json()
+        print(f"✅ Stripe checkout session created: {json.dumps(checkout_data, indent=2)}")
+        
+        # Verify response structure
+        required_fields = ["checkout_session_id", "checkout_url", "amount", "trainer_id", "client_email"]
+        missing_fields = [field for field in required_fields if field not in checkout_data]
+        
+        if missing_fields:
+            print(f"❌ ERROR: Missing fields in checkout response: {missing_fields}")
+            test_results["stripe_payment_integration"]["details"] += f"Missing fields in checkout: {missing_fields}. "
+            return False
+        
+        # Verify checkout URL is a real Stripe URL
+        if "checkout.stripe.com" in checkout_data["checkout_url"]:
+            print("✅ Real Stripe checkout URL generated")
+        else:
+            print(f"❌ ERROR: Expected Stripe checkout URL but got: {checkout_data['checkout_url']}")
+            test_results["stripe_payment_integration"]["details"] += f"Invalid checkout URL. "
+            return False
+    else:
+        print(f"❌ ERROR: Failed to create checkout session. Status code: {response.status_code}")
+        print(f"Response: {response.text}")
+        test_results["stripe_payment_integration"]["details"] += f"Failed to create checkout session. Status code: {response.status_code}. "
+        return False
+    
+    # Test 3: Complete session check-in with Stripe payment intent
+    print("\nStep 3: Testing complete session check-in with Stripe payment...")
+    checkin_request = {
+        "trainer_id": trainer_id,
+        "client_id": client_id,
+        "session_data": {
+            "amount": 7500,  # $75.00
+            "session_type": "Personal Training",
+            "duration": 60
+        }
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/sessions/{session_id}/complete-checkin", 
+                           params=checkin_request, json=checkin_request["session_data"])
+    
+    if response.status_code == 200:
+        payment_data = response.json()
+        print(f"✅ Session check-in with payment completed: {json.dumps(payment_data, indent=2)}")
+        
+        # Verify response structure
+        required_fields = ["message", "payment_id", "amount"]
+        missing_fields = [field for field in required_fields if field not in payment_data]
+        
+        if missing_fields:
+            print(f"❌ ERROR: Missing fields in payment response: {missing_fields}")
+            test_results["stripe_payment_integration"]["details"] += f"Missing fields in payment: {missing_fields}. "
+            return False
+        
+        # Verify payment ID looks like a Stripe payment intent
+        payment_id = payment_data["payment_id"]
+        if payment_id.startswith("pi_"):
+            print("✅ Real Stripe payment intent ID generated")
+        else:
+            print(f"❌ ERROR: Expected Stripe payment intent ID but got: {payment_id}")
+            test_results["stripe_payment_integration"]["details"] += f"Invalid payment intent ID. "
+            return False
+        
+        # Check for client_secret (needed for frontend)
+        if "client_secret" in payment_data:
+            print("✅ Client secret provided for frontend integration")
+        else:
+            print("⚠️  WARNING: No client_secret in response (may be expected for some flows)")
+        
+        # Store payment ID for confirmation test
+        test_payment_id = payment_id
+        
+    else:
+        print(f"❌ ERROR: Failed to complete session check-in. Status code: {response.status_code}")
+        print(f"Response: {response.text}")
+        test_results["stripe_payment_integration"]["details"] += f"Failed to complete session check-in. Status code: {response.status_code}. "
+        return False
+    
+    # Test 4: Confirm payment (if we have a payment ID)
+    if 'test_payment_id' in locals():
+        print(f"\nStep 4: Testing payment confirmation...")
+        confirm_request = {
+            "payment_intent_id": test_payment_id,
+            "session_id": session_id
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/payments/confirm-payment", json=confirm_request)
+        
+        if response.status_code == 200:
+            confirm_data = response.json()
+            print(f"✅ Payment confirmation response: {json.dumps(confirm_data, indent=2)}")
+            
+            # Verify response structure
+            if "message" in confirm_data and "paid" in confirm_data:
+                print("✅ Payment confirmation endpoint works correctly")
+            else:
+                print("❌ ERROR: Payment confirmation response format incorrect")
+                test_results["stripe_payment_integration"]["details"] += f"Payment confirmation format incorrect. "
+                return False
+        else:
+            print(f"❌ ERROR: Failed to confirm payment. Status code: {response.status_code}")
+            test_results["stripe_payment_integration"]["details"] += f"Failed to confirm payment. Status code: {response.status_code}. "
+            return False
+    
+    # Test 5: Enhanced trainer earnings with Stripe data
+    print(f"\nStep 5: Testing enhanced trainer earnings with Stripe data...")
+    response = requests.get(f"{BACKEND_URL}/trainer/{trainer_id}/earnings")
+    
+    if response.status_code == 200:
+        earnings_data = response.json()
+        print(f"✅ Enhanced trainer earnings: {json.dumps(earnings_data, indent=2)}")
+        
+        # Verify response structure includes Stripe data
+        required_fields = ["total_earnings", "this_month", "completed_sessions", "avg_session_rate"]
+        missing_fields = [field for field in required_fields if field not in earnings_data]
+        
+        if missing_fields:
+            print(f"❌ ERROR: Missing fields in earnings response: {missing_fields}")
+            test_results["stripe_payment_integration"]["details"] += f"Missing fields in earnings: {missing_fields}. "
+            return False
+        
+        # Check if Stripe earnings are included
+        if "stripe_earnings" in earnings_data:
+            print(f"✅ Stripe earnings included: ${earnings_data['stripe_earnings']}")
+        else:
+            print("⚠️  WARNING: No stripe_earnings field (may be expected for mock data)")
+        
+        # Check if recent payments include Stripe data
+        if "recent_payments" in earnings_data:
+            stripe_payments = [p for p in earnings_data["recent_payments"] if p.get("stripe_charge")]
+            print(f"✅ Recent payments include {len(stripe_payments)} Stripe payments")
+        
+        test_results["stripe_payment_integration"]["success"] = True
+        print("✅ All Stripe payment integration tests passed!")
+        return True
+    else:
+        print(f"❌ ERROR: Failed to get enhanced trainer earnings. Status code: {response.status_code}")
+        test_results["stripe_payment_integration"]["details"] += f"Failed to get enhanced earnings. Status code: {response.status_code}. "
+        return False
+
 def test_enhanced_trainer_features():
     """Test the newly implemented trainer features"""
     print_separator()
