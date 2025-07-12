@@ -349,11 +349,12 @@ const LiftCoin = ({ count, animate = false, size = "md" }) => {
 
 // Authentication Flow Component
 const AuthenticationFlow = ({ onComplete }) => {
-  const [mode, setMode] = useState('email'); // 'email', 'signin', 'onboarding'
+  const [mode, setMode] = useState('email'); // 'email', 'signin', 'onboarding', 'verification'
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [emailValid, setEmailValid] = useState(false);
+  const [pendingUser, setPendingUser] = useState(null);
 
   // Email validation in real-time
   useEffect(() => {
@@ -402,6 +403,17 @@ const AuthenticationFlow = ({ onComplete }) => {
       console.error('Sign in failed:', error);
       if (error.response?.status === 404) {
         setError('User not found. Please check your email or sign up.');
+      } else if (error.response?.status === 403) {
+        // Verification required
+        setError(error.response.data.detail);
+        // For existing users who need verification, we need to get their data first
+        // This is a simplified approach - in production you'd handle this more elegantly
+        if (error.response.data.detail.includes('Age verification required') || 
+            error.response.data.detail.includes('certification verification required')) {
+          // Create a temporary user object for verification
+          setPendingUser({ email, role: 'trainee' }); // Default to trainee, can be updated
+          setMode('verification');
+        }
       } else {
         setError('Sign in failed. Please try again.');
       }
@@ -411,8 +423,28 @@ const AuthenticationFlow = ({ onComplete }) => {
   };
 
   const handleOnboardingComplete = (userData) => {
-    onComplete(userData);
+    // After onboarding, user needs document verification
+    setPendingUser(userData);
+    setMode('verification');
   };
+
+  const handleVerificationComplete = (verificationData) => {
+    // After verification, automatically sign in
+    if (verificationData.age_verified) {
+      handleSignIn();
+    }
+  };
+
+  if (mode === 'verification') {
+    return (
+      <DocumentVerification 
+        user={pendingUser}
+        userRole={pendingUser?.role || 'trainee'}
+        onVerificationComplete={handleVerificationComplete}
+        darkMode={true}
+      />
+    );
+  }
 
   if (mode === 'signin') {
     return <SignInScreen email={email} onSignIn={handleSignIn} onBack={() => setMode('email')} loading={loading} error={error} />;
