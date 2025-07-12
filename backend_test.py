@@ -1722,5 +1722,5 @@ def run_all_tests():
         print("Some tests FAILED. See details above.")
 
 if __name__ == "__main__":
-    # Run focused tests for Phase 2 features as specified in test_result.md
-    run_focused_tests()
+    # Run tests for the newly implemented features as requested in the review
+    run_new_features_tests()
