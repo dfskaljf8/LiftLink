@@ -349,11 +349,12 @@ const LiftCoin = ({ count, animate = false, size = "md" }) => {
 
 // Authentication Flow Component
 const AuthenticationFlow = ({ onComplete }) => {
-  const [mode, setMode] = useState('email'); // 'email', 'signin', 'onboarding'
+  const [mode, setMode] = useState('email'); // 'email', 'signin', 'onboarding', 'verification'
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [emailValid, setEmailValid] = useState(false);
+  const [pendingVerification, setPendingVerification] = useState(false);
 
   // Email validation in real-time
   useEffect(() => {
@@ -402,6 +403,12 @@ const AuthenticationFlow = ({ onComplete }) => {
       console.error('Sign in failed:', error);
       if (error.response?.status === 404) {
         setError('User not found. Please check your email or sign up.');
+      } else if (error.response?.status === 403) {
+        // Email not verified
+        setError('Email not verified. Redirecting to verification...');
+        setTimeout(() => {
+          setMode('verification');
+        }, 2000);
       } else {
         setError('Sign in failed. Please try again.');
       }
@@ -411,8 +418,25 @@ const AuthenticationFlow = ({ onComplete }) => {
   };
 
   const handleOnboardingComplete = (userData) => {
-    onComplete(userData);
+    // After onboarding, user needs to verify email
+    setMode('verification');
+    setPendingVerification(true);
   };
+
+  const handleVerificationComplete = () => {
+    // After verification, automatically sign in
+    handleSignIn();
+  };
+
+  if (mode === 'verification') {
+    return (
+      <EmailVerification 
+        email={email} 
+        onVerificationComplete={handleVerificationComplete}
+        darkMode={true}
+      />
+    );
+  }
 
   if (mode === 'signin') {
     return <SignInScreen email={email} onSignIn={handleSignIn} onBack={() => setMode('email')} loading={loading} error={error} />;
