@@ -24,7 +24,8 @@ test_results = {
     "fitness_data_sync": {"success": False, "details": ""},
     "enhanced_session_management": {"success": False, "details": ""},
     "fitness_disconnection": {"success": False, "details": ""},
-    "enhanced_tree_progress": {"success": False, "details": ""}
+    "enhanced_tree_progress": {"success": False, "details": ""},
+    "stripe_payment_integration": {"success": False, "details": ""}
 }
 
 def print_separator():
