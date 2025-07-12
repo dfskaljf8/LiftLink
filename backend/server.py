@@ -677,54 +677,6 @@ class ReviewData(BaseModel):
     date: str
     session_type: str
 
-# Email Verification Endpoints
-@api_router.post("/send-verification", response_model=EmailVerificationResponse)
-async def send_verification_email(request: EmailVerificationRequest):
-    """Send email verification code"""
-    try:
-        verification_code = generate_verification_code()
-        
-        # Store verification code in database (for now, we'll store in memory)
-        # In production, store this in your database with expiration
-        verification_codes = getattr(send_verification_email, 'codes', {})
-        verification_codes[request.email] = verification_code
-        send_verification_email.codes = verification_codes
-        
-        success = email_service.send_verification_email(request.email, verification_code)
-        
-        return EmailVerificationResponse(
-            message="Verification email sent successfully" if success else "Failed to send verification email",
-            verification_sent=success
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@api_router.post("/verify-email")
-async def verify_email(request: VerifyEmailRequest):
-    """Verify email with code"""
-    try:
-        verification_codes = getattr(send_verification_email, 'codes', {})
-        
-        if request.email not in verification_codes:
-            raise HTTPException(status_code=400, detail="No verification code found for this email")
-        
-        if verification_codes[request.email] != request.verification_code:
-            raise HTTPException(status_code=400, detail="Invalid verification code")
-        
-        # Mark user as verified in database
-        await db.users.update_one(
-            {"email": request.email},
-            {"$set": {"email_verified": True, "verification_code": None}}
-        )
-        
-        # Remove verification code from memory
-        del verification_codes[request.email]
-        
-        return {"message": "Email verified successfully", "verified": True}
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
 
 # Trainer Schedule Management
 @api_router.get("/trainer/{trainer_id}/schedule")
