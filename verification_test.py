@@ -240,12 +240,19 @@ def test_fitness_certification_verification():
             created_trainers.append(trainer)
             print(f"✅ Created trainer: {trainer['id']}")
             
-            # Verify initial certification status
-            if not trainer.get("cert_verified", True):  # Should be False initially
-                print("✅ Trainer created with cert_verified=False as expected")
+            # Verify initial certification status by checking the verification status endpoint
+            status_response = requests.get(f"{BACKEND_URL}/verification-status/{trainer['id']}")
+            if status_response.status_code == 200:
+                status = status_response.json()
+                if status.get("cert_verified") == False:
+                    print("✅ Trainer created with cert_verified=False as expected")
+                else:
+                    print("❌ ERROR: Trainer should be created with cert_verified=False")
+                    verification_test_results["enhanced_user_creation"]["details"] += f"Trainer not created with cert_verified=False. "
+                    continue
             else:
-                print("❌ ERROR: Trainer should be created with cert_verified=False")
-                verification_test_results["enhanced_user_creation"]["details"] += f"Trainer not created with cert_verified=False. "
+                print("❌ ERROR: Could not check verification status")
+                verification_test_results["enhanced_user_creation"]["details"] += f"Could not check verification status. "
                 continue
             
             # Now test fitness certification verification
