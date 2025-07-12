@@ -5,16 +5,27 @@ import os
 import stripe
 from typing import Dict, Optional
 import logging
+from datetime import datetime
 
+# Set Stripe API key
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 
 class PaymentService:
     def __init__(self):
         self.stripe_key = os.environ.get('STRIPE_SECRET_KEY')
+        if not self.stripe_key:
+            logging.warning("Stripe API key not found in environment variables")
+        else:
+            stripe.api_key = self.stripe_key
+            print(f"🔑 Stripe API key configured: {self.stripe_key[:12]}...")
         
     def create_payment_intent(self, amount: int, trainer_id: str, client_id: str, session_id: str) -> Optional[Dict]:
         """Create a real Stripe payment intent for session payment"""
         try:
+            if not self.stripe_key:
+                print("❌ STRIPE ERROR: No API key configured")
+                return None
+                
             # Create actual Stripe payment intent
             payment_intent = stripe.PaymentIntent.create(
                 amount=amount,
@@ -57,6 +68,10 @@ class PaymentService:
     def confirm_payment(self, payment_intent_id: str) -> bool:
         """Confirm a payment intent"""
         try:
+            if not self.stripe_key:
+                print("❌ STRIPE ERROR: No API key configured")
+                return False
+                
             payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
             
             if payment_intent.status == 'succeeded':
@@ -73,6 +88,10 @@ class PaymentService:
     def get_trainer_earnings(self, trainer_id: str, start_date: str = None, end_date: str = None) -> Dict:
         """Get trainer earnings from Stripe data and mock recent data"""
         try:
+            if not self.stripe_key:
+                print("❌ STRIPE ERROR: No API key configured, returning mock data")
+                return self._get_mock_earnings()
+                
             # In a real implementation, you would query Stripe for actual payment data
             # For now, we'll get some basic account info and combine with mock data
             
@@ -143,20 +162,45 @@ class PaymentService:
             
         except stripe.error.StripeError as e:
             logging.error(f"Stripe earnings query failed: {e}")
-            # Return mock data if Stripe fails
-            return {
-                "total_earnings": 1800.00,
-                "this_month": 450.00,
-                "pending_payments": 75.00,
-                "completed_sessions": 18,
-                "avg_session_rate": 75.00,
-                "stripe_earnings": 0.00,
-                "recent_payments": []
-            }
+            print(f"❌ STRIPE ERROR: {e}")
+            return self._get_mock_earnings()
+    
+    def _get_mock_earnings(self):
+        """Return mock earnings data when Stripe is not available"""
+        return {
+            "total_earnings": 1800.00,
+            "this_month": 450.00,
+            "pending_payments": 75.00,
+            "completed_sessions": 18,
+            "avg_session_rate": 75.00,
+            "stripe_earnings": 0.00,
+            "recent_payments": [
+                {
+                    "id": "pi_mock_001",
+                    "amount": 75.00,
+                    "date": "2025-01-10",
+                    "client_name": "John Doe",
+                    "session_type": "Personal Training",
+                    "stripe_charge": False
+                },
+                {
+                    "id": "pi_mock_002", 
+                    "amount": 100.00,
+                    "date": "2025-01-09",
+                    "client_name": "Jane Smith",
+                    "session_type": "Nutrition Consultation",
+                    "stripe_charge": False
+                }
+            ]
+        }
     
     def process_trainer_payout(self, trainer_id: str, amount: int) -> bool:
         """Process payout to trainer using Stripe Express/Connect (simulated)"""
         try:
+            if not self.stripe_key:
+                print("❌ STRIPE ERROR: No API key configured")
+                return False
+                
             # In a real implementation, you would use Stripe Connect to pay trainers
             # For now, we'll create a transfer simulation
             
@@ -169,9 +213,7 @@ class PaymentService:
                 "amount": amount,
                 "currency": "usd",
                 "destination": f"acct_trainer_{trainer_id}",  # Would be real Stripe Connect account
-                "created": stripe.util.convert_to_stripe_object({
-                    "created": stripe.util.datetime.datetime.now().timestamp()
-                })
+                "created": datetime.now().timestamp()
             }
             
             print(f"✅ PAYOUT PROCESSED: Transfer ID {transfer_data['id']}")
@@ -188,6 +230,10 @@ class PaymentService:
     def create_session_checkout(self, amount: int, trainer_id: str, client_email: str, session_details: Dict) -> Optional[Dict]:
         """Create a Stripe Checkout session for trainee to pay for session"""
         try:
+            if not self.stripe_key:
+                print("❌ STRIPE ERROR: No API key configured")
+                return None
+                
             checkout_session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=[{
