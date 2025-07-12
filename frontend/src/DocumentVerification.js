@@ -78,7 +78,7 @@ const DocumentVerification = ({ user, userRole, onVerificationComplete, darkMode
       reader.onload = async (e) => {
         const base64Data = e.target.result;
         
-        const response = await axios.post(`${API}/verify-government-id`, {
+        const response = await axios.post(`${API}/api/verify-government-id`, {
           user_id: user.id,
           user_email: user.email,
           image_data: base64Data
