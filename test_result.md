@@ -225,7 +225,7 @@ backend:
         agent: "testing"
         comment: "Enhanced trainer features work perfectly. GET /api/trainer/{trainer_id}/schedule returns 3 mock events with proper structure. POST /api/trainer/{trainer_id}/schedule successfully creates appointments (confirmed in logs: 'MOCK APPOINTMENT CREATED'). GET /api/trainer/{trainer_id}/available-slots returns 7 available time slots. GET /api/trainer/{trainer_id}/earnings returns comprehensive earnings data ($2450 total, $650 this month, 23 completed sessions). POST /api/trainer/{trainer_id}/payout processes payouts correctly ($50 confirmed in logs). GET /api/trainer/{trainer_id}/reviews returns 3 reviews with 4.7 avg rating. POST review responses work correctly. All trainer endpoints fully functional."
 
-  - task: "Enhanced Session Management with Payment Processing"
+  - task: "Real Stripe Payment Integration"
     implemented: true
     working: true
     file: "/app/backend/server.py"
@@ -235,10 +235,10 @@ backend:
     status_history:
       - working: "NA"
         agent: "main"
-        comment: "Implemented POST /api/sessions/{session_id}/complete-checkin endpoint with integrated Stripe payment processing for trainer session completion and payment handling."
+        comment: "Implemented real Stripe payment integration with actual API keys. Added POST /api/payments/create-session-checkout for Stripe Checkout sessions, enhanced POST /api/sessions/{session_id}/complete-checkin with real PaymentIntents, POST /api/payments/confirm-payment for payment verification, GET /api/payments/session-cost/{trainer_id} for pricing, and enhanced GET /api/trainer/{trainer_id}/earnings with real Stripe data integration."
       - working: true
         agent: "testing"
-        comment: "Enhanced session check-in with payment processing works correctly. POST /api/sessions/{session_id}/complete-checkin successfully processes session completion with payment integration. Mock payment creation confirmed in logs: 'MOCK PAYMENT CREATED: $75.00 for trainer trainer_test_456'. Response includes proper payment_id, amount, and success message. Payment service integration is fully functional with mock Stripe data as expected."
+        comment: "Successfully tested real Stripe payment integration. All endpoints create actual Stripe objects: Checkout sessions (cs_test_a1KZrbadQ1OKOPq34D5exn14XhYWSwxkCei8od9feDKx2B6FBtSch7C446), PaymentIntents (pi_3RjspVQiOMU12jO71TlCZGGX) with client_secret, real checkout URLs (https://checkout.stripe.com/...), proper payment status checking, and enhanced trainer earnings with Stripe data. Fixed critical dotenv loading issue to properly load STRIPE_SECRET_KEY. Console logs confirm real Stripe API calls are being made. Payment integration is fully functional and ready for production."
 
 frontend:
   - task: "Fitness Integration UI - Frontend Components"
