@@ -837,6 +837,7 @@ async def complete_session_checkin(session_id: str, trainer_id: str, client_id: 
             return {
                 "message": "Session completed and payment processed",
                 "payment_id": payment["id"],
+                "client_secret": payment.get("client_secret"),
                 "amount": amount/100
             }
         else:
@@ -844,6 +845,73 @@ async def complete_session_checkin(session_id: str, trainer_id: str, client_id: 
             
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# New Stripe-specific endpoints
+@api_router.post("/payments/create-session-checkout")
+async def create_session_checkout(request: dict):
+    """Create Stripe checkout session for trainee to pay for session"""
+    try:
+        amount = request.get("amount", 7500)  # Amount in cents
+        trainer_id = request.get("trainer_id")
+        client_email = request.get("client_email")
+        session_details = request.get("session_details", {})
+        
+        checkout_data = payment_service.create_session_checkout(
+            amount, trainer_id, client_email, session_details
+        )
+        
+        if checkout_data:
+            return checkout_data
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create checkout session")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/payments/confirm-payment")
+async def confirm_payment(request: dict):
+    """Confirm payment and update session status"""
+    try:
+        payment_intent_id = request.get("payment_intent_id")
+        session_id = request.get("session_id")
+        
+        if payment_service.confirm_payment(payment_intent_id):
+            # Update session as paid
+            await db.sessions.update_one(
+                {"id": session_id},
+                {"$set": {
+                    "payment_status": "paid",
+                    "payment_confirmed_at": datetime.now().isoformat()
+                }}
+            )
+            
+            return {"message": "Payment confirmed successfully", "paid": True}
+        else:
+            return {"message": "Payment confirmation pending", "paid": False}
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/payments/session-cost/{trainer_id}")
+async def get_session_cost(trainer_id: str, session_type: str = "personal_training"):
+    """Get the cost for a session with a specific trainer"""
+    # In a real app, this would be stored in trainer profile
+    session_costs = {
+        "personal_training": 7500,  # $75.00
+        "group_training": 3500,     # $35.00
+        "nutrition_consultation": 10000,  # $100.00
+        "specialized_training": 12500      # $125.00
+    }
+    
+    cost = session_costs.get(session_type, 7500)
+    
+    return {
+        "trainer_id": trainer_id,
+        "session_type": session_type,
+        "cost_cents": cost,
+        "cost_dollars": cost / 100,
+        "currency": "USD"
+    }
 
 # Add API router to app
 app.include_router(api_router, prefix="/api")
