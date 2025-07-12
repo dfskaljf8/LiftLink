@@ -621,11 +621,13 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from payment_service import PaymentService
 from calendar_service import CalendarService
+from verification_service import VerificationService
 
 payment_service = PaymentService()
 calendar_service = CalendarService()
+verification_service = VerificationService()
 
-# Enhanced User Model
+# Enhanced User Model with verification
 class UserWithVerification(BaseModel):
     id: str
     email: str
@@ -633,6 +635,27 @@ class UserWithVerification(BaseModel):
     fitness_goals: List[str]
     experience_level: str
     created_at: str
+    age_verified: bool = False
+    cert_verified: bool = False
+    verification_status: str = "pending"  # pending, age_verified, fully_verified, rejected
+
+# Document verification models
+class GovernmentIdRequest(BaseModel):
+    user_id: str
+    user_email: str
+    image_data: str
+
+class CertificationRequest(BaseModel):
+    user_id: str
+    user_email: str
+    cert_type: str
+    image_data: str
+
+class VerificationResponse(BaseModel):
+    status: str
+    age_verified: bool = False
+    cert_verified: bool = False
+    rejection_reason: Optional[str] = None
 
 # Trainer-specific models
 class ScheduleEvent(BaseModel):
