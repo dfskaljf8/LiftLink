@@ -205,10 +205,38 @@ async def check_user_exists(request: CheckUserRequest):
 
 @api_router.post("/login", response_model=UserResponse)
 async def login_user(request: LoginRequest):
-    """Sign in existing user"""
+    """Sign in existing user with verification check"""
     user = await get_user_by_email(request.email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    
+    # Check verification status
+    verification_status = user.get("verification_status", "pending")
+    age_verified = user.get("age_verified", False)
+    cert_verified = user.get("cert_verified", False)
+    user_role = user.get("role")
+    
+    # Block access if not properly verified
+    if not age_verified:
+        raise HTTPException(
+            status_code=403, 
+            detail="Age verification required. You must verify you are 18 or older to access this app."
+        )
+    
+    # For trainers, also require certification verification
+    if user_role == "trainer" and not cert_verified:
+        raise HTTPException(
+            status_code=403,
+            detail="Fitness certification verification required. Trainers must verify their professional qualifications."
+        )
+    
+    # Check if verification was rejected
+    if verification_status == "rejected":
+        rejection_reason = user.get("rejection_reason", "Verification was rejected")
+        raise HTTPException(
+            status_code=403,
+            detail=f"Access denied: {rejection_reason}"
+        )
     
     # Convert fitness_goals from enum values to strings if needed
     fitness_goals = user["fitness_goals"]
