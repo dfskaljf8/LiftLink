@@ -406,13 +406,27 @@ const AuthenticationFlow = ({ onComplete }) => {
       } else if (error.response?.status === 403) {
         // Verification required
         setError(error.response.data.detail);
-        // For existing users who need verification, we need to get their data first
-        // This is a simplified approach - in production you'd handle this more elegantly
+        // For existing users who need verification, we need to get their user data first
         if (error.response.data.detail.includes('Age verification required') || 
             error.response.data.detail.includes('certification verification required')) {
-          // Create a temporary user object for verification
-          setPendingUser({ email, role: 'trainee' }); // Default to trainee, can be updated
-          setMode('verification');
+          
+          // Try to get user data from check-user endpoint to get the user ID
+          try {
+            const checkResponse = await axios.post(`${API}/check-user`, { email });
+            if (checkResponse.data.exists && checkResponse.data.user_id) {
+              setPendingUser({ 
+                id: checkResponse.data.user_id, 
+                email, 
+                role: 'trainee' // Will be updated if they're a trainer
+              });
+              setMode('verification');
+            } else {
+              setError('Unable to verify user. Please try signing up first.');
+            }
+          } catch (err) {
+            console.error('Error getting user data:', err);
+            setError('Unable to verify user information. Please try again.');
+          }
         }
       } else {
         setError('Sign in failed. Please try again.');
