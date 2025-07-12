@@ -609,6 +609,227 @@ async def get_tree_progress(user_id: str):
         progress_percentage=progress_percentage
     )
 
+# Import new services
+from email_service import EmailService, generate_verification_code
+from payment_service import PaymentService
+from calendar_service import CalendarService
+
+email_service = EmailService()
+payment_service = PaymentService()
+calendar_service = CalendarService()
+
+# Email Verification Models
+class EmailVerificationRequest(BaseModel):
+    email: EmailStr
+
+class EmailVerificationResponse(BaseModel):
+    message: str
+    verification_sent: bool
+
+class VerifyEmailRequest(BaseModel):
+    email: EmailStr
+    verification_code: str
+
+# Enhanced User Model with verification
+class UserWithVerification(BaseModel):
+    id: str
+    email: str
+    role: str
+    fitness_goals: List[str]
+    experience_level: str
+    created_at: str
+    email_verified: bool = False
+    verification_code: Optional[str] = None
+
+# Trainer-specific models
+class ScheduleEvent(BaseModel):
+    id: str
+    title: str
+    start_time: str
+    end_time: str
+    client_name: str
+    session_type: str
+    status: str
+    location: str
+    notes: str
+
+class EarningsData(BaseModel):
+    total_earnings: float
+    this_month: float
+    pending_payments: float
+    completed_sessions: int
+    avg_session_rate: float
+
+class ReviewData(BaseModel):
+    id: str
+    client_name: str
+    rating: int
+    comment: str
+    date: str
+    session_type: str
+
+# Email Verification Endpoints
+@api_router.post("/send-verification", response_model=EmailVerificationResponse)
+async def send_verification_email(request: EmailVerificationRequest):
+    """Send email verification code"""
+    try:
+        verification_code = generate_verification_code()
+        
+        # Store verification code in database (for now, we'll store in memory)
+        # In production, store this in your database with expiration
+        verification_codes = getattr(send_verification_email, 'codes', {})
+        verification_codes[request.email] = verification_code
+        send_verification_email.codes = verification_codes
+        
+        success = email_service.send_verification_email(request.email, verification_code)
+        
+        return EmailVerificationResponse(
+            message="Verification email sent successfully" if success else "Failed to send verification email",
+            verification_sent=success
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/verify-email")
+async def verify_email(request: VerifyEmailRequest):
+    """Verify email with code"""
+    try:
+        verification_codes = getattr(send_verification_email, 'codes', {})
+        
+        if request.email not in verification_codes:
+            raise HTTPException(status_code=400, detail="No verification code found for this email")
+        
+        if verification_codes[request.email] != request.verification_code:
+            raise HTTPException(status_code=400, detail="Invalid verification code")
+        
+        # Mark user as verified in database
+        await db.users.update_one(
+            {"email": request.email},
+            {"$set": {"email_verified": True, "verification_code": None}}
+        )
+        
+        # Remove verification code from memory
+        del verification_codes[request.email]
+        
+        return {"message": "Email verified successfully", "verified": True}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Trainer Schedule Management
+@api_router.get("/trainer/{trainer_id}/schedule")
+async def get_trainer_schedule(trainer_id: str):
+    """Get trainer's schedule"""
+    schedule = calendar_service.get_trainer_schedule(trainer_id)
+    return {"schedule": schedule}
+
+@api_router.post("/trainer/{trainer_id}/schedule")
+async def create_appointment(trainer_id: str, appointment_data: dict):
+    """Create new appointment"""
+    appointment = calendar_service.create_appointment(trainer_id, appointment_data)
+    if appointment:
+        return {"message": "Appointment created successfully", "appointment": appointment}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to create appointment")
+
+@api_router.get("/trainer/{trainer_id}/available-slots")
+async def get_available_slots(trainer_id: str, date: str):
+    """Get available time slots for a trainer"""
+    slots = calendar_service.get_available_slots(trainer_id, date)
+    return {"available_slots": slots}
+
+# Trainer Earnings
+@api_router.get("/trainer/{trainer_id}/earnings")
+async def get_trainer_earnings(trainer_id: str):
+    """Get trainer earnings data"""
+    earnings = payment_service.get_trainer_earnings(trainer_id)
+    return earnings
+
+@api_router.post("/trainer/{trainer_id}/payout")
+async def request_payout(trainer_id: str, amount: int):
+    """Request payout for trainer"""
+    success = payment_service.process_trainer_payout(trainer_id, amount)
+    if success:
+        return {"message": "Payout processed successfully", "amount": amount/100}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to process payout")
+
+# Trainer Reviews
+@api_router.get("/trainer/{trainer_id}/reviews")
+async def get_trainer_reviews(trainer_id: str):
+    """Get trainer reviews"""
+    # Mock reviews data
+    mock_reviews = [
+        {
+            "id": "review_001",
+            "client_name": "John D.",
+            "rating": 5,
+            "comment": "Excellent trainer! Really helped me achieve my fitness goals.",
+            "date": "2025-01-05",
+            "session_type": "Personal Training"
+        },
+        {
+            "id": "review_002",
+            "client_name": "Sarah M.",
+            "rating": 4,
+            "comment": "Great workout sessions, very motivating and professional.",
+            "date": "2025-01-03",
+            "session_type": "Group Fitness"
+        },
+        {
+            "id": "review_003",
+            "client_name": "Mike L.",
+            "rating": 5,
+            "comment": "Amazing nutrition advice, lost 10 pounds in 2 months!",
+            "date": "2024-12-28",
+            "session_type": "Nutrition Consultation"
+        }
+    ]
+    
+    return {
+        "reviews": mock_reviews,
+        "avg_rating": 4.7,
+        "total_reviews": len(mock_reviews)
+    }
+
+@api_router.post("/trainer/{trainer_id}/reviews/{review_id}/respond")
+async def respond_to_review(trainer_id: str, review_id: str, response: dict):
+    """Respond to a client review"""
+    return {"message": "Response added successfully", "review_id": review_id}
+
+# Enhanced session check-in with payment processing
+@api_router.post("/sessions/{session_id}/complete-checkin")
+async def complete_session_checkin(session_id: str, trainer_id: str, client_id: str, session_data: dict):
+    """Complete session check-in with payment processing"""
+    try:
+        # Create payment for the session
+        amount = session_data.get("amount", 7500)  # Default $75.00
+        payment = payment_service.create_payment_intent(amount, trainer_id, client_id, session_id)
+        
+        if payment:
+            # Update session in database with completion
+            await db.sessions.update_one(
+                {"id": session_id},
+                {"$set": {
+                    "status": "completed",
+                    "completed_at": datetime.now().isoformat(),
+                    "payment_id": payment["id"],
+                    "amount_paid": amount
+                }}
+            )
+            
+            return {
+                "message": "Session completed and payment processed",
+                "payment_id": payment["id"],
+                "amount": amount/100
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Payment processing failed")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Add API router to app
 app.include_router(api_router, prefix="/api")
 
