@@ -256,7 +256,7 @@ async def login_user(request: LoginRequest):
 
 @api_router.post("/users", response_model=UserResponse)
 async def create_user(user: User):
-    """Create new user account"""
+    """Create new user account with verification requirement"""
     # Check if user already exists
     existing_user = await get_user_by_email(user.email)
     if existing_user:
@@ -270,7 +270,10 @@ async def create_user(user: User):
         "role": user.role.value,
         "fitness_goals": [goal.value for goal in user.fitness_goals],
         "experience_level": user.experience_level.value,
-        "created_at": datetime.now().isoformat()
+        "created_at": datetime.now().isoformat(),
+        "age_verified": False,
+        "cert_verified": False,
+        "verification_status": "pending"
     }
     
     await db.users.insert_one(user_doc)
