@@ -224,23 +224,30 @@ async def login_user(request: LoginRequest):
 
 @api_router.post("/users", response_model=UserResponse)
 async def create_user(user: User):
-    """Create new user account"""
+    """Create new user account with email verification"""
     # Check if user already exists
     existing_user = await get_user_by_email(user.email)
     if existing_user:
         raise HTTPException(status_code=400, detail="User already exists")
     
     user_id = generate_id()
+    verification_code = generate_verification_code()
+    
     user_doc = {
         "id": user_id,
         "email": user.email,
         "role": user.role.value,
         "fitness_goals": [goal.value for goal in user.fitness_goals],
         "experience_level": user.experience_level.value,
-        "created_at": datetime.now().isoformat()
+        "created_at": datetime.now().isoformat(),
+        "email_verified": False,
+        "verification_code": verification_code
     }
     
     await db.users.insert_one(user_doc)
+    
+    # Send verification email
+    email_service.send_verification_email(user.email, verification_code)
     
     return UserResponse(
         id=user_id,
