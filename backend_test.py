@@ -25,7 +25,8 @@ test_results = {
     "enhanced_session_management": {"success": False, "details": ""},
     "fitness_disconnection": {"success": False, "details": ""},
     "enhanced_tree_progress": {"success": False, "details": ""},
-    "stripe_payment_integration": {"success": False, "details": ""}
+    "stripe_payment_integration": {"success": False, "details": ""},
+    "trainer_features": {"success": False, "details": ""}
 }
 
 def print_separator():
