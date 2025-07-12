@@ -69,6 +69,11 @@ const DocumentVerification = ({ user, userRole, onVerificationComplete, darkMode
       return;
     }
 
+    if (!user || !user.id || !user.email) {
+      setError('User information is missing. Please try refreshing the page.');
+      return;
+    }
+
     setLoading(true);
     setError('');
 
