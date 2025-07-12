@@ -240,6 +240,21 @@ backend:
         agent: "testing"
         comment: "Successfully tested real Stripe payment integration. All endpoints create actual Stripe objects: Checkout sessions (cs_test_a1KZrbadQ1OKOPq34D5exn14XhYWSwxkCei8od9feDKx2B6FBtSch7C446), PaymentIntents (pi_3RjspVQiOMU12jO71TlCZGGX) with client_secret, real checkout URLs (https://checkout.stripe.com/...), proper payment status checking, and enhanced trainer earnings with Stripe data. Fixed critical dotenv loading issue to properly load STRIPE_SECRET_KEY. Console logs confirm real Stripe API calls are being made. Payment integration is fully functional and ready for production."
 
+  - task: "Document Verification System"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Implemented comprehensive document verification system with government ID verification (POST /api/verify-government-id), fitness certification verification (POST /api/verify-fitness-certification), enhanced login with verification checks, verification status endpoint (GET /api/verification-status/{user_id}), and enhanced user creation with verification status initialization."
+      - working: true
+        agent: "testing"
+        comment: "🎉 DOCUMENT VERIFICATION SYSTEM FULLY FUNCTIONAL! Comprehensive testing completed with 5/5 test categories passing: ✅ Government ID Verification - correctly processes age verification with proper rejection for minors (under 18), invalid IDs, and expired documents while approving valid adult users. ✅ Fitness Certification Verification - properly validates certification types (NASM, ACSM, ACE, NSCA, ISSA, NCSF), rejects invalid cert types and documents, handles expired certifications correctly. ✅ Login Verification Blocking - successfully blocks unverified users with specific error messages ('Age verification required' for unverified users, 'Fitness certification verification required' for trainers), allows verified users to login normally. ✅ Verification Status Endpoint - correctly tracks verification progress from pending → age_verified → fully_verified, provides accurate status for both fitness enthusiasts and trainers. ✅ Enhanced User Creation - properly initializes users with age_verified=false and cert_verified=false. Console logs confirm verification processing is working (🆔 GOVERNMENT ID VERIFICATION and 🏋️ FITNESS CERTIFICATION VERIFICATION messages observed). The verification system effectively blocks access to unverified users and only allows properly verified users (18+ with valid certifications for trainers) into the app as required."
+
 frontend:
   - task: "Fitness Integration UI - Frontend Components"
     implemented: true
