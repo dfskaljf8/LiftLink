@@ -619,27 +619,13 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from email_service import EmailService, generate_verification_code
 from payment_service import PaymentService
 from calendar_service import CalendarService
 
-email_service = EmailService()
 payment_service = PaymentService()
 calendar_service = CalendarService()
 
-# Email Verification Models
-class EmailVerificationRequest(BaseModel):
-    email: EmailStr
-
-class EmailVerificationResponse(BaseModel):
-    message: str
-    verification_sent: bool
-
-class VerifyEmailRequest(BaseModel):
-    email: EmailStr
-    verification_code: str
-
-# Enhanced User Model with verification
+# Enhanced User Model
 class UserWithVerification(BaseModel):
     id: str
     email: str
@@ -647,8 +633,6 @@ class UserWithVerification(BaseModel):
     fitness_goals: List[str]
     experience_level: str
     created_at: str
-    email_verified: bool = False
-    verification_code: Optional[str] = None
 
 # Trainer-specific models
 class ScheduleEvent(BaseModel):
