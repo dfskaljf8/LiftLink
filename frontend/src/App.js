@@ -4440,6 +4440,12 @@ function App() {
     setDarkMode(!darkMode);
   };
 
+  const updateUser = (updatedUserData) => {
+    const newUser = { ...user, ...updatedUserData };
+    setUser(newUser);
+    localStorage.setItem('liftlink_user', JSON.stringify(newUser));
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('liftlink_user');
     setUser(null);
