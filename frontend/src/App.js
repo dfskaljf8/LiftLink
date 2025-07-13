@@ -4290,7 +4290,7 @@ const Dashboard = ({ user, treeProgress }) => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'} mb-2`}>
-              Welcome back, {user?.email?.split('@')[0] || 'Fitness Champion'}! 🚀
+              Welcome back, {user?.name || user?.email?.split('@')[0] || 'Fitness Champion'}! 🚀
             </h1>
             <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               Ready to grow your fitness tree today?
