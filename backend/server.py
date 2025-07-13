@@ -827,6 +827,46 @@ async def get_verification_status(user_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@api_router.put("/users/{user_id}/name", response_model=UserResponse)
+async def update_user_name(user_id: str, request: UpdateUserNameRequest):
+    """Update user's name"""
+    try:
+        # Update user name in database
+        result = await db.users.update_one(
+            {"id": user_id},
+            {"$set": {"name": request.name}}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get updated user data
+        user = await get_user_by_id(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Convert and return updated user data
+        fitness_goals = user["fitness_goals"]
+        if fitness_goals and isinstance(fitness_goals[0], str):
+            fitness_goals_str = fitness_goals
+        else:
+            fitness_goals_str = [goal.value if hasattr(goal, 'value') else str(goal) for goal in fitness_goals]
+        
+        return UserResponse(
+            id=user["id"],
+            email=user["email"],
+            name=user.get("name"),
+            role=user["role"].value if hasattr(user["role"], 'value') else user["role"],
+            fitness_goals=fitness_goals_str,
+            experience_level=user["experience_level"].value if hasattr(user["experience_level"], 'value') else user["experience_level"],
+            created_at=user["created_at"].isoformat() if isinstance(user["created_at"], datetime) else user["created_at"]
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 # Trainer Schedule Management
 @api_router.get("/trainer/{trainer_id}/schedule")
