@@ -686,6 +686,9 @@ class CertificationRequest(BaseModel):
     cert_type: str
     image_data: str
 
+class UpdateUserNameRequest(BaseModel):
+    name: str
+
 class VerificationResponse(BaseModel):
     status: str
     age_verified: bool = False
