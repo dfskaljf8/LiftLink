@@ -3977,7 +3977,7 @@ const AnalyticsSection = ({ user, treeProgress, sessions }) => {
 };
 
 // Settings Section Component
-const SettingsSection = ({ user, onLogout }) => {
+const SettingsSection = ({ user, onLogout, onUpdateUser }) => {
   const { darkMode, toggleDarkMode } = useContext(AppContext);
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState(user?.name || '');
@@ -3999,9 +3999,8 @@ const SettingsSection = ({ user, onLogout }) => {
       });
 
       if (response.data) {
-        // Update local storage with new user data
-        const updatedUser = { ...user, name: newName.trim() };
-        localStorage.setItem('liftlink_user', JSON.stringify(updatedUser));
+        // Update user state everywhere in the app
+        onUpdateUser({ name: newName.trim() });
         
         setMessage('Name updated successfully!');
         setEditingName(false);
