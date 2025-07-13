@@ -624,6 +624,7 @@ const OnboardingScreen = ({ email, onComplete, onBack }) => {
   const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     email: email,
+    name: '',
     role: '',
     fitness_goals: [],
     experience_level: ''
