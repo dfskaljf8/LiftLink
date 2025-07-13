@@ -93,13 +93,17 @@ const DocumentVerification = ({ user, userRole, onVerificationComplete, darkMode
           setSuccess('Age verification successful! You are confirmed to be 18 or older.');
           setVerificationResults(prev => ({ ...prev, id: response.data }));
           
+          console.log('Age verification complete. UserRole:', userRole, 'User:', user);
+          
           // Move to certification step if trainer, otherwise complete
           if (userRole === 'trainer') {
+            console.log('Moving to certification step for trainer');
             setTimeout(() => {
               setCurrentStep('certification');
               setSuccess('');
             }, 2000);
           } else {
+            console.log('Completing verification for trainee');
             setTimeout(() => {
               onVerificationComplete({ age_verified: true });
             }, 3000);
