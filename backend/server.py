@@ -286,6 +286,7 @@ async def create_user(user: User):
     return UserResponse(
         id=user_id,
         email=user.email,
+        name=user.name,
         role=user.role.value,
         fitness_goals=[goal.value for goal in user.fitness_goals],
         experience_level=user.experience_level.value,
