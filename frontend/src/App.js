@@ -3893,6 +3893,49 @@ const AnalyticsSection = ({ user, treeProgress, sessions }) => {
 // Settings Section Component
 const SettingsSection = ({ user, onLogout }) => {
   const { darkMode, toggleDarkMode } = useContext(AppContext);
+  const [editingName, setEditingName] = useState(false);
+  const [newName, setNewName] = useState(user?.name || '');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  const handleUpdateName = async () => {
+    if (!newName.trim() || newName.trim().length < 2) {
+      setMessage('Name must be at least 2 characters long');
+      return;
+    }
+
+    setLoading(true);
+    setMessage('');
+
+    try {
+      const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user.id}/name`, {
+        name: newName.trim()
+      });
+
+      if (response.data) {
+        // Update local storage with new user data
+        const updatedUser = { ...user, name: newName.trim() };
+        localStorage.setItem('liftlink_user', JSON.stringify(updatedUser));
+        
+        setMessage('Name updated successfully!');
+        setEditingName(false);
+        
+        // Clear message after 3 seconds
+        setTimeout(() => setMessage(''), 3000);
+      }
+    } catch (error) {
+      console.error('Failed to update name:', error);
+      setMessage('Failed to update name. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelEdit = () => {
+    setNewName(user?.name || '');
+    setEditingName(false);
+    setMessage('');
+  };
 
   return (
     <div className="space-y-6">
