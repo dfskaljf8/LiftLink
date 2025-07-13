@@ -2011,17 +2011,61 @@ const TrainerProfile = ({ user }) => {
           <h1 className={`text-2xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
             Trainer Profile
           </h1>
-          <button
-            onClick={() => editing ? handleSave() : setEditing(true)}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              darkMode ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
-            }`}
-          >
-            {editing ? 'Save Changes' : 'Edit Profile'}
-          </button>
+          <div className="flex space-x-3">
+            {editing && (
+              <button
+                onClick={cancelEdit}
+                disabled={loading}
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                  darkMode ? 'bg-gray-600 hover:bg-gray-700 text-white' : 'bg-gray-400 hover:bg-gray-500 text-white'
+                }`}
+              >
+                Cancel
+              </button>
+            )}
+            <button
+              onClick={() => editing ? handleSave() : setEditing(true)}
+              disabled={loading}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                loading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : darkMode 
+                    ? 'bg-green-600 hover:bg-green-700 text-white' 
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+              }`}
+            >
+              {loading ? 'Saving...' : editing ? 'Save Changes' : 'Edit Profile'}
+            </button>
+          </div>
         </div>
 
+        {message && (
+          <div className={`mb-4 p-3 rounded-lg ${
+            message.includes('successfully') 
+              ? 'bg-green-100 border border-green-400 text-green-700'
+              : 'bg-red-100 border border-red-400 text-red-700'
+          }`}>
+            {message}
+          </div>
+        )}
+
         <div className="space-y-6">
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Name
+            </label>
+            <input
+              type="text"
+              value={profile.name}
+              onChange={(e) => setProfile({...profile, name: e.target.value})}
+              disabled={!editing || loading}
+              className={`w-full px-3 py-2 rounded-lg border ${
+                darkMode ? 'bg-gray-800/50 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+              } focus:ring-2 focus:ring-green-400 ${!editing ? 'cursor-not-allowed opacity-75' : ''}`}
+              placeholder="Enter your name"
+            />
+          </div>
+
           <div>
             <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Bio
