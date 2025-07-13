@@ -786,11 +786,11 @@ const OnboardingScreen = ({ email, onComplete, onBack }) => {
               ))}
             </div>
             <div className="flex space-x-3">
-              <button onClick={() => setStep(0)} className="premium-button-secondary flex-1">
+              <button onClick={() => setStep(1)} className="premium-button-secondary flex-1">
                 ← Back
               </button>
               <button 
-                onClick={() => setStep(2)}
+                onClick={() => setStep(3)}
                 disabled={formData.fitness_goals.length === 0}
                 className="premium-button-primary flex-1"
               >
@@ -800,7 +800,7 @@ const OnboardingScreen = ({ email, onComplete, onBack }) => {
           </div>
         );
       
-      case 2:
+      case 3:
         return (
           <div className="space-y-6 md:space-y-8">
             <div className="text-center">
