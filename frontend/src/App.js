@@ -756,7 +756,7 @@ const OnboardingScreen = ({ email, onComplete, onBack }) => {
           </div>
         );
       
-      case 1:
+      case 2:
         return (
           <div className="space-y-6 md:space-y-8">
             <div className="text-center">
