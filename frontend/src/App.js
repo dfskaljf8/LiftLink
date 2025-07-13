@@ -834,7 +834,7 @@ const OnboardingScreen = ({ email, onComplete, onBack }) => {
               </div>
             )}
             <div className="flex space-x-3">
-              <button onClick={() => setStep(1)} className="premium-button-secondary flex-1">
+              <button onClick={() => setStep(2)} className="premium-button-secondary flex-1">
                 ← Back
               </button>
               <button 
