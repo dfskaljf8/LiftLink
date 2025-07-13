@@ -1946,6 +1946,7 @@ const TrainerReviews = ({ user }) => {
 const TrainerProfile = ({ user }) => {
   const { darkMode } = useContext(AppContext);
   const [profile, setProfile] = useState({
+    name: user?.name || '',
     bio: "Certified personal trainer with 5+ years of experience helping clients achieve their fitness goals.",
     specialties: ["Weight Loss", "Strength Training", "Nutrition Coaching"],
     certifications: ["NASM-CPT", "Precision Nutrition Level 1"],
@@ -1954,11 +1955,53 @@ const TrainerProfile = ({ user }) => {
   });
 
   const [editing, setEditing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const handleSave = () => {
-    console.log('Saving profile:', profile);
+  const handleSave = async () => {
+    if (!profile.name || profile.name.trim().length < 2) {
+      setMessage('Name must be at least 2 characters long');
+      return;
+    }
+
+    setLoading(true);
+    setMessage('');
+
+    try {
+      // Update name if it has changed
+      if (profile.name.trim() !== user?.name) {
+        const response = await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/${user.id}/name`, {
+          name: profile.name.trim()
+        });
+
+        if (response.data) {
+          // Update local storage with new user data
+          const updatedUser = { ...user, name: profile.name.trim() };
+          localStorage.setItem('liftlink_user', JSON.stringify(updatedUser));
+        }
+      }
+
+      console.log('Saving profile:', profile);
+      setEditing(false);
+      setMessage('Profile updated successfully!');
+      
+      // Clear message after 3 seconds
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      setMessage('Failed to update profile. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const cancelEdit = () => {
+    setProfile({
+      ...profile,
+      name: user?.name || ''
+    });
     setEditing(false);
-    alert('Profile updated successfully!');
+    setMessage('');
   };
 
   return (
