@@ -1130,7 +1130,7 @@ const TrainerDashboardMain = ({ user }) => {
     <div className="space-y-6">
       <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
         <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'} mb-2`}>
-          Welcome back, {user?.email?.split('@')[0]}! 💪
+          Welcome back, {user?.name || user?.email?.split('@')[0]}! 💪
         </h1>
         <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
           Ready to help your clients reach their fitness goals?
