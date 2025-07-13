@@ -417,7 +417,7 @@ const AuthenticationFlow = ({ onComplete }) => {
               setPendingUser({ 
                 id: checkResponse.data.user_id, 
                 email, 
-                role: 'trainee' // Will be updated if they're a trainer
+                role: checkResponse.data.role || 'trainee'
               });
               setMode('verification');
             } else {
