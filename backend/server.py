@@ -89,6 +89,7 @@ class User(BaseModel):
 class UserResponse(BaseModel):
     id: str
     email: str
+    name: Optional[str] = None
     role: str
     fitness_goals: List[str]
     experience_level: str
