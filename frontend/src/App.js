@@ -4470,7 +4470,7 @@ function App() {
       case 'analytics':
         return <AnalyticsSection user={user} treeProgress={treeProgress} sessions={sessions} />;
       case 'settings':
-        return <SettingsSection user={user} onLogout={handleLogout} />;
+        return <SettingsSection user={user} onLogout={handleLogout} onUpdateUser={updateUser} />;
       case 'profile':
         return <ProfileSection user={user} treeProgress={treeProgress} onLogout={handleLogout} />;
       default:
