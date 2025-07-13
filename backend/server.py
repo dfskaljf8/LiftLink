@@ -100,6 +100,7 @@ class CheckUserRequest(BaseModel):
 class CheckUserResponse(BaseModel):
     exists: bool
     user_id: Optional[str] = None
+    role: Optional[str] = None
 
 class LoginRequest(BaseModel):
     email: EmailStr
