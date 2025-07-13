@@ -9,6 +9,9 @@ const DocumentVerification = ({ user, userRole, onVerificationComplete, darkMode
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   
+  // Debug logging
+  console.log('DocumentVerification initialized with:', { user, userRole, darkMode });
+  
   // ID Verification state
   const [idImage, setIdImage] = useState(null);
   const [idPreview, setIdPreview] = useState(null);
