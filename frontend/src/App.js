@@ -688,8 +688,39 @@ const OnboardingScreen = ({ email, onComplete, onBack }) => {
         return (
           <div className="space-y-6 md:space-y-8">
             <div className="text-center">
-              <h2 className="text-xl md:text-2xl font-bold text-green-400 mb-2">Let's Get Started!</h2>
-              <p className="text-gray-400 text-sm">Creating account for {email}</p>
+              <h2 className="text-xl md:text-2xl font-bold text-green-400 mb-2">What's your name?</h2>
+              <p className="text-gray-400 text-sm">Tell us what to call you</p>
+            </div>
+            <div>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                placeholder="Enter your full name"
+                className="w-full px-4 py-3 rounded-lg bg-gray-800/50 border border-gray-600 text-white placeholder-gray-400 focus:ring-2 focus:ring-green-400 focus:border-transparent"
+              />
+            </div>
+            <div className="flex space-x-3">
+              <button onClick={onBack} className="premium-button-secondary flex-1">
+                ← Back
+              </button>
+              <button 
+                onClick={() => setStep(1)}
+                disabled={!formData.name || formData.name.trim().length < 2}
+                className="premium-button-primary flex-1"
+              >
+                Continue →
+              </button>
+            </div>
+          </div>
+        );
+      
+      case 1:
+        return (
+          <div className="space-y-6 md:space-y-8">
+            <div className="text-center">
+              <h2 className="text-xl md:text-2xl font-bold text-green-400 mb-2">Choose Your Role</h2>
+              <p className="text-gray-400 text-sm">How do you want to use LiftLink?</p>
             </div>
             <div className="grid grid-cols-1 gap-4">
               {roles.map(role => (
@@ -711,11 +742,11 @@ const OnboardingScreen = ({ email, onComplete, onBack }) => {
               ))}
             </div>
             <div className="flex space-x-3">
-              <button onClick={onBack} className="premium-button-secondary flex-1">
+              <button onClick={() => setStep(0)} className="premium-button-secondary flex-1">
                 ← Back
               </button>
               <button 
-                onClick={() => setStep(1)}
+                onClick={() => setStep(2)}
                 disabled={!formData.role}
                 className="premium-button-primary flex-1"
               >
