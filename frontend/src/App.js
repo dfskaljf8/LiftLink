@@ -965,7 +965,7 @@ const SideNavigation = ({ activeTab, setActiveTab, darkMode }) => {
 };
 
 // Trainer CRM Dashboard - Main Component
-const TrainerDashboard = ({ user, onLogout }) => {
+const TrainerDashboard = ({ user, onLogout, onUpdateUser }) => {
   const { darkMode, toggleDarkMode } = useContext(AppContext);
   const [activeTab, setActiveTab] = useState('dashboard');
 
