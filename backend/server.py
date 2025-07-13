@@ -201,7 +201,8 @@ async def check_user_exists(request: CheckUserRequest):
     """Check if a user exists by email for smart authentication routing"""
     user = await get_user_by_email(request.email)
     if user:
-        return CheckUserResponse(exists=True, user_id=user["id"])
+        user_role = user["role"].value if hasattr(user["role"], 'value') else user["role"]
+        return CheckUserResponse(exists=True, user_id=user["id"], role=user_role)
     return CheckUserResponse(exists=False)
 
 @api_router.post("/login", response_model=UserResponse)
