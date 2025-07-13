@@ -252,6 +252,7 @@ async def login_user(request: LoginRequest):
     return UserResponse(
         id=user["id"],
         email=user["email"],
+        name=user.get("name"),
         role=user["role"].value if hasattr(user["role"], 'value') else user["role"],
         fitness_goals=fitness_goals_str,
         experience_level=user["experience_level"].value if hasattr(user["experience_level"], 'value') else user["experience_level"],
