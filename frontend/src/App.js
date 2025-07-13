@@ -1569,7 +1569,7 @@ const TrainerCheckinSystem = ({ user }) => {
 };
 
 // Function to render trainer content based on active tab
-const renderTrainerContent = (activeTab, user) => {
+const renderTrainerContent = (activeTab, user, onUpdateUser) => {
   switch(activeTab) {
     case 'dashboard':
       return <TrainerDashboardMain user={user} />;
@@ -1584,7 +1584,7 @@ const renderTrainerContent = (activeTab, user) => {
     case 'reviews':
       return <TrainerReviews user={user} />;
     case 'profile':
-      return <TrainerProfile user={user} />;
+      return <TrainerProfile user={user} onUpdateUser={onUpdateUser} />;
     default:
       return <TrainerDashboardMain user={user} />;
   }
