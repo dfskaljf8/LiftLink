@@ -4497,7 +4497,7 @@ function App() {
         {!user ? (
           <AuthenticationFlow onComplete={setUser} />
         ) : user.role === 'trainer' ? (
-          <TrainerDashboard user={user} onLogout={handleLogout} />
+          <TrainerDashboard user={user} onLogout={handleLogout} onUpdateUser={updateUser} />
         ) : (
           <div className={`min-h-screen transition-all duration-500 ${darkMode ? 'cyberpunk-bg' : 'light-mode-bg'}`}>
             <SideNavigation activeTab={activeTab} setActiveTab={setActiveTab} darkMode={darkMode} />
