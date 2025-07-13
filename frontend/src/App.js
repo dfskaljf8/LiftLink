@@ -1002,7 +1002,7 @@ const TrainerDashboard = ({ user, onLogout, onUpdateUser }) => {
 
       <main className="md:pl-64 md:pt-20 p-4 md:p-6 pb-20 md:pb-6">
         <div className="max-w-7xl mx-auto">
-          {renderTrainerContent(activeTab, user)}
+          {renderTrainerContent(activeTab, user, onUpdateUser)}
         </div>
       </main>
     </div>
