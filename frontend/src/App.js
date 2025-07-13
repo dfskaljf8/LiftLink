@@ -3949,7 +3949,87 @@ const SettingsSection = ({ user, onLogout }) => {
         <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
           Profile Information
         </h2>
+        
+        {message && (
+          <div className={`mb-4 p-3 rounded-lg ${
+            message.includes('successfully') 
+              ? 'bg-green-100 border border-green-400 text-green-700'
+              : 'bg-red-100 border border-red-400 text-red-700'
+          }`}>
+            {message}
+          </div>
+        )}
+        
         <div className="space-y-4">
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Name
+            </label>
+            {editingName ? (
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  className={`flex-1 px-3 py-2 rounded-lg border ${
+                    darkMode 
+                      ? 'bg-gray-800/50 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  } focus:ring-2 focus:ring-green-400 focus:border-transparent`}
+                  placeholder="Enter your name"
+                  disabled={loading}
+                />
+                <button
+                  onClick={handleUpdateName}
+                  disabled={loading || !newName.trim()}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    loading || !newName.trim()
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : darkMode
+                        ? 'bg-green-600 hover:bg-green-700 text-white'
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                >
+                  {loading ? 'Saving...' : 'Save'}
+                </button>
+                <button
+                  onClick={cancelEdit}
+                  disabled={loading}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    darkMode
+                      ? 'bg-gray-600 hover:bg-gray-700 text-white'
+                      : 'bg-gray-400 hover:bg-gray-500 text-white'
+                  }`}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex space-x-2">
+                <input
+                  type="text"
+                  value={user?.name || 'No name set'}
+                  className={`flex-1 px-3 py-2 rounded-lg border ${
+                    darkMode 
+                      ? 'bg-gray-800/50 border-gray-600 text-white' 
+                      : 'bg-white border-gray-300 text-gray-900'
+                  } cursor-not-allowed opacity-75`}
+                  disabled
+                />
+                <button
+                  onClick={() => setEditingName(true)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                    darkMode
+                      ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                  }`}
+                >
+                  Edit
+                </button>
+              </div>
+            )}
+          </div>
+          
           <div>
             <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               Email
