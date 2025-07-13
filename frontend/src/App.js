@@ -1943,7 +1943,7 @@ const TrainerReviews = ({ user }) => {
   );
 };
 
-const TrainerProfile = ({ user }) => {
+const TrainerProfile = ({ user, onUpdateUser }) => {
   const { darkMode } = useContext(AppContext);
   const [profile, setProfile] = useState({
     name: user?.name || '',
@@ -1975,9 +1975,8 @@ const TrainerProfile = ({ user }) => {
         });
 
         if (response.data) {
-          // Update local storage with new user data
-          const updatedUser = { ...user, name: profile.name.trim() };
-          localStorage.setItem('liftlink_user', JSON.stringify(updatedUser));
+          // Update user state everywhere in the app
+          onUpdateUser({ name: profile.name.trim() });
         }
       }
 
