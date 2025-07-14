@@ -104,7 +104,18 @@
 
 user_problem_statement: "Build LiftLink Platform - a sophisticated fitness ecosystem with cyberpunk-themed onboarding, tree progression system (seed to redwood), AI-powered features, and dark/light mode toggle. Focus on frontend-backend integration with proper user journey."
 
-backend:
+  - task: "Remove Fitbit Integration & Implement Google APIs"
+    implemented: true
+    working: true
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Successfully removed all Fitbit integration from backend and frontend. Updated server.py to remove Fitbit endpoints (/api/fitbit/login, /api/fitbit/callback, /api/fitbit/disconnect), removed fitbit_connected from FitnessConnectionStatus model, and removed SessionSource.FITBIT enum. Updated frontend FitnessIntegrationSection to only show Google Fit integration. Added Google API keys to environment variables and enhanced Google Fit OAuth2 implementation with real API integration for /api/sync/workouts endpoint."
+
   - task: "User Registration & Authentication System"
     implemented: true
     working: true
