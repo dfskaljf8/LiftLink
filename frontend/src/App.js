@@ -4365,7 +4365,7 @@ function App() {
   const completeSession = async () => {
     // This function is deprecated - sessions are now created through:
     // 1. Trainer confirmation via check-in system
-    // 2. Automatic sync from fitness devices (Fitbit, Google Fit, etc.)
+    // 2. Automatic sync from fitness devices (Google Fit, etc.)
     alert('Sessions are now automatically tracked through your fitness devices or confirmed by trainers. Visit the Fitness section to connect your devices!');
   };
 
