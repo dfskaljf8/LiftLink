@@ -2618,7 +2618,6 @@ const TreeSection = ({ user, treeProgress }) => {
 // Fitness Integration Section Component
 const FitnessIntegrationSection = ({ user }) => {
   const { darkMode } = useContext(AppContext);
-  const [fitbitConnected, setFitbitConnected] = useState(false);
   const [googleFitConnected, setGoogleFitConnected] = useState(false);
   const [syncStatus, setSyncStatus] = useState('idle');
   const [lastSync, setLastSync] = useState(null);
@@ -2627,29 +2626,18 @@ const FitnessIntegrationSection = ({ user }) => {
   useEffect(() => {
     // Check connection status
     checkConnectionStatus();
-    if (fitbitConnected || googleFitConnected) {
+    if (googleFitConnected) {
       fetchFitnessData();
     }
-  }, [fitbitConnected, googleFitConnected]);
+  }, [googleFitConnected]);
 
   const checkConnectionStatus = async () => {
     try {
       const response = await axios.get(`${API}/fitness/status/${user.id}`);
-      setFitbitConnected(response.data.fitbit_connected);
       setGoogleFitConnected(response.data.google_fit_connected);
       setLastSync(response.data.last_sync);
     } catch (error) {
       console.error('Failed to check fitness connection status:', error);
-    }
-  };
-
-  const connectFitbit = async () => {
-    try {
-      const response = await axios.get(`${API}/fitbit/login`);
-      window.location.href = response.data.authorization_url;
-    } catch (error) {
-      console.error('Failed to connect to Fitbit:', error);
-      alert('Failed to connect to Fitbit. Please try again.');
     }
   };
 
@@ -2687,17 +2675,6 @@ const FitnessIntegrationSection = ({ user }) => {
     }
   };
 
-  const disconnectFitbit = async () => {
-    try {
-      await axios.delete(`${API}/fitbit/disconnect/${user.id}`);
-      setFitbitConnected(false);
-      alert('Fitbit disconnected successfully!');
-    } catch (error) {
-      console.error('Failed to disconnect Fitbit:', error);
-      alert('Failed to disconnect Fitbit. Please try again.');
-    }
-  };
-
   const disconnectGoogleFit = async () => {
     try {
       await axios.delete(`${API}/google-fit/disconnect/${user.id}`);
@@ -2713,75 +2690,15 @@ const FitnessIntegrationSection = ({ user }) => {
     <div className="space-y-6">
       <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
         <h1 className={`text-2xl md:text-3xl font-bold mb-6 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
-          Fitness Device Integration
+          Google Fit Integration
         </h1>
         <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} mb-6`}>
-          Connect your fitness trackers and apps to automatically sync your workouts to LiftLink
+          Connect your Google Fit account to automatically sync your workouts and fitness data to LiftLink
         </p>
       </div>
 
       {/* Connection Status */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Fitbit Integration */}
-        <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <div className="text-3xl">⌚</div>
-              <div>
-                <h3 className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  Fitbit
-                </h3>
-                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Connect your Fitbit device
-                </p>
-              </div>
-            </div>
-            <div className={`w-3 h-3 rounded-full ${fitbitConnected ? 'bg-green-400' : 'bg-gray-400'}`}></div>
-          </div>
-          
-          {fitbitConnected ? (
-            <div className="space-y-3">
-              <div className={`p-3 rounded-lg ${darkMode ? 'bg-green-900/20' : 'bg-green-50'}`}>
-                <p className={`text-sm ${darkMode ? 'text-green-400' : 'text-green-700'}`}>
-                  ✓ Connected and syncing data
-                </p>
-              </div>
-              <div className="flex space-x-2">
-                <button 
-                  onClick={syncData}
-                  disabled={syncStatus === 'syncing'}
-                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                    syncStatus === 'syncing' 
-                      ? 'opacity-50 cursor-not-allowed' 
-                      : darkMode 
-                      ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                      : 'bg-blue-500 hover:bg-blue-600 text-white'
-                  }`}
-                >
-                  {syncStatus === 'syncing' ? 'Syncing...' : 'Sync Now'}
-                </button>
-                <button 
-                  onClick={disconnectFitbit}
-                  className="px-4 py-2 border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-lg font-medium transition-colors"
-                >
-                  Disconnect
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button 
-              onClick={connectFitbit}
-              className={`w-full px-4 py-2 rounded-lg font-medium transition-colors ${
-                darkMode 
-                  ? 'bg-green-600 hover:bg-green-700 text-white' 
-                  : 'bg-blue-600 hover:bg-blue-700 text-white'
-              }`}
-            >
-              Connect Fitbit
-            </button>
-          )}
-        </div>
-
+      <div className="grid grid-cols-1 gap-6">
         {/* Google Fit Integration */}
         <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
           <div className="flex items-center justify-between mb-4">
@@ -2792,7 +2709,7 @@ const FitnessIntegrationSection = ({ user }) => {
                   Google Fit
                 </h3>
                 <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                  Connect your Google Fit data
+                  Connect your Google Fit data for comprehensive fitness tracking
                 </p>
               </div>
             </div>
@@ -2844,7 +2761,7 @@ const FitnessIntegrationSection = ({ user }) => {
       </div>
 
       {/* Sync Status */}
-      {(fitbitConnected || googleFitConnected) && (
+      {googleFitConnected && (
         <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
           <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
             Sync Status
