@@ -441,9 +441,21 @@ const AuthenticationFlow = ({ onComplete }) => {
   };
 
   const handleVerificationComplete = (verificationData) => {
-    // After verification, automatically sign in
+    // After verification, directly proceed to the app
     if (verificationData.age_verified) {
-      handleSignIn();
+      console.log('Verification complete, proceeding to app with user:', pendingUser);
+      
+      // Update user data with verification status
+      const updatedUser = {
+        ...pendingUser,
+        age_verified: true,
+        cert_verified: verificationData.cert_verified || false,
+        verification_status: verificationData.cert_verified ? 'fully_verified' : 'age_verified'
+      };
+      
+      // Store in localStorage and proceed to app
+      localStorage.setItem('liftlink_user', JSON.stringify(updatedUser));
+      onComplete(updatedUser);
     }
   };
 
