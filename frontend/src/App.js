@@ -1395,18 +1395,24 @@ const TrainerClientManagement = ({ user }) => {
             </div>
             
             <div className="flex space-x-2">
-              <button className={`flex-1 px-3 py-2 rounded-lg font-medium transition-colors ${
-                darkMode 
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-                  : 'bg-blue-500 hover:bg-blue-600 text-white'
-              }`}>
+              <button 
+                onClick={() => alert(`Viewing details for ${client.name}\n\nContact: ${client.email}\nPhone: ${client.phone}\nGoals: ${client.goals.join(', ')}\nNotes: ${client.notes}`)}
+                className={`flex-1 px-3 py-2 rounded-lg font-medium transition-colors ${
+                  darkMode 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                    : 'bg-blue-500 hover:bg-blue-600 text-white'
+                }`}
+              >
                 View Details
               </button>
-              <button className={`flex-1 px-3 py-2 rounded-lg border font-medium transition-colors ${
-                darkMode 
-                  ? 'border-gray-600 hover:bg-gray-800/50 text-white' 
-                  : 'border-gray-300 hover:bg-gray-50 text-gray-900'
-              }`}>
+              <button 
+                onClick={() => alert(`Scheduling session with ${client.name}\n\nThis will open the scheduling interface where you can:\n- View available time slots\n- Book new sessions\n- Set recurring appointments\n- Send calendar invites`)}
+                className={`flex-1 px-3 py-2 rounded-lg border font-medium transition-colors ${
+                  darkMode 
+                    ? 'border-gray-600 hover:bg-gray-800/50 text-white' 
+                    : 'border-gray-300 hover:bg-gray-50 text-gray-900'
+                }`}
+              >
                 Schedule Session
               </button>
             </div>
