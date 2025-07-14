@@ -37,8 +37,6 @@ from fastapi import APIRouter
 api_router = APIRouter()
 
 # Fitness API credentials
-FITBIT_CLIENT_ID = os.environ.get('FITBIT_CLIENT_ID', 'your_fitbit_client_id_here')
-FITBIT_CLIENT_SECRET = os.environ.get('FITBIT_CLIENT_SECRET', 'your_fitbit_client_secret_here')
 GOOGLE_FIT_CLIENT_ID = os.environ.get('GOOGLE_FIT_CLIENT_ID', 'your_google_fit_client_id_here')
 GOOGLE_FIT_CLIENT_SECRET = os.environ.get('GOOGLE_FIT_CLIENT_SECRET', 'your_google_fit_client_secret_here')
 
