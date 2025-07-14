@@ -2438,7 +2438,9 @@ const TrainersSection = ({ user }) => {
                   </div>
                 </div>
                 
-                <button className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                <button 
+                  onClick={() => alert(`Booking session with ${trainer.name}\n\nTrainer: ${trainer.name}\nLocation: ${trainer.location}\nRating: ${trainer.rating} stars\nPrice: ${trainer.price}\nSpecialties: ${trainer.specialties.join(', ')}\n\nThis will open the booking interface where you can:\n- Select available time slots\n- Choose session type\n- Complete payment\n- Confirm booking`)}
+                  className={`px-3 py-2 rounded-lg font-medium transition-colors ${
                   darkMode 
                     ? 'bg-green-600 hover:bg-green-700 text-white' 
                     : 'bg-blue-600 hover:bg-blue-700 text-white'
