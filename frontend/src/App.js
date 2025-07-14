@@ -5,6 +5,7 @@ import DocumentVerification from "./DocumentVerification";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 const API = `${BACKEND_URL}/api`;
+const GOOGLE_MAPS_API_KEY = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 
 // Context for theme and user
 const AppContext = createContext();
