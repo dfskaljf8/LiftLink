@@ -76,7 +76,6 @@ class TreeLevel(str, Enum):
 class SessionSource(str, Enum):
     MANUAL = "manual"
     TRAINER = "trainer"
-    FITBIT = "fitbit"
     GOOGLE_FIT = "google_fit"
 
 # Models
