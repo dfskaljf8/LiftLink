@@ -4281,7 +4281,7 @@ const ProfileSection = ({ user, treeProgress, onLogout }) => {
 };
 
 // Dashboard Component (Updated - No manual session creation)
-const Dashboard = ({ user, treeProgress }) => {
+const Dashboard = ({ user, treeProgress, setActiveTab }) => {
   const { darkMode } = useContext(AppContext);
 
   return (
