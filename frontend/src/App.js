@@ -4354,11 +4354,14 @@ const Dashboard = ({ user, treeProgress, setActiveTab }) => {
           <div className="text-3xl">⌚</div>
           <div className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Connect Fitness Device</div>
           <div className={`text-sm opacity-75 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Auto-track your workouts</div>
-          <button className={`mt-4 px-4 py-2 rounded-lg font-medium transition-colors ${
-            darkMode 
-              ? 'bg-green-600 hover:bg-green-700 text-white' 
-              : 'bg-blue-600 hover:bg-blue-700 text-white'
-          }`}>
+          <button 
+            onClick={() => setActiveTab('fitness')}
+            className={`mt-4 px-4 py-2 rounded-lg font-medium transition-colors ${
+              darkMode 
+                ? 'bg-green-600 hover:bg-green-700 text-white' 
+                : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
+          >
             Get Started
           </button>
         </div>
