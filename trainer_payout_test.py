@@ -61,7 +61,8 @@ def test_trainer_payout_functionality():
         print(f"\n🔸 Testing {description} for trainer {trainer_id}")
         
         try:
-            response = requests.post(f"{BACKEND_URL}/trainer/{trainer_id}/payout", json={"amount": amount})
+            # Use query parameter instead of JSON body
+            response = requests.post(f"{BACKEND_URL}/trainer/{trainer_id}/payout?amount={amount}")
             
             print(f"   Status Code: {response.status_code}")
             print(f"   Response: {response.text}")
@@ -121,7 +122,8 @@ def test_trainer_payout_functionality():
         print(f"\n🔸 Testing {description} for trainer {trainer_id}")
         
         try:
-            response = requests.post(f"{BACKEND_URL}/trainer/{trainer_id}/payout", json={"amount": amount})
+            # Use query parameter instead of JSON body
+            response = requests.post(f"{BACKEND_URL}/trainer/{trainer_id}/payout?amount={amount}")
             
             print(f"   Status Code: {response.status_code}")
             print(f"   Response: {response.text}")
@@ -157,24 +159,24 @@ def test_trainer_payout_functionality():
     print("-" * 60)
     
     error_test_cases = [
-        {"trainer_id": trainer_ids[0], "data": {"amount": "invalid_string"}, "description": "String amount instead of integer"},
-        {"trainer_id": trainer_ids[1], "data": {"amount": 12.5}, "description": "Float amount instead of integer"},
-        {"trainer_id": trainer_ids[2], "data": {}, "description": "Missing amount parameter"},
-        {"trainer_id": trainer_ids[0], "data": {"wrong_field": 5000}, "description": "Wrong parameter name"},
-        {"trainer_id": "invalid_trainer_id", "data": {"amount": 5000}, "description": "Invalid trainer ID"}
+        {"trainer_id": trainer_ids[0], "amount": "invalid_string", "description": "String amount instead of integer"},
+        {"trainer_id": trainer_ids[1], "amount": "12.5", "description": "Float amount as string"},
+        {"trainer_id": trainer_ids[2], "amount": "", "description": "Empty amount parameter"},
+        {"trainer_id": "invalid_trainer_id", "amount": 5000, "description": "Invalid trainer ID"}
     ]
     
     error_handling_success_count = 0
     
     for test_case in error_test_cases:
         trainer_id = test_case["trainer_id"]
-        data = test_case["data"]
+        amount = test_case["amount"]
         description = test_case["description"]
         
         print(f"\n🔸 Testing {description}")
         
         try:
-            response = requests.post(f"{BACKEND_URL}/trainer/{trainer_id}/payout", json=data)
+            # Use query parameter instead of JSON body
+            response = requests.post(f"{BACKEND_URL}/trainer/{trainer_id}/payout?amount={amount}")
             
             print(f"   Status Code: {response.status_code}")
             print(f"   Response: {response.text}")
@@ -191,11 +193,28 @@ def test_trainer_payout_functionality():
             print(f"   ❌ EXCEPTION: {str(e)}")
             test_results["error_handling"]["details"] += f"Exception for {description}: {str(e)}. "
     
-    if error_handling_success_count == len(error_test_cases):
+    # Test missing amount parameter
+    print(f"\n🔸 Testing Missing amount parameter")
+    try:
+        response = requests.post(f"{BACKEND_URL}/trainer/{trainer_ids[0]}/payout")
+        print(f"   Status Code: {response.status_code}")
+        print(f"   Response: {response.text}")
+        
+        if response.status_code >= 400:
+            print(f"   ✅ CORRECTLY HANDLED ERROR: Status {response.status_code}")
+            error_handling_success_count += 1
+        else:
+            print(f"   ❌ ERROR: Expected error status but got {response.status_code}")
+            test_results["error_handling"]["details"] += f"Missing amount parameter should have returned error status. "
+    except Exception as e:
+        print(f"   ❌ EXCEPTION: {str(e)}")
+        test_results["error_handling"]["details"] += f"Exception for missing amount parameter: {str(e)}. "
+    
+    if error_handling_success_count == len(error_test_cases) + 1:  # +1 for missing parameter test
         test_results["error_handling"]["success"] = True
-        print(f"\n✅ ALL ERROR HANDLING TESTS PASSED: {error_handling_success_count}/{len(error_test_cases)}")
+        print(f"\n✅ ALL ERROR HANDLING TESTS PASSED: {error_handling_success_count}/{len(error_test_cases) + 1}")
     else:
-        print(f"\n❌ ERROR HANDLING TESTS FAILED: Only {error_handling_success_count}/{len(error_test_cases)} passed")
+        print(f"\n❌ ERROR HANDLING TESTS FAILED: Only {error_handling_success_count}/{len(error_test_cases) + 1} passed")
     
     # Test 4: Test the specific user-reported issue - payout button not working
     print("\n\nTEST 4: User-reported issue - payout button functionality")
@@ -225,7 +244,8 @@ def test_trainer_payout_functionality():
                 
                 print(f"\n   Requesting payout of ${payout_amount/100:.2f} (less than total earnings of ${total_earnings:.2f})")
                 
-                payout_response = requests.post(f"{BACKEND_URL}/trainer/{trainer_id}/payout", json={"amount": payout_amount})
+                # Use query parameter instead of JSON body
+                payout_response = requests.post(f"{BACKEND_URL}/trainer/{trainer_id}/payout?amount={payout_amount}")
                 
                 print(f"   Payout Status Code: {payout_response.status_code}")
                 print(f"   Payout Response: {payout_response.text}")
