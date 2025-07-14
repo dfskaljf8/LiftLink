@@ -346,54 +346,7 @@ async def get_fitness_connection_status(user_id: str):
         last_sync=user.get("last_sync")
     )
 
-@api_router.get("/fitbit/login")
-async def fitbit_login():
-    """Initiate Fitbit OAuth flow"""
-    if FITBIT_CLIENT_ID == 'your_fitbit_client_id_here':
-        raise HTTPException(status_code=501, detail="Fitbit integration not configured")
-    
-    params = {
-        "client_id": FITBIT_CLIENT_ID,
-        "response_type": "code",
-        "scope": "activity heartrate sleep",
-        "redirect_uri": f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/fitbit/callback"
-    }
-    
-    authorization_url = f"https://www.fitbit.com/oauth2/authorize?{urlencode(params)}"
-    return {"authorization_url": authorization_url}
 
-@api_router.get("/fitbit/callback")
-async def fitbit_callback(code: str, user_id: str = None):
-    """Handle Fitbit OAuth callback"""
-    token_data = {
-        "client_id": FITBIT_CLIENT_ID,
-        "grant_type": "authorization_code",
-        "redirect_uri": f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/fitbit/callback",
-        "code": code
-    }
-    
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            "https://api.fitbit.com/oauth2/token",
-            data=token_data,
-            auth=(FITBIT_CLIENT_ID, FITBIT_CLIENT_SECRET)
-        )
-        
-        if response.status_code != 200:
-            raise HTTPException(status_code=400, detail="Failed to exchange code for token")
-        
-        token_info = response.json()
-        
-        if user_id:
-            await db.users.update_one(
-                {"id": user_id},
-                {"$set": {
-                    "fitbit_token": token_info,
-                    "fitbit_connected": True
-                }}
-            )
-    
-    return {"message": "Fitbit connected successfully"}
 
 @api_router.get("/google-fit/login")
 async def google_fit_login():
