@@ -493,18 +493,7 @@ async def get_fitness_data(user_id: str):
         recent_workouts=recent_workouts
     )
 
-@api_router.delete("/fitbit/disconnect/{user_id}")
-async def disconnect_fitbit(user_id: str):
-    """Disconnect Fitbit from user account"""
-    result = await db.users.update_one(
-        {"id": user_id},
-        {"$unset": {"fitbit_token": "", "fitbit_connected": ""}}
-    )
-    
-    if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail="User not found")
-    
-    return {"message": "Fitbit disconnected successfully"}
+
 
 @api_router.delete("/google-fit/disconnect/{user_id}")
 async def disconnect_google_fit(user_id: str):
