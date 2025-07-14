@@ -678,10 +678,12 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from payment_service import PaymentService
 from calendar_service import CalendarService
 from verification_service import VerificationService
+from google_wallet_service import GoogleWalletService
 
 payment_service = PaymentService()
 calendar_service = CalendarService()
 verification_service = VerificationService()
+google_wallet_service = GoogleWalletService()
 
 # Enhanced User Model with verification
 class UserWithVerification(BaseModel):
