@@ -528,7 +528,7 @@ async def get_fitness_data(user_id: str):
             "calories": s.get("calories", 200),
             "date": s["created_at"],
             "source": s["source"],
-            "auto_confirmed": s["source"] in ["fitbit", "google_fit"]
+            "auto_confirmed": s["source"] in ["google_fit"]
         }
         for s in sessions[:5]
     ]
