@@ -365,34 +365,15 @@ async def google_fit_login():
 
 @api_router.get("/google-fit/callback")
 async def google_fit_callback(code: str, user_id: str = None):
-    """Handle Google Fit OAuth callback"""
-    token_data = {
-        "client_id": GOOGLE_FIT_CLIENT_ID,
-        "client_secret": GOOGLE_FIT_CLIENT_SECRET,
-        "grant_type": "authorization_code",
-        "redirect_uri": f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/google-fit/callback",
-        "code": code
-    }
-    
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            "https://oauth2.googleapis.com/token",
-            data=token_data
+    """Handle Google Fit API callback"""
+    if user_id:
+        await db.users.update_one(
+            {"id": user_id},
+            {"$set": {
+                "google_fit_connected": True,
+                "last_sync": datetime.now().isoformat()
+            }}
         )
-        
-        if response.status_code != 200:
-            raise HTTPException(status_code=400, detail="Failed to exchange code for token")
-        
-        token_info = response.json()
-        
-        if user_id:
-            await db.users.update_one(
-                {"id": user_id},
-                {"$set": {
-                    "google_fit_token": token_info,
-                    "google_fit_connected": True
-                }}
-            )
     
     return {"message": "Google Fit connected successfully"}
 
