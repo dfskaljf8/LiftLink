@@ -342,7 +342,6 @@ async def get_fitness_connection_status(user_id: str):
         raise HTTPException(status_code=404, detail="User not found")
     
     return FitnessConnectionStatus(
-        fitbit_connected=user.get("fitbit_connected", False),
         google_fit_connected=user.get("google_fit_connected", False),
         last_sync=user.get("last_sync")
     )
