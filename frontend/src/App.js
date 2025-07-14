@@ -1638,9 +1638,19 @@ const TrainerSchedule = ({ user }) => {
           <h1 className={`text-2xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
             Schedule Management
           </h1>
-          <button className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            darkMode ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
-          }`}>
+          <button 
+            onClick={() => {
+              const clientName = prompt('Enter client name:');
+              if (clientName) {
+                const sessionType = prompt('Enter session type (Personal Training, Group Class, etc.):') || 'Personal Training';
+                const duration = prompt('Enter session duration (minutes):') || '60';
+                alert(`New appointment scheduled!\n\nClient: ${clientName}\nType: ${sessionType}\nDuration: ${duration} minutes\nDate: ${selectedDate}\n\nThis appointment has been added to your schedule.`);
+              }
+            }}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              darkMode ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-blue-600 hover:bg-blue-700 text-white'
+            }`}
+          >
             + New Appointment
           </button>
         </div>
