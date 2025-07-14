@@ -893,13 +893,13 @@ async def update_user_name(user_id: str, request: UpdateUserNameRequest):
 @api_router.get("/trainer/{trainer_id}/schedule")
 async def get_trainer_schedule(trainer_id: str):
     """Get trainer's schedule"""
-    schedule = calendar_service.get_trainer_schedule(trainer_id)
+    schedule = await calendar_service.get_trainer_schedule(trainer_id)
     return {"schedule": schedule}
 
 @api_router.post("/trainer/{trainer_id}/schedule")
 async def create_appointment(trainer_id: str, appointment_data: dict):
     """Create new appointment"""
-    appointment = calendar_service.create_appointment(trainer_id, appointment_data)
+    appointment = await calendar_service.create_appointment(trainer_id, appointment_data)
     if appointment:
         return {"message": "Appointment created successfully", "appointment": appointment}
     else:
@@ -908,7 +908,7 @@ async def create_appointment(trainer_id: str, appointment_data: dict):
 @api_router.get("/trainer/{trainer_id}/available-slots")
 async def get_available_slots(trainer_id: str, date: str):
     """Get available time slots for a trainer"""
-    slots = calendar_service.get_available_slots(trainer_id, date)
+    slots = await calendar_service.get_available_slots(trainer_id, date)
     return {"available_slots": slots}
 
 # Trainer Earnings
