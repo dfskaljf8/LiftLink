@@ -1394,7 +1394,7 @@ const TrainerClientManagement = ({ user }) => {
             
             <div className="flex space-x-2">
               <button 
-                onClick={() => alert(`Viewing details for ${client.name}\n\nContact: ${client.email}\nPhone: ${client.phone}\nGoals: ${client.goals.join(', ')}\nNotes: ${client.notes}`)}
+                onClick={() => alert(`Viewing details for ${client.name}\n\nContact: ${client.email}\nPhone: ${client.phone}\nGoals: ${client.fitnessGoals?.join(', ') || 'Not specified'}\nNotes: ${client.notes}`)}
                 className={`flex-1 px-3 py-2 rounded-lg font-medium transition-colors ${
                   darkMode 
                     ? 'bg-blue-600 hover:bg-blue-700 text-white' 
