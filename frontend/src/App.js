@@ -3,6 +3,7 @@ import "./App.css";
 import axios from "axios";
 import DocumentVerification from "./DocumentVerification";
 
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 const API = `${BACKEND_URL}/api`;
 
 // Context for theme and user
