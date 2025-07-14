@@ -2848,7 +2848,7 @@ const FitnessIntegrationSection = ({ user }) => {
       )}
 
       {/* Setup Instructions */}
-      {!fitbitConnected && !googleFitConnected && (
+      {!googleFitConnected && (
         <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
           <h2 className={`text-xl font-bold mb-4 ${darkMode ? 'text-green-400' : 'text-blue-600'}`}>
             Why Connect Your Fitness Devices?
