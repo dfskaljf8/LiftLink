@@ -510,7 +510,7 @@ async def get_fitness_data(user_id: str):
     # Get fitness sessions from the last 30 days
     sessions_cursor = db.sessions.find({
         "user_id": user_id,
-        "source": {"$in": ["fitbit", "google_fit", "trainer"]}
+        "source": {"$in": ["google_fit", "trainer"]}
     }).sort("created_at", -1).limit(10)
     
     sessions = await sessions_cursor.to_list(length=10)
