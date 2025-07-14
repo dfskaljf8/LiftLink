@@ -136,7 +136,6 @@ class TreeProgress(BaseModel):
     progress_percentage: float
 
 class FitnessConnectionStatus(BaseModel):
-    fitbit_connected: bool
     google_fit_connected: bool
     last_sync: Optional[str]
 
