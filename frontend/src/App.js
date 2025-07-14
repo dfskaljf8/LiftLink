@@ -4367,11 +4367,14 @@ const Dashboard = ({ user, treeProgress }) => {
           <div className="text-3xl">👨‍💼</div>
           <div className={`text-lg font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>Find Trainers</div>
           <div className={`text-sm opacity-75 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>Book sessions with professionals</div>
-          <button className={`mt-4 px-4 py-2 rounded-lg font-medium transition-colors ${
-            darkMode 
-              ? 'bg-blue-600 hover:bg-blue-700 text-white' 
-              : 'bg-green-600 hover:bg-green-700 text-white'
-          }`}>
+          <button 
+            onClick={() => setActiveSection('trainers')}
+            className={`mt-4 px-4 py-2 rounded-lg font-medium transition-colors ${
+              darkMode 
+                ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+                : 'bg-green-600 hover:bg-green-700 text-white'
+            }`}
+          >
             Browse Trainers
           </button>
         </div>
