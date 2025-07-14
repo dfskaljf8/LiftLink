@@ -4456,7 +4456,7 @@ function App() {
   const renderContent = () => {
     switch(activeTab) {
       case 'dashboard':
-        return <Dashboard user={user} treeProgress={treeProgress} />;
+        return <Dashboard user={user} treeProgress={treeProgress} setActiveTab={setActiveTab} />;
       case 'trainers':
         return <TrainersSection user={user} />;
       case 'tree':
