@@ -465,14 +465,14 @@ async def sync_fitness_data(request: dict):
             "duration": 30,
             "calories": 250,
             "date": datetime.now().isoformat(),
-            "source": SessionSource.FITBIT if user.get("fitbit_connected") else SessionSource.GOOGLE_FIT
+            "source": SessionSource.GOOGLE_FIT
         },
         {
             "activity_type": "Weight Training",
             "duration": 45,
             "calories": 180,
             "date": (datetime.now() - timedelta(days=1)).isoformat(),
-            "source": SessionSource.FITBIT if user.get("fitbit_connected") else SessionSource.GOOGLE_FIT
+            "source": SessionSource.GOOGLE_FIT
         }
     ]
     
