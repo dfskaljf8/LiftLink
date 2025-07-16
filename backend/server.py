@@ -350,19 +350,18 @@ async def get_fitness_connection_status(user_id: str):
 
 @api_router.get("/google-fit/login")
 async def google_fit_login():
-    """Initiate Google Fit connection using proper OAuth"""
+    """Initiate Google Fit connection using real API keys"""
     if GOOGLE_FIT_API_KEY == 'your_google_fit_api_key_here':
         raise HTTPException(status_code=501, detail="Google Fit integration not configured")
     
-    # Use iOS client ID for web-based OAuth (can be configured per platform)
-    client_id = GOOGLE_CLIENT_ID_IOS if GOOGLE_CLIENT_ID_IOS != 'your_ios_client_id_here' else GOOGLE_FIT_API_KEY
-    
+    # Use iOS client ID for OAuth
     params = {
-        "client_id": client_id,
+        "client_id": GOOGLE_CLIENT_ID_IOS,
         "response_type": "code",
         "scope": "https://www.googleapis.com/auth/fitness.activity.read https://www.googleapis.com/auth/fitness.body.read",
         "redirect_uri": f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/google-fit/callback",
-        "access_type": "offline"
+        "access_type": "offline",
+        "key": GOOGLE_FIT_API_KEY  # Add API key to the request
     }
     
     authorization_url = f"https://accounts.google.com/o/oauth2/auth?{urlencode(params)}"
