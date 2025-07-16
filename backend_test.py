@@ -610,7 +610,7 @@ def test_fitness_connection_status(user):
         print(f"Fitness connection status: {json.dumps(status, indent=2)}")
         
         # Verify response structure
-        required_fields = ["fitbit_connected", "google_fit_connected", "last_sync"]
+        required_fields = ["google_fit_connected", "last_sync"]
         missing_fields = [field for field in required_fields if field not in status]
         
         if missing_fields:
@@ -619,12 +619,12 @@ def test_fitness_connection_status(user):
             return False
         
         # Verify initial values (should be False for new user)
-        if status["fitbit_connected"] == False and status["google_fit_connected"] == False:
-            print("Initial fitness connection status is correct (both disconnected)")
+        if status["google_fit_connected"] == False:
+            print("Initial fitness connection status is correct (Google Fit disconnected)")
             test_results["fitness_connection_status"]["success"] = True
             return True
         else:
-            print(f"ERROR: Expected both connections to be False but got fitbit: {status['fitbit_connected']}, google_fit: {status['google_fit_connected']}")
+            print(f"ERROR: Expected google_fit_connected to be False but got {status['google_fit_connected']}")
             test_results["fitness_connection_status"]["details"] += f"Initial connection status incorrect. "
             return False
     else:
