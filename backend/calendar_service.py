@@ -14,11 +14,13 @@ class CalendarService:
         self.base_url = "https://www.googleapis.com/calendar/v3"
         
     async def get_trainer_schedule(self, trainer_id: str, start_date: str = None, end_date: str = None) -> List[Dict]:
-        """Get trainer schedule from Google Calendar"""
+        """Get trainer schedule from Google Calendar with proper error handling"""
         try:
             if not self.api_key or self.api_key == 'your_google_calendar_api_key_here':
                 print("⚠️  Google Calendar API not configured, using mock data")
                 return self._get_mock_schedule()
+            
+            print(f"🔑 Attempting Google Calendar API call for trainer {trainer_id}")
             
             # Use real Google Calendar API
             if not start_date:
@@ -27,15 +29,14 @@ class CalendarService:
                 end_date = (datetime.now() + timedelta(days=7)).isoformat() + 'Z'
             
             # Try to get primary calendar first
-            calendar_id = f"trainer_{trainer_id}@gmail.com"  # Use trainer's email as calendar
+            calendar_id = "primary"  # Use primary calendar for now
             
             params = {
                 'key': self.api_key,
                 'timeMin': start_date,
                 'timeMax': end_date,
                 'singleEvents': 'true',
-                'orderBy': 'startTime',
-                'calendarId': calendar_id
+                'orderBy': 'startTime'
             }
             
             async with httpx.AsyncClient() as client:
@@ -47,14 +48,18 @@ class CalendarService:
                 if response.status_code == 200:
                     data = response.json()
                     events = self._format_calendar_events(data.get('items', []))
-                    print(f"📅 GOOGLE CALENDAR: Retrieved {len(events)} events for trainer {trainer_id}")
+                    print(f"📅 GOOGLE CALENDAR SUCCESS: Retrieved {len(events)} events")
                     return events
+                elif response.status_code == 403:
+                    print(f"❌ Google Calendar 403 Error: API not properly configured in Google Cloud Console")
+                    print("🔧 Using mock data - Please configure Google Calendar API in Google Cloud Console")
+                    return self._get_mock_schedule()
                 else:
-                    print(f"Google Calendar API error: {response.status_code} - {response.text}")
+                    print(f"❌ Google Calendar API error: {response.status_code} - {response.text}")
                     return self._get_mock_schedule()
                     
         except Exception as e:
-            logging.error(f"Calendar service error: {e}")
+            print(f"❌ Calendar service error: {e}")
             return self._get_mock_schedule()
     
     def _format_calendar_events(self, events: List[Dict]) -> List[Dict]:
