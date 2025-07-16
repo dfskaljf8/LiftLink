@@ -2656,8 +2656,19 @@ const FitnessIntegrationSection = ({ user }) => {
 
   const connectGoogleFit = async () => {
     try {
-      const response = await axios.get(`${API}/google-fit/login`);
-      window.location.href = response.data.authorization_url;
+      // Skip OAuth redirect and directly connect in mock mode
+      const response = await axios.post(`${API}/google-fit/connect`, { 
+        user_id: user.id,
+        mock_mode: true 
+      });
+      
+      if (response.data.success) {
+        setGoogleFitConnected(true);
+        setLastSync(new Date().toISOString());
+        alert('Google Fit connected successfully! (Mock mode - fitness data will be simulated)');
+      } else {
+        alert('Failed to connect to Google Fit. Please try again.');
+      }
     } catch (error) {
       console.error('Failed to connect to Google Fit:', error);
       alert('Failed to connect to Google Fit. Please try again.');
