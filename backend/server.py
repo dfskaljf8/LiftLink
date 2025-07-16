@@ -350,22 +350,28 @@ async def get_fitness_connection_status(user_id: str):
 
 @api_router.get("/google-fit/login")
 async def google_fit_login():
-    """Initiate Google Fit connection using real API keys"""
-    if GOOGLE_FIT_API_KEY == 'your_google_fit_api_key_here':
-        raise HTTPException(status_code=501, detail="Google Fit integration not configured")
-    
-    # Use iOS client ID for OAuth
-    params = {
-        "client_id": GOOGLE_CLIENT_ID_IOS,
-        "response_type": "code",
-        "scope": "https://www.googleapis.com/auth/fitness.activity.read https://www.googleapis.com/auth/fitness.body.read",
-        "redirect_uri": f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/google-fit/callback",
-        "access_type": "offline",
-        "key": GOOGLE_FIT_API_KEY  # Add API key to the request
-    }
-    
-    authorization_url = f"https://accounts.google.com/o/oauth2/auth?{urlencode(params)}"
-    return {"authorization_url": authorization_url}
+    """Initiate Google Fit connection with proper error handling"""
+    try:
+        # Check if API key is configured
+        if GOOGLE_FIT_API_KEY == 'your_google_fit_api_key_here':
+            print("⚠️  Google Fit API key not configured")
+            raise HTTPException(status_code=501, detail="Google Fit integration not configured")
+        
+        # For now, return a mock response until Google Cloud Console is properly configured
+        print("🔑 Google Fit API key present, but needs Google Cloud Console configuration")
+        
+        # Mock successful auth for testing
+        mock_auth_url = f"https://accounts.google.com/o/oauth2/auth?client_id={GOOGLE_CLIENT_ID_IOS}&response_type=code&scope=fitness.activity.read"
+        
+        return {
+            "authorization_url": mock_auth_url,
+            "status": "mock_auth",
+            "message": "Google Fit authentication (mock mode - requires Google Cloud Console setup)"
+        }
+        
+    except Exception as e:
+        print(f"❌ Google Fit login error: {e}")
+        raise HTTPException(status_code=500, detail="Google Fit authentication failed")
 
 @api_router.get("/google-fit/callback")
 async def google_fit_callback(code: str, user_id: str = None):
