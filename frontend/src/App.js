@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext, createContext } from "react";
 import "./App.css";
 import axios from "axios";
+import PaymentScreen from "./PaymentScreen";
 import DocumentVerification from "./DocumentVerification";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
