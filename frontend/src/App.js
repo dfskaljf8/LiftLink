@@ -2253,10 +2253,19 @@ const TrainersSection = ({ user, onBookTrainer }) => {
     if (!window.google && GOOGLE_MAPS_API_KEY && GOOGLE_MAPS_API_KEY !== 'your_google_maps_api_key_here') {
       const script = document.createElement('script');
       script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=places`;
-      script.onload = () => setMapLoaded(true);
+      script.onload = () => {
+        console.log('✅ Google Maps loaded successfully');
+        setMapLoaded(true);
+      };
+      script.onerror = () => {
+        console.error('❌ Google Maps failed to load - check API key and quota');
+        setMapLoaded(false);
+      };
       document.head.appendChild(script);
     } else if (window.google) {
       setMapLoaded(true);
+    } else {
+      console.warn('⚠️ Google Maps API key not configured');
     }
 
     // Mock trainer data with locations
