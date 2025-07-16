@@ -4510,6 +4510,17 @@ function App() {
             </main>
           </div>
         )}
+        
+        {/* Payment Screen Modal */}
+        {showPaymentScreen && selectedTrainer && sessionDetails && (
+          <PaymentScreen
+            trainer={selectedTrainer}
+            sessionDetails={sessionDetails}
+            onPaymentSuccess={handlePaymentSuccess}
+            onCancel={handlePaymentCancel}
+            darkMode={darkMode}
+          />
+        )}
       </div>
     </AppContext.Provider>
   );
