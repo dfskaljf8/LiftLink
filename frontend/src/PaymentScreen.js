@@ -78,7 +78,7 @@ const PaymentScreen = ({ trainer, sessionDetails, onPaymentSuccess, onCancel, da
         currency: 'usd'
       });
 
-      const { id: sessionId } = response.data;
+      const { checkout_session_id: sessionId } = response.data;
 
       // Redirect to Stripe Checkout
       const result = await stripe.redirectToCheckout({
