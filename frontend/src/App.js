@@ -4407,6 +4407,34 @@ function App() {
     setActiveTab('dashboard');
   };
 
+  // Payment handling functions
+  const handleBookTrainer = (trainer) => {
+    setSelectedTrainer(trainer);
+    setSessionDetails({
+      type: 'Personal Training',
+      duration: '60 minutes',
+      amount: parseInt(trainer.price.replace('$', '').replace('/session', '')) * 100, // Convert to cents
+      location: trainer.location || 'LiftLink Gym'
+    });
+    setShowPaymentScreen(true);
+  };
+
+  const handlePaymentSuccess = (paymentData) => {
+    console.log('Payment successful:', paymentData);
+    setShowPaymentScreen(false);
+    setSelectedTrainer(null);
+    setSessionDetails(null);
+    
+    // You can add logic here to create a session record, send confirmation email, etc.
+    alert(`Payment successful! Your session with ${selectedTrainer.name} has been booked.`);
+  };
+
+  const handlePaymentCancel = () => {
+    setShowPaymentScreen(false);
+    setSelectedTrainer(null);
+    setSessionDetails(null);
+  };
+
   const renderContent = () => {
     switch(activeTab) {
       case 'dashboard':
