@@ -4340,6 +4340,11 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [treeProgress, setTreeProgress] = useState(null);
   const [sessions, setSessions] = useState([]);
+  
+  // Payment screen states
+  const [showPaymentScreen, setShowPaymentScreen] = useState(false);
+  const [selectedTrainer, setSelectedTrainer] = useState(null);
+  const [sessionDetails, setSessionDetails] = useState(null);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('liftlink_user');
