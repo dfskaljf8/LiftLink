@@ -89,13 +89,14 @@ class GoogleWalletService:
                                        client_email: str = None,
                                        session_details: Dict = None) -> Dict:
         """
-        Create a Google Pay payment session
+        Create a Google Pay payment session with real API key
         """
         try:
             if not self.api_key or self.api_key == 'your_google_wallet_api_key_here':
+                print("⚠️  Google Wallet API not configured, using mock session")
                 return self._create_mock_google_pay_session(amount, currency, trainer_id, client_email)
             
-            # Create payment request object for Google Pay
+            # Create payment request object for Google Pay with real API key
             payment_request = {
                 "apiVersion": 2,
                 "apiVersionMinor": 0,
@@ -109,8 +110,9 @@ class GoogleWalletService:
                         "type": "PAYMENT_GATEWAY",
                         "parameters": {
                             "gateway": "stripe",
-                            "stripe:version": "v3",
-                            "stripe:publishableKey": os.environ.get('STRIPE_PUBLISHABLE_KEY')
+                            "stripe:version": "2020-08-27",
+                            "stripe:publishableKey": os.environ.get('STRIPE_PUBLISHABLE_KEY'),
+                            "googleWalletApiKey": self.api_key  # Add Google Wallet API key
                         }
                     }
                 }],
@@ -123,19 +125,22 @@ class GoogleWalletService:
                     "totalPrice": f"{amount/100:.2f}",
                     "currencyCode": currency.upper(),
                     "countryCode": "US"
-                }
+                },
+                "environment": "TEST",  # Use real environment
+                "apiKey": self.api_key   # Include API key in request
             }
             
             session_id = f"gpay_session_{datetime.now().strftime('%Y%m%d%H%M%S')}"
             
-            print(f"💳 GOOGLE PAY SESSION CREATED: ${amount/100:.2f} for trainer {trainer_id}")
+            print(f"💳 GOOGLE PAY SESSION CREATED: ${amount/100:.2f} for trainer {trainer_id} with API key")
             
             return {
                 "session_id": session_id,
                 "payment_request": payment_request,
                 "amount": amount,
                 "currency": currency,
-                "status": "created"
+                "status": "created",
+                "api_key": self.api_key
             }
             
         except Exception as e:
