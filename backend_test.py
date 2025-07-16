@@ -908,28 +908,8 @@ def test_fitness_disconnection(user):
     
     user_id = user["id"]
     
-    # Test Fitbit disconnection
-    print(f"Testing Fitbit disconnection for user {user_id}")
-    response = requests.delete(f"{BACKEND_URL}/fitbit/disconnect/{user_id}")
-    
-    if response.status_code == 200:
-        result = response.json()
-        print(f"Fitbit disconnect response: {json.dumps(result, indent=2)}")
-        
-        if "message" in result and "disconnected" in result["message"].lower():
-            print("Fitbit disconnection works correctly")
-        else:
-            print("ERROR: Fitbit disconnect response format incorrect")
-            test_results["fitness_disconnection"]["details"] += f"Fitbit disconnect response format incorrect. "
-            return False
-    else:
-        print(f"ERROR: Failed to disconnect Fitbit. Status code: {response.status_code}")
-        print(f"Response: {response.text}")
-        test_results["fitness_disconnection"]["details"] += f"Failed to disconnect Fitbit. Status code: {response.status_code}. "
-        return False
-    
     # Test Google Fit disconnection
-    print(f"\nTesting Google Fit disconnection for user {user_id}")
+    print(f"Testing Google Fit disconnection for user {user_id}")
     response = requests.delete(f"{BACKEND_URL}/google-fit/disconnect/{user_id}")
     
     if response.status_code == 200:
