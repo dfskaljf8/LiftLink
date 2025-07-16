@@ -17,6 +17,7 @@ class CalendarService:
         """Get trainer schedule from Google Calendar"""
         try:
             if not self.api_key or self.api_key == 'your_google_calendar_api_key_here':
+                print("⚠️  Google Calendar API not configured, using mock data")
                 return self._get_mock_schedule()
             
             # Use real Google Calendar API
@@ -25,25 +26,31 @@ class CalendarService:
             if not end_date:
                 end_date = (datetime.now() + timedelta(days=7)).isoformat() + 'Z'
             
+            # Try to get primary calendar first
+            calendar_id = f"trainer_{trainer_id}@gmail.com"  # Use trainer's email as calendar
+            
             params = {
                 'key': self.api_key,
                 'timeMin': start_date,
                 'timeMax': end_date,
                 'singleEvents': 'true',
-                'orderBy': 'startTime'
+                'orderBy': 'startTime',
+                'calendarId': calendar_id
             }
             
             async with httpx.AsyncClient() as client:
                 response = await client.get(
-                    f"{self.base_url}/calendars/primary/events",
+                    f"{self.base_url}/calendars/{calendar_id}/events",
                     params=params
                 )
                 
                 if response.status_code == 200:
                     data = response.json()
-                    return self._format_calendar_events(data.get('items', []))
+                    events = self._format_calendar_events(data.get('items', []))
+                    print(f"📅 GOOGLE CALENDAR: Retrieved {len(events)} events for trainer {trainer_id}")
+                    return events
                 else:
-                    logging.warning(f"Google Calendar API error: {response.status_code}")
+                    print(f"Google Calendar API error: {response.status_code} - {response.text}")
                     return self._get_mock_schedule()
                     
         except Exception as e:
