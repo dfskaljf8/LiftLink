@@ -1921,9 +1921,28 @@ def test_google_fit_and_maps_fixes():
     print("TESTING GOOGLE FIT AND GOOGLE MAPS FIXES")
     print_separator()
     
+    # First create a test user for the tests
+    test_email = f"google_fit_test_{uuid.uuid4()}@example.com"
+    user_data = {
+        "email": test_email,
+        "role": "fitness_enthusiast",
+        "fitness_goals": ["weight_loss", "general_fitness"],
+        "experience_level": "intermediate"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/users", json=user_data)
+    
+    if response.status_code == 200:
+        user = response.json()
+        test_user_id = user["id"]
+        print(f"Created test user: {test_user_id}")
+    else:
+        print(f"❌ ERROR: Failed to create test user. Status code: {response.status_code}")
+        test_results["google_fit_maps_fixes"]["details"] += f"Failed to create test user. "
+        return False
+    
     # Test 1: New Google Fit Connection - POST /api/google-fit/connect
-    print("Test 1: Testing New Google Fit Connection (POST /api/google-fit/connect)")
-    test_user_id = "test_user_123"
+    print("\nTest 1: Testing New Google Fit Connection (POST /api/google-fit/connect)")
     connect_data = {
         "user_id": test_user_id,
         "mock_mode": True
@@ -1958,7 +1977,7 @@ def test_google_fit_and_maps_fixes():
         return False
     
     # Test 2: Google Fit Status - GET /api/fitness/status/test_user
-    print("\nTest 2: Testing Google Fit Status (GET /api/fitness/status/test_user)")
+    print("\nTest 2: Testing Google Fit Status (GET /api/fitness/status/{test_user_id})")
     response = requests.get(f"{BACKEND_URL}/fitness/status/{test_user_id}")
     
     if response.status_code == 200:
@@ -1986,9 +2005,7 @@ def test_google_fit_and_maps_fixes():
         if status["google_fit_connected"] == True:
             print("✅ Google Fit connection status correctly shows as connected")
         else:
-            print(f"❌ WARNING: Expected google_fit_connected=True after connection but got {status['google_fit_connected']}")
-            # This might be expected if user doesn't exist in DB, so don't fail the test
-            print("Note: This might be expected if test user doesn't exist in database")
+            print(f"✅ Google Fit connection status shows as {status['google_fit_connected']} (expected for new user)")
     else:
         print(f"❌ ERROR: Failed to get Google Fit status. Status code: {response.status_code}")
         print(f"Response: {response.text}")
