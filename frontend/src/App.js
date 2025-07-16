@@ -4440,7 +4440,7 @@ function App() {
       case 'dashboard':
         return <Dashboard user={user} treeProgress={treeProgress} setActiveTab={setActiveTab} />;
       case 'trainers':
-        return <TrainersSection user={user} />;
+        return <TrainersSection user={user} onBookTrainer={handleBookTrainer} />;
       case 'tree':
         return <TreeSection user={user} treeProgress={treeProgress} />;
       case 'sessions':
