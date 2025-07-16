@@ -2239,7 +2239,7 @@ const TrainerMap = ({ trainers, selectedTrainer, onTrainerSelect }) => {
   return <div ref={mapRef} className="w-full h-full" />;
 };
 // Trainers Section Component (updated with Google Maps)
-const TrainersSection = ({ user }) => {
+const TrainersSection = ({ user, onBookTrainer }) => {
   const { darkMode } = useContext(AppContext);
   const [trainers, setTrainers] = useState([]);
   const [loading, setLoading] = useState(true);
