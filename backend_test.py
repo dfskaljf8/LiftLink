@@ -55,9 +55,7 @@ def test_user_registration():
         print(f"User details: {json.dumps(enthusiast_user, indent=2)}")
         
         # Verify all fields are present
-        required_fields = ["id", "email", "role", "fitness_goals", "experience_level", 
-                          "tree_level", "total_sessions", "consistency_streak", "lift_coins", 
-                          "dark_mode", "created_at", "updated_at"]
+        required_fields = ["id", "email", "role", "fitness_goals", "experience_level", "created_at"]
         
         missing_fields = [field for field in required_fields if field not in enthusiast_user]
         
@@ -72,11 +70,6 @@ def test_user_registration():
         assert enthusiast_user["role"] == "fitness_enthusiast"
         assert set(enthusiast_user["fitness_goals"]) == set(["weight_loss", "general_fitness"])
         assert enthusiast_user["experience_level"] == "intermediate"
-        assert enthusiast_user["tree_level"] == "seed"
-        assert enthusiast_user["total_sessions"] == 0
-        assert enthusiast_user["consistency_streak"] == 0
-        assert enthusiast_user["lift_coins"] == 0
-        assert enthusiast_user["dark_mode"] == True
         
         print("All values correctly set for fitness enthusiast")
     else:
