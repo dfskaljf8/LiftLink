@@ -39,6 +39,8 @@ api_router = APIRouter()
 # Fitness API credentials
 GOOGLE_FIT_CLIENT_ID = os.environ.get('GOOGLE_FIT_CLIENT_ID', 'your_google_fit_client_id_here')
 GOOGLE_FIT_CLIENT_SECRET = os.environ.get('GOOGLE_FIT_CLIENT_SECRET', 'your_google_fit_client_secret_here')
+GOOGLE_FIT_API_KEY = os.environ.get('GOOGLE_FIT_API_KEY', 'your_google_fit_api_key_here')
+GOOGLE_CLIENT_ID_IOS = os.environ.get('GOOGLE_CLIENT_ID_IOS', 'your_ios_client_id_here')
 
 # Enums
 class UserRole(str, Enum):
