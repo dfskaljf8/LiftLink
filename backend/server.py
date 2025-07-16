@@ -369,13 +369,10 @@ async def google_fit_login():
 
 @api_router.get("/google-fit/callback")
 async def google_fit_callback(code: str, user_id: str = None):
-    """Handle Google Fit OAuth callback"""
-    client_id = GOOGLE_CLIENT_ID_IOS if GOOGLE_CLIENT_ID_IOS != 'your_ios_client_id_here' else GOOGLE_FIT_API_KEY
-    client_secret = GOOGLE_FIT_API_KEY  # Use API key as secret for now
-    
+    """Handle Google Fit OAuth callback with real API keys"""
     token_data = {
-        "client_id": client_id,
-        "client_secret": client_secret,
+        "client_id": GOOGLE_CLIENT_ID_IOS,
+        "client_secret": GOOGLE_FIT_API_KEY,  # Use API key as client secret
         "grant_type": "authorization_code",
         "redirect_uri": f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/google-fit/callback",
         "code": code
@@ -384,10 +381,12 @@ async def google_fit_callback(code: str, user_id: str = None):
     async with httpx.AsyncClient() as client:
         response = await client.post(
             "https://oauth2.googleapis.com/token",
-            data=token_data
+            data=token_data,
+            headers={"Content-Type": "application/x-www-form-urlencoded"}
         )
         
         if response.status_code != 200:
+            print(f"Google Fit OAuth Error: {response.status_code} - {response.text}")
             raise HTTPException(status_code=400, detail="Failed to exchange code for token")
         
         token_info = response.json()
@@ -397,11 +396,14 @@ async def google_fit_callback(code: str, user_id: str = None):
                 {"id": user_id},
                 {"$set": {
                     "google_fit_token": token_info,
-                    "google_fit_connected": True
+                    "google_fit_connected": True,
+                    "last_sync": datetime.now().isoformat()
                 }}
             )
+        
+        print(f"🔗 GOOGLE FIT CONNECTED: User {user_id} successfully connected")
     
-    return {"message": "Google Fit connected successfully"}
+    return {"message": "Google Fit connected successfully", "token": token_info}
 
 @api_router.post("/sync/workouts")
 async def sync_fitness_data(request: dict):
