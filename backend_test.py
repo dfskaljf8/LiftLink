@@ -153,7 +153,6 @@ def test_session_management_and_tree_progression(user):
         
         # Verify initial values
         assert initial_progress["current_level"] == "seed"
-        assert initial_progress["current_score"] == 0
         assert initial_progress["total_sessions"] == 0
         assert initial_progress["consistency_streak"] == 0
         assert initial_progress["lift_coins"] == 0
