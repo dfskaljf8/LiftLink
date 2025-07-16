@@ -371,9 +371,12 @@ async def google_fit_login():
 @api_router.get("/google-fit/callback")
 async def google_fit_callback(code: str, user_id: str = None):
     """Handle Google Fit OAuth callback"""
+    client_id = GOOGLE_CLIENT_ID_IOS if GOOGLE_CLIENT_ID_IOS != 'your_ios_client_id_here' else GOOGLE_FIT_API_KEY
+    client_secret = GOOGLE_FIT_API_KEY  # Use API key as secret for now
+    
     token_data = {
-        "client_id": GOOGLE_FIT_CLIENT_ID,
-        "client_secret": GOOGLE_FIT_CLIENT_SECRET,
+        "client_id": client_id,
+        "client_secret": client_secret,
         "grant_type": "authorization_code",
         "redirect_uri": f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/google-fit/callback",
         "code": code
