@@ -142,9 +142,9 @@ const PaymentScreen = ({ trainer, sessionDetails, onPaymentSuccess, onCancel, da
 
           {/* Security Notice */}
           <div className="mt-3 flex items-center justify-center">
-            <Text className={`text-sm ${darkMode ? 'text-green-400' : 'text-green-600'} font-medium`}>
+            <span className={`text-sm ${darkMode ? 'text-green-400' : 'text-green-600'} font-medium`}>
               🔒 100% Secure with Stripe
-            </Text>
+            </span>
           </div>
 
           {/* Security Notice */}
