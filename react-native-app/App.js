@@ -921,32 +921,92 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 24,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
+  },
+  viewModeSelector: {
+    flexDirection: 'row',
+    backgroundColor: '#374151',
+    borderRadius: 8,
+    padding: 2,
+  },
+  viewModeButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
+  viewModeText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
   trainerCard: {
     padding: 16,
     borderRadius: 12,
     marginBottom: 16,
+    marginHorizontal: 16,
+  },
+  trainerHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 8,
+  },
+  trainerInfo: {
+    flex: 1,
   },
   trainerName: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 4,
   },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  rating: {
+    fontSize: 14,
+    marginRight: 8,
+  },
+  availability: {
+    fontSize: 12,
+  },
+  trainerBio: {
+    fontSize: 14,
+    marginBottom: 12,
+    lineHeight: 20,
+  },
+  trainerDetails: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   trainerSpecialties: {
     fontSize: 14,
-    marginBottom: 8,
+    flex: 1,
   },
   trainerPrice: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 12,
+  },
+  trainerLocation: {
+    fontSize: 12,
+    marginBottom: 8,
   },
   bookButton: {
-    padding: 12,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     borderRadius: 8,
     alignItems: 'center',
   },
   bookButtonText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 'bold',
   },
   logoutButton: {
