@@ -56,7 +56,6 @@ const colors = {
 
 // Tab Navigator
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
 
 // Main App Component
 const App = () => {
