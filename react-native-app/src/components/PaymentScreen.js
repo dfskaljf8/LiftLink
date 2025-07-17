@@ -193,6 +193,13 @@ const PaymentContent = ({ trainer, sessionDetails, onPaymentSuccess, onCancel })
             )}
           </TouchableOpacity>
 
+          {/* Security Badge */}
+          <View style={styles.securityBadge}>
+            <Text style={[styles.securityBadgeText, { color: colors.success }]}>
+              🔒 100% Secure with Stripe
+            </Text>
+          </View>
+
           {/* Security Notice */}
           <View style={[styles.securityNotice, { backgroundColor: colors.success + '20' }]}>
             <Text style={[styles.securityText, { color: colors.success }]}>
