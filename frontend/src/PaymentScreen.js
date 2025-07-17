@@ -1,14 +1,4 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-  ScrollView,
-  SafeAreaView
-} from 'react-native';
 import { loadStripe } from '@stripe/stripe-js';
 import axios from 'axios';
 
