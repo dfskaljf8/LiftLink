@@ -40,17 +40,18 @@ const API = `${BACKEND_URL}/api`;
 // Context
 const AppContext = createContext();
 
-// Colors
+// Colors for mobile app
 const colors = {
   primary: '#4f46e5',
   secondary: '#10b981',
-  background: '#111827',
-  surface: '#1f2937',
-  text: '#f9fafb',
-  textSecondary: '#9ca3af',
+  background: '#0f172a',
+  surface: '#1e293b',
+  text: '#f1f5f9',
+  textSecondary: '#94a3b8',
   error: '#ef4444',
   success: '#10b981',
-  warning: '#f59e0b'
+  warning: '#f59e0b',
+  accent: '#8b5cf6'
 };
 
 // Tab Navigator
