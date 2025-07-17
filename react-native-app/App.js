@@ -509,6 +509,11 @@ const DashboardScreen = () => {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.content}>
+        {/* Centered LiftLink Logo */}
+        <View style={styles.logoSection}>
+          <LiftLinkLogo size={120} showTagline={true} />
+        </View>
+
         <View style={styles.header}>
           <Text style={[styles.headerTitle, { color: colors.text }]}>
             Welcome back, {user.name}!
