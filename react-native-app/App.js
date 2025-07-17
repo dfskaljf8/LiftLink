@@ -24,6 +24,9 @@ import axios from 'axios';
 import DocumentVerification from './src/components/DocumentVerification';
 import PaymentScreen from './src/components/PaymentScreen';
 import TrainerDashboard from './src/components/TrainerDashboard';
+import GoogleFitIntegration from './src/components/GoogleFitIntegration';
+import TrainerMapView from './src/components/TrainerMapView';
+import CalendarScheduling from './src/components/CalendarScheduling';
 
 // Constants
 const BACKEND_URL = 'https://06aabe0a-6581-4a14-8d92-05c893af6d99.preview.emergentagent.com';
