@@ -270,6 +270,7 @@ const MainNavigator = () => {
       ) : (
         <Tab.Screen name="Trainers" component={TrainersScreen} />
       )}
+      <Tab.Screen name="Fitness" component={FitnessScreen} />
       <Tab.Screen name="Tree" component={TreeScreen} />
       <Tab.Screen name="Sessions" component={SessionsScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
