@@ -640,15 +640,6 @@ const DashboardScreen = () => {
     </SafeAreaView>
   );
 };
-            <Text style={[styles.actionButtonText, { color: colors.text }]}>
-              {user.role === 'trainer' ? 'View Clients' : 'Find Trainers'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
 
 // Fitness Screen
 const FitnessScreen = () => {
