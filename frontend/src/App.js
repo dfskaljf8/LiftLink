@@ -4252,6 +4252,11 @@ const Dashboard = ({ user, treeProgress, setActiveTab }) => {
 
   return (
     <div className="space-y-6 md:space-y-8">
+      {/* Centered LiftLink Logo */}
+      <div className="flex justify-center items-center py-4">
+        <LiftLinkLogo size={120} showTagline={true} />
+      </div>
+
       <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6 md:p-8`}>
         <div className="flex items-center justify-between mb-6">
           <div>
