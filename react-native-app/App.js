@@ -11,7 +11,9 @@ import {
   StatusBar,
   ActivityIndicator,
   Platform,
-  Dimensions
+  Dimensions,
+  Modal,
+  Image
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
@@ -27,6 +29,8 @@ import TrainerDashboard from './src/components/TrainerDashboard';
 import GoogleFitIntegration from './src/components/GoogleFitIntegration';
 import TrainerMapView from './src/components/TrainerMapView';
 import CalendarScheduling from './src/components/CalendarScheduling';
+import TreeSVG from './src/components/TreeSVG';
+import LiftCoin from './src/components/LiftCoin';
 
 // Constants
 const BACKEND_URL = 'https://06aabe0a-6581-4a14-8d92-05c893af6d99.preview.emergentagent.com';
