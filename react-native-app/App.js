@@ -1465,6 +1465,32 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
   },
+  // Logo Styles
+  logoSection: {
+    alignItems: 'center',
+    paddingVertical: 20,
+    marginBottom: 16,
+  },
+  logoContainer: {
+    alignItems: 'center',
+  },
+  logoIcon: {
+    borderRadius: 12,
+    backgroundColor: '#1f2937',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  logoText: {
+    fontWeight: 'bold',
+  },
+  logoTitle: {
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  logoTagline: {
+    fontStyle: 'italic',
+  },
 });
 
 export default App;
