@@ -469,6 +469,39 @@ const AuthScreen = ({ navigation, route }) => {
   }
 };
 
+// LiftLink Logo Component for React Native
+const LiftLinkLogo = ({ size = 60, showTagline = true }) => {
+  const colors = {
+    primary: '#4f46e5',
+    secondary: '#10b981',
+    background: '#111827',
+    surface: '#1f2937',
+    text: '#f9fafb',
+    textSecondary: '#9ca3af',
+    error: '#ef4444',
+    success: '#10b981',
+    warning: '#f59e0b'
+  };
+
+  return (
+    <View style={[styles.logoContainer, { alignItems: 'center' }]}>
+      <View style={[styles.logoIcon, { width: size, height: size }]}>
+        <Text style={[styles.logoText, { fontSize: size * 0.4, color: colors.warning }]}>
+          🏋️
+        </Text>
+      </View>
+      <Text style={[styles.logoTitle, { fontSize: size * 0.3, color: colors.text }]}>
+        LiftLink
+      </Text>
+      {showTagline && (
+        <Text style={[styles.logoTagline, { fontSize: size * 0.15, color: colors.textSecondary }]}>
+          Beginners to Believers
+        </Text>
+      )}
+    </View>
+  );
+};
+
 // Dashboard Screen
 const DashboardScreen = () => {
   const { user, colors, treeProgress, sessions } = useContext(AppContext);
