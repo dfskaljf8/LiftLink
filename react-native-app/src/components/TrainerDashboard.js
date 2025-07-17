@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 
-const API = 'https://d660cf88-6e41-4268-ab24-1f6ce76bcb10.preview.emergentagent.com/api';
+const API = 'https://06aabe0a-6581-4a14-8d92-05c893af6d99.preview.emergentagent.com/api';
 
 const TrainerDashboard = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('clients');
