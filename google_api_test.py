@@ -92,7 +92,6 @@ def test_google_fit_integration():
     
     # Test 2: POST /api/google-fit/connect - should connect users with user_id and mock_mode
     print("\n2️⃣ Testing Google Fit Connect (POST /api/google-fit/connect)")
-    test_user_id = f"test_user_{uuid.uuid4()}"
     connect_data = {
         "user_id": test_user_id,
         "mock_mode": True
