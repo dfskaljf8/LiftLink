@@ -33,6 +33,7 @@ import TreeSVG from './src/components/TreeSVG';
 import LiftCoin from './src/components/LiftCoin';
 
 // Constants
+const { width, height } = Dimensions.get('window');
 const BACKEND_URL = 'https://06aabe0a-6581-4a14-8d92-05c893af6d99.preview.emergentagent.com';
 const API = `${BACKEND_URL}/api`;
 
