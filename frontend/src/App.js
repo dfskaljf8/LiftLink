@@ -1139,6 +1139,11 @@ const TrainerDashboardMain = ({ user }) => {
 
   return (
     <div className="space-y-6">
+      {/* Centered LiftLink Logo */}
+      <div className="flex justify-center items-center py-4">
+        <LiftLinkLogo size={120} showTagline={true} />
+      </div>
+
       <div className={`${darkMode ? 'glass-card-dark' : 'glass-card-light'} p-6`}>
         <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-green-400' : 'text-blue-600'} mb-2`}>
           Welcome back, {user?.name || user?.email?.split('@')[0]}! 💪
