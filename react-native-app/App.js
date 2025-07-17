@@ -528,6 +528,17 @@ const DashboardScreen = () => {
   );
 };
 
+// Fitness Screen
+const FitnessScreen = () => {
+  const { colors, user } = useContext(AppContext);
+  
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <GoogleFitIntegration user={user} />
+    </SafeAreaView>
+  );
+};
+
 // Trainers Screen
 const TrainersScreen = () => {
   const { colors, handleBookTrainer } = useContext(AppContext);
