@@ -313,6 +313,14 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  securityBadge: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  securityBadgeText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
   securityNotice: {
     padding: 12,
     borderRadius: 8,
