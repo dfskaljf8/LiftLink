@@ -266,14 +266,18 @@ def test_google_calendar_integration():
             if len(result["available_slots"]) > 0:
                 # Check structure of time slots
                 slot = result["available_slots"][0]
-                if isinstance(slot, dict) and "time" in slot:
+                required_slot_fields = ["start_time", "end_time", "available"]
+                missing_slot_fields = [field for field in required_slot_fields if field not in slot]
+                
+                if isinstance(slot, dict) and not missing_slot_fields:
                     print("✅ Available slots returns proper time slot structure")
                     print(f"   - Found {len(result['available_slots'])} available slots")
                     print(f"   - Slot structure: {slot}")
                     test_results["google_calendar_slots"]["success"] = True
                 else:
                     print(f"❌ Invalid slot structure: {slot}")
-                    test_results["google_calendar_slots"]["details"] = "Invalid slot structure"
+                    print(f"❌ Missing fields: {missing_slot_fields}")
+                    test_results["google_calendar_slots"]["details"] = f"Invalid slot structure, missing: {missing_slot_fields}"
             else:
                 print("✅ Available slots returns empty list (valid if fully booked)")
                 test_results["google_calendar_slots"]["success"] = True
