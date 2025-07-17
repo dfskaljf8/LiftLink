@@ -174,17 +174,36 @@ const App = () => {
       sessions,
       fetchUserData,
       handleLogout,
-      handleBookTrainer
+      handleBookTrainer,
+      handleScheduleSession
     }}>
       <NavigationContainer>
         <StatusBar barStyle="light-content" backgroundColor={colors.background} />
         <MainNavigator />
+        
+        {/* Modals */}
         {showPaymentScreen && (
           <PaymentScreen
             trainer={selectedTrainer}
             sessionDetails={sessionDetails}
             onPaymentSuccess={handlePaymentSuccess}
             onCancel={handlePaymentCancel}
+          />
+        )}
+        
+        <CalendarScheduling
+          user={user}
+          trainer={selectedTrainer}
+          visible={showCalendar}
+          onClose={handleCalendarCancel}
+          onScheduleConfirm={handleScheduleSession}
+        />
+        
+        {showFitnessIntegration && (
+          <GoogleFitIntegration
+            user={user}
+            visible={showFitnessIntegration}
+            onClose={() => setShowFitnessIntegration(false)}
           />
         )}
       </NavigationContainer>
