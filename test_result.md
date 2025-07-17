@@ -446,9 +446,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Complete React Native Mobile App Conversion"
-    - "Address Google API Integrations"
-    - "Enhance Stripe Checkout with Security Messaging"
+    - "Dashboard Endpoints Testing & Data Integrity"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
