@@ -141,6 +141,11 @@ const App = () => {
     setSessionDetails(null);
   };
 
+  const handleCalendarCancel = () => {
+    setShowCalendar(false);
+    setSelectedTrainer(null);
+  };
+
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
