@@ -108,15 +108,22 @@ const App = () => {
     setSessions([]);
   };
 
-  // Payment handling
+  // Payment and scheduling handling
   const handleBookTrainer = (trainer) => {
     setSelectedTrainer(trainer);
+    setShowCalendar(true);
+  };
+
+  const handleScheduleSession = (sessionData) => {
     setSessionDetails({
-      type: 'Personal Training',
+      type: sessionData.session_type,
       duration: '60 minutes',
-      amount: parseInt(trainer.price.replace('$', '').replace('/session', '')) * 100,
-      location: trainer.location || 'LiftLink Gym'
+      amount: parseInt(selectedTrainer.price.replace('$', '').replace('/session', '')) * 100,
+      location: selectedTrainer.location || 'LiftLink Gym',
+      date: sessionData.date,
+      time: sessionData.time
     });
+    setShowCalendar(false);
     setShowPaymentScreen(true);
   };
 
@@ -125,6 +132,7 @@ const App = () => {
     setSelectedTrainer(null);
     setSessionDetails(null);
     Alert.alert('Success', `Payment successful! Your session with ${selectedTrainer.name} has been booked.`);
+    fetchUserData(); // Refresh user data
   };
 
   const handlePaymentCancel = () => {
