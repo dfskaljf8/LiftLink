@@ -62,6 +62,8 @@ const App = () => {
   const [showPaymentScreen, setShowPaymentScreen] = useState(false);
   const [selectedTrainer, setSelectedTrainer] = useState(null);
   const [sessionDetails, setSessionDetails] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [showFitnessIntegration, setShowFitnessIntegration] = useState(false);
 
   useEffect(() => {
     checkStoredUser();
