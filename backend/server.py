@@ -311,13 +311,19 @@ async def get_user(user_id: str):
 @api_router.put("/users/{user_id}", response_model=UserResponse)
 async def update_user(user_id: str, user_update: User):
     """Update user profile"""
+    update_data = {
+        "role": user_update.role.value,
+        "fitness_goals": [goal.value for goal in user_update.fitness_goals],
+        "experience_level": user_update.experience_level.value
+    }
+    
+    # Add name if provided
+    if user_update.name:
+        update_data["name"] = user_update.name
+    
     result = await db.users.update_one(
         {"id": user_id},
-        {"$set": {
-            "role": user_update.role.value,
-            "fitness_goals": [goal.value for goal in user_update.fitness_goals],
-            "experience_level": user_update.experience_level.value
-        }}
+        {"$set": update_data}
     )
     
     if result.matched_count == 0:
@@ -327,6 +333,7 @@ async def update_user(user_id: str, user_update: User):
     return UserResponse(
         id=updated_user["id"],
         email=updated_user["email"],
+        name=updated_user.get("name"),
         role=updated_user["role"],
         fitness_goals=updated_user["fitness_goals"],
         experience_level=updated_user["experience_level"],
