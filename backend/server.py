@@ -302,6 +302,7 @@ async def get_user(user_id: str):
     return UserResponse(
         id=user["id"],
         email=user["email"],
+        name=user.get("name"),
         role=user["role"],
         fitness_goals=user["fitness_goals"],
         experience_level=user["experience_level"],
