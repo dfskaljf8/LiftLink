@@ -897,7 +897,7 @@ const BottomNavigation = ({ activeTab, setActiveTab, darkMode }) => {
     { id: 'trainers', label: 'Trainers', icon: SVGIcons.Trainers },
     { id: 'tree', label: 'Progress', icon: SVGIcons.Tree },
     { id: 'sessions', label: 'Sessions', icon: SVGIcons.Sessions },
-    { id: 'fitness', label: 'Fitness', icon: SVGIcons.Analytics }
+    { id: 'settings', label: 'Settings', icon: SVGIcons.Settings }
   ];
 
   return (
