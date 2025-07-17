@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -11,13 +11,25 @@ import {
   SafeAreaView
 } from 'react-native';
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
-import axios from 'axios';
 
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51RQ9buQiOMU12jO7dt2573L4ItnHZCDwgjX7WgfTvL0bKMbX9VD0yFrHBTxmuT3mT71wLj3wPU1QES4jehdjGye000kNGBibLs';
 const API = 'https://d660cf88-6e41-4268-ab24-1f6ce76bcb10.preview.emergentagent.com/api';
 
 const PaymentScreen = ({ trainer, sessionDetails, onPaymentSuccess, onCancel }) => {
-  const [paymentMethod, setPaymentMethod] = useState('stripe');
+  return (
+    <StripeProvider publishableKey={STRIPE_PUBLISHABLE_KEY}>
+      <PaymentContent
+        trainer={trainer}
+        sessionDetails={sessionDetails}
+        onPaymentSuccess={onPaymentSuccess}
+        onCancel={onCancel}
+      />
+    </StripeProvider>
+  );
+};
+
+const PaymentContent = ({ trainer, sessionDetails, onPaymentSuccess, onCancel }) => {
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -33,54 +45,27 @@ const PaymentScreen = ({ trainer, sessionDetails, onPaymentSuccess, onCancel }) 
     warning: '#f59e0b'
   };
 
-  return (
-    <StripeProvider publishableKey={STRIPE_PUBLISHABLE_KEY}>
-      <PaymentContent
-        trainer={trainer}
-        sessionDetails={sessionDetails}
-        onPaymentSuccess={onPaymentSuccess}
-        onCancel={onCancel}
-        paymentMethod={paymentMethod}
-        setPaymentMethod={setPaymentMethod}
-        loading={loading}
-        setLoading={setLoading}
-        error={error}
-        setError={setError}
-        colors={colors}
-      />
-    </StripeProvider>
-  );
-};
-
-const PaymentContent = ({ 
-  trainer, 
-  sessionDetails, 
-  onPaymentSuccess, 
-  onCancel, 
-  paymentMethod, 
-  setPaymentMethod, 
-  loading, 
-  setLoading, 
-  error, 
-  setError, 
-  colors 
-}) => {
-  const { initPaymentSheet, presentPaymentSheet } = useStripe();
-
   const handleStripePayment = async () => {
     setLoading(true);
     setError('');
 
     try {
       // Create checkout session
-      const response = await axios.post(`${API}/payments/create-session-checkout`, {
-        trainer_id: trainer.id,
-        session_details: sessionDetails,
-        amount: sessionDetails.amount || 7500,
-        currency: 'usd'
+      const response = await fetch(`${API}/payments/create-session-checkout`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          trainer_id: trainer.id,
+          session_details: sessionDetails,
+          amount: sessionDetails.amount || 7500,
+          currency: 'usd'
+        })
       });
 
-      const { checkout_session_id } = response.data;
+      const data = await response.json();
+      const { checkout_session_id } = data;
 
       // Initialize payment sheet
       const { error: initError } = await initPaymentSheet({
@@ -104,35 +89,6 @@ const PaymentContent = ({
       }
     } catch (error) {
       console.error('Stripe payment failed:', error);
-      setError('Payment failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGooglePayment = async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      // Create Google Pay session
-      const response = await axios.post(`${API}/payments/google-pay/create-session`, {
-        trainer_id: trainer.id,
-        session_details: sessionDetails,
-        amount: sessionDetails.amount || 7500,
-        currency: 'usd'
-      });
-
-      if (response.data.session_id) {
-        onPaymentSuccess({ 
-          paymentMethod: 'google_pay', 
-          sessionId: response.data.session_id 
-        });
-      } else {
-        setError('Google Pay session creation failed');
-      }
-    } catch (error) {
-      console.error('Google Pay payment failed:', error);
       setError('Payment failed. Please try again.');
     } finally {
       setLoading(false);
@@ -194,33 +150,23 @@ const PaymentContent = ({
             </View>
           </View>
 
-          {/* Payment Methods */}
+          {/* Payment Method */}
           <View style={[styles.card, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.cardTitle, { color: colors.text }]}>Choose Payment Method</Text>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>Payment Method</Text>
 
-            <TouchableOpacity
-              style={[styles.paymentOption, { 
-                backgroundColor: paymentMethod === 'stripe' ? colors.primary : 'transparent',
-                borderColor: colors.primary
-              }]}
-              onPress={() => setPaymentMethod('stripe')}
-            >
-              <Text style={[styles.paymentOptionText, { color: colors.text }]}>
-                Credit/Debit Card (Stripe)
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.paymentOption, { 
-                backgroundColor: paymentMethod === 'google_pay' ? colors.primary : 'transparent',
-                borderColor: colors.primary
-              }]}
-              onPress={() => setPaymentMethod('google_pay')}
-            >
-              <Text style={[styles.paymentOptionText, { color: colors.text }]}>
-                Google Pay
-              </Text>
-            </TouchableOpacity>
+            <View style={[styles.paymentMethodCard, { backgroundColor: colors.primary + '20', borderColor: colors.primary }]}>
+              <View style={styles.paymentMethodContent}>
+                <Text style={styles.paymentMethodIcon}>💳</Text>
+                <View>
+                  <Text style={[styles.paymentMethodText, { color: colors.text }]}>
+                    Credit/Debit Card
+                  </Text>
+                  <Text style={[styles.paymentMethodSubtext, { color: colors.primary }]}>
+                    Secure payment via Stripe
+                  </Text>
+                </View>
+              </View>
+            </View>
           </View>
 
           {/* Error Message */}
@@ -235,14 +181,14 @@ const PaymentContent = ({
             style={[styles.paymentButton, { 
               backgroundColor: loading ? colors.textSecondary : colors.primary 
             }]}
-            onPress={paymentMethod === 'stripe' ? handleStripePayment : handleGooglePayment}
+            onPress={handleStripePayment}
             disabled={loading}
           >
             {loading ? (
               <ActivityIndicator color={colors.text} />
             ) : (
               <Text style={[styles.paymentButtonText, { color: colors.text }]}>
-                {paymentMethod === 'stripe' ? 'Pay with Stripe' : 'Pay with Google Pay'}
+                Pay ${((sessionDetails.amount || 7500) / 100).toFixed(2)} with Stripe
               </Text>
             )}
           </TouchableOpacity>
@@ -250,7 +196,7 @@ const PaymentContent = ({
           {/* Security Notice */}
           <View style={[styles.securityNotice, { backgroundColor: colors.success + '20' }]}>
             <Text style={[styles.securityText, { color: colors.success }]}>
-              🔒 Your payment is secure and encrypted
+              🔒 Your payment is secure and encrypted via Stripe
             </Text>
           </View>
         </ScrollView>
@@ -320,16 +266,26 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  paymentOption: {
+  paymentMethodCard: {
     padding: 16,
     borderRadius: 8,
     borderWidth: 2,
-    marginBottom: 12,
   },
-  paymentOptionText: {
+  paymentMethodContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  paymentMethodIcon: {
+    fontSize: 24,
+    marginRight: 12,
+  },
+  paymentMethodText: {
     fontSize: 16,
     fontWeight: '600',
-    textAlign: 'center',
+  },
+  paymentMethodSubtext: {
+    fontSize: 14,
+    marginTop: 4,
   },
   errorContainer: {
     padding: 12,
