@@ -13,7 +13,8 @@ import {
   Platform,
   Dimensions,
   Modal,
-  Image
+  Image,
+  KeyboardAvoidingView
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
