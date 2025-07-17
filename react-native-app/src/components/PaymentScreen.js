@@ -13,7 +13,7 @@ import {
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
 
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51RQ9buQiOMU12jO7dt2573L4ItnHZCDwgjX7WgfTvL0bKMbX9VD0yFrHBTxmuT3mT71wLj3wPU1QES4jehdjGye000kNGBibLs';
-const API = 'https://d660cf88-6e41-4268-ab24-1f6ce76bcb10.preview.emergentagent.com/api';
+const API = 'https://06aabe0a-6581-4a14-8d92-05c893af6d99.preview.emergentagent.com/api';
 
 const PaymentScreen = ({ trainer, sessionDetails, onPaymentSuccess, onCancel }) => {
   return (

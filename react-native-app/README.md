@@ -71,7 +71,7 @@ yarn android
 ### Backend Configuration
 
 The app connects to the backend at:
-`https://d660cf88-6e41-4268-ab24-1f6ce76bcb10.preview.emergentagent.com`
+`https://06aabe0a-6581-4a14-8d92-05c893af6d99.preview.emergentagent.com`
 
 All API keys are pre-configured in the backend environment.
 
