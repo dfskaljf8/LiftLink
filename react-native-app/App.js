@@ -544,6 +544,7 @@ const TrainersScreen = () => {
   const { colors, handleBookTrainer } = useContext(AppContext);
   const [trainers, setTrainers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
 
   useEffect(() => {
     fetchTrainers();
@@ -551,7 +552,7 @@ const TrainersScreen = () => {
 
   const fetchTrainers = async () => {
     try {
-      // Mock trainers data
+      // Enhanced mock trainers data
       const mockTrainers = [
         {
           id: 'trainer_001',
@@ -560,7 +561,9 @@ const TrainersScreen = () => {
           rating: 4.8,
           price: '$75/session',
           location: 'Downtown Gym',
-          image: 'https://via.placeholder.com/150'
+          image: 'https://via.placeholder.com/150',
+          bio: 'Certified personal trainer with 5 years experience',
+          availability: 'Mon-Fri 6AM-8PM'
         },
         {
           id: 'trainer_002',
@@ -569,7 +572,31 @@ const TrainersScreen = () => {
           rating: 4.9,
           price: '$85/session',
           location: 'Fitness Center',
-          image: 'https://via.placeholder.com/150'
+          image: 'https://via.placeholder.com/150',
+          bio: 'Expert in cardiovascular training and nutrition',
+          availability: 'Mon-Sat 7AM-9PM'
+        },
+        {
+          id: 'trainer_003',
+          name: 'Emily Rodriguez',
+          specialties: ['Yoga', 'Flexibility'],
+          rating: 4.7,
+          price: '$60/session',
+          location: 'Wellness Studio',
+          image: 'https://via.placeholder.com/150',
+          bio: 'Yoga instructor specializing in mindfulness',
+          availability: 'Daily 5AM-7PM'
+        },
+        {
+          id: 'trainer_004',
+          name: 'David Kim',
+          specialties: ['CrossFit', 'Conditioning'],
+          rating: 4.6,
+          price: '$80/session',
+          location: 'CrossFit Box',
+          image: 'https://via.placeholder.com/150',
+          bio: 'High-intensity training specialist',
+          availability: 'Mon-Fri 5AM-8PM'
         }
       ];
       setTrainers(mockTrainers);
@@ -579,6 +606,63 @@ const TrainersScreen = () => {
       setLoading(false);
     }
   };
+
+  const renderTrainerCard = (trainer) => (
+    <View key={trainer.id} style={[styles.trainerCard, { backgroundColor: colors.surface }]}>
+      <View style={styles.trainerHeader}>
+        <View style={styles.trainerInfo}>
+          <Text style={[styles.trainerName, { color: colors.text }]}>{trainer.name}</Text>
+          <View style={styles.ratingContainer}>
+            <Text style={[styles.rating, { color: colors.warning }]}>⭐ {trainer.rating}</Text>
+            <Text style={[styles.availability, { color: colors.textSecondary }]}>{trainer.availability}</Text>
+          </View>
+        </View>
+        <TouchableOpacity
+          style={[styles.bookButton, { backgroundColor: colors.primary }]}
+          onPress={() => handleBookTrainer(trainer)}
+        >
+          <Text style={[styles.bookButtonText, { color: colors.text }]}>Book</Text>
+        </TouchableOpacity>
+      </View>
+      
+      <Text style={[styles.trainerBio, { color: colors.textSecondary }]}>{trainer.bio}</Text>
+      
+      <View style={styles.trainerDetails}>
+        <Text style={[styles.trainerSpecialties, { color: colors.secondary }]}>
+          {trainer.specialties.join(', ')}
+        </Text>
+        <Text style={[styles.trainerPrice, { color: colors.primary }]}>
+          {trainer.price}
+        </Text>
+      </View>
+      
+      <Text style={[styles.trainerLocation, { color: colors.textSecondary }]}>
+        📍 {trainer.location}
+      </Text>
+    </View>
+  );
+
+  const renderViewModeSelector = () => (
+    <View style={styles.viewModeSelector}>
+      <TouchableOpacity
+        style={[styles.viewModeButton, {
+          backgroundColor: viewMode === 'list' ? colors.primary : colors.surface
+        }]}
+        onPress={() => setViewMode('list')}
+      >
+        <Text style={[styles.viewModeText, { color: colors.text }]}>List</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity
+        style={[styles.viewModeButton, {
+          backgroundColor: viewMode === 'map' ? colors.primary : colors.surface
+        }]}
+        onPress={() => setViewMode('map')}
+      >
+        <Text style={[styles.viewModeText, { color: colors.text }]}>Map</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   if (loading) {
     return (
@@ -590,27 +674,21 @@ const TrainersScreen = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.content}>
+      <View style={styles.header}>
         <Text style={[styles.screenTitle, { color: colors.text }]}>Find Trainers</Text>
-        
-        {trainers.map((trainer) => (
-          <View key={trainer.id} style={[styles.trainerCard, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.trainerName, { color: colors.text }]}>{trainer.name}</Text>
-            <Text style={[styles.trainerSpecialties, { color: colors.textSecondary }]}>
-              {trainer.specialties.join(', ')}
-            </Text>
-            <Text style={[styles.trainerPrice, { color: colors.secondary }]}>
-              {trainer.price}
-            </Text>
-            <TouchableOpacity
-              style={[styles.bookButton, { backgroundColor: colors.primary }]}
-              onPress={() => handleBookTrainer(trainer)}
-            >
-              <Text style={[styles.bookButtonText, { color: colors.text }]}>Book</Text>
-            </TouchableOpacity>
-          </View>
-        ))}
-      </ScrollView>
+        {renderViewModeSelector()}
+      </View>
+      
+      {viewMode === 'list' ? (
+        <ScrollView style={styles.content}>
+          {trainers.map(renderTrainerCard)}
+        </ScrollView>
+      ) : (
+        <TrainerMapView 
+          trainers={trainers} 
+          onTrainerSelect={handleBookTrainer}
+        />
+      )}
     </SafeAreaView>
   );
 };
