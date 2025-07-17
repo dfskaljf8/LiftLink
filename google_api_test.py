@@ -45,6 +45,26 @@ def test_google_fit_integration():
     """Test Google Fit Integration endpoints"""
     print_test_header("GOOGLE FIT INTEGRATION")
     
+    # Create a test user first for fitness status testing
+    test_email = f"google_fit_test_{uuid.uuid4()}@example.com"
+    user_data = {
+        "email": test_email,
+        "role": "fitness_enthusiast",
+        "fitness_goals": ["weight_loss", "general_fitness"],
+        "experience_level": "intermediate"
+    }
+    
+    print("🔧 Creating test user for fitness status testing...")
+    response = requests.post(f"{BACKEND_URL}/users", json=user_data)
+    
+    if response.status_code == 200:
+        user = response.json()
+        test_user_id = user["id"]
+        print(f"✅ Test user created: {test_user_id}")
+    else:
+        print(f"❌ Failed to create test user: {response.status_code}")
+        test_user_id = f"test_user_{uuid.uuid4()}"  # Fallback
+    
     # Test 1: GET /api/google-fit/login - should return mock authentication URL
     print("1️⃣ Testing Google Fit Login (GET /api/google-fit/login)")
     response = requests.get(f"{BACKEND_URL}/google-fit/login")
