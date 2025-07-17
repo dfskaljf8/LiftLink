@@ -1250,11 +1250,182 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 8,
     alignItems: 'center',
-    marginTop: 32,
+    marginTop: 16,
   },
   logoutButtonText: {
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  // Enhanced Settings Styles
+  settingsCard: {
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 16,
+  },
+  settingsCardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  editingContainer: {
+    marginTop: 8,
+  },
+  inputContainer: {
+    marginBottom: 16,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  textInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+  },
+  goalsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
+  goalChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginRight: 8,
+    marginBottom: 8,
+  },
+  goalChipText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  experienceContainer: {
+    flexDirection: 'row',
+    marginTop: 8,
+  },
+  experienceButton: {
+    flex: 1,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginRight: 8,
+    alignItems: 'center',
+  },
+  experienceButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  editButtonsContainer: {
+    flexDirection: 'row',
+    marginTop: 16,
+  },
+  saveButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginRight: 8,
+  },
+  saveButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  cancelButton: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  profileContainer: {
+    marginTop: 8,
+  },
+  profileRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  profileColumn: {
+    marginBottom: 12,
+  },
+  profileLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    flex: 1,
+  },
+  profileValue: {
+    fontSize: 14,
+    flex: 2,
+    textAlign: 'right',
+  },
+  goalsDisplay: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 8,
+  },
+  goalBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    marginRight: 6,
+    marginBottom: 6,
+  },
+  goalBadgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  editButton: {
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  editButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  settingRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  settingLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  toggleButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    minWidth: 50,
+    alignItems: 'center',
+  },
+  toggleButtonText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  accountInfo: {
+    marginBottom: 16,
+  },
+  accountRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  accountLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  accountValue: {
+    fontSize: 14,
+    fontWeight: '600',
   },
 });
 
