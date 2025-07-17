@@ -141,6 +141,13 @@ const PaymentScreen = ({ trainer, sessionDetails, onPaymentSuccess, onCancel, da
           </button>
 
           {/* Security Notice */}
+          <div className="mt-3 flex items-center justify-center">
+            <Text className={`text-sm ${darkMode ? 'text-green-400' : 'text-green-600'} font-medium`}>
+              🔒 100% Secure with Stripe
+            </Text>
+          </div>
+
+          {/* Security Notice */}
           <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-md">
             <p className={`text-sm ${darkMode ? 'text-green-800' : 'text-green-700'}`}>
               🔒 Your payment is secure and encrypted. We use Stripe's industry-standard security measures to protect your information.
