@@ -235,6 +235,10 @@ const MainNavigator = () => {
             iconName = 'dashboard';
           } else if (route.name === 'Trainers') {
             iconName = 'fitness-center';
+          } else if (route.name === 'Clients') {
+            iconName = 'people';
+          } else if (route.name === 'Fitness') {
+            iconName = 'directions-run';
           } else if (route.name === 'Tree') {
             iconName = 'nature';
           } else if (route.name === 'Sessions') {
