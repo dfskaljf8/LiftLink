@@ -750,32 +750,269 @@ const SessionsScreen = () => {
 
 // Settings Screen
 const SettingsScreen = () => {
-  const { colors, user, handleLogout } = useContext(AppContext);
-  
+  const { colors, user, setUser, handleLogout } = useContext(AppContext);
+  const [editing, setEditing] = useState(false);
+  const [editedName, setEditedName] = useState(user.name || '');
+  const [editedGoals, setEditedGoals] = useState(user.fitness_goals || []);
+  const [editedExperienceLevel, setEditedExperienceLevel] = useState(user.experience_level || 'beginner');
+  const [loading, setLoading] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
+
+  const fitnessGoals = [
+    'Weight Loss',
+    'Muscle Building',
+    'Cardio',
+    'Strength Training',
+    'Flexibility',
+    'General Fitness',
+    'Sports Performance',
+    'Rehabilitation'
+  ];
+
+  const experienceLevels = [
+    { value: 'beginner', label: 'Beginner' },
+    { value: 'intermediate', label: 'Intermediate' },
+    { value: 'advanced', label: 'Advanced' }
+  ];
+
+  const handleSaveProfile = async () => {
+    setLoading(true);
+    try {
+      const updatedProfile = {
+        name: editedName,
+        fitness_goals: editedGoals,
+        experience_level: editedExperienceLevel,
+        dark_mode: darkMode
+      };
+
+      const response = await axios.put(`${API}/users/${user.id}`, updatedProfile);
+      
+      if (response.data) {
+        const updatedUser = { ...user, ...updatedProfile };
+        setUser(updatedUser);
+        await AsyncStorage.setItem('liftlink_user', JSON.stringify(updatedUser));
+        setEditing(false);
+        Alert.alert('Success', 'Profile updated successfully!');
+      }
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      Alert.alert('Error', 'Failed to update profile. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoalToggle = (goal) => {
+    setEditedGoals(prev => 
+      prev.includes(goal) 
+        ? prev.filter(g => g !== goal)
+        : [...prev, goal]
+    );
+  };
+
+  const renderProfileSection = () => (
+    <View style={[styles.settingsCard, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.settingsCardTitle, { color: colors.text }]}>Profile Information</Text>
+      
+      {editing ? (
+        <View style={styles.editingContainer}>
+          <View style={styles.inputContainer}>
+            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Name</Text>
+            <TextInput
+              style={[styles.textInput, { 
+                backgroundColor: colors.background, 
+                color: colors.text,
+                borderColor: colors.textSecondary
+              }]}
+              value={editedName}
+              onChangeText={setEditedName}
+              placeholder="Enter your name"
+              placeholderTextColor={colors.textSecondary}
+            />
+          </View>
+          
+          <View style={styles.inputContainer}>
+            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Fitness Goals</Text>
+            <View style={styles.goalsContainer}>
+              {fitnessGoals.map((goal) => (
+                <TouchableOpacity
+                  key={goal}
+                  style={[styles.goalChip, {
+                    backgroundColor: editedGoals.includes(goal) ? colors.primary : colors.background,
+                    borderColor: colors.primary
+                  }]}
+                  onPress={() => handleGoalToggle(goal)}
+                >
+                  <Text style={[styles.goalChipText, { color: colors.text }]}>
+                    {goal}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+          
+          <View style={styles.inputContainer}>
+            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Experience Level</Text>
+            <View style={styles.experienceContainer}>
+              {experienceLevels.map((level) => (
+                <TouchableOpacity
+                  key={level.value}
+                  style={[styles.experienceButton, {
+                    backgroundColor: editedExperienceLevel === level.value ? colors.primary : colors.background,
+                    borderColor: colors.primary
+                  }]}
+                  onPress={() => setEditedExperienceLevel(level.value)}
+                >
+                  <Text style={[styles.experienceButtonText, { color: colors.text }]}>
+                    {level.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+          
+          <View style={styles.editButtonsContainer}>
+            <TouchableOpacity
+              style={[styles.saveButton, { backgroundColor: colors.success }]}
+              onPress={handleSaveProfile}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color={colors.text} size="small" />
+              ) : (
+                <Text style={[styles.saveButtonText, { color: colors.text }]}>Save Changes</Text>
+              )}
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.cancelButton, { backgroundColor: colors.textSecondary }]}
+              onPress={() => {
+                setEditing(false);
+                setEditedName(user.name || '');
+                setEditedGoals(user.fitness_goals || []);
+                setEditedExperienceLevel(user.experience_level || 'beginner');
+              }}
+            >
+              <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <View style={styles.profileContainer}>
+          <View style={styles.profileRow}>
+            <Text style={[styles.profileLabel, { color: colors.textSecondary }]}>Name:</Text>
+            <Text style={[styles.profileValue, { color: colors.text }]}>{user.name}</Text>
+          </View>
+          
+          <View style={styles.profileRow}>
+            <Text style={[styles.profileLabel, { color: colors.textSecondary }]}>Email:</Text>
+            <Text style={[styles.profileValue, { color: colors.text }]}>{user.email}</Text>
+          </View>
+          
+          <View style={styles.profileRow}>
+            <Text style={[styles.profileLabel, { color: colors.textSecondary }]}>Role:</Text>
+            <Text style={[styles.profileValue, { color: colors.text }]}>
+              {user.role === 'trainer' ? 'Fitness Trainer' : 'Fitness Enthusiast'}
+            </Text>
+          </View>
+          
+          <View style={styles.profileRow}>
+            <Text style={[styles.profileLabel, { color: colors.textSecondary }]}>Experience:</Text>
+            <Text style={[styles.profileValue, { color: colors.text }]}>
+              {user.experience_level?.charAt(0).toUpperCase() + user.experience_level?.slice(1)}
+            </Text>
+          </View>
+          
+          <View style={styles.profileColumn}>
+            <Text style={[styles.profileLabel, { color: colors.textSecondary }]}>Fitness Goals:</Text>
+            <View style={styles.goalsDisplay}>
+              {(user.fitness_goals || []).map((goal, index) => (
+                <View key={index} style={[styles.goalBadge, { backgroundColor: colors.secondary }]}>
+                  <Text style={[styles.goalBadgeText, { color: colors.text }]}>{goal}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+          
+          <TouchableOpacity
+            style={[styles.editButton, { backgroundColor: colors.primary }]}
+            onPress={() => setEditing(true)}
+          >
+            <Text style={[styles.editButtonText, { color: colors.text }]}>Edit Profile</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  );
+
+  const renderAppearanceSection = () => (
+    <View style={[styles.settingsCard, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.settingsCardTitle, { color: colors.text }]}>Appearance</Text>
+      
+      <View style={styles.settingRow}>
+        <Text style={[styles.settingLabel, { color: colors.text }]}>Dark Mode</Text>
+        <TouchableOpacity
+          style={[styles.toggleButton, { 
+            backgroundColor: darkMode ? colors.primary : colors.textSecondary 
+          }]}
+          onPress={() => setDarkMode(!darkMode)}
+        >
+          <Text style={[styles.toggleButtonText, { color: colors.text }]}>
+            {darkMode ? 'ON' : 'OFF'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+
+  const renderAccountSection = () => (
+    <View style={[styles.settingsCard, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.settingsCardTitle, { color: colors.text }]}>Account</Text>
+      
+      <View style={styles.accountInfo}>
+        <View style={styles.accountRow}>
+          <Text style={[styles.accountLabel, { color: colors.textSecondary }]}>Member Since:</Text>
+          <Text style={[styles.accountValue, { color: colors.text }]}>
+            {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+          </Text>
+        </View>
+        
+        <View style={styles.accountRow}>
+          <Text style={[styles.accountLabel, { color: colors.textSecondary }]}>Verification Status:</Text>
+          <Text style={[styles.accountValue, { 
+            color: user.age_verified ? colors.success : colors.warning 
+          }]}>
+            {user.age_verified ? 'Verified' : 'Pending'}
+          </Text>
+        </View>
+      </View>
+      
+      <TouchableOpacity
+        style={[styles.logoutButton, { backgroundColor: colors.error }]}
+        onPress={() => {
+          Alert.alert(
+            'Logout',
+            'Are you sure you want to logout?',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Logout', style: 'destructive', onPress: handleLogout }
+            ]
+          );
+        }}
+      >
+        <Text style={[styles.logoutButtonText, { color: colors.text }]}>Logout</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.content}>
         <Text style={[styles.screenTitle, { color: colors.text }]}>Settings</Text>
         
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Profile</Text>
-          <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
-            Name: {user.name}
-          </Text>
-          <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
-            Email: {user.email}
-          </Text>
-          <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
-            Role: {user.role}
-          </Text>
-        </View>
-        
-        <TouchableOpacity
-          style={[styles.logoutButton, { backgroundColor: colors.error }]}
-          onPress={handleLogout}
-        >
-          <Text style={[styles.logoutButtonText, { color: colors.text }]}>Logout</Text>
-        </TouchableOpacity>
+        {renderProfileSection()}
+        {renderAppearanceSection()}
+        {renderAccountSection()}
       </ScrollView>
     </SafeAreaView>
   );
