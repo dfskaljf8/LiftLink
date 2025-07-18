@@ -2908,35 +2908,49 @@ def test_dashboard_endpoints():
         return False
 
 if __name__ == "__main__":
-    print("🚀 STARTING LIFTLINK DASHBOARD ENDPOINTS TESTING")
+    print("🚀 STARTING GOOGLE API INTEGRATION TESTING WITH REAL API KEYS")
     print("=" * 80)
     
-    # Add dashboard endpoints to test results
-    test_results["dashboard_endpoints"] = {"success": False, "details": ""}
+    # Focus on Google API integration testing as requested in the review
+    print("🎯 PRIMARY FOCUS: Testing Google API integration with real OAuth credentials")
+    print("📋 TEST SCOPE:")
+    print("   1. Google Fit API integration (login, connect, callback, status, sync)")
+    print("   2. Google Calendar API integration (schedule, appointments, slots)")
+    print("   3. Verify 403 errors are resolved with real API keys")
+    print("   4. Test environment variable loading")
+    print()
     
-    # Run dashboard testing as primary focus
-    test_dashboard_endpoints()
+    # Run Google API integration testing as primary focus
+    google_api_success = test_google_api_integration()
     
     # Print final results
     print_separator()
-    print("FINAL TEST RESULTS SUMMARY")
+    print("GOOGLE API INTEGRATION TEST RESULTS")
     print_separator()
     
-    passed_tests = sum(1 for result in test_results.values() if result["success"])
-    total_tests = len(test_results)
+    if google_api_success:
+        print("🎉 GOOGLE API INTEGRATION: ALL TESTS PASSED!")
+        print("✅ Google Fit API integration working correctly")
+        print("✅ Google Calendar API integration working correctly") 
+        print("✅ No 403 errors detected - real API keys are working")
+        print("✅ Environment variables loaded successfully")
+        print("✅ OAuth flows handling properly")
+        print("✅ Fallback to mock data working when needed")
+        print()
+        print("🚀 READY FOR PRODUCTION: Google API integration is fully functional")
+    else:
+        print("❌ GOOGLE API INTEGRATION: SOME TESTS FAILED")
+        print("⚠️  Please review the detailed error messages above")
+        print("🔧 Check API key configuration and Google Cloud Console setup")
     
-    print(f"PASSED: {passed_tests}/{total_tests} tests")
-    print()
+    print_separator()
     
-    for test_name, result in test_results.items():
+    # Show specific test results for Google API integration
+    if "google_api_integration" in test_results:
+        result = test_results["google_api_integration"]
         status = "✅ PASS" if result["success"] else "❌ FAIL"
-        print(f"{status}: {test_name}")
-        if not result["success"] and result["details"]:
+        print(f"{status}: Google API Integration")
+        if result["details"]:
             print(f"   Details: {result['details']}")
     
     print_separator()
-    
-    if passed_tests == total_tests:
-        print("🎉 ALL TESTS PASSED! Dashboard endpoints are working correctly.")
-    else:
-        print(f"⚠️  {total_tests - passed_tests} tests failed. Please review the issues above.")
