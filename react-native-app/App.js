@@ -34,9 +34,6 @@ import LiftCoin from './src/components/LiftCoin';
 import AppleReviewLogin from './src/components/AppleReviewLogin';
 
 // Import React Native styles (converted from CSS)
-import { styles as AppStyles, colors, spacing, borderRadius, fontSize, fontWeight } from './src/styles/AppStyles';
-
-// Import React Native styles (converted from CSS)
 import NativeAppStyles, { colors } from './src/styles/AppStyles';
 
 // Constants
