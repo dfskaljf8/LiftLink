@@ -1,6 +1,9 @@
 module.exports = {
-  presets: ['@react-native/babel-preset'],
+  presets: [
+    ['@babel/preset-env', { targets: { browsers: ['last 2 versions'] } }],
+    '@babel/preset-react',
+  ],
   plugins: [
-    'react-native-reanimated/plugin',
+    'babel-plugin-react-native-web',
   ],
 };
