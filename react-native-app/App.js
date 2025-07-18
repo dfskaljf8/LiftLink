@@ -37,7 +37,7 @@ import AppleReviewLogin from './src/components/AppleReviewLogin';
 import { styles as AppStyles, colors, spacing, borderRadius, fontSize, fontWeight } from './src/styles/AppStyles';
 
 // Import React Native styles (converted from CSS)
-import NativeStyles from './src/styles/AppStyles';
+import AppStyles, { colors } from './src/styles/AppStyles';
 
 // Constants
 const { width, height } = Dimensions.get('window');
@@ -50,20 +50,6 @@ const AppContext = createContext();
 
 // Tab Navigator
 const Tab = createBottomTabNavigator();
-
-// Use imported colors from NativeStyles
-const colors = NativeStyles.colors || {
-  primary: '#4f46e5',
-  secondary: '#10b981',
-  background: '#0f172a',
-  surface: '#1e293b',
-  text: '#f1f5f9',
-  textSecondary: '#94a3b8',
-  error: '#ef4444',
-  success: '#10b981',
-  warning: '#f59e0b',
-  accent: '#8b5cf6'
-};
 
 // Main App Component
 const App = () => {
