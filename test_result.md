@@ -473,7 +473,8 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Stripe Payment Integration Testing"
+    - "Google Fit and Calendar API Integration"
+    - "Web-Specific File Removal for React Native Conversion"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
