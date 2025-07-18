@@ -367,36 +367,42 @@ const AuthScreen = ({ navigation, route }) => {
   };
 
   const renderEmailStep = () => (
-    <View style={styles.authContainer}>
-      <Text style={[styles.title, { color: colors.text }]}>Welcome to LiftLink</Text>
-      <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-        Enter your email to get started
-      </Text>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.authContainer}>
+      <View style={styles.logoSection}>
+        <LiftLinkLogo size={120} showTagline={true} />
+      </View>
       
-      <TextInput
-        style={[styles.input, { color: colors.text, borderColor: colors.textSecondary }]}
-        placeholder="Enter your email"
-        placeholderTextColor={colors.textSecondary}
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      
-      {error ? <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text> : null}
-      
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: colors.primary }]}
-        onPress={handleEmailSubmit}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color={colors.text} />
-        ) : (
-          <Text style={[styles.buttonText, { color: colors.text }]}>Continue</Text>
-        )}
-      </TouchableOpacity>
-    </View>
+      <View style={styles.formSection}>
+        <Text style={styles.authTitle}>Welcome to LiftLink</Text>
+        <Text style={styles.authSubtitle}>Enter your email to get started</Text>
+        
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your email"
+          placeholderTextColor={colors.textSecondary}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        
+        <TouchableOpacity
+          style={styles.primaryButton}
+          onPress={handleEmailSubmit}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color={colors.text} />
+          ) : (
+            <Text style={styles.primaryButtonText}>Continue</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+
+      {/* Apple Review Access */}
+      <AppleReviewLogin onReviewLogin={setUser} />
+    </KeyboardAvoidingView>
   );
 
   const renderNameStep = () => (
