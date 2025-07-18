@@ -5,7 +5,7 @@ import uuid
 from datetime import datetime
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://06aabe0a-6581-4a14-8d92-05c893af6d99.preview.emergentagent.com/api"
+BACKEND_URL = "https://523da7e0-8e2a-470e-93ce-84d37811eda4.preview.emergentagent.com/api"
 
 def print_separator():
     print("\n" + "="*80 + "\n")

@@ -15,7 +15,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const API = 'https://06aabe0a-6581-4a14-8d92-05c893af6d99.preview.emergentagent.com/api';
+const API = 'https://523da7e0-8e2a-470e-93ce-84d37811eda4.preview.emergentagent.com/api';
 
 const DocumentVerification = ({ route, navigation }) => {
   const { user } = route.params;
