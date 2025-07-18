@@ -1565,6 +1565,36 @@ const styles = StyleSheet.create({
   logoTagline: {
     fontStyle: 'italic',
   },
+  // Auth form styles
+  formSection: {
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  authTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#f9fafb',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  authSubtitle: {
+    fontSize: 16,
+    color: '#9ca3af',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  primaryButton: {
+    backgroundColor: '#4f46e5',
+    paddingVertical: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  primaryButtonText: {
+    color: '#f9fafb',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
 
 export default App;
