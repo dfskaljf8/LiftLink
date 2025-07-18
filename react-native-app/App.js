@@ -36,6 +36,9 @@ import AppleReviewLogin from './src/components/AppleReviewLogin';
 // Import React Native styles (converted from CSS)
 import { styles as AppStyles, colors, spacing, borderRadius, fontSize, fontWeight } from './src/styles/AppStyles';
 
+// Import React Native styles (converted from CSS)
+import { styles as AppStyles, colors as AppColors, spacing, borderRadius, fontSize, fontWeight } from './src/styles/AppStyles';
+
 // Constants
 const { width, height } = Dimensions.get('window');
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://06aabe0a-6581-4a14-8d92-05c893af6d99.preview.emergentagent.com';
@@ -45,22 +48,11 @@ const STRIPE_PUBLISHABLE_KEY = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || '
 // Context
 const AppContext = createContext();
 
-// Colors for mobile app
-const colors = {
-  primary: '#4f46e5',
-  secondary: '#10b981',
-  background: '#0f172a',
-  surface: '#1e293b',
-  text: '#f1f5f9',
-  textSecondary: '#94a3b8',
-  error: '#ef4444',
-  success: '#10b981',
-  warning: '#f59e0b',
-  accent: '#8b5cf6'
-};
-
 // Tab Navigator
 const Tab = createBottomTabNavigator();
+
+// Use AppColors instead of the inline colors object
+const colors = AppColors;
 
 // Main App Component
 const App = () => {
