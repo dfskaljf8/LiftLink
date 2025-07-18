@@ -475,8 +475,10 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
-  stuck_tasks: []
+  current_focus:
+    - "React Native Mobile App Testing"
+  stuck_tasks:
+    - "React Native Mobile App Testing - Environment Limitation"
   test_all: false
   test_priority: "high_first"
 
