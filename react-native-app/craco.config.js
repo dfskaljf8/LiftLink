@@ -56,9 +56,4 @@ module.exports = {
       return webpackConfig;
     },
   },
-  babel: {
-    plugins: [
-      'babel-plugin-react-native-web',
-    ],
-  },
 };
