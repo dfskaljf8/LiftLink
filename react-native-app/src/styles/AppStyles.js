@@ -677,5 +677,4 @@ export const styles = StyleSheet.create({
   }),
 });
 
-export default styles;
-export { colors, spacing, borderRadius, fontSize, fontWeight, shadows };
+export { colors, spacing, borderRadius, fontSize, fontWeight, shadows, styles };
