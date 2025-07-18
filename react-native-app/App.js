@@ -37,7 +37,7 @@ import AppleReviewLogin from './src/components/AppleReviewLogin';
 import { styles as AppStyles, colors, spacing, borderRadius, fontSize, fontWeight } from './src/styles/AppStyles';
 
 // Import React Native styles (converted from CSS)
-import AppStyles, { colors } from './src/styles/AppStyles';
+import NativeAppStyles, { colors } from './src/styles/AppStyles';
 
 // Constants
 const { width, height } = Dimensions.get('window');
