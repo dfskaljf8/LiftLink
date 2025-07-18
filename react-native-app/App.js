@@ -31,6 +31,10 @@ import TrainerMapView from './src/components/TrainerMapView';
 import CalendarScheduling from './src/components/CalendarScheduling';
 import TreeSVG from './src/components/TreeSVG';
 import LiftCoin from './src/components/LiftCoin';
+import AppleReviewLogin from './src/components/AppleReviewLogin';
+
+// Import React Native styles (converted from CSS)
+import { styles as AppStyles, colors, spacing, borderRadius, fontSize, fontWeight } from './src/styles/AppStyles';
 
 // Constants
 const { width, height } = Dimensions.get('window');
