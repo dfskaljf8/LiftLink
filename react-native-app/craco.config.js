@@ -17,7 +17,7 @@ module.exports = {
         '@react-native-community/netinfo': path.resolve(__dirname, 'src/web-mocks/netinfo'),
         '@react-native-community/geolocation': path.resolve(__dirname, 'src/web-mocks/geolocation'),
         '@stripe/stripe-react-native': path.resolve(__dirname, 'src/web-mocks/stripe'),
-        'react-native-maps': 'react-native-web-maps',
+        'react-native-maps': 'react-native-web',
         'react-native-gesture-handler': 'react-native-web',
         'react-native-reanimated': 'react-native-web',
         'react-native-screens': 'react-native-web',
@@ -57,12 +57,8 @@ module.exports = {
     },
   },
   babel: {
-    presets: [
-      ['@babel/preset-env', { targets: { browsers: ['last 2 versions'] } }],
-      '@babel/preset-react',
-    ],
     plugins: [
-      'react-native-web/babel',
+      'babel-plugin-react-native-web',
     ],
   },
 };
