@@ -194,34 +194,92 @@ class PaymentService:
             ]
         }
     
-    def process_trainer_payout(self, trainer_id: str, amount: int) -> bool:
-        """Process payout to trainer using Stripe Express/Connect (simulated)"""
+    def create_express_account(self, trainer_id: str, trainer_email: str) -> Optional[Dict]:
+        """Create a Stripe Express account for trainer onboarding"""
+        try:
+            if not self.stripe_key:
+                print("❌ STRIPE ERROR: No API key configured")
+                return None
+                
+            account = stripe.Account.create(
+                type="express",
+                country="US",
+                email=trainer_email,
+                capabilities={
+                    "card_payments": {"requested": True},
+                    "transfers": {"requested": True}
+                },
+                business_type="individual",
+                metadata={
+                    "trainer_id": trainer_id,
+                    "platform": "liftlink"
+                }
+            )
+            
+            print(f"🏦 STRIPE EXPRESS ACCOUNT CREATED: {account.id} for trainer {trainer_id}")
+            return {
+                "account_id": account.id,
+                "trainer_id": trainer_id,
+                "onboarding_required": True
+            }
+            
+        except stripe.error.StripeError as e:
+            logging.error(f"Express account creation failed: {e}")
+            print(f"❌ STRIPE ACCOUNT ERROR: {e}")
+            return None
+    
+    def create_onboarding_link(self, stripe_account_id: str) -> Optional[str]:
+        """Create onboarding link for trainer to complete Stripe setup"""
+        try:
+            if not self.stripe_key:
+                print("❌ STRIPE ERROR: No API key configured")
+                return None
+                
+            account_link = stripe.AccountLink.create(
+                account=stripe_account_id,
+                refresh_url="https://your-app-domain.com/reauth",
+                return_url="https://your-app-domain.com/onboarding-success",
+                type="account_onboarding"
+            )
+            
+            print(f"🔗 ONBOARDING LINK CREATED: {account_link.url}")
+            return account_link.url
+            
+        except stripe.error.StripeError as e:
+            logging.error(f"Onboarding link creation failed: {e}")
+            print(f"❌ ONBOARDING LINK ERROR: {e}")
+            return None
+
+    def process_trainer_payout(self, trainer_id: str, amount: int, stripe_account_id: str) -> bool:
+        """Process REAL payout to trainer using Stripe Connect Transfer"""
         try:
             if not self.stripe_key:
                 print("❌ STRIPE ERROR: No API key configured")
                 return False
                 
-            # In a real implementation, you would use Stripe Connect to pay trainers
-            # For now, we'll create a transfer simulation
+            # Create REAL Stripe transfer to trainer's account
+            transfer = stripe.Transfer.create(
+                amount=amount,
+                currency="usd",
+                destination=stripe_account_id,
+                metadata={
+                    "trainer_id": trainer_id,
+                    "platform": "liftlink",
+                    "payout_date": datetime.now().isoformat()
+                }
+            )
             
-            # Create a test transfer (this would be a real transfer in production)
-            print(f"💰 PROCESSING STRIPE PAYOUT: ${amount/100:.2f} to trainer {trainer_id}")
-            
-            # Simulate transfer creation
-            transfer_data = {
-                "id": f"tr_stripe_{trainer_id}_{amount}",
-                "amount": amount,
-                "currency": "usd",
-                "destination": f"acct_trainer_{trainer_id}",  # Would be real Stripe Connect account
-                "created": datetime.now().timestamp()
-            }
-            
-            print(f"✅ PAYOUT PROCESSED: Transfer ID {transfer_data['id']}")
-            print(f"   Amount: ${amount/100:.2f}")
-            print(f"   Destination: {transfer_data['destination']}")
+            print(f"💰 REAL STRIPE TRANSFER PROCESSED: ${amount/100:.2f}")
+            print(f"   Transfer ID: {transfer.id}")
+            print(f"   Destination Account: {stripe_account_id}")
+            print(f"   Trainer ID: {trainer_id}")
             
             return True
             
+        except stripe.error.StripeError as e:
+            logging.error(f"Stripe transfer failed: {e}")
+            print(f"❌ STRIPE TRANSFER ERROR: {e}")
+            return False
         except Exception as e:
             logging.error(f"Payout failed: {e}")
             print(f"❌ PAYOUT FAILED: {e}")
