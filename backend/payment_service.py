@@ -298,16 +298,16 @@ class PaymentService:
             print(f"❌ PAYOUT FAILED: {e}")
             return False
     
-    def create_session_checkout(self, amount: int, trainer_id: str, client_email: str, session_details: Dict) -> Optional[Dict]:
-        """Create a Stripe Checkout session for trainee to pay for session"""
+    def create_session_checkout(self, amount: int, trainer_id: str, client_email: str, session_details: Dict, trainer_stripe_account: str = None) -> Optional[Dict]:
+        """Create a Stripe Checkout session for trainee to pay for session with Connect support"""
         try:
             if not self.stripe_key:
                 print("❌ STRIPE ERROR: No API key configured")
                 return None
                 
-            checkout_session = stripe.checkout.Session.create(
-                payment_method_types=['card'],
-                line_items=[{
+            checkout_params = {
+                'payment_method_types': ['card'],
+                'line_items': [{
                     'price_data': {
                         'currency': 'usd',
                         'product_data': {
@@ -318,27 +318,42 @@ class PaymentService:
                     },
                     'quantity': 1,
                 }],
-                mode='payment',
-                success_url='https://your-app-domain.com/success?session_id={CHECKOUT_SESSION_ID}',
-                cancel_url='https://your-app-domain.com/cancel',
-                customer_email=client_email,
-                metadata={
+                'mode': 'payment',
+                'success_url': 'https://your-app-domain.com/success?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url': 'https://your-app-domain.com/cancel',
+                'customer_email': client_email,
+                'metadata': {
                     'trainer_id': trainer_id,
                     'session_type': session_details.get('session_type', 'personal_training'),
                     'session_duration': str(session_details.get('duration', 60))
                 }
-            )
+            }
+            
+            # Add destination charge if trainer has Stripe Connect account
+            if trainer_stripe_account:
+                checkout_params['payment_intent_data'] = {
+                    'transfer_data': {
+                        'destination': trainer_stripe_account,
+                        'amount': amount  # Full amount goes to trainer (no platform fee)
+                    }
+                }
+                print(f"🛒 Creating checkout with destination: {trainer_stripe_account}")
+            
+            checkout_session = stripe.checkout.Session.create(**checkout_params)
             
             print(f"🛒 STRIPE CHECKOUT CREATED: ${amount/100:.2f}")
             print(f"   Session ID: {checkout_session.id}")
             print(f"   Payment URL: {checkout_session.url}")
+            if trainer_stripe_account:
+                print(f"   Destination Account: {trainer_stripe_account}")
             
             return {
                 "checkout_session_id": checkout_session.id,
                 "checkout_url": checkout_session.url,
                 "amount": amount,
                 "trainer_id": trainer_id,
-                "client_email": client_email
+                "client_email": client_email,
+                "destination_account": trainer_stripe_account
             }
             
         except stripe.error.StripeError as e:
