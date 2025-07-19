@@ -1261,9 +1261,9 @@ async def stripe_webhook(request: Request):
         if event.get('type') == 'account.updated':
             account = event.get('data', {}).get('object', {})
             if account.get('charges_enabled') and account.get('payouts_enabled'):
-                # Mark trainer onboarding as complete
-                await db.trainers.update_one(
-                    {"stripe_account_id": account.get('id')},
+                # Mark trainer onboarding as complete in users collection
+                await db.users.update_one(
+                    {"stripe_account_id": account.get('id'), "role": "trainer"},
                     {"$set": {"stripe_onboarding_complete": True}}
                 )
                 print(f"✅ Updated trainer onboarding status for account {account.get('id')}")
