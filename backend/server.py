@@ -1227,6 +1227,53 @@ async def get_session_cost(trainer_id: str, session_type: str = "personal_traini
         "currency": "USD"
     }
 
+@api_router.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    """Handle Stripe webhook events for Connect"""
+    try:
+        payload = await request.body()
+        sig_header = request.headers.get("stripe-signature")
+        
+        if not sig_header:
+            raise HTTPException(status_code=400, detail="Missing stripe-signature header")
+            
+        # Verify webhook signature (add STRIPE_WEBHOOK_SECRET to .env)
+        webhook_secret = os.environ.get('STRIPE_WEBHOOK_SECRET')
+        if webhook_secret:
+            try:
+                event = stripe.Webhook.construct_event(
+                    payload, sig_header, webhook_secret
+                )
+            except stripe.error.SignatureVerificationError:
+                raise HTTPException(status_code=400, detail="Invalid signature")
+        else:
+            # For testing without webhook signature verification
+            import json
+            event = json.loads(payload)
+            
+        # Handle the event
+        event_handled = payment_service.handle_webhook_event(
+            event.get('type'), 
+            event.get('data', {})
+        )
+        
+        # Update database based on event type
+        if event.get('type') == 'account.updated':
+            account = event.get('data', {}).get('object', {})
+            if account.get('charges_enabled') and account.get('payouts_enabled'):
+                # Mark trainer onboarding as complete
+                await db.trainers.update_one(
+                    {"stripe_account_id": account.get('id')},
+                    {"$set": {"stripe_onboarding_complete": True}}
+                )
+                print(f"✅ Updated trainer onboarding status for account {account.get('id')}")
+        
+        return {"received": True, "handled": event_handled}
+        
+    except Exception as e:
+        logging.error(f"Webhook error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Add API router to app
 app.include_router(api_router, prefix="/api")
 
