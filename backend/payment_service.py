@@ -360,3 +360,50 @@ class PaymentService:
             logging.error(f"Stripe checkout creation failed: {e}")
             print(f"❌ STRIPE CHECKOUT ERROR: {e}")
             return None
+
+    def handle_webhook_event(self, event_type: str, event_data: Dict) -> bool:
+        """Handle Stripe webhook events for Connect accounts"""
+        try:
+            if event_type == "account.updated":
+                # Handle trainer account onboarding completion
+                account = event_data.get('object', {})
+                account_id = account.get('id')
+                
+                # Check if onboarding is complete
+                if account.get('charges_enabled') and account.get('payouts_enabled'):
+                    print(f"✅ TRAINER ONBOARDING COMPLETE: {account_id}")
+                    return True
+                    
+            elif event_type == "payment_intent.succeeded":
+                # Handle successful payment
+                payment_intent = event_data.get('object', {})
+                trainer_id = payment_intent.get('metadata', {}).get('trainer_id')
+                amount = payment_intent.get('amount')
+                
+                print(f"💰 PAYMENT SUCCEEDED: ${amount/100:.2f} for trainer {trainer_id}")
+                return True
+                
+            elif event_type == "transfer.created":
+                # Handle transfer to trainer
+                transfer = event_data.get('object', {})
+                destination = transfer.get('destination')
+                amount = transfer.get('amount')
+                
+                print(f"📤 TRANSFER CREATED: ${amount/100:.2f} to {destination}")
+                return True
+                
+            elif event_type == "payout.paid":
+                # Handle payout completion
+                payout = event_data.get('object', {})
+                account_id = payout.get('stripe_account')
+                amount = payout.get('amount')
+                
+                print(f"💸 PAYOUT COMPLETED: ${amount/100:.2f} from {account_id}")
+                return True
+                
+            return False
+            
+        except Exception as e:
+            logging.error(f"Webhook handling failed: {e}")
+            print(f"❌ WEBHOOK ERROR: {e}")
+            return False
