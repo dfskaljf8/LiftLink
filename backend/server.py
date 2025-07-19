@@ -1144,8 +1144,8 @@ async def create_session_checkout(request: dict):
         client_email = request.get("client_email")
         session_details = request.get("session_details", {})
         
-        # Get trainer's Stripe account ID for destination charge
-        trainer = await db.trainers.find_one({"id": trainer_id})
+        # Get trainer's Stripe account ID for destination charge from users collection
+        trainer = await db.users.find_one({"id": trainer_id, "role": "trainer"})
         trainer_stripe_account = trainer.get("stripe_account_id") if trainer else None
         
         checkout_data = payment_service.create_session_checkout(
