@@ -963,15 +963,6 @@ async def get_trainer_earnings(trainer_id: str):
     earnings = payment_service.get_trainer_earnings(trainer_id)
     return earnings
 
-@api_router.post("/trainer/{trainer_id}/payout")
-async def request_payout(trainer_id: str, amount: int):
-    """Request payout for trainer"""
-    success = payment_service.process_trainer_payout(trainer_id, amount)
-    if success:
-        return {"message": "Payout processed successfully", "amount": amount/100}
-    else:
-        raise HTTPException(status_code=500, detail="Failed to process payout")
-
 # Trainer Reviews
 @api_router.get("/trainer/{trainer_id}/reviews")
 async def get_trainer_reviews(trainer_id: str):
