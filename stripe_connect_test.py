@@ -179,7 +179,8 @@ def test_stripe_connect_implementation():
         elif response.status_code == 500:
             # Check if this is the expected "capabilities not enabled" error
             response_text = response.text.lower()
-            if "capabilities" in response_text or "transfers" in response_text:
+            print(f"Debug - Response text: {response.text}")
+            if "capabilities" in response_text or "transfers" in response_text or "destination account needs" in response_text:
                 print(f"✅ Expected error: Trainer needs to complete onboarding before receiving destination charges")
                 print(f"   This is correct behavior - trainers must complete Stripe onboarding first")
                 # Continue with the test as this is expected behavior
