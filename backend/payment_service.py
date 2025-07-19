@@ -19,30 +19,42 @@ class PaymentService:
             stripe.api_key = self.stripe_key
             print(f"🔑 Stripe API key configured: {self.stripe_key[:12]}...")
         
-    def create_payment_intent(self, amount: int, trainer_id: str, client_id: str, session_id: str) -> Optional[Dict]:
-        """Create a real Stripe payment intent for session payment"""
+    def create_payment_intent(self, amount: int, trainer_id: str, client_id: str, session_id: str, trainer_stripe_account: str = None) -> Optional[Dict]:
+        """Create a real Stripe payment intent for session payment with destination charge"""
         try:
             if not self.stripe_key:
                 print("❌ STRIPE ERROR: No API key configured")
                 return None
                 
-            # Create actual Stripe payment intent
-            payment_intent = stripe.PaymentIntent.create(
-                amount=amount,
-                currency='usd',
-                metadata={
+            # Create payment intent with destination charge (for Stripe Connect)
+            payment_intent_params = {
+                'amount': amount,
+                'currency': 'usd',
+                'metadata': {
                     'trainer_id': trainer_id,
                     'client_id': client_id,
                     'session_id': session_id,
                     'purpose': 'session_payment'
                 },
-                description=f'LiftLink Training Session - Trainer {trainer_id}',
-                automatic_payment_methods={'enabled': True}
-            )
+                'description': f'LiftLink Training Session - Trainer {trainer_id}',
+                'automatic_payment_methods': {'enabled': True}
+            }
+            
+            # If trainer has Stripe Connect account, use destination charge
+            if trainer_stripe_account:
+                payment_intent_params['transfer_data'] = {
+                    'destination': trainer_stripe_account,
+                    'amount': amount  # Full amount goes to trainer (no platform fee for now)
+                }
+                print(f"💳 Creating destination charge to {trainer_stripe_account}")
+            
+            payment_intent = stripe.PaymentIntent.create(**payment_intent_params)
             
             print(f"💳 STRIPE PAYMENT INTENT CREATED: ${amount/100:.2f} for trainer {trainer_id}")
             print(f"   Payment Intent ID: {payment_intent.id}")
             print(f"   Client Secret: {payment_intent.client_secret}")
+            if trainer_stripe_account:
+                print(f"   Destination Account: {trainer_stripe_account}")
             
             return {
                 "id": payment_intent.id,
@@ -53,6 +65,7 @@ class PaymentService:
                 "trainer_id": trainer_id,
                 "client_id": client_id,
                 "session_id": session_id,
+                "destination_account": trainer_stripe_account,
                 "created": payment_intent.created
             }
             
