@@ -1104,8 +1104,8 @@ async def request_payout(trainer_id: str, request: dict):
         if not amount:
             raise HTTPException(status_code=400, detail="Amount required")
             
-        # Get trainer's Stripe account ID
-        trainer = await db.trainers.find_one({"id": trainer_id})
+        # Get trainer's Stripe account ID from users collection
+        trainer = await db.users.find_one({"id": trainer_id, "role": "trainer"})
         if not trainer or not trainer.get("stripe_account_id"):
             raise HTTPException(status_code=404, detail="Trainer Stripe account not found")
             
