@@ -1047,6 +1047,118 @@ async def complete_session_checkin(session_id: str, trainer_id: str, client_id: 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# Stripe Connect endpoints for trainer onboarding
+@api_router.post("/trainer/{trainer_id}/create-stripe-account")
+async def create_trainer_stripe_account(trainer_id: str, request: dict):
+    """Create Stripe Express account for trainer"""
+    try:
+        trainer_email = request.get("email")
+        if not trainer_email:
+            raise HTTPException(status_code=400, detail="Trainer email required")
+            
+        account_data = payment_service.create_express_account(trainer_id, trainer_email)
+        
+        if account_data:
+            # Store Stripe account ID in trainer profile
+            await db.trainers.update_one(
+                {"id": trainer_id},
+                {"$set": {
+                    "stripe_account_id": account_data["account_id"],
+                    "stripe_onboarding_complete": False,
+                    "stripe_created_at": datetime.now().isoformat()
+                }}
+            )
+            
+            return account_data
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create Stripe account")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/trainer/{trainer_id}/onboarding-link")
+async def get_trainer_onboarding_link(trainer_id: str):
+    """Get Stripe onboarding link for trainer"""
+    try:
+        # Get trainer's Stripe account ID
+        trainer = await db.trainers.find_one({"id": trainer_id})
+        if not trainer or not trainer.get("stripe_account_id"):
+            raise HTTPException(status_code=404, detail="Trainer Stripe account not found")
+            
+        onboarding_url = payment_service.create_onboarding_link(trainer["stripe_account_id"])
+        
+        if onboarding_url:
+            return {"onboarding_url": onboarding_url, "account_id": trainer["stripe_account_id"]}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create onboarding link")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/trainer/{trainer_id}/payout")
+async def request_payout(trainer_id: str, request: dict):
+    """Request payout for trainer using real Stripe Connect transfer"""
+    try:
+        amount = request.get("amount")  # amount in cents
+        if not amount:
+            raise HTTPException(status_code=400, detail="Amount required")
+            
+        # Get trainer's Stripe account ID
+        trainer = await db.trainers.find_one({"id": trainer_id})
+        if not trainer or not trainer.get("stripe_account_id"):
+            raise HTTPException(status_code=404, detail="Trainer Stripe account not found")
+            
+        if not trainer.get("stripe_onboarding_complete"):
+            raise HTTPException(status_code=400, detail="Trainer must complete Stripe onboarding first")
+            
+        success = payment_service.process_trainer_payout(
+            trainer_id, 
+            amount, 
+            trainer["stripe_account_id"]
+        )
+        
+        if success:
+            # Record payout in database
+            await db.payouts.insert_one({
+                "trainer_id": trainer_id,
+                "amount": amount,
+                "stripe_account_id": trainer["stripe_account_id"],
+                "status": "processed",
+                "created_at": datetime.now().isoformat()
+            })
+            
+            return {"message": "Payout processed successfully", "amount": amount/100}
+        else:
+            raise HTTPException(status_code=500, detail="Failed to process payout")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/payments/create-session-checkout")
+async def create_session_checkout(request: dict):
+    """Create Stripe checkout session for trainee to pay for session with Connect"""
+    try:
+        amount = request.get("amount", 7500)  # Amount in cents
+        trainer_id = request.get("trainer_id")
+        client_email = request.get("client_email")
+        session_details = request.get("session_details", {})
+        
+        # Get trainer's Stripe account ID for destination charge
+        trainer = await db.trainers.find_one({"id": trainer_id})
+        trainer_stripe_account = trainer.get("stripe_account_id") if trainer else None
+        
+        checkout_data = payment_service.create_session_checkout(
+            amount, trainer_id, client_email, session_details, trainer_stripe_account
+        )
+        
+        if checkout_data:
+            return checkout_data
+        else:
+            raise HTTPException(status_code=500, detail="Failed to create checkout session")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # New Stripe-specific endpoints
 @api_router.post("/payments/create-session-checkout")
 async def create_session_checkout(request: dict):
