@@ -12,6 +12,7 @@ from urllib.parse import urlencode
 import re
 import logging
 from dotenv import load_dotenv
+import stripe
 
 # Load environment variables from .env file
 load_dotenv()
