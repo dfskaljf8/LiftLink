@@ -1060,9 +1060,9 @@ async def create_trainer_stripe_account(trainer_id: str, request: dict):
         account_data = payment_service.create_express_account(trainer_id, trainer_email)
         
         if account_data:
-            # Store Stripe account ID in trainer profile
-            await db.trainers.update_one(
-                {"id": trainer_id},
+            # Store Stripe account ID in user profile (trainers are stored in users collection)
+            await db.users.update_one(
+                {"id": trainer_id, "role": "trainer"},
                 {"$set": {
                     "stripe_account_id": account_data["account_id"],
                     "stripe_onboarding_complete": False,
@@ -1081,8 +1081,8 @@ async def create_trainer_stripe_account(trainer_id: str, request: dict):
 async def get_trainer_onboarding_link(trainer_id: str):
     """Get Stripe onboarding link for trainer"""
     try:
-        # Get trainer's Stripe account ID
-        trainer = await db.trainers.find_one({"id": trainer_id})
+        # Get trainer's Stripe account ID from users collection
+        trainer = await db.users.find_one({"id": trainer_id, "role": "trainer"})
         if not trainer or not trainer.get("stripe_account_id"):
             raise HTTPException(status_code=404, detail="Trainer Stripe account not found")
             
