@@ -397,20 +397,34 @@ const AuthScreen = ({ navigation, route }) => {
         <Text style={styles.authSubtitle}>Enter your email to get started</Text>
         
         <TextInput
-          style={styles.input}
+          style={[
+            styles.input,
+            emailError ? { borderColor: '#ff6b6b', borderWidth: 1 } : {}
+          ]}
           placeholder="Enter your email"
           placeholderTextColor={colors.textSecondary}
           value={email}
-          onChangeText={setEmail}
+          onChangeText={handleEmailChange}
           keyboardType="email-address"
           autoCapitalize="none"
           autoCorrect={false}
         />
         
+        {emailError ? (
+          <Text style={styles.errorText}>{emailError}</Text>
+        ) : null}
+
+        {error ? (
+          <Text style={styles.errorText}>{error}</Text>
+        ) : null}
+        
         <TouchableOpacity
-          style={styles.primaryButton}
+          style={[
+            styles.primaryButton,
+            (!validateEmail(email) || loading) ? { opacity: 0.6 } : {}
+          ]}
           onPress={handleEmailSubmit}
-          disabled={loading}
+          disabled={!validateEmail(email) || loading}
         >
           {loading ? (
             <ActivityIndicator color={colors.text} />
