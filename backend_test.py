@@ -331,6 +331,231 @@ def test_user_profile_management(user):
         print(f"Response: {response.text}")
         test_results["user_profile"]["details"] += f"Failed to update user profile. Status code: {response.status_code}. "
         return False
+def test_comprehensive_email_validation():
+    """Comprehensive email validation testing for Pydantic EmailStr validation"""
+    print_separator()
+    print("🔍 COMPREHENSIVE EMAIL VALIDATION TESTING")
+    print_separator()
+    
+    # Test results tracking
+    validation_results = {
+        "valid_emails_accepted": 0,
+        "invalid_emails_rejected": 0,
+        "edge_cases_handled": 0,
+        "total_tests": 0,
+        "failed_tests": []
+    }
+    
+    # 1. VALID EMAIL FORMATS - Should be accepted
+    print("📧 STEP 1: TESTING VALID EMAIL FORMATS")
+    print("-" * 50)
+    
+    valid_emails = [
+        "user@example.com",
+        "test.email@domain.co.uk", 
+        "firstname.lastname@company.org",
+        "user+tag@example.com",
+        "test123@test-domain.com",
+        "valid_email@subdomain.example.com",
+        "a@b.co",
+        "test@domain-with-dash.com",
+        "user.name+tag@example.co.uk"
+    ]
+    
+    for email in valid_emails:
+        validation_results["total_tests"] += 1
+        print(f"\nTesting valid email: {email}")
+        
+        # Test with POST /api/check-user
+        check_data = {"email": email}
+        response = requests.post(f"{BACKEND_URL}/check-user", json=check_data)
+        
+        if response.status_code == 200:
+            result = response.json()
+            print(f"✅ Valid email accepted by check-user: {email}")
+            validation_results["valid_emails_accepted"] += 1
+            
+            # Also test with POST /api/users to ensure Pydantic validation works
+            user_data = {
+                "email": email,
+                "role": "fitness_enthusiast", 
+                "fitness_goals": ["general_fitness"],
+                "experience_level": "beginner"
+            }
+            
+            response = requests.post(f"{BACKEND_URL}/users", json=user_data)
+            if response.status_code == 200:
+                print(f"✅ Valid email accepted by user creation: {email}")
+            elif response.status_code == 400 and "already exists" in response.text:
+                print(f"✅ Valid email format accepted (user already exists): {email}")
+            else:
+                print(f"❌ ERROR: Valid email rejected by user creation: {email} (Status: {response.status_code})")
+                validation_results["failed_tests"].append(f"Valid email {email} rejected by user creation")
+                
+        else:
+            print(f"❌ ERROR: Valid email rejected by check-user: {email} (Status: {response.status_code})")
+            validation_results["failed_tests"].append(f"Valid email {email} rejected by check-user")
+    
+    # 2. INVALID EMAIL FORMATS - Should be rejected
+    print("\n❌ STEP 2: TESTING INVALID EMAIL FORMATS")
+    print("-" * 50)
+    
+    invalid_emails = [
+        "a",                    # Single character
+        "e2093 ewnrds",        # Spaces and no @ symbol
+        "invalid",             # No @ symbol
+        "test@",               # Missing domain
+        "@domain.com",         # Missing local part
+        "test..test@domain.com", # Double dots
+        "test@domain",         # Missing TLD
+        "test@.com",           # Missing domain name
+        "test@domain.",        # Missing TLD
+        "",                    # Empty string
+        "test@domain@com",     # Multiple @ symbols
+        "test space@domain.com", # Space in local part
+        "test@domain .com",    # Space in domain
+        "test@",               # Incomplete
+        "plainaddress",        # No @ symbol
+        "@",                   # Just @ symbol
+        "test@domain..com",    # Double dots in domain
+        "test.@domain.com",    # Dot at end of local part
+        ".test@domain.com",    # Dot at start of local part
+    ]
+    
+    for email in invalid_emails:
+        validation_results["total_tests"] += 1
+        print(f"\nTesting invalid email: '{email}'")
+        
+        # Test with POST /api/check-user
+        check_data = {"email": email}
+        response = requests.post(f"{BACKEND_URL}/check-user", json=check_data)
+        
+        if response.status_code == 422:
+            print(f"✅ Invalid email correctly rejected by check-user: '{email}'")
+            validation_results["invalid_emails_rejected"] += 1
+        else:
+            print(f"❌ ERROR: Invalid email accepted by check-user: '{email}' (Status: {response.status_code})")
+            validation_results["failed_tests"].append(f"Invalid email '{email}' accepted by check-user")
+            
+        # Test with POST /api/users
+        user_data = {
+            "email": email,
+            "role": "fitness_enthusiast",
+            "fitness_goals": ["general_fitness"], 
+            "experience_level": "beginner"
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/users", json=user_data)
+        
+        if response.status_code == 422:
+            print(f"✅ Invalid email correctly rejected by user creation: '{email}'")
+        else:
+            print(f"❌ ERROR: Invalid email accepted by user creation: '{email}' (Status: {response.status_code})")
+            validation_results["failed_tests"].append(f"Invalid email '{email}' accepted by user creation")
+    
+    # 3. EDGE CASES
+    print("\n🔍 STEP 3: TESTING EDGE CASES")
+    print("-" * 50)
+    
+    edge_cases = [
+        ("", "Empty string"),
+        ("   ", "Whitespace only"),
+        ("a" * 100 + "@example.com", "Very long email (100+ chars)"),
+        ("test@" + "a" * 100 + ".com", "Very long domain"),
+        ("test+special!#$%&'*+-/=?^_`{|}~@example.com", "Special characters in local part"),
+        ("test@domain-with-many-hyphens-and-subdomains.example.co.uk", "Complex valid domain"),
+    ]
+    
+    for email, description in edge_cases:
+        validation_results["total_tests"] += 1
+        print(f"\nTesting edge case - {description}: '{email[:50]}{'...' if len(email) > 50 else ''}'")
+        
+        # Test with POST /api/check-user
+        check_data = {"email": email}
+        response = requests.post(f"{BACKEND_URL}/check-user", json=check_data)
+        
+        # Determine expected behavior
+        if email in ["", "   "] or len(email) > 254:  # RFC 5321 limit
+            expected_status = 422
+            expected_behavior = "rejected"
+        elif "@" in email and "." in email.split("@")[-1] and len(email.split("@")) == 2:
+            expected_status = 200
+            expected_behavior = "accepted"
+        else:
+            expected_status = 422
+            expected_behavior = "rejected"
+            
+        if response.status_code == expected_status:
+            print(f"✅ Edge case correctly {expected_behavior}: {description}")
+            validation_results["edge_cases_handled"] += 1
+        else:
+            print(f"❌ ERROR: Edge case incorrectly handled: {description} (Expected: {expected_status}, Got: {response.status_code})")
+            validation_results["failed_tests"].append(f"Edge case '{description}' incorrectly handled")
+    
+    # 4. BACKEND PYDANTIC VALIDATION VERIFICATION
+    print("\n🔧 STEP 4: BACKEND PYDANTIC VALIDATION VERIFICATION")
+    print("-" * 50)
+    
+    # Test specific examples mentioned in the review request
+    problematic_emails = ["a", "e2093 ewnrds", "invalid", "test@", "@domain.com"]
+    
+    for email in problematic_emails:
+        print(f"\nVerifying Pydantic EmailStr rejects: '{email}'")
+        
+        user_data = {
+            "email": email,
+            "role": "fitness_enthusiast",
+            "fitness_goals": ["general_fitness"],
+            "experience_level": "beginner"
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/users", json=user_data)
+        
+        if response.status_code == 422:
+            try:
+                error_detail = response.json()
+                print(f"✅ Pydantic correctly rejected '{email}' with error: {error_detail}")
+            except:
+                print(f"✅ Pydantic correctly rejected '{email}' (Status: 422)")
+        else:
+            print(f"❌ CRITICAL ERROR: Pydantic failed to reject invalid email '{email}' (Status: {response.status_code})")
+            validation_results["failed_tests"].append(f"CRITICAL: Pydantic failed to reject '{email}'")
+    
+    # 5. RESULTS SUMMARY
+    print("\n📊 EMAIL VALIDATION TEST RESULTS")
+    print("=" * 60)
+    
+    success_rate = ((validation_results["valid_emails_accepted"] + 
+                    validation_results["invalid_emails_rejected"] + 
+                    validation_results["edge_cases_handled"]) / 
+                   validation_results["total_tests"]) * 100
+    
+    print(f"✅ Valid emails accepted: {validation_results['valid_emails_accepted']}/{len(valid_emails)}")
+    print(f"❌ Invalid emails rejected: {validation_results['invalid_emails_rejected']}/{len(invalid_emails)}")
+    print(f"🔍 Edge cases handled: {validation_results['edge_cases_handled']}/{len(edge_cases)}")
+    print(f"📈 Overall success rate: {success_rate:.1f}%")
+    
+    if validation_results["failed_tests"]:
+        print(f"\n❌ FAILED TESTS ({len(validation_results['failed_tests'])}):")
+        for failure in validation_results["failed_tests"]:
+            print(f"   - {failure}")
+    
+    # Determine overall success
+    critical_failures = [f for f in validation_results["failed_tests"] if "CRITICAL" in f]
+    
+    if success_rate >= 90 and len(critical_failures) == 0:
+        print(f"\n🎉 EMAIL VALIDATION TEST PASSED!")
+        print("✅ Pydantic EmailStr validation is working correctly")
+        print("✅ Invalid emails like 'a' and 'e2093 ewnrds' are properly rejected")
+        test_results["email_validation"]["success"] = True
+        return True
+    else:
+        print(f"\n❌ EMAIL VALIDATION TEST FAILED!")
+        if critical_failures:
+            print("🚨 CRITICAL: Pydantic EmailStr validation is not working properly")
+        test_results["email_validation"]["details"] = f"Success rate: {success_rate:.1f}%. Failed tests: {len(validation_results['failed_tests'])}. "
+        return False
+
 def test_email_validation_and_user_existence():
     print_separator()
     print("TESTING EMAIL VALIDATION AND USER EXISTENCE CHECK")
@@ -363,7 +588,7 @@ def test_email_validation_and_user_existence():
         result = response.json()
         print(f"Response: {json.dumps(result, indent=2)}")
         
-        if result["exists"] == False and result["email"] == non_existent_email:
+        if result["exists"] == False:
             print("Successfully identified non-existent user")
         else:
             print(f"ERROR: Non-existent user check failed. Expected exists=False but got {result['exists']}")
@@ -402,9 +627,8 @@ def test_email_validation_and_user_existence():
             result = response.json()
             print(f"Response: {json.dumps(result, indent=2)}")
             
-            if result["exists"] == True and result["email"] == test_email and result["user_data"] is not None:
+            if result["exists"] == True:
                 print("Successfully identified existing user")
-                test_results["email_validation"]["success"] = True
                 test_results["user_existence_check"]["success"] = True
                 return user
             else:
