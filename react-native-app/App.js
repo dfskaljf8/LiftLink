@@ -292,6 +292,7 @@ const AuthScreen = ({ navigation, route }) => {
   const [experienceLevel, setExperienceLevel] = useState('beginner');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
