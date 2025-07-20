@@ -299,9 +299,23 @@ const AuthScreen = ({ navigation, route }) => {
     return emailRegex.test(email);
   };
 
+  const handleEmailChange = (text) => {
+    setEmail(text);
+    setError(''); // Clear general errors
+    
+    if (text.length === 0) {
+      setEmailError('');
+    } else if (!validateEmail(text)) {
+      setEmailError('Please enter a valid email address');
+    } else {
+      setEmailError('');
+    }
+  };
+
   const handleEmailSubmit = async () => {
     if (!validateEmail(email)) {
       setError('Please enter a valid email address');
+      setEmailError('Please enter a valid email address');
       return;
     }
 
