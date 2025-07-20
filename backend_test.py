@@ -3132,49 +3132,52 @@ def test_dashboard_endpoints():
         return False
 
 if __name__ == "__main__":
-    print("🚀 STARTING GOOGLE API INTEGRATION TESTING WITH REAL API KEYS")
+    print("🚀 STARTING COMPREHENSIVE EMAIL VALIDATION TESTING")
+    print("=" * 80)
+    print("Focus: Testing Pydantic EmailStr validation for invalid emails")
+    print("Target: Ensure emails like 'a', 'e2093 ewnrds', 'invalid' are rejected")
     print("=" * 80)
     
-    # Focus on Google API integration testing as requested in the review
-    print("🎯 PRIMARY FOCUS: Testing Google API integration with real OAuth credentials")
-    print("📋 TEST SCOPE:")
-    print("   1. Google Fit API integration (login, connect, callback, status, sync)")
-    print("   2. Google Calendar API integration (schedule, appointments, slots)")
-    print("   3. Verify 403 errors are resolved with real API keys")
-    print("   4. Test environment variable loading")
-    print()
+    # Run comprehensive email validation test first
+    print("\n🎯 PRIMARY TEST: COMPREHENSIVE EMAIL VALIDATION")
+    test_comprehensive_email_validation()
     
-    # Run Google API integration testing as primary focus
-    google_api_success = test_google_api_integration()
+    # Run additional related tests
+    print("\n🔍 SECONDARY TEST: USER EXISTENCE CHECK WITH EMAIL VALIDATION")
+    test_user = test_email_validation_and_user_existence()
     
     # Print final results
     print_separator()
-    print("GOOGLE API INTEGRATION TEST RESULTS")
+    print("📊 FINAL TEST RESULTS SUMMARY")
     print_separator()
     
-    if google_api_success:
-        print("🎉 GOOGLE API INTEGRATION: ALL TESTS PASSED!")
-        print("✅ Google Fit API integration working correctly")
-        print("✅ Google Calendar API integration working correctly") 
-        print("✅ No 403 errors detected - real API keys are working")
-        print("✅ Environment variables loaded successfully")
-        print("✅ OAuth flows handling properly")
-        print("✅ Fallback to mock data working when needed")
-        print()
-        print("🚀 READY FOR PRODUCTION: Google API integration is fully functional")
+    passed_tests = sum(1 for result in test_results.values() if result["success"])
+    total_tests = len(test_results)
+    
+    print(f"✅ Tests Passed: {passed_tests}/{total_tests}")
+    print(f"❌ Tests Failed: {total_tests - passed_tests}/{total_tests}")
+    
+    # Focus on email validation results
+    email_validation_result = test_results.get("email_validation", {})
+    if email_validation_result.get("success"):
+        print("\n🎉 EMAIL VALIDATION: PASSED")
+        print("✅ Pydantic EmailStr validation is working correctly")
+        print("✅ Invalid emails are properly rejected")
     else:
-        print("❌ GOOGLE API INTEGRATION: SOME TESTS FAILED")
-        print("⚠️  Please review the detailed error messages above")
-        print("🔧 Check API key configuration and Google Cloud Console setup")
+        print("\n❌ EMAIL VALIDATION: FAILED")
+        print("🚨 Issues found with email validation")
+        if email_validation_result.get("details"):
+            print(f"Details: {email_validation_result['details']}")
     
-    print_separator()
+    # Show detailed results for failed tests
+    failed_tests = {name: result for name, result in test_results.items() if not result["success"]}
     
-    # Show specific test results for Google API integration
-    if "google_api_integration" in test_results:
-        result = test_results["google_api_integration"]
-        status = "✅ PASS" if result["success"] else "❌ FAIL"
-        print(f"{status}: Google API Integration")
-        if result["details"]:
-            print(f"   Details: {result['details']}")
+    if failed_tests:
+        print(f"\n❌ FAILED TESTS DETAILS:")
+        for test_name, result in failed_tests.items():
+            print(f"   - {test_name}: {result.get('details', 'No details available')}")
     
-    print_separator()
+    print(f"\n🏁 EMAIL VALIDATION TESTING COMPLETED")
+    
+    # Return success status
+    exit(0 if email_validation_result.get("success", False) else 1)
