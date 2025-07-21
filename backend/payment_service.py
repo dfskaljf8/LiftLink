@@ -250,8 +250,8 @@ class PaymentService:
                 
             account_link = stripe.AccountLink.create(
                 account=stripe_account_id,
-                refresh_url="https://your-app-domain.com/reauth",
-                return_url="https://your-app-domain.com/onboarding-success",
+                refresh_url="https://523da7e0-8e2a-470e-93ce-84d37811eda4.preview.emergentagent.com/reauth",
+                return_url="https://523da7e0-8e2a-470e-93ce-84d37811eda4.preview.emergentagent.com/onboarding-success",
                 type="account_onboarding"
             )
             
