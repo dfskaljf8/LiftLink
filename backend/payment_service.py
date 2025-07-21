@@ -319,8 +319,8 @@ class PaymentService:
                     'quantity': 1,
                 }],
                 'mode': 'payment',
-                'success_url': 'https://your-app-domain.com/success?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url': 'https://your-app-domain.com/cancel',
+                'success_url': 'https://523da7e0-8e2a-470e-93ce-84d37811eda4.preview.emergentagent.com/success?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url': 'https://523da7e0-8e2a-470e-93ce-84d37811eda4.preview.emergentagent.com/cancel',
                 'customer_email': client_email,
                 'metadata': {
                     'trainer_id': trainer_id,
