@@ -41,7 +41,7 @@ This guide will help you set up Stripe Connect so trainers can receive direct pa
 5. Copy the webhook secret and update `.env`:
 
 ```bash
-STRIPE_WEBHOOK_SECRET="whsec_1234567890abcdef..."
+STRIPE_WEBHOOK_SECRET="<YOUR_WEBHOOK_SECRET>"
 ```
 
 ### Step 3: Update Environment Variables
@@ -49,9 +49,9 @@ Replace placeholder values in `/app/backend/.env`:
 
 ```bash
 # Your actual Stripe keys
-STRIPE_SECRET_KEY="sk_test_..."  # From Stripe dashboard
-STRIPE_PUBLISHABLE_KEY="pk_test_..."  # From Stripe dashboard
-STRIPE_WEBHOOK_SECRET="whsec_..."  # From webhook configuration
+STRIPE_SECRET_KEY="<YOUR_STRIPE_SECRET_KEY>"  # From Stripe dashboard
+STRIPE_PUBLISHABLE_KEY="<YOUR_STRIPE_PUBLISHABLE_KEY>"  # From Stripe dashboard
+STRIPE_WEBHOOK_SECRET="<YOUR_WEBHOOK_SECRET>"  # From webhook configuration
 ```
 
 ## How the Flow Works
@@ -107,7 +107,7 @@ curl -X POST https://your-backend.com/api/payments/create-session-checkout \
 
 # Response:
 {
-  "checkout_session_id": "cs_test_1234...",
+  "checkout_session_id": "YOUR_CHECKOUT_SESSION_ID",
   "checkout_url": "https://checkout.stripe.com/c/pay/...",
   "amount": 7500,
   "destination_account": "acct_1234567890"
@@ -169,7 +169,7 @@ The system automatically updates your MongoDB with:
 ## Testing the Integration
 
 ### Test with Stripe Test Mode
-1. Use test API keys (sk_test_... and pk_test_...)
+1. Use test API keys (<YOUR_STRIPE_SECRET_KEY> and <YOUR_STRIPE_PUBLISHABLE_KEY>)
 2. Use test bank account numbers:
    - Routing: `110000000`
    - Account: `000123456789`

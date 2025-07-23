@@ -12,8 +12,8 @@ import {
 } from 'react-native';
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
 
-const STRIPE_PUBLISHABLE_KEY = 'pk_test_51RQ9buQiOMU12jO7dt2573L4ItnHZCDwgjX7WgfTvL0bKMbX9VD0yFrHBTxmuT3mT71wLj3wPU1QES4jehdjGye000kNGBibLs';
-const API = 'https://523da7e0-8e2a-470e-93ce-84d37811eda4.preview.emergentagent.com/api';
+const STRIPE_PUBLISHABLE_KEY = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'YOUR_STRIPE_PUBLISHABLE_KEY_HERE';
+const API = 'https://1c6587b8-a4c5-4550-aaa8-d1f1e8eabfb1.preview.emergentagent.com/api';
 
 const PaymentScreen = ({ trainer, sessionDetails, onPaymentSuccess, onCancel }) => {
   return (

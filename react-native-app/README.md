@@ -52,9 +52,9 @@ cd ..
 The app uses environment variables for configuration:
 ```bash
 # .env file contains:
-REACT_APP_BACKEND_URL=https://523da7e0-8e2a-470e-93ce-84d37811eda4.preview.emergentagent.com
-REACT_APP_STRIPE_PUBLISHABLE_KEY=pk_test_51RQ9buQiOMU12jO7dt2573L4ItnHZCDwgjX7WgfTvL0bKMbX9VD0yFrHBTxmuT3mT71wLj3wPU1QES4jehdjGye000kNGBibLs
-REACT_APP_GOOGLE_MAPS_API_KEY=AIzaSyCrwPFj7ndxmDBgVZ87KJQ5kEUf0i8BV8k
+REACT_APP_BACKEND_URL=https://1c6587b8-a4c5-4550-aaa8-d1f1e8eabfb1.preview.emergentagent.com
+REACT_APP_STRIPE_PUBLISHABLE_KEY=<YOUR_STRIPE_PUBLISHABLE_KEY>
+REACT_APP_GOOGLE_MAPS_API_KEY=<YOUR_GOOGLE_MAPS_API_KEY>
 GOOGLE_CLIENT_ID_IOS=464466068216-e1qq893h44vejoau0vddk93ev2tih0f3.apps.googleusercontent.com
 GOOGLE_CLIENT_ID_ANDROID=464466068216-4sfg6htsflfler6ri9f9hqbsvgl7n7ij.apps.googleusercontent.com
 ```
@@ -81,7 +81,7 @@ npx react-native run-ios
 ### Configuration
 The app uses Stripe for secure payment processing:
 - **Publishable Key**: Used in React Native app for client-side operations
-- **Secret Key**: Stored securely in backend environment (sk_test_51RQ9buQiOMU12jO7HXiKr2NMWRI3w7KxoMzTU1oamj8wdfzD0yNDoyawZiHYdg13DjUcLJ8vrPQM3qfaE0iNP9XI005mK407Jj)
+- **Secret Key**: Stored securely in backend environment (<YOUR_STRIPE_SECRET_KEY>)
 
 ### Payment Flow
 1. **Session Booking**: User selects trainer and session details
@@ -175,8 +175,8 @@ cd android
 ```bash
 # Production .env
 REACT_APP_BACKEND_URL=https://your-production-backend.com
-REACT_APP_STRIPE_PUBLISHABLE_KEY=pk_live_your_production_key
-REACT_APP_GOOGLE_MAPS_API_KEY=your_production_maps_key
+REACT_APP_STRIPE_PUBLISHABLE_KEY=<YOUR_PRODUCTION_KEY>
+REACT_APP_GOOGLE_MAPS_API_KEY=<YOUR_PRODUCTION_MAPS_KEY>
 ```
 
 ## 🧪 Testing

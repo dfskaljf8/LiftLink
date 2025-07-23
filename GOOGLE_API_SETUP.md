@@ -5,9 +5,9 @@
 The provided API keys need to be properly configured in Google Cloud Console to work. Here's the complete setup:
 
 ## Google API Keys Provided:
-- **Google Fit**: `AIzaSyCrwPFj7ndxmDBgVZ87KJQ5kEUf0i8BV8k`
-- **Google Calendar**: `AIzaSyDUnJlPih9aJt-5wddx-aXAXGNzLd-5fF8`
-- **Google Wallet**: `AIzaSyBczq38awE4_zNta461Augpo4M7OKHMaGA`
+- **Google Fit**: `<YOUR_GOOGLE_FIT_API_KEY>`
+- **Google Calendar**: `<YOUR_GOOGLE_CALENDAR_API_KEY>`
+- **Google Wallet**: `<YOUR_GOOGLE_WALLET_API_KEY>`
 
 ## Client IDs:
 - **iOS**: `464466068216-e1qq893h44vejoau0vddk93ev2tih0f3.apps.googleusercontent.com`
@@ -40,8 +40,8 @@ Visit [Google Cloud Console](https://console.cloud.google.com/) and enable:
    - iOS: `464466068216-e1qq893h44vejoau0vddk93ev2tih0f3.apps.googleusercontent.com`
    - Android: `464466068216-4sfg6htsflfler6ri9f9hqbsvgl7n7ij.apps.googleusercontent.com`
 3. Add authorized redirect URIs:
-   - `https://523da7e0-8e2a-470e-93ce-84d37811eda4.preview.emergentagent.com/api/google-fit/callback`
-   - `https://523da7e0-8e2a-470e-93ce-84d37811eda4.preview.emergentagent.com/api/google-calendar/callback`
+   - `https://1c6587b8-a4c5-4550-aaa8-d1f1e8eabfb1.preview.emergentagent.com/api/google-fit/callback`
+   - `https://1c6587b8-a4c5-4550-aaa8-d1f1e8eabfb1.preview.emergentagent.com/api/google-calendar/callback`
 
 ### 4. Enable Billing
 Some Google APIs require billing to be enabled:

@@ -31,6 +31,23 @@ dist/
 dist
 
 # Environment files (comprehensive coverage)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+.env.staging
+.env.development
+backend/.env
+frontend/.env
+react-native-app/.env
+
+# Private files with actual secrets
+PRIVATE_KEYS.md
+GITHUB_READY.md
+*PRIVATE*
+*private*
 
 *token.json*
 *credentials.json*

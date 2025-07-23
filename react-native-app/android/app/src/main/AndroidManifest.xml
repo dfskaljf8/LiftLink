@@ -31,7 +31,7 @@
         </activity>
         
         <!-- Stripe -->
-        <meta-data android:name="com.stripe.android.publishableKey" android:value="pk_test_51RQ9buQiOMU12jO7dt2573L4ItnHZCDwgjX7WgfTvL0bKMbX9VD0yFrHBTxmuT3mT71wLj3wPU1QES4jehdjGye000kNGBibLs"/>
+        <meta-data android:name="com.stripe.android.publishableKey" android:value="YOUR_STRIPE_PUBLISHABLE_KEY_HERE"/>
         
         <!-- Google Services -->
         <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
