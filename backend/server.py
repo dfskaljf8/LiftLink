@@ -306,6 +306,10 @@ async def login_user(request: LoginRequest):
 @api_router.post("/users", response_model=UserResponse)
 async def create_user(user: User):
     """Create new user account with verification requirement"""
+    # Validate email format
+    if not validate_email(user.email):
+        raise HTTPException(status_code=422, detail="Invalid email format")
+    
     # Check if user already exists
     existing_user = await get_user_by_email(user.email)
     if existing_user:
