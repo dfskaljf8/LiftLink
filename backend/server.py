@@ -28,6 +28,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+import re
+
+# Simple email validation function to replace EmailStr
+def validate_email(email: str) -> bool:
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(email_pattern, email) is not None
+
 # MongoDB setup
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 DB_NAME = os.environ.get('DB_NAME', 'liftlink_db')
