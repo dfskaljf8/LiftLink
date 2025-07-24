@@ -32,16 +32,10 @@ app.add_middleware(
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 DB_NAME = os.environ.get('DB_NAME', 'test_database')
 
-# Configure MongoDB client with proper Atlas SSL settings
+# Configure MongoDB client
 if "mongodb+srv://" in MONGO_URL:
-    # MongoDB Atlas connection with proper SSL configuration
-    client = AsyncIOMotorClient(
-        MONGO_URL,
-        tlsCAFile=None,
-        tlsAllowInvalidCertificates=True,
-        ssl=True,
-        ssl_cert_reqs=None
-    )
+    # MongoDB Atlas connection - simplified for IP whitelisted access
+    client = AsyncIOMotorClient(MONGO_URL)
 else:
     # Local MongoDB connection
     client = AsyncIOMotorClient(MONGO_URL)
