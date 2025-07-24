@@ -30,26 +30,17 @@ app.add_middleware(
 
 # MongoDB setup
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
-DB_NAME = os.environ.get('DB_NAME', 'test_database')
+DB_NAME = os.environ.get('DB_NAME', 'liftlink_db')
 
-# Configure MongoDB client
+# Configure MongoDB client for production
 if "mongodb+srv://" in MONGO_URL:
-    # MongoDB Atlas connection with compatible SSL settings
-    try:
-        client = AsyncIOMotorClient(
-            MONGO_URL,
-            tls=True,
-            tlsAllowInvalidCertificates=True,
-            connectTimeoutMS=30000,
-            serverSelectionTimeoutMS=30000
-        )
-        print("✅ Attempting MongoDB Atlas connection...")
-    except Exception as e:
-        print(f"❌ Atlas connection failed, falling back to local: {e}")
-        client = AsyncIOMotorClient('mongodb://localhost:27017')
-else:
-    # Local MongoDB connection
+    # MongoDB Atlas connection for production
     client = AsyncIOMotorClient(MONGO_URL)
+    print("✅ Connected to MongoDB Atlas")
+else:
+    # Local MongoDB connection for development
+    client = AsyncIOMotorClient(MONGO_URL)
+    print("✅ Connected to local MongoDB")
 
 db = client[DB_NAME]
 
