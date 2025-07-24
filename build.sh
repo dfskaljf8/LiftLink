@@ -15,6 +15,7 @@ python -m pip install --no-cache-dir --upgrade pip
 echo "📦 Installing dependencies one by one..."
 pip install --no-cache-dir fastapi==0.104.1
 pip install --no-cache-dir uvicorn==0.24.0
+pip install --no-cache-dir gunicorn==21.2.0
 pip install --no-cache-dir motor==3.3.2
 pip install --no-cache-dir pymongo==4.6.0
 pip install --no-cache-dir "pydantic==1.10.13"
@@ -28,7 +29,8 @@ pip install --no-cache-dir PyJWT==2.8.0
 echo "✅ Verifying installations..."
 python -c "import fastapi; print('✅ FastAPI:', fastapi.__version__)"
 python -c "import uvicorn; print('✅ Uvicorn:', uvicorn.__version__)"
+python -c "import gunicorn; print('✅ Gunicorn:', gunicorn.__version__)"
 python -c "import motor; print('✅ Motor installed')"
 python -c "import pydantic; print('✅ Pydantic:', pydantic.VERSION)"
 
-echo "✅ Build completed successfully - NO RUST REQUIRED!"
+echo "✅ Build completed successfully - PRODUCTION READY!"
