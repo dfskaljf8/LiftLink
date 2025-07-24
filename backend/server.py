@@ -119,7 +119,7 @@ class SessionSource(str, Enum):
 
 # Models
 class User(BaseModel):
-    email: EmailStr
+    email: str
     name: Optional[str] = None
     role: UserRole
     fitness_goals: List[FitnessGoal]
