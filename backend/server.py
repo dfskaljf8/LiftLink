@@ -135,7 +135,7 @@ class UserResponse(BaseModel):
     created_at: str
 
 class CheckUserRequest(BaseModel):
-    email: EmailStr
+    email: str
 
 class CheckUserResponse(BaseModel):
     exists: bool
