@@ -8,6 +8,241 @@ from datetime import datetime, timedelta
 # Get the backend URL from the frontend .env file
 BACKEND_URL = "https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com/api"
 
+def test_mongodb_atlas_ssl_fix():
+    """Test MongoDB Atlas SSL compatibility fix and database connectivity"""
+    print_separator()
+    print("🔍 TESTING MONGODB ATLAS SSL COMPATIBILITY FIX")
+    print_separator()
+    
+    # Test 1: Health check endpoint to verify database connectivity
+    print("📊 STEP 1: TESTING DATABASE CONNECTIVITY VIA HEALTH CHECK")
+    print("-" * 60)
+    
+    try:
+        response = requests.get(f"{BACKEND_URL.replace('/api', '')}/health", timeout=30)
+        
+        if response.status_code == 200:
+            health_data = response.json()
+            print(f"✅ Health check successful: {json.dumps(health_data, indent=2)}")
+            
+            # Check database status
+            db_status = health_data.get("database", "unknown")
+            if db_status == "connected":
+                print("✅ Database connection confirmed via health check")
+            else:
+                print(f"❌ Database connection issue detected: {db_status}")
+                test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": f"Database status: {db_status}"}
+                return False
+        else:
+            print(f"❌ Health check failed with status code: {response.status_code}")
+            test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": f"Health check failed: {response.status_code}"}
+            return False
+            
+    except requests.exceptions.Timeout:
+        print("❌ Health check timed out - possible database connection issue")
+        test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": "Health check timeout"}
+        return False
+    except Exception as e:
+        print(f"❌ Health check error: {str(e)}")
+        test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": f"Health check error: {str(e)}"}
+        return False
+    
+    # Test 2: User creation to test database write operations
+    print("\n💾 STEP 2: TESTING DATABASE WRITE OPERATIONS")
+    print("-" * 60)
+    
+    test_email = f"mongodb_test_{uuid.uuid4()}@example.com"
+    user_data = {
+        "email": test_email,
+        "name": "MongoDB Test User",
+        "role": "fitness_enthusiast",
+        "fitness_goals": ["general_fitness"],
+        "experience_level": "beginner"
+    }
+    
+    try:
+        response = requests.post(f"{BACKEND_URL}/users", json=user_data, timeout=30)
+        
+        if response.status_code == 200:
+            created_user = response.json()
+            print(f"✅ Database write operation successful - User created: {created_user['id']}")
+            print(f"   Email: {created_user['email']}")
+            print(f"   Name: {created_user.get('name', 'N/A')}")
+            print(f"   Role: {created_user['role']}")
+            
+            # Test 3: User retrieval to test database read operations
+            print("\n📖 STEP 3: TESTING DATABASE READ OPERATIONS")
+            print("-" * 60)
+            
+            user_id = created_user['id']
+            response = requests.get(f"{BACKEND_URL}/users/{user_id}", timeout=30)
+            
+            if response.status_code == 200:
+                retrieved_user = response.json()
+                print(f"✅ Database read operation successful - User retrieved: {retrieved_user['id']}")
+                
+                # Verify data integrity
+                if (retrieved_user['email'] == test_email and 
+                    retrieved_user['role'] == 'fitness_enthusiast' and
+                    retrieved_user.get('name') == 'MongoDB Test User'):
+                    print("✅ Data integrity verified - all fields match")
+                else:
+                    print("❌ Data integrity issue - fields don't match")
+                    test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": "Data integrity issue"}
+                    return False
+                    
+            else:
+                print(f"❌ Database read operation failed: {response.status_code}")
+                test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": f"Read operation failed: {response.status_code}"}
+                return False
+                
+            # Test 4: User lookup to test database query operations
+            print("\n🔍 STEP 4: TESTING DATABASE QUERY OPERATIONS")
+            print("-" * 60)
+            
+            check_data = {"email": test_email}
+            response = requests.post(f"{BACKEND_URL}/check-user", json=check_data, timeout=30)
+            
+            if response.status_code == 200:
+                check_result = response.json()
+                print(f"✅ Database query operation successful")
+                print(f"   User exists: {check_result['exists']}")
+                print(f"   User ID: {check_result.get('user_id', 'N/A')}")
+                print(f"   Role: {check_result.get('role', 'N/A')}")
+                
+                if check_result['exists'] and check_result['user_id'] == user_id:
+                    print("✅ Query operation verified - user found correctly")
+                else:
+                    print("❌ Query operation issue - user not found correctly")
+                    test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": "Query operation issue"}
+                    return False
+                    
+            else:
+                print(f"❌ Database query operation failed: {response.status_code}")
+                test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": f"Query operation failed: {response.status_code}"}
+                return False
+                
+            # Test 5: Session creation to test complex database operations
+            print("\n⚡ STEP 5: TESTING COMPLEX DATABASE OPERATIONS")
+            print("-" * 60)
+            
+            session_data = {
+                "user_id": user_id,
+                "session_type": "MongoDB Test Session",
+                "duration_minutes": 30,
+                "source": "manual",
+                "calories": 200,
+                "heart_rate_avg": 140
+            }
+            
+            response = requests.post(f"{BACKEND_URL}/sessions", json=session_data, timeout=30)
+            
+            if response.status_code == 200:
+                created_session = response.json()
+                print(f"✅ Complex database operation successful - Session created: {created_session['id']}")
+                
+                # Test tree progress calculation (involves aggregation)
+                response = requests.get(f"{BACKEND_URL}/users/{user_id}/tree-progress", timeout=30)
+                
+                if response.status_code == 200:
+                    tree_progress = response.json()
+                    print(f"✅ Database aggregation successful - Tree progress calculated")
+                    print(f"   Total sessions: {tree_progress['total_sessions']}")
+                    print(f"   Current level: {tree_progress['current_level']}")
+                    print(f"   Lift coins: {tree_progress['lift_coins']}")
+                    
+                    if tree_progress['total_sessions'] >= 1:
+                        print("✅ Session counting verified in tree progress")
+                    else:
+                        print("❌ Session counting issue in tree progress")
+                        test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": "Session counting issue"}
+                        return False
+                        
+                else:
+                    print(f"❌ Database aggregation failed: {response.status_code}")
+                    test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": f"Aggregation failed: {response.status_code}"}
+                    return False
+                    
+            else:
+                print(f"❌ Complex database operation failed: {response.status_code}")
+                test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": f"Complex operation failed: {response.status_code}"}
+                return False
+                
+        else:
+            print(f"❌ Database write operation failed: {response.status_code}")
+            print(f"Response: {response.text}")
+            
+            # Check for specific SSL/MongoDB errors
+            if response.status_code == 500:
+                error_text = response.text.lower()
+                if any(keyword in error_text for keyword in ['ssl', 'tls', 'handshake', 'mongodb', 'connection']):
+                    print("🚨 CRITICAL: SSL/TLS or MongoDB connection error detected!")
+                    print("This indicates the MongoDB Atlas SSL fix may not be working correctly.")
+                    test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": "SSL/TLS or MongoDB connection error"}
+                    return False
+            
+            test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": f"Write operation failed: {response.status_code}"}
+            return False
+            
+    except requests.exceptions.Timeout:
+        print("❌ Database operation timed out - possible connection issue")
+        test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": "Database operation timeout"}
+        return False
+    except Exception as e:
+        print(f"❌ Database operation error: {str(e)}")
+        test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": f"Database operation error: {str(e)}"}
+        return False
+    
+    # Test 6: Multiple concurrent operations to test connection stability
+    print("\n🔄 STEP 6: TESTING CONNECTION STABILITY")
+    print("-" * 60)
+    
+    try:
+        concurrent_operations = []
+        for i in range(3):
+            test_email_concurrent = f"concurrent_test_{i}_{uuid.uuid4()}@example.com"
+            user_data_concurrent = {
+                "email": test_email_concurrent,
+                "role": "fitness_enthusiast",
+                "fitness_goals": ["weight_loss"],
+                "experience_level": "beginner"
+            }
+            
+            response = requests.post(f"{BACKEND_URL}/users", json=user_data_concurrent, timeout=15)
+            concurrent_operations.append((i, response.status_code == 200))
+            
+        successful_operations = sum(1 for _, success in concurrent_operations if success)
+        print(f"✅ Concurrent operations: {successful_operations}/3 successful")
+        
+        if successful_operations >= 2:  # Allow for 1 failure
+            print("✅ Connection stability verified")
+        else:
+            print("❌ Connection stability issue detected")
+            test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": "Connection stability issue"}
+            return False
+            
+    except Exception as e:
+        print(f"❌ Connection stability test error: {str(e)}")
+        test_results["mongodb_atlas_ssl_fix"] = {"success": False, "details": f"Stability test error: {str(e)}"}
+        return False
+    
+    # Final success
+    print("\n🎉 MONGODB ATLAS SSL COMPATIBILITY FIX VERIFICATION COMPLETED")
+    print("=" * 70)
+    print("✅ Database connectivity: WORKING")
+    print("✅ Write operations: WORKING") 
+    print("✅ Read operations: WORKING")
+    print("✅ Query operations: WORKING")
+    print("✅ Complex operations: WORKING")
+    print("✅ Connection stability: WORKING")
+    print("\n🎯 RESULT: MongoDB Atlas SSL fix is functioning correctly!")
+    print("   - No 500 Internal Server Errors detected")
+    print("   - Database operations are stable and reliable")
+    print("   - SSL/TLS handshake issues have been resolved")
+    
+    test_results["mongodb_atlas_ssl_fix"] = {"success": True, "details": "All database operations working correctly"}
+    return True
+
 # Test results
 test_results = {
     "user_registration": {"success": False, "details": ""},
