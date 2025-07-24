@@ -143,7 +143,7 @@ class CheckUserResponse(BaseModel):
     role: Optional[str] = None
 
 class LoginRequest(BaseModel):
-    email: EmailStr
+    email: str
 
 class Session(BaseModel):
     user_id: str
