@@ -245,6 +245,10 @@ def calculate_progress_percentage(current_level: TreeLevel, score: int) -> float
 @api_router.post("/check-user", response_model=CheckUserResponse)
 async def check_user_exists(request: CheckUserRequest):
     """Check if a user exists by email for smart authentication routing"""
+    # Validate email format
+    if not validate_email(request.email):
+        raise HTTPException(status_code=422, detail="Invalid email format")
+    
     user = await get_user_by_email(request.email)
     if user:
         user_role = user["role"].value if hasattr(user["role"], 'value') else user["role"]
