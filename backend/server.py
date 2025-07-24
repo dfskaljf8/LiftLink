@@ -1283,6 +1283,15 @@ app.include_router(api_router, prefix="/api")
 async def root():
     return {"message": "LiftLink API is running! 🚀 Enhanced with Fitness Integration"}
 
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "healthy",
+        "message": "LiftLink API is operational",
+        "database": "connected" if db else "disconnected",
+        "timestamp": datetime.now().isoformat()
+    }
+
 if __name__ == "__main__":
     import uvicorn
     import os
