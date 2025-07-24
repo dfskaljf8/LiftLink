@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+motor
+pymongo
+pydantic==1.10.13
+python-multipart
+stripe
+httpx
+python-dotenv
