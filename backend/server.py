@@ -34,18 +34,18 @@ DB_NAME = os.environ.get('DB_NAME', 'test_database')
 
 # Configure MongoDB client
 if "mongodb+srv://" in MONGO_URL:
-    # MongoDB Atlas connection with legacy SSL for compatibility
+    # MongoDB Atlas connection with compatible SSL settings
     try:
         client = AsyncIOMotorClient(
             MONGO_URL,
             tls=True,
             tlsAllowInvalidCertificates=True,
-            tlsInsecure=True,
             connectTimeoutMS=30000,
             serverSelectionTimeoutMS=30000
         )
+        print("✅ Attempting MongoDB Atlas connection...")
     except Exception as e:
-        print(f"Atlas connection failed, falling back to local: {e}")
+        print(f"❌ Atlas connection failed, falling back to local: {e}")
         client = AsyncIOMotorClient('mongodb://localhost:27017')
 else:
     # Local MongoDB connection
