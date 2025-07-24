@@ -250,8 +250,8 @@ class PaymentService:
                 
             account_link = stripe.AccountLink.create(
                 account=stripe_account_id,
-                refresh_url="https://1c6587b8-a4c5-4550-aaa8-d1f1e8eabfb1.preview.emergentagent.com/reauth",
-                return_url="https://1c6587b8-a4c5-4550-aaa8-d1f1e8eabfb1.preview.emergentagent.com/onboarding-success",
+                refresh_url="https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com/reauth",
+                return_url="https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com/onboarding-success",
                 type="account_onboarding"
             )
             
@@ -319,8 +319,8 @@ class PaymentService:
                     'quantity': 1,
                 }],
                 'mode': 'payment',
-                'success_url': 'https://1c6587b8-a4c5-4550-aaa8-d1f1e8eabfb1.preview.emergentagent.com/success?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url': 'https://1c6587b8-a4c5-4550-aaa8-d1f1e8eabfb1.preview.emergentagent.com/cancel',
+                'success_url': 'https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com/success?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url': 'https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com/cancel',
                 'customer_email': client_email,
                 'metadata': {
                     'trainer_id': trainer_id,

@@ -52,7 +52,7 @@ cd ..
 The app uses environment variables for configuration:
 ```bash
 # .env file contains:
-REACT_APP_BACKEND_URL=https://1c6587b8-a4c5-4550-aaa8-d1f1e8eabfb1.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com
 REACT_APP_STRIPE_PUBLISHABLE_KEY=<YOUR_STRIPE_PUBLISHABLE_KEY>
 REACT_APP_GOOGLE_MAPS_API_KEY=<YOUR_GOOGLE_MAPS_API_KEY>
 GOOGLE_CLIENT_ID_IOS=464466068216-e1qq893h44vejoau0vddk93ev2tih0f3.apps.googleusercontent.com

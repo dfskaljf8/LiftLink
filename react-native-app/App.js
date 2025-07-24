@@ -39,7 +39,7 @@ import NativeAppStyles, { colors } from './src/styles/AppStyles';
 
 // Constants
 const { width, height } = Dimensions.get('window');
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://1c6587b8-a4c5-4550-aaa8-d1f1e8eabfb1.preview.emergentagent.com';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com';
 const API = `${BACKEND_URL}/api`;
 const STRIPE_PUBLISHABLE_KEY = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'YOUR_STRIPE_PUBLISHABLE_KEY_HERE';
 

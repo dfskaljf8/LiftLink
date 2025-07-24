@@ -10,7 +10,7 @@ import base64
 from datetime import datetime
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://1c6587b8-a4c5-4550-aaa8-d1f1e8eabfb1.preview.emergentagent.com/api"
+BACKEND_URL = "https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com/api"
 
 # Test results tracking
 verification_test_results = {
