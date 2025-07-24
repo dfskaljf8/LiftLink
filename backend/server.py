@@ -32,17 +32,44 @@ app.add_middleware(
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 DB_NAME = os.environ.get('DB_NAME', 'liftlink_db')
 
-# Configure MongoDB client for production
-if "mongodb+srv://" in MONGO_URL:
-    # MongoDB Atlas connection for production
-    client = AsyncIOMotorClient(MONGO_URL)
-    print("✅ Connected to MongoDB Atlas")
-else:
-    # Local MongoDB connection for development
-    client = AsyncIOMotorClient(MONGO_URL)
-    print("✅ Connected to local MongoDB")
+# Configure MongoDB client with Atlas fallback to local
+client = None
+db = None
 
-db = client[DB_NAME]
+async def connect_mongodb():
+    global client, db
+    
+    if "mongodb+srv://" in MONGO_URL:
+        # Try MongoDB Atlas connection first
+        try:
+            print("✅ Attempting MongoDB Atlas connection...")
+            atlas_client = AsyncIOMotorClient(MONGO_URL, serverSelectionTimeoutMS=10000)
+            # Test the connection
+            await atlas_client.admin.command('ismaster')
+            client = atlas_client
+            db = client[DB_NAME]
+            print("✅ Connected to MongoDB Atlas")
+            return
+        except Exception as e:
+            print(f"Atlas connection failed, falling back to local: {e}")
+    
+    # Fallback to local MongoDB
+    try:
+        print("⚡ Connecting to local MongoDB...")
+        local_client = AsyncIOMotorClient('mongodb://localhost:27017')
+        # Test the connection
+        await local_client.admin.command('ismaster')
+        client = local_client
+        db = client[DB_NAME]
+        print("✅ Connected to local MongoDB")
+    except Exception as e:
+        print(f"❌ Failed to connect to both Atlas and local MongoDB: {e}")
+        raise
+
+# Initialize MongoDB connection at startup
+@app.on_event("startup")
+async def startup_event():
+    await connect_mongodb()
 
 # API Router
 from fastapi import APIRouter
