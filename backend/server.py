@@ -258,6 +258,10 @@ async def check_user_exists(request: CheckUserRequest):
 @api_router.post("/login", response_model=UserResponse)
 async def login_user(request: LoginRequest):
     """Sign in existing user with verification check"""
+    # Validate email format
+    if not validate_email(request.email):
+        raise HTTPException(status_code=422, detail="Invalid email format")
+    
     user = await get_user_by_email(request.email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
