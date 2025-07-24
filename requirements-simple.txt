@@ -1,0 +1,9 @@
+fastapi==0.95.2
+uvicorn==0.20.0
+motor==3.1.2
+pymongo==4.3.3
+pydantic==1.10.8
+python-multipart==0.0.6
+stripe==5.5.0
+httpx==0.24.1
+python-dotenv==1.0.0
