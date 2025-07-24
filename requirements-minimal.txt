@@ -1,5 +1,6 @@
 fastapi
 uvicorn
+gunicorn
 motor
 pymongo
 pydantic==1.10.13
