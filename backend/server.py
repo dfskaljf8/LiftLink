@@ -493,32 +493,55 @@ async def google_fit_login():
         raise HTTPException(status_code=500, detail="Google Fit authentication failed")
 
 @api_router.get("/google-fit/callback")
-async def google_fit_callback(code: str, user_id: str = None):
-    """Handle Google Fit OAuth callback with proper error handling"""
+async def google_fit_callback(code: str, state: str = None):
+    """Handle Google Fit OAuth callback with real token exchange"""
     try:
-        print(f"🔄 Google Fit callback received - Code: {code[:10]}... User: {user_id}")
+        print(f"🔄 Google Fit callback received - Code: {code[:10]}...")
         
-        # For now, simulate successful connection until Google Cloud Console is configured
-        if user_id:
-            await db.users.update_one(
-                {"id": user_id},
-                {"$set": {
-                    "google_fit_connected": True,
-                    "google_fit_mock_mode": True,
-                    "last_sync": datetime.now().isoformat()
-                }}
-            )
-            print(f"✅ Google Fit mock connection successful for user {user_id}")
+        # Exchange authorization code for access token
+        token_url = "https://oauth2.googleapis.com/token"
+        redirect_uri = f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/google-fit/callback"
         
-        return {
-            "message": "Google Fit connected successfully (mock mode)",
-            "status": "connected",
-            "mock_mode": True
+        token_data = {
+            "client_id": GOOGLE_CLIENT_ID_IOS,
+            "client_secret": GOOGLE_FIT_CLIENT_SECRET,
+            "code": code,
+            "grant_type": "authorization_code",
+            "redirect_uri": redirect_uri
         }
         
+        async with httpx.AsyncClient() as client:
+            token_response = await client.post(token_url, data=token_data)
+            
+            if token_response.status_code == 200:
+                token_info = token_response.json()
+                access_token = token_info.get("access_token")
+                refresh_token = token_info.get("refresh_token")
+                
+                print(f"✅ Google Fit OAuth successful - Access token obtained")
+                
+                # Store tokens securely (implement user association as needed)
+                return {
+                    "message": "Google Fit connected successfully",
+                    "status": "connected",
+                    "oauth_mode": True,
+                    "has_access_token": bool(access_token),
+                    "has_refresh_token": bool(refresh_token)
+                }
+            else:
+                print(f"❌ Token exchange failed: {token_response.status_code}")
+                return {
+                    "message": "Google Fit connection failed - token exchange error",
+                    "status": "error",
+                    "error_code": token_response.status_code
+                }
+                
     except Exception as e:
         print(f"❌ Google Fit callback error: {e}")
-        raise HTTPException(status_code=500, detail="Google Fit connection failed")
+        return {
+            "message": f"Google Fit connection failed: {str(e)}",
+            "status": "error"
+        }
 
 @api_router.post("/sync/workouts")
 async def sync_fitness_data(request: dict):
