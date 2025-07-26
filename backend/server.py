@@ -468,16 +468,24 @@ async def google_fit_login():
             print("⚠️  Google Fit API key not configured")
             raise HTTPException(status_code=501, detail="Google Fit integration not configured")
         
-        # For now, return a mock response until Google Cloud Console is properly configured
-        print("🔑 Google Fit API key present, but needs Google Cloud Console configuration")
+        # Real OAuth URL with proper redirect URI
+        redirect_uri = f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/google-fit/callback"
         
-        # Mock successful auth for testing
-        mock_auth_url = f"https://accounts.google.com/o/oauth2/auth?client_id={GOOGLE_CLIENT_ID_IOS}&response_type=code&scope=fitness.activity.read"
+        auth_url = (
+            f"https://accounts.google.com/o/oauth2/auth?"
+            f"client_id={GOOGLE_CLIENT_ID_IOS}&"
+            f"response_type=code&"
+            f"scope=https://www.googleapis.com/auth/fitness.activity.read&"
+            f"redirect_uri={redirect_uri}&"
+            f"access_type=offline"
+        )
+        
+        print(f"🔑 Google Fit OAuth URL generated: {auth_url}")
         
         return {
-            "authorization_url": mock_auth_url,
-            "status": "mock_auth",
-            "message": "Google Fit authentication (mock mode - requires Google Cloud Console setup)"
+            "authorization_url": auth_url,
+            "status": "oauth_ready",
+            "message": "Google Fit authentication ready - redirect to authorization_url"
         }
         
     except Exception as e:
