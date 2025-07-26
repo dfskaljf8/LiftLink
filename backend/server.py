@@ -1377,7 +1377,7 @@ async def health_check():
     return {
         "status": "healthy",
         "message": "LiftLink API is operational",
-        "database": "connected" if db else "disconnected",
+        "database": "connected" if db is not None else "disconnected",
         "timestamp": datetime.now().isoformat()
     }
 
