@@ -159,7 +159,10 @@ class CheckUserResponse(BaseModel):
     role: Optional[str] = None
 
 class LoginRequest(BaseModel):
-    email: str
+    email: str = Field(..., description="User email address")
+    
+    class Config:
+        use_enum_values = True
 
 class Session(BaseModel):
     user_id: str
