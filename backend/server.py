@@ -148,7 +148,10 @@ class UserResponse(BaseModel):
         use_enum_values = True
 
 class CheckUserRequest(BaseModel):
-    email: str
+    email: str = Field(..., description="User email address")
+    
+    class Config:
+        use_enum_values = True
 
 class CheckUserResponse(BaseModel):
     exists: bool
