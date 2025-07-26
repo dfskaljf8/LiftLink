@@ -137,12 +137,15 @@ class User(BaseModel):
 
 class UserResponse(BaseModel):
     id: str
-    email: str
+    email: str = Field(..., description="User email address")
     name: Optional[str] = None
     role: str
     fitness_goals: List[str]
     experience_level: str
     created_at: str
+    
+    class Config:
+        use_enum_values = True
 
 class CheckUserRequest(BaseModel):
     email: str
