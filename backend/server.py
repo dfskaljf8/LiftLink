@@ -126,11 +126,14 @@ class SessionSource(str, Enum):
 
 # Models
 class User(BaseModel):
-    email: str
+    email: str = Field(..., description="User email address")
     name: Optional[str] = None
     role: UserRole
     fitness_goals: List[FitnessGoal]
     experience_level: ExperienceLevel
+    
+    class Config:
+        use_enum_values = True
 
 class UserResponse(BaseModel):
     id: str
