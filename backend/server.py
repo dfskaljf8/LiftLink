@@ -866,10 +866,38 @@ async def get_pending_checkins(user_id: str):
         return []
 
 @api_router.post("/sessions/{session_id}/request-checkin")
-async def request_checkin(session_id: str):
+async def request_checkin(session_id: str, request: dict):
     """Request check-in from trainer for a session"""
-    # Mock check-in request - in real app, this would notify the trainer
-    return {"message": "Check-in request sent to trainer"}
+    try:
+        user_id = request.get("user_id")
+        if not user_id:
+            raise HTTPException(status_code=400, detail="User ID is required")
+        
+        # Get session details
+        session = await db.sessions.find_one({"id": session_id})
+        if not session:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        # Create check-in request
+        checkin_request = {
+            "id": generate_id(),
+            "session_id": session_id,
+            "user_id": user_id,
+            "trainer_id": session.get("trainer_id"),
+            "session_type": session.get("session_type", "Personal Training"),
+            "status": "pending",
+            "created_at": datetime.now().isoformat()
+        }
+        
+        await db.checkin_requests.insert_one(checkin_request)
+        
+        # TODO: In production, send push notification to trainer
+        
+        return {"message": "Check-in request sent to trainer", "request_id": checkin_request["id"]}
+        
+    except Exception as e:
+        print(f"❌ Error creating check-in request: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send check-in request")
 
 # Tree progress calculation with enhanced tracking
 @api_router.get("/users/{user_id}/tree-progress", response_model=TreeProgress)
