@@ -813,15 +813,30 @@ async def get_user_sessions(user_id: str):
 @api_router.get("/users/{user_id}/upcoming-sessions")
 async def get_upcoming_sessions(user_id: str):
     """Get upcoming scheduled sessions for a user"""
-    # Mock upcoming sessions - in real app, this would query scheduled sessions
-    return [
-        {
-            "id": "upcoming_1",
-            "session_type": "Personal Training",
-            "scheduled_time": (datetime.now() + timedelta(hours=2)).isoformat(),
-            "trainer_name": "Sarah Johnson"
-        }
-    ]
+    try:
+        # Query actual upcoming sessions from database
+        upcoming_sessions_cursor = db.scheduled_sessions.find({
+            "user_id": user_id,
+            "scheduled_time": {"$gt": datetime.now().isoformat()},
+            "status": {"$in": ["confirmed", "pending"]}
+        }).sort([("scheduled_time", 1)])
+        
+        sessions = await upcoming_sessions_cursor.to_list(length=10)  # Limit to next 10 sessions
+        
+        return [
+            {
+                "id": session["id"],
+                "session_type": session.get("session_type", "Personal Training"),
+                "scheduled_time": session["scheduled_time"],
+                "trainer_name": session.get("trainer_name", "Professional Trainer"),
+                "status": session.get("status", "confirmed")
+            }
+            for session in sessions
+        ]
+        
+    except Exception as e:
+        print(f"❌ Error fetching upcoming sessions: {e}")
+        return []
 
 @api_router.get("/users/{user_id}/pending-checkins")
 async def get_pending_checkins(user_id: str):
