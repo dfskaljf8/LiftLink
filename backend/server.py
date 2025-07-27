@@ -841,8 +841,29 @@ async def get_upcoming_sessions(user_id: str):
 @api_router.get("/users/{user_id}/pending-checkins")
 async def get_pending_checkins(user_id: str):
     """Get pending check-in requests for a user"""
-    # Mock pending check-ins - in real app, this would query pending requests
-    return []
+    try:
+        # Query actual pending check-ins from database
+        pending_checkins_cursor = db.checkin_requests.find({
+            "user_id": user_id,
+            "status": "pending"
+        }).sort([("created_at", -1)])
+        
+        checkins = await pending_checkins_cursor.to_list(length=20)
+        
+        return [
+            {
+                "id": checkin["id"],
+                "session_id": checkin["session_id"],
+                "trainer_name": checkin.get("trainer_name", "Professional Trainer"),
+                "session_type": checkin.get("session_type", "Personal Training"),
+                "requested_at": checkin.get("created_at", datetime.now().isoformat())
+            }
+            for checkin in checkins
+        ]
+        
+    except Exception as e:
+        print(f"❌ Error fetching pending check-ins: {e}")
+        return []
 
 @api_router.post("/sessions/{session_id}/request-checkin")
 async def request_checkin(session_id: str):
