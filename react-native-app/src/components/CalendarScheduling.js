@@ -59,16 +59,8 @@ const CalendarScheduling = ({ user, visible, onClose, trainer }) => {
       setAvailableSlots(response.data.available_slots || []);
     } catch (error) {
       console.error('Error fetching available slots:', error);
-      // Mock available slots
-      setAvailableSlots([
-        { time: '09:00', available: true },
-        { time: '10:00', available: false },
-        { time: '11:00', available: true },
-        { time: '14:00', available: true },
-        { time: '15:00', available: true },
-        { time: '16:00', available: false },
-        { time: '17:00', available: true }
-      ]);
+      // Set empty array if no slots available
+      setAvailableSlots([]);
     } finally {
       setLoading(false);
     }
