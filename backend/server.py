@@ -725,6 +725,43 @@ async def create_mock_workouts(user_id: str) -> int:
     
     return synced_count
 
+async def create_fallback_workouts(user_id: str) -> int:
+    """Create fallback workouts when Google Fit is not available"""
+    # Only create fallback data if absolutely no workout data exists
+    existing_sessions = await db.sessions.find({"user_id": user_id}).limit(1).to_list(length=1)
+    
+    if existing_sessions:
+        return 0  # Don't create fallback data if user already has sessions
+    
+    fallback_workouts = [
+        {
+            "activity_type": "Fitness Session",
+            "duration": 30,
+            "calories": 200,
+            "date": datetime.now().isoformat(),
+        }
+    ]
+    
+    synced_count = 0
+    
+    # Create sessions from fallback data only if needed
+    for workout in fallback_workouts:
+        session_id = generate_id()
+        session_doc = {
+            "id": session_id,
+            "user_id": user_id,
+            "session_type": workout["activity_type"],
+            "duration_minutes": workout["duration"],
+            "calories": workout["calories"],
+            "source": "system_generated",
+            "created_at": workout["date"]
+        }
+        
+        await db.sessions.insert_one(session_doc)
+        synced_count += 1
+    
+    return synced_count
+
 @api_router.get("/fitness/data/{user_id}", response_model=FitnessData)
 async def get_fitness_data(user_id: str):
     """Get fitness data and statistics"""
