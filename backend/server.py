@@ -251,6 +251,44 @@ def calculate_progress_percentage(current_level: TreeLevel, score: int) -> float
     progress = ((score - current_min) / (next_min - current_min)) * 100
     return max(0.0, min(100.0, progress))
 
+def calculate_consistency_streak(recent_sessions: list) -> int:
+    """Calculate consistency streak based on recent session activity"""
+    if not recent_sessions:
+        return 0
+    
+    # Sort sessions by date (most recent first)
+    sorted_sessions = sorted(recent_sessions, 
+                           key=lambda x: datetime.fromisoformat(x.get("created_at", "2024-01-01T00:00:00")), 
+                           reverse=True)
+    
+    # Calculate streak by checking consecutive days with sessions
+    streak = 0
+    current_date = datetime.now().date()
+    
+    # Group sessions by date
+    sessions_by_date = {}
+    for session in sorted_sessions:
+        session_date = datetime.fromisoformat(session.get("created_at", "2024-01-01T00:00:00")).date()
+        if session_date not in sessions_by_date:
+            sessions_by_date[session_date] = []
+        sessions_by_date[session_date].append(session)
+    
+    # Check for consecutive days starting from today
+    check_date = current_date
+    while check_date in sessions_by_date:
+        streak += 1
+        check_date -= timedelta(days=1)
+    
+    # If no session today, check if there was one yesterday to start the streak
+    if streak == 0 and (current_date - timedelta(days=1)) in sessions_by_date:
+        streak = 1
+        check_date = current_date - timedelta(days=2)
+        while check_date in sessions_by_date:
+            streak += 1
+            check_date -= timedelta(days=1)
+    
+    return min(streak, 30)  # Cap at 30 days maximum streak
+
 # API Routes
 
 # User authentication and management
