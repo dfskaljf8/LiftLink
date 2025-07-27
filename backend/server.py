@@ -1115,39 +1115,47 @@ async def get_trainer_earnings(trainer_id: str):
 @api_router.get("/trainer/{trainer_id}/reviews")
 async def get_trainer_reviews(trainer_id: str):
     """Get trainer reviews"""
-    # Mock reviews data
-    mock_reviews = [
-        {
-            "id": "review_001",
-            "client_name": "John D.",
-            "rating": 5,
-            "comment": "Excellent trainer! Really helped me achieve my fitness goals.",
-            "date": "2025-01-05",
-            "session_type": "Personal Training"
-        },
-        {
-            "id": "review_002",
-            "client_name": "Sarah M.",
-            "rating": 4,
-            "comment": "Great workout sessions, very motivating and professional.",
-            "date": "2025-01-03",
-            "session_type": "Group Fitness"
-        },
-        {
-            "id": "review_003",
-            "client_name": "Mike L.",
-            "rating": 5,
-            "comment": "Amazing nutrition advice, lost 10 pounds in 2 months!",
-            "date": "2024-12-28",
-            "session_type": "Nutrition Consultation"
+    try:
+        # Query real reviews from database
+        reviews_cursor = db.trainer_reviews.find({"trainer_id": trainer_id})
+        reviews = await reviews_cursor.to_list(length=None)
+        
+        if not reviews:
+            return {
+                "reviews": [],
+                "avg_rating": 5.0,
+                "total_reviews": 0
+            }
+        
+        # Calculate average rating
+        total_rating = sum(review.get("rating", 5) for review in reviews)
+        avg_rating = total_rating / len(reviews) if reviews else 5.0
+        
+        # Format reviews for response
+        formatted_reviews = []
+        for review in reviews:
+            formatted_reviews.append({
+                "id": review["id"],
+                "client_name": review.get("client_name", "Anonymous"),
+                "rating": review.get("rating", 5),
+                "comment": review.get("comment", ""),
+                "date": review.get("created_at", datetime.now().isoformat()),
+                "session_type": review.get("session_type", "Personal Training")
+            })
+        
+        return {
+            "reviews": formatted_reviews,
+            "avg_rating": avg_rating,
+            "total_reviews": len(reviews)
         }
-    ]
-    
-    return {
-        "reviews": mock_reviews,
-        "avg_rating": 4.7,
-        "total_reviews": len(mock_reviews)
-    }
+        
+    except Exception as e:
+        print(f"❌ Error fetching trainer reviews: {e}")
+        return {
+            "reviews": [],
+            "avg_rating": 5.0,
+            "total_reviews": 0
+        }
 
 @api_router.post("/trainer/{trainer_id}/reviews/{review_id}/respond")
 async def respond_to_review(trainer_id: str, review_id: str, response: dict):
