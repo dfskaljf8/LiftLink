@@ -28,7 +28,7 @@ const APPLE_REVIEW_CREDENTIALS = {
     age_verified: true,
     certification_verified: true,
     created_at: '2024-01-01T00:00:00Z',
-    // Mock data for demo
+    // Demo user data for Apple Review process
     tree_progress: {
       current_level: 'young_tree',
       total_sessions: 12,
