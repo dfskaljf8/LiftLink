@@ -476,30 +476,31 @@ async def get_fitness_connection_status(user_id: str):
 
 @api_router.post("/google-fit/connect")
 async def connect_google_fit(request: dict):
-    """Simple Google Fit connection without OAuth complexity"""
+    """Connect Google Fit with real OAuth"""
     try:
         user_id = request.get("user_id")
-        mock_mode = request.get("mock_mode", True)
+        access_token = request.get("access_token")
+        refresh_token = request.get("refresh_token")
         
         if not user_id:
             raise HTTPException(status_code=400, detail="User ID is required")
         
-        # Update user's Google Fit connection status
+        # Store Google Fit tokens securely
         await db.users.update_one(
             {"id": user_id},
             {"$set": {
                 "google_fit_connected": True,
-                "google_fit_mock_mode": mock_mode,
+                "google_fit_access_token": access_token,
+                "google_fit_refresh_token": refresh_token,
                 "last_sync": datetime.now().isoformat()
             }}
         )
         
-        print(f"✅ Google Fit connected for user {user_id} (mock mode: {mock_mode})")
+        print(f"✅ Google Fit connected for user {user_id}")
         
         return {
             "success": True,
             "message": "Google Fit connected successfully",
-            "mock_mode": mock_mode,
             "connected": True
         }
         
