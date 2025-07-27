@@ -945,8 +945,12 @@ async def get_tree_progress(user_id: str):
     
     total_sessions = len(sessions)
     
-    # Calculate consistency streak (mock calculation)
-    consistency_streak = min(total_sessions, 7)  # Simple mock
+    # Calculate consistency streak based on recent activity
+    recent_sessions = [s for s in sessions if 
+                      datetime.fromisoformat(s.get("created_at", "2024-01-01T00:00:00")) > 
+                      (datetime.now() - timedelta(days=30))]
+    
+    consistency_streak = calculate_consistency_streak(recent_sessions)
     
     # Calculate tree level and progress
     current_level = calculate_tree_level(total_sessions, consistency_streak)
