@@ -88,8 +88,7 @@ const GoogleFitIntegration = ({ user }) => {
       const response = await axios.post(`${API}/google-fit/connect`, {
         user_id: user.id,
         access_token: userInfo.accessToken,
-        refresh_token: userInfo.refreshToken,
-        mock_mode: true // Using mock mode for now
+        refresh_token: userInfo.refreshToken
       });
 
       if (response.data.success) {
