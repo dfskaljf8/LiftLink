@@ -686,45 +686,6 @@ async def process_google_fit_activities(user_id: str, data: dict):
                 
                 await db.sessions.insert_one(session_doc)
 
-async def create_mock_workouts(user_id: str) -> int:
-    """Create mock workouts when Google Fit is not available"""
-    mock_workouts = [
-        {
-            "activity_type": "Running",
-            "duration": 30,
-            "calories": 250,
-            "date": datetime.now().isoformat(),
-            "source": SessionSource.GOOGLE_FIT
-        },
-        {
-            "activity_type": "Weight Training",
-            "duration": 45,
-            "calories": 180,
-            "date": (datetime.now() - timedelta(days=1)).isoformat(),
-            "source": SessionSource.GOOGLE_FIT
-        }
-    ]
-    
-    synced_count = 0
-    
-    # Create sessions from mock data
-    for workout in mock_workouts:
-        session_id = generate_id()
-        session_doc = {
-            "id": session_id,
-            "user_id": user_id,
-            "session_type": workout["activity_type"],
-            "duration_minutes": workout["duration"],
-            "calories": workout["calories"],
-            "source": workout["source"].value,
-            "created_at": workout["date"]
-        }
-        
-        await db.sessions.insert_one(session_doc)
-        synced_count += 1
-    
-    return synced_count
-
 async def create_fallback_workouts(user_id: str) -> int:
     """Create fallback workouts when Google Fit is not available"""
     # Only create fallback data if absolutely no workout data exists
