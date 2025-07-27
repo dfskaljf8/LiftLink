@@ -39,57 +39,51 @@ const TrainerDashboard = ({ navigation }) => {
 
   const fetchTrainerData = async () => {
     try {
-      // Mock trainer data
-      const mockClients = [
-        {
-          id: 'client_001',
-          name: 'John Doe',
-          email: 'john@example.com',
-          phone: '(555) 123-4567',
-          fitnessGoals: ['Weight Loss', 'Muscle Building'],
-          notes: 'Prefers morning sessions'
-        },
-        {
-          id: 'client_002',
-          name: 'Jane Smith',
-          email: 'jane@example.com',
-          phone: '(555) 987-6543',
-          fitnessGoals: ['Cardio', 'Flexibility'],
-          notes: 'Recovering from injury'
-        }
-      ];
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      
+      // Fetch real trainer data from backend
+      const [clientsResponse, scheduleResponse, earningsResponse] = await Promise.all([
+        fetch(`${backendUrl}/api/trainer/${user.id}/clients`),
+        fetch(`${backendUrl}/api/trainer/${user.id}/schedule`),
+        fetch(`${backendUrl}/api/trainer/${user.id}/earnings`)
+      ]);
 
-      const mockSchedule = [
-        {
-          id: 'session_001',
-          client_name: 'John Doe',
-          start_time: '2024-01-15T09:00:00Z',
-          end_time: '2024-01-15T10:00:00Z',
-          session_type: 'Personal Training',
-          status: 'confirmed'
-        },
-        {
-          id: 'session_002',
-          client_name: 'Jane Smith',
-          start_time: '2024-01-15T14:00:00Z',
-          end_time: '2024-01-15T15:00:00Z',
-          session_type: 'Recovery Session',
-          status: 'pending'
-        }
-      ];
+      if (clientsResponse.ok) {
+        const clientsData = await clientsResponse.json();
+        setClients(clientsData.clients || []);
+      } else {
+        setClients([]);
+      }
 
-      const mockEarnings = {
-        total_earnings: 180000, // $1800 in cents
-        pending_earnings: 45000, // $450 in cents
-        this_month: 75000, // $750 in cents
-        last_payout: '2024-01-01T00:00:00Z'
-      };
+      if (scheduleResponse.ok) {
+        const scheduleData = await scheduleResponse.json();
+        setSchedule(scheduleData.schedule || []);
+      } else {
+        setSchedule([]);
+      }
 
-      setClients(mockClients);
-      setSchedule(mockSchedule);
-      setEarnings(mockEarnings);
+      if (earningsResponse.ok) {
+        const earningsData = await earningsResponse.json();
+        setEarnings(earningsData);
+      } else {
+        setEarnings({
+          total_earnings: 0,
+          pending_earnings: 0,
+          this_month: 0,
+          last_payout: null
+        });
+      }
     } catch (error) {
       console.error('Error fetching trainer data:', error);
+      // Set empty data on error
+      setClients([]);
+      setSchedule([]);
+      setEarnings({
+        total_earnings: 0,
+        pending_earnings: 0,
+        this_month: 0,
+        last_payout: null
+      });
     } finally {
       setLoading(false);
     }
