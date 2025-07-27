@@ -39,13 +39,14 @@ const TrainerDashboard = ({ navigation }) => {
 
   const fetchTrainerData = async () => {
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      // For now, use a default trainer ID since we don't have user context
+      const trainerId = 'trainer_001';
       
       // Fetch real trainer data from backend
       const [clientsResponse, scheduleResponse, earningsResponse] = await Promise.all([
-        fetch(`${backendUrl}/api/trainer/${user.id}/clients`),
-        fetch(`${backendUrl}/api/trainer/${user.id}/schedule`),
-        fetch(`${backendUrl}/api/trainer/${user.id}/earnings`)
+        fetch(`${API}/api/trainer/${trainerId}/clients`),
+        fetch(`${API}/api/trainer/${trainerId}/schedule`),
+        fetch(`${API}/api/trainer/${trainerId}/earnings`)
       ]);
 
       if (clientsResponse.ok) {
