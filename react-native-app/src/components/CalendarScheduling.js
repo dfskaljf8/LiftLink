@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import axios from 'axios';
 
-const API = 'https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com/api';
+const API = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
 const CalendarScheduling = ({ user, visible, onClose, trainer }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
