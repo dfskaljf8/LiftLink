@@ -621,7 +621,7 @@ async def sync_fitness_data(request: dict):
             synced_workouts = await create_fallback_workouts(user_id)
     else:
         # Fall back to mock data
-        synced_workouts = await create_mock_workouts(user_id)
+        synced_workouts = await create_fallback_workouts(user_id)
     
     # Update last sync time
     await db.users.update_one(
