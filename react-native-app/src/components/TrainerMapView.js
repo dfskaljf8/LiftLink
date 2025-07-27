@@ -21,6 +21,7 @@ const TrainerMapView = ({ trainers, onTrainerSelect }) => {
   });
   const [userLocation, setUserLocation] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [nearbyTrainers, setNearbyTrainers] = useState([]);
 
   const colors = {
     primary: '#4f46e5',
@@ -34,52 +35,179 @@ const TrainerMapView = ({ trainers, onTrainerSelect }) => {
     warning: '#f59e0b'
   };
 
-  const mockTrainerLocations = [
-    {
-      id: 'trainer_001',
-      name: 'Sarah Johnson',
-      specialties: ['Strength Training', 'HIIT'],
-      rating: 4.8,
-      price: '$75/session',
-      latitude: 37.7849,
-      longitude: -122.4094,
-      address: '123 Fitness St, San Francisco, CA'
-    },
-    {
-      id: 'trainer_002',
-      name: 'Mike Chen',
-      specialties: ['Cardio', 'Weight Loss'],
-      rating: 4.9,
-      price: '$85/session',
-      latitude: 37.7649,
-      longitude: -122.4294,
-      address: '456 Gym Ave, San Francisco, CA'
-    },
-    {
-      id: 'trainer_003',
-      name: 'Emily Rodriguez',
-      specialties: ['Yoga', 'Flexibility'],
-      rating: 4.7,
-      price: '$60/session',
-      latitude: 37.7549,
-      longitude: -122.4394,
-      address: '789 Wellness Blvd, San Francisco, CA'
-    },
-    {
-      id: 'trainer_004',
-      name: 'David Kim',
-      specialties: ['CrossFit', 'Conditioning'],
-      rating: 4.6,
-      price: '$80/session',
-      latitude: 37.7949,
-      longitude: -122.3994,
-      address: '321 Strong St, San Francisco, CA'
-    }
-  ];
-
   useEffect(() => {
     requestLocationPermission();
   }, []);
+
+  useEffect(() => {
+    if (userLocation) {
+      fetchNearbyTrainers();
+    }
+  }, [userLocation]);
+
+  const fetchNearbyTrainers = async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+      const response = await fetch(`${backendUrl}/api/trainers/nearby`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          latitude: userLocation.latitude,
+          longitude: userLocation.longitude,
+          radius: 10 // 10km radius
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNearbyTrainers(data.trainers || []);
+      } else {
+        console.error('Failed to fetch nearby trainers');
+        setNearbyTrainers([]);
+      }
+    } catch (error) {
+      console.error('Error fetching nearby trainers:', error);
+      setNearbyTrainers([]);
+    }
+  };
+
+  const requestLocationPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+          {
+            title: 'Location Permission',
+            message: 'LiftLink needs access to your location to show nearby trainers.',
+            buttonNeutral: 'Ask Me Later',
+            buttonNegative: 'Cancel',
+            buttonPositive: 'OK',
+          }
+        );
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          getCurrentLocation();
+        } else {
+          setLoading(false);
+        }
+      } catch (err) {
+        console.warn(err);
+        setLoading(false);
+      }
+    } else {
+      getCurrentLocation();
+    }
+  };
+
+  const getCurrentLocation = () => {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ latitude, longitude });
+        setRegion({
+          latitude,
+          longitude,
+          latitudeDelta: 0.0922,
+          longitudeDelta: 0.0421,
+        });
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Error getting location:', error);
+        setLoading(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  };
+
+  const handleMarkerPress = (trainer) => {
+    Alert.alert(
+      trainer.name || trainer.display_name,
+      `${trainer.specialties?.join(', ') || 'Personal Training'}\n$${trainer.hourly_rate || 75}/session\nRating: ${trainer.rating || 5.0}/5\n\n${trainer.location || 'Location available'}`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Book Session',
+          onPress: () => onTrainerSelect && onTrainerSelect(trainer)
+        }
+      ]
+    );
+  };
+
+  const renderCustomMarker = (trainer) => (
+    <View style={styles.markerContainer}>
+      <View style={[styles.markerBubble, { backgroundColor: colors.primary }]}>
+        <Text style={[styles.markerText, { color: colors.text }]}>
+          {(trainer.name || trainer.display_name || 'T').split(' ')[0]}
+        </Text>
+      </View>
+      <View style={[styles.markerArrow, { borderTopColor: colors.primary }]} />
+    </View>
+  );
+
+  if (loading) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.text }]}>
+          Loading nearby trainers...
+        </Text>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <MapView
+        style={styles.map}
+        region={region}
+        onRegionChangeComplete={setRegion}
+        showsUserLocation={true}
+        showsMyLocationButton={true}
+        customMapStyle={[
+          {
+            featureType: 'all',
+            stylers: [
+              {
+                saturation: -100
+              }
+            ]
+          }
+        ]}
+      >
+        {nearbyTrainers.map((trainer) => (
+          trainer.latitude && trainer.longitude ? (
+            <Marker
+              key={trainer.id}
+              coordinate={{
+                latitude: trainer.latitude,
+                longitude: trainer.longitude,
+              }}
+              title={trainer.name || trainer.display_name}
+              description={`${trainer.specialties?.join(', ') || 'Personal Training'} • $${trainer.hourly_rate || 75}/session`}
+              onPress={() => handleMarkerPress(trainer)}
+            >
+              {renderCustomMarker(trainer)}
+            </Marker>
+          ) : null
+        ))}
+      </MapView>
+
+      <View style={[styles.mapOverlay, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.overlayTitle, { color: colors.text }]}>
+          Find Trainers Near You
+        </Text>
+        <Text style={[styles.overlaySubtitle, { color: colors.textSecondary }]}>
+          {nearbyTrainers.length > 0 
+            ? `${nearbyTrainers.length} trainer${nearbyTrainers.length === 1 ? '' : 's'} nearby`
+            : "No trainers found in your area"
+          }
+        </Text>
+      </View>
+    </View>
+  );
+};
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
