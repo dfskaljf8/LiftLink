@@ -362,6 +362,54 @@ async def create_user(user: User):
         created_at=user_doc["created_at"]
     )
 
+@api_router.post("/trainers/nearby")
+async def get_nearby_trainers(request: dict):
+    """Get trainers near a specific location"""
+    try:
+        latitude = request.get('latitude')
+        longitude = request.get('longitude')
+        radius = request.get('radius', 10)  # Default 10km radius
+        
+        if not latitude or not longitude:
+            raise HTTPException(status_code=400, detail="Latitude and longitude required")
+        
+        # Query trainers within radius (using MongoDB geospatial query)
+        trainers_cursor = db.users.find({
+            "role": "trainer",
+            "location": {
+                "$near": {
+                    "$geometry": {
+                        "type": "Point",
+                        "coordinates": [longitude, latitude]
+                    },
+                    "$maxDistance": radius * 1000  # Convert km to meters
+                }
+            }
+        })
+        
+        trainers = []
+        async for trainer in trainers_cursor:
+            trainer_data = {
+                "id": trainer["id"],
+                "name": trainer.get("name", "Professional Trainer"),
+                "display_name": trainer.get("display_name", trainer.get("name", "Professional Trainer")),
+                "specialties": trainer.get("specialties", ["Personal Training"]),
+                "hourly_rate": trainer.get("hourly_rate", 75),
+                "rating": trainer.get("rating", 5.0),
+                "location": trainer.get("location", {}).get("address", "Location available"),
+                "latitude": trainer.get("location", {}).get("coordinates", [0, 0])[1],
+                "longitude": trainer.get("location", {}).get("coordinates", [0, 0])[0],
+                "experience_years": trainer.get("experience_years", 1),
+                "certifications": trainer.get("certifications", [])
+            }
+            trainers.append(trainer_data)
+        
+        return {"trainers": trainers}
+        
+    except Exception as e:
+        print(f"❌ Error fetching nearby trainers: {e}")
+        return {"trainers": []}
+
 @api_router.get("/users/{user_id}", response_model=UserResponse)
 async def get_user(user_id: str):
     """Get user by ID"""
