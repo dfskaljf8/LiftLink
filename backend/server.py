@@ -614,13 +614,13 @@ async def sync_fitness_data(request: dict):
                 synced_workouts += 2  # Assume 2 workouts synced
             except Exception as e:
                 print(f"Google Fit sync error: {e}")
-                # Fall back to mock data
+                # Fall back to minimal data if needed
                 synced_workouts = await create_fallback_workouts(user_id)
         else:
-            # Fall back to mock data
+            # Fall back to minimal data if needed
             synced_workouts = await create_fallback_workouts(user_id)
     else:
-        # Fall back to mock data
+        # Fall back to minimal data if needed
         synced_workouts = await create_fallback_workouts(user_id)
     
     # Update last sync time
