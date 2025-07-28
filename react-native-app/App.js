@@ -33,9 +33,10 @@ import CalendarScheduling from './src/components/CalendarScheduling';
 import TreeSVG from './src/components/TreeSVG';
 import LiftCoin from './src/components/LiftCoin';
 import AppleReviewLogin from './src/components/AppleReviewLogin';
+import { DynamicIslandStatusBar, DynamicIslandSafeWrapper } from './src/components/DynamicIslandUtils';
 
 // Import React Native styles (converted from CSS)
-import NativeAppStyles, { colors } from './src/styles/AppStyles';
+import NativeAppStyles, { colors, deviceSize } from './src/styles/AppStyles';
 
 // Constants
 const { width, height } = Dimensions.get('window');
