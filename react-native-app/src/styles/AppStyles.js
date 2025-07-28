@@ -213,6 +213,14 @@ const NativeAppStyles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: colors.backgroundDark,
+    paddingTop: deviceSize.hasDynamicIsland ? 0 : (Platform.OS === 'ios' ? spacing.lg : 0),
+  },
+  
+  // Dynamic Island aware safe area
+  dynamicIslandSafeArea: {
+    flex: 1,
+    backgroundColor: colors.backgroundDark,
+    paddingTop: dynamicIsland.statusBarHeight,
   },
   
   scrollContainer: {
