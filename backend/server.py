@@ -1435,6 +1435,62 @@ async def update_user_name(user_id: str, request: UpdateUserNameRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@api_router.get("/trainer/{trainer_id}/notifications")
+async def get_trainer_notifications(trainer_id: str, limit: int = 20):
+    """Get trainer's recent notifications"""
+    try:
+        # Get recent notifications for trainer
+        notifications_cursor = db.trainer_notifications.find({
+            "trainer_id": trainer_id
+        }).sort([("created_at", -1)]).limit(limit)
+        
+        notifications = await notifications_cursor.to_list(length=limit)
+        
+        formatted_notifications = []
+        for notification in notifications:
+            formatted_notifications.append({
+                "id": notification["id"],
+                "title": notification["title"],
+                "message": notification["message"],
+                "data": notification.get("data", {}),
+                "read": notification.get("read", False),
+                "created_at": notification["created_at"]
+            })
+        
+        return {
+            "trainer_id": trainer_id,
+            "notifications": formatted_notifications,
+            "unread_count": len([n for n in notifications if not n.get("read", False)])
+        }
+        
+    except Exception as e:
+        print(f"❌ Error fetching trainer notifications: {e}")
+        return {
+            "trainer_id": trainer_id,
+            "notifications": [],
+            "unread_count": 0
+        }
+
+@api_router.put("/trainer/{trainer_id}/notifications/{notification_id}/mark-read")
+async def mark_notification_read(trainer_id: str, notification_id: str):
+    """Mark a trainer notification as read"""
+    try:
+        result = await db.trainer_notifications.update_one(
+            {"id": notification_id, "trainer_id": trainer_id},
+            {"$set": {"read": True, "read_at": datetime.now().isoformat()}}
+        )
+        
+        if result.modified_count == 0:
+            raise HTTPException(status_code=404, detail="Notification not found")
+        
+        return {"message": "Notification marked as read"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error marking notification as read: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update notification")
+
 @api_router.get("/trainer/{trainer_id}/clients")
 async def get_trainer_clients(trainer_id: str):
     """Get trainer's clients list"""
