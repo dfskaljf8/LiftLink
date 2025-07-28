@@ -191,9 +191,10 @@ const App = () => {
       handleBookTrainer,
       handleScheduleSession
     }}>
-      <NavigationContainer>
-        <StatusBar barStyle="light-content" backgroundColor={colors.background} />
-        <MainNavigator />
+      <DynamicIslandSafeWrapper backgroundColor={colors.background}>
+        <NavigationContainer>
+          <DynamicIslandStatusBar barStyle="light-content" backgroundColor={colors.background} />
+          <MainNavigator />
         
         {/* Modals */}
         {showPaymentScreen && (
