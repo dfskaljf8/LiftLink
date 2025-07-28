@@ -1348,6 +1348,64 @@ async def get_trainer_clients(trainer_id: str):
         return {"clients": []}
 
 # Trainer Schedule Management
+@api_router.get("/trainer/{trainer_id}/sessions/today")
+async def get_trainer_sessions_today(trainer_id: str):
+    """Get trainer's sessions for today"""
+    try:
+        # Get today's date range
+        today = datetime.now().date()
+        start_of_day = datetime.combine(today, datetime.min.time()).isoformat()
+        end_of_day = datetime.combine(today, datetime.max.time()).isoformat()
+        
+        # Query sessions for today
+        sessions_cursor = db.sessions.find({
+            "trainer_id": trainer_id,
+            "scheduled_time": {
+                "$gte": start_of_day,
+                "$lte": end_of_day
+            }
+        }).sort([("scheduled_time", 1)])
+        
+        sessions = await sessions_cursor.to_list(length=None)
+        
+        formatted_sessions = []
+        for session in sessions:
+            # Get client name if available
+            client_name = "Unknown Client"
+            if session.get("user_id"):
+                client = await db.users.find_one({"id": session["user_id"]})
+                if client:
+                    client_name = client.get("name", client.get("email", "Unknown Client"))
+            
+            session_data = {
+                "id": session["id"],
+                "client_name": client_name,
+                "client_id": session.get("user_id"),
+                "session_type": session.get("session_type", "Personal Training"),
+                "scheduled_time": session.get("scheduled_time"),
+                "duration_minutes": session.get("duration_minutes", 60),
+                "status": session.get("status", "scheduled"),
+                "location": session.get("location", "To be determined"),
+                "notes": session.get("notes", "")
+            }
+            formatted_sessions.append(session_data)
+        
+        return {
+            "trainer_id": trainer_id,
+            "date": today.isoformat(),
+            "sessions": formatted_sessions,
+            "total_sessions": len(formatted_sessions)
+        }
+        
+    except Exception as e:
+        print(f"❌ Error fetching today's sessions: {e}")
+        return {
+            "trainer_id": trainer_id,
+            "date": datetime.now().date().isoformat(),
+            "sessions": [],
+            "total_sessions": 0
+        }
+
 @api_router.get("/trainer/{trainer_id}/schedule")
 async def get_trainer_schedule(trainer_id: str):
     """Get trainer's schedule"""
