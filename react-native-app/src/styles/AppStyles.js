@@ -2,8 +2,44 @@ import { StyleSheet, Dimensions, Platform } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
+// Responsive breakpoints
+export const breakpoints = {
+  small: 375,
+  medium: 414,
+  large: 768,
+  xlarge: 1024
+};
+
+export const deviceSize = {
+  isSmall: width < breakpoints.small,
+  isMedium: width >= breakpoints.small && width < breakpoints.medium,
+  isLarge: width >= breakpoints.medium && width < breakpoints.large,
+  isXLarge: width >= breakpoints.large,
+  isTablet: width >= breakpoints.large,
+  width,
+  height
+};
+
+// Responsive scaling functions
+export const scale = (size) => {
+  if (deviceSize.isSmall) return size * 0.85;
+  if (deviceSize.isMedium) return size * 0.95;
+  if (deviceSize.isLarge) return size;
+  if (deviceSize.isXLarge) return size * 1.1;
+  return size;
+};
+
+export const verticalScale = (size) => {
+  const baseHeight = 812; // iPhone X height
+  return (height / baseHeight) * size;
+};
+
+export const moderateScale = (size, factor = 0.5) => {
+  return size + (scale(size) - size) * factor;
+};
+
 // LiftLink React Native Styles
-// Converted from CSS to React Native StyleSheet
+// Fully responsive and optimized for all mobile screen sizes
 
 export const colors = {
   // Primary Theme Colors
