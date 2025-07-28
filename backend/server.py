@@ -207,6 +207,31 @@ class FitnessData(BaseModel):
 def generate_id():
     return str(uuid.uuid4())
 
+async def send_trainer_notification(trainer_id: str, title: str, message: str, data: dict = None):
+    """Send push notification to trainer"""
+    try:
+        # In a real implementation, this would integrate with a push notification service
+        # like Firebase Cloud Messaging, Apple Push Notification Service, etc.
+        print(f"📱 Push notification to trainer {trainer_id}: {title} - {message}")
+        
+        # Store notification in database for trainer to see in app
+        notification_doc = {
+            "id": generate_id(),
+            "trainer_id": trainer_id,
+            "title": title,
+            "message": message,
+            "data": data or {},
+            "read": False,
+            "created_at": datetime.now().isoformat()
+        }
+        
+        await db.trainer_notifications.insert_one(notification_doc)
+        
+        return True
+    except Exception as e:
+        print(f"❌ Error sending trainer notification: {e}")
+        return False
+
 async def get_user_by_email(email: str):
     return await db.users.find_one({"email": email})
 
