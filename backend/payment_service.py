@@ -246,8 +246,8 @@ class PaymentService:
                 
             account_link = stripe.AccountLink.create(
                 account=stripe_account_id,
-                refresh_url="https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com/reauth",
-                return_url="https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com/onboarding-success",
+                refresh_url="https://liftlink-ra6t.onrender.com/reauth",
+                return_url="https://liftlink-ra6t.onrender.com/onboarding-success",
                 type="account_onboarding"
             )
             
