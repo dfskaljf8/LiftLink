@@ -39,9 +39,24 @@ import NativeAppStyles, { colors } from './src/styles/AppStyles';
 
 // Constants
 const { width, height } = Dimensions.get('window');
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-ra6t.onrender.com';
 const API = `${BACKEND_URL}/api`;
 const STRIPE_PUBLISHABLE_KEY = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'YOUR_STRIPE_PUBLISHABLE_KEY_HERE';
+
+// Responsive breakpoints
+const isSmallScreen = width < 375;
+const isMediumScreen = width >= 375 && width < 414;
+const isLargeScreen = width >= 414;
+const isTablet = width >= 768;
+
+// Responsive scaling function
+const scale = (size) => {
+  if (isSmallScreen) return size * 0.9;
+  if (isMediumScreen) return size;
+  if (isLargeScreen) return size * 1.1;
+  if (isTablet) return size * 1.2;
+  return size;
+};
 
 // Context
 const AppContext = createContext();
