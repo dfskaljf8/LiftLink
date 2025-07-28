@@ -16,8 +16,8 @@ export const deviceSize = {
   isLarge: width >= breakpoints.medium && width < breakpoints.large,
   isXLarge: width >= breakpoints.large,
   isTablet: width >= breakpoints.large,
-  width,
-  height
+  width: width,
+  height: height
 };
 
 // Responsive scaling functions
