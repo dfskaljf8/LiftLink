@@ -2,7 +2,7 @@ import { StyleSheet, Dimensions, Platform } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive breakpoints (including iPhone 14-16 Pro Max)
+// Responsive breakpoints (including iPhone 14-16 Pro Max + Dynamic Island)
 export const breakpoints = {
   small: 375,     // iPhone SE, older devices
   medium: 393,    // iPhone 14 Pro, iPhone 15/16 Pro  
@@ -26,11 +26,33 @@ export const deviceSize = {
   isiPhone16Pro: width >= 402 && width <= 402,      // iPhone 16 Pro (402×874)
   isiPhone16ProMax: width >= 440 && width <= 440,   // iPhone 16 Pro Max (440×956)
   
+  // Dynamic Island detection (iPhone 14 Pro and newer)
+  hasDynamicIsland: (width >= 393 && height >= 852) || (width >= 430 && height >= 932) || (width >= 402 && height >= 874) || (width >= 440 && height >= 956),
+  
   width: width,
   height: height
 };
 
-// Enhanced responsive scaling for latest iPhones
+// Dynamic Island specific measurements
+export const dynamicIsland = {
+  // Dynamic Island dimensions and positioning
+  width: scale(126),
+  height: scale(37),
+  topOffset: Platform.OS === 'ios' ? scale(11) : 0,
+  
+  // Safe area adjustments for Dynamic Island
+  statusBarHeight: deviceSize.hasDynamicIsland ? scale(54) : (Platform.OS === 'ios' ? scale(44) : scale(24)),
+  headerTopPadding: deviceSize.hasDynamicIsland ? scale(59) : (Platform.OS === 'ios' ? scale(44) : scale(24)),
+  
+  // Modal and overlay positioning
+  modalTopOffset: deviceSize.hasDynamicIsland ? scale(70) : scale(50),
+  overlayTopOffset: deviceSize.hasDynamicIsland ? scale(65) : scale(50),
+  
+  // Notification area (around Dynamic Island)
+  notificationAreaHeight: deviceSize.hasDynamicIsland ? scale(95) : scale(60),
+};
+
+// Enhanced responsive scaling for latest iPhones + Dynamic Island
 export const scale = (size) => {
   if (deviceSize.isSmall) return size * 0.85;        // iPhone SE
   if (deviceSize.isMedium) return size * 0.95;       // iPhone 12-13
@@ -46,6 +68,14 @@ export const proMaxScale = (size) => {
     return size * 1.1; // 10% larger for Pro Max models
   }
   return scale(size);
+};
+
+// Dynamic Island aware spacing
+export const dynamicIslandSafeSpacing = (baseSpacing) => {
+  if (deviceSize.hasDynamicIsland) {
+    return baseSpacing + dynamicIsland.headerTopPadding;
+  }
+  return baseSpacing + (Platform.OS === 'ios' ? scale(44) : scale(24));
 };
 
 export const verticalScale = (size) => {
