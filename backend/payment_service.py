@@ -203,35 +203,6 @@ class PaymentService:
                 "recent_payments": []
             }
     
-    def _get_mock_earnings(self):
-        """Return mock earnings data when Stripe is not available"""
-        return {
-            "total_earnings": 1800.00,
-            "this_month": 450.00,
-            "pending_payments": 75.00,
-            "completed_sessions": 18,
-            "avg_session_rate": 75.00,
-            "stripe_earnings": 0.00,
-            "recent_payments": [
-                {
-                    "id": "pi_mock_001",
-                    "amount": 75.00,
-                    "date": "2025-01-10",
-                    "client_name": "John Doe",
-                    "session_type": "Personal Training",
-                    "stripe_charge": False
-                },
-                {
-                    "id": "pi_mock_002", 
-                    "amount": 100.00,
-                    "date": "2025-01-09",
-                    "client_name": "Jane Smith",
-                    "session_type": "Nutrition Consultation",
-                    "stripe_charge": False
-                }
-            ]
-        }
-    
     def create_express_account(self, trainer_id: str, trainer_email: str) -> Optional[Dict]:
         """Create a Stripe Express account for trainer onboarding"""
         try:
