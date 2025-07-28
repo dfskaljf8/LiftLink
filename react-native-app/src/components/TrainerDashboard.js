@@ -8,10 +8,13 @@ import {
   SafeAreaView,
   ActivityIndicator,
   Alert,
-  FlatList
+  FlatList,
+  Dimensions
 } from 'react-native';
 import axios from 'axios';
+import { colors, spacing, typography, borderRadius, shadows, scale, moderateScale } from '../styles/AppStyles';
 
+const { width, height } = Dimensions.get('window');
 const API = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-ra6t.onrender.com';
 
 const TrainerDashboard = ({ navigation }) => {
@@ -20,18 +23,6 @@ const TrainerDashboard = ({ navigation }) => {
   const [schedule, setSchedule] = useState([]);
   const [earnings, setEarnings] = useState({});
   const [loading, setLoading] = useState(true);
-
-  const colors = {
-    primary: '#4f46e5',
-    secondary: '#10b981',
-    background: '#111827',
-    surface: '#1f2937',
-    text: '#f9fafb',
-    textSecondary: '#9ca3af',
-    error: '#ef4444',
-    success: '#10b981',
-    warning: '#f59e0b'
-  };
 
   useEffect(() => {
     fetchTrainerData();
