@@ -2,31 +2,50 @@ import { StyleSheet, Dimensions, Platform } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive breakpoints
+// Responsive breakpoints (including iPhone 14-16 Pro Max)
 export const breakpoints = {
-  small: 375,
-  medium: 414,
-  large: 768,
-  xlarge: 1024
+  small: 375,     // iPhone SE, older devices
+  medium: 393,    // iPhone 14 Pro, iPhone 15/16 Pro  
+  large: 430,     // iPhone 14 Plus, iPhone 15/16 Plus, iPhone 14-16 Pro Max
+  xlarge: 440,    // iPhone 16 Pro Max
+  tablet: 768     // iPad and larger tablets
 };
 
 export const deviceSize = {
-  isSmall: width < breakpoints.small,
-  isMedium: width >= breakpoints.small && width < breakpoints.medium,
-  isLarge: width >= breakpoints.medium && width < breakpoints.large,
-  isXLarge: width >= breakpoints.large,
-  isTablet: width >= breakpoints.large,
+  isSmall: width < breakpoints.small,           // iPhone SE, older phones
+  isMedium: width >= breakpoints.small && width < breakpoints.medium,  // iPhone 12-13 series
+  isLarge: width >= breakpoints.medium && width < breakpoints.large,   // iPhone 14-16 Pro
+  isXLarge: width >= breakpoints.large && width < breakpoints.tablet,  // iPhone 14-16 Pro Max, Plus
+  isTablet: width >= breakpoints.tablet,        // iPad, Android tablets
+  
+  // Specific iPhone model detection
+  isiPhone14Pro: width >= 393 && width <= 393,      // iPhone 14 Pro (393×852)
+  isiPhone14ProMax: width >= 430 && width <= 430,   // iPhone 14 Pro Max (430×932)
+  isiPhone15Pro: width >= 393 && width <= 393,      // iPhone 15 Pro (393×852)  
+  isiPhone15ProMax: width >= 430 && width <= 430,   // iPhone 15 Pro Max (430×932)
+  isiPhone16Pro: width >= 402 && width <= 402,      // iPhone 16 Pro (402×874)
+  isiPhone16ProMax: width >= 440 && width <= 440,   // iPhone 16 Pro Max (440×956)
+  
   width: width,
   height: height
 };
 
-// Responsive scaling functions
+// Enhanced responsive scaling for latest iPhones
 export const scale = (size) => {
-  if (deviceSize.isSmall) return size * 0.85;
-  if (deviceSize.isMedium) return size * 0.95;
-  if (deviceSize.isLarge) return size;
-  if (deviceSize.isXLarge) return size * 1.1;
+  if (deviceSize.isSmall) return size * 0.85;        // iPhone SE
+  if (deviceSize.isMedium) return size * 0.95;       // iPhone 12-13
+  if (deviceSize.isLarge) return size;                // iPhone 14-16 Pro
+  if (deviceSize.isXLarge) return size * 1.05;       // iPhone 14-16 Pro Max
+  if (deviceSize.isTablet) return size * 1.2;        // iPad
   return size;
+};
+
+// iPhone Pro Max specific scaling
+export const proMaxScale = (size) => {
+  if (deviceSize.isiPhone14ProMax || deviceSize.isiPhone15ProMax || deviceSize.isiPhone16ProMax) {
+    return size * 1.1; // 10% larger for Pro Max models
+  }
+  return scale(size);
 };
 
 export const verticalScale = (size) => {
