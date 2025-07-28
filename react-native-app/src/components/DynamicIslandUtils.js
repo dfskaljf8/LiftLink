@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StatusBar, Platform } from 'react-native';
+import { View, StatusBar, Platform, Text } from 'react-native';
 import { deviceSize, dynamicIsland, colors } from '../styles/AppStyles';
 
 // Dynamic Island Aware Status Bar Component
