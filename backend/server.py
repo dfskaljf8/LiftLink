@@ -558,6 +558,113 @@ async def update_user_profile(user_id: str, update_data: dict):
         print(f"❌ Error updating user profile: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+@api_router.get("/dashboard/stats/{user_id}")
+async def get_dashboard_stats(user_id: str):
+    """Get comprehensive dashboard statistics for user"""
+    try:
+        # Get user info
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get user's sessions
+        sessions_cursor = db.sessions.find({"user_id": user_id})
+        sessions = await sessions_cursor.to_list(length=None)
+        
+        # Calculate session stats
+        total_sessions = len(sessions)
+        total_minutes = sum(session.get("duration_minutes", 0) for session in sessions)
+        total_calories = sum(session.get("calories_burned", 0) for session in sessions)
+        
+        # Get this month's stats
+        current_month = datetime.now().month
+        current_year = datetime.now().year
+        this_month_sessions = [
+            s for s in sessions 
+            if datetime.fromisoformat(s.get("created_at", "2024-01-01T00:00:00")).month == current_month
+            and datetime.fromisoformat(s.get("created_at", "2024-01-01T00:00:00")).year == current_year
+        ]
+        
+        # Calculate streak
+        streak = calculate_consistency_streak(sessions)
+        
+        # Calculate tree progress
+        tree_level = calculate_tree_level(total_sessions, streak)
+        progress_to_next = ((total_sessions % 10) * 10) if total_sessions < 100 else 100
+        
+        # Get recent achievements
+        achievements = []
+        if total_sessions >= 1:
+            achievements.append("First Session Complete")
+        if total_sessions >= 10:
+            achievements.append("10 Sessions Milestone")
+        if streak >= 7:
+            achievements.append("Weekly Streak")
+        if total_calories >= 1000:
+            achievements.append("1000 Calories Burned")
+        
+        # Get favorite session types
+        session_types = {}
+        for session in sessions:
+            session_type = session.get("session_type", "Personal Training")
+            session_types[session_type] = session_types.get(session_type, 0) + 1
+        
+        favorite_session_type = max(session_types.items(), key=lambda x: x[1])[0] if session_types else "Personal Training"
+        
+        # Weekly activity (last 7 days)
+        week_ago = datetime.now() - timedelta(days=7)
+        weekly_sessions = [
+            s for s in sessions 
+            if datetime.fromisoformat(s.get("created_at", "2024-01-01T00:00:00")) >= week_ago
+        ]
+        
+        # Monthly goals progress
+        monthly_goal_sessions = 8  # Default goal
+        monthly_progress = min((len(this_month_sessions) / monthly_goal_sessions) * 100, 100)
+        
+        stats = {
+            "user_id": user_id,
+            "overview": {
+                "total_sessions": total_sessions,
+                "total_minutes": total_minutes,
+                "total_calories": total_calories,
+                "current_streak": streak,
+                "tree_level": tree_level,
+                "tree_progress": progress_to_next
+            },
+            "this_month": {
+                "sessions": len(this_month_sessions),
+                "minutes": sum(s.get("duration_minutes", 0) for s in this_month_sessions),
+                "calories": sum(s.get("calories_burned", 0) for s in this_month_sessions),
+                "goal_progress": monthly_progress
+            },
+            "this_week": {
+                "sessions": len(weekly_sessions),
+                "minutes": sum(s.get("duration_minutes", 0) for s in weekly_sessions),
+                "calories": sum(s.get("calories_burned", 0) for s in weekly_sessions)
+            },
+            "achievements": achievements,
+            "favorite_session_type": favorite_session_type,
+            "session_types_breakdown": session_types,
+            "recent_activity": [
+                {
+                    "date": session.get("created_at"),
+                    "type": session.get("session_type", "Personal Training"),
+                    "duration": session.get("duration_minutes", 0),
+                    "calories": session.get("calories_burned", 0)
+                }
+                for session in sorted(sessions, key=lambda x: x.get("created_at", ""), reverse=True)[:5]
+            ]
+        }
+        
+        return stats
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error fetching dashboard stats: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch dashboard statistics")
+
 @api_router.get("/users/{user_id}", response_model=UserResponse)
 async def get_user(user_id: str):
     """Get user by ID"""
