@@ -1221,6 +1221,56 @@ async def update_user_name(user_id: str, request: UpdateUserNameRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@api_router.get("/trainer/{trainer_id}/clients")
+async def get_trainer_clients(trainer_id: str):
+    """Get trainer's clients list"""
+    try:
+        # Get all sessions for this trainer to find unique clients
+        sessions_cursor = db.sessions.find({
+            "trainer_id": trainer_id
+        })
+        
+        client_ids = set()
+        sessions = await sessions_cursor.to_list(length=None)
+        
+        for session in sessions:
+            if session.get("user_id"):
+                client_ids.add(session["user_id"])
+        
+        # Get client details
+        clients = []
+        for client_id in client_ids:
+            client = await db.users.find_one({"id": client_id})
+            if client:
+                # Get client's session stats with this trainer
+                client_sessions = [s for s in sessions if s.get("user_id") == client_id]
+                total_sessions = len(client_sessions)
+                last_session = max(client_sessions, key=lambda x: x.get("created_at", ""), default=None)
+                
+                client_data = {
+                    "id": client["id"],
+                    "name": client.get("name", "Client"),
+                    "email": client.get("email", ""),
+                    "phone": client.get("phone", ""),
+                    "fitness_goals": client.get("fitness_goals", []),
+                    "experience_level": client.get("experience_level", "beginner"),
+                    "total_sessions": total_sessions,
+                    "last_session_date": last_session.get("created_at") if last_session else None,
+                    "notes": client.get("trainer_notes", ""),
+                    "joined_date": client.get("created_at", ""),
+                    "active": total_sessions > 0
+                }
+                clients.append(client_data)
+        
+        # Sort by most recent session
+        clients.sort(key=lambda x: x["last_session_date"] or "", reverse=True)
+        
+        return {"clients": clients}
+        
+    except Exception as e:
+        print(f"❌ Error fetching trainer clients: {e}")
+        return {"clients": []}
+
 # Trainer Schedule Management
 @api_router.get("/trainer/{trainer_id}/schedule")
 async def get_trainer_schedule(trainer_id: str):
