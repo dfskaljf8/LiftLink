@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
+  ScrollView,
+  SafeAreaView,
   Alert,
   ActivityIndicator,
-  Modal,
-  ScrollView,
-  SafeAreaView
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions,
+  Modal
 } from 'react-native';
+import { colors, spacing, typography, borderRadius, shadows, scale, moderateScale, deviceSize } from '../styles/AppStyles';
+
+const { width, height } = Dimensions.get('window');
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
 
 const STRIPE_PUBLISHABLE_KEY = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'YOUR_STRIPE_PUBLISHABLE_KEY_HERE';
