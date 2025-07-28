@@ -382,14 +382,24 @@ const NativeAppStyles = StyleSheet.create({
     height: Platform.OS === 'ios' ? verticalScale(84) : verticalScale(60),
   },
   
-  // Header styles
+  // Header styles (Dynamic Island optimized)
   header: {
     backgroundColor: colors.surfaceDark,
     paddingHorizontal: spacing.md,
-    paddingTop: Platform.OS === 'ios' ? spacing.xl : spacing.lg,
+    paddingTop: dynamicIsland.headerTopPadding,
     paddingBottom: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.borderDark,
+  },
+  
+  headerWithDynamicIsland: {
+    backgroundColor: colors.surfaceDark,
+    paddingHorizontal: spacing.md,
+    paddingTop: dynamicIsland.headerTopPadding + spacing.sm,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderDark,
+    minHeight: dynamicIsland.notificationAreaHeight,
   },
   
   headerTitle: {
@@ -397,6 +407,17 @@ const NativeAppStyles = StyleSheet.create({
     fontWeight: 'bold',
     color: colors.textPrimary,
     textAlign: 'center',
+    marginTop: deviceSize.hasDynamicIsland ? spacing.xs : 0,
+  },
+  
+  // Dynamic Island status bar area
+  statusBarArea: {
+    height: dynamicIsland.statusBarHeight,
+    backgroundColor: colors.backgroundDark,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    paddingBottom: spacing.xs,
   },
   
   // List styles
