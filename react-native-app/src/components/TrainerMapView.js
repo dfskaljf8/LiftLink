@@ -249,13 +249,17 @@ const styles = StyleSheet.create({
   },
   mapOverlay: {
     position: 'absolute',
-    top: Platform.OS === 'ios' ? spacing.xl + 20 : spacing.lg,
+    top: deviceSize.hasDynamicIsland ? 
+         (Platform.OS === 'ios' ? spacing.xl + 35 : spacing.lg) : 
+         (Platform.OS === 'ios' ? spacing.xl + 20 : spacing.lg),
     left: spacing.md,
     right: spacing.md,
     backgroundColor: colors.surfaceDark,
     padding: spacing.md,
     borderRadius: borderRadius.md,
     ...shadows.medium,
+    // Ensure overlay doesn't interfere with Dynamic Island
+    zIndex: 100,
   },
   overlayTitle: {
     fontSize: typography.h5,
