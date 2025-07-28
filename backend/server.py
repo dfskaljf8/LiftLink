@@ -1406,6 +1406,72 @@ async def get_trainer_sessions_today(trainer_id: str):
             "total_sessions": 0
         }
 
+@api_router.get("/trainer/{trainer_id}/available-slots")
+async def get_trainer_available_slots(trainer_id: str, date: str = None):
+    """Get trainer's available time slots for booking"""
+    try:
+        # Use provided date or default to today
+        if date:
+            target_date = datetime.fromisoformat(date).date()
+        else:
+            target_date = datetime.now().date()
+        
+        # Get trainer's existing bookings for the date
+        start_of_day = datetime.combine(target_date, datetime.min.time()).isoformat()
+        end_of_day = datetime.combine(target_date, datetime.max.time()).isoformat()
+        
+        booked_sessions = db.sessions.find({
+            "trainer_id": trainer_id,
+            "scheduled_time": {
+                "$gte": start_of_day,
+                "$lte": end_of_day
+            },
+            "status": {"$in": ["scheduled", "confirmed"]}
+        })
+        
+        # Get booked time slots
+        booked_times = set()
+        async for session in booked_sessions:
+            if session.get("scheduled_time"):
+                session_time = datetime.fromisoformat(session["scheduled_time"])
+                booked_times.add(session_time.strftime("%H:%M"))
+        
+        # Generate available slots (9 AM to 6 PM, hourly)
+        available_slots = []
+        start_hour = 9
+        end_hour = 18
+        
+        for hour in range(start_hour, end_hour):
+            time_slot = f"{hour:02d}:00"
+            is_available = time_slot not in booked_times
+            
+            # Don't show past slots for today
+            if target_date == datetime.now().date():
+                current_time = datetime.now().time()
+                slot_time = datetime.strptime(time_slot, "%H:%M").time()
+                if slot_time <= current_time:
+                    is_available = False
+            
+            available_slots.append({
+                "time": time_slot,
+                "available": is_available,
+                "booked": not is_available
+            })
+        
+        return {
+            "trainer_id": trainer_id,
+            "date": target_date.isoformat(),
+            "available_slots": available_slots
+        }
+        
+    except Exception as e:
+        print(f"❌ Error fetching available slots: {e}")
+        return {
+            "trainer_id": trainer_id,
+            "date": target_date.isoformat() if 'target_date' in locals() else datetime.now().date().isoformat(),
+            "available_slots": []
+        }
+
 @api_router.get("/trainer/{trainer_id}/schedule")
 async def get_trainer_schedule(trainer_id: str):
     """Get trainer's schedule"""
