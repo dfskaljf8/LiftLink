@@ -808,7 +808,18 @@ const TrainersScreen = () => {
       
       {viewMode === 'list' ? (
         <ScrollView style={styles.content}>
-          {trainers.map(renderTrainerCard)}
+          {trainers.length > 0 ? (
+            trainers.map(renderTrainerCard)
+          ) : (
+            <View style={styles.emptyState}>
+              <Text style={[styles.emptyStateTitle, { color: colors.text }]}>
+                No Trainers Available
+              </Text>
+              <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
+                We're working on connecting you with amazing trainers in your area. Check back soon!
+              </Text>
+            </View>
+          )}
         </ScrollView>
       ) : (
         <TrainerMapView 
