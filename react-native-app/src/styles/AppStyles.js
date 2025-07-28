@@ -354,12 +354,13 @@ const NativeAppStyles = StyleSheet.create({
     color: colors.textSecondary,
   },
   
-  // Modal styles
+  // Modal styles (Dynamic Island aware)
   modalOverlay: {
     flex: 1,
     backgroundColor: colors.overlayDark,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingTop: deviceSize.hasDynamicIsland ? dynamicIsland.modalTopOffset : spacing.xl,
   },
   
   modalContent: {
@@ -369,7 +370,21 @@ const NativeAppStyles = StyleSheet.create({
     marginHorizontal: spacing.lg,
     maxWidth: deviceSize.isTablet ? 400 : width - (spacing.lg * 2),
     width: '100%',
+    maxHeight: height - (deviceSize.hasDynamicIsland ? dynamicIsland.modalTopOffset * 2 : spacing.xl * 2),
     ...shadows.large,
+  },
+  
+  // Dynamic Island notification area
+  notificationOverlay: {
+    position: 'absolute',
+    top: dynamicIsland.overlayTopOffset,
+    left: spacing.md,
+    right: spacing.md,
+    backgroundColor: colors.surfaceDark,
+    padding: spacing.md,
+    borderRadius: borderRadius.md,
+    ...shadows.medium,
+    zIndex: 1000,
   },
   
   // Tab bar styles
