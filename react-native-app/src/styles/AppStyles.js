@@ -81,9 +81,44 @@ export const colors = {
 };
 
 export const spacing = {
-  xs: 4,
-  sm: 8,
-  md: 16,
+  xs: scale(4),
+  sm: scale(8),
+  md: scale(16),
+  lg: scale(24),
+  xl: scale(32),
+  xxl: scale(48),
+  
+  // Vertical spacing
+  vxs: verticalScale(4),
+  vsm: verticalScale(8),
+  vmd: verticalScale(16),
+  vlg: verticalScale(24),
+  vxl: verticalScale(32),
+  vxxl: verticalScale(48)
+};
+
+export const typography = {
+  // Responsive font sizes
+  h1: moderateScale(32),
+  h2: moderateScale(28),
+  h3: moderateScale(24),
+  h4: moderateScale(20),
+  h5: moderateScale(18),
+  h6: moderateScale(16),
+  
+  body: moderateScale(16),
+  bodySmall: moderateScale(14),
+  caption: moderateScale(12),
+  overline: moderateScale(10),
+  
+  // Line heights
+  lineHeight: {
+    tight: 1.2,
+    normal: 1.4,
+    relaxed: 1.6,
+    loose: 1.8
+  }
+};
   lg: 24,
   xl: 32,
   xxl: 48,
