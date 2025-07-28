@@ -119,282 +119,61 @@ export const typography = {
     loose: 1.8
   }
 };
-  lg: 24,
-  xl: 32,
-  xxl: 48,
-};
 
 export const borderRadius = {
-  sm: 6,
-  md: 12,
-  lg: 16,
-  xl: 24,
-  full: 9999,
-};
-
-export const fontSize = {
-  xs: 12,
-  sm: 14,
-  md: 16,
-  lg: 18,
-  xl: 20,
-  xxl: 24,
-  xxxl: 28,
-  huge: 32,
-};
-
-export const fontWeight = {
-  normal: '400',
-  medium: '500',
-  semibold: '600',
-  bold: '700',
-  extrabold: '800',
+  sm: scale(6),
+  md: scale(12),
+  lg: scale(16),
+  xl: scale(24),
+  round: scale(50)
 };
 
 export const shadows = {
-  sm: {
+  small: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: scale(2) },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: scale(4),
     elevation: 2,
   },
-  md: {
+  medium: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: scale(4) },
     shadowOpacity: 0.15,
-    shadowRadius: 8,
+    shadowRadius: scale(8),
     elevation: 4,
   },
-  lg: {
+  large: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
+    shadowOffset: { width: 0, height: scale(8) },
     shadowOpacity: 0.2,
-    shadowRadius: 16,
+    shadowRadius: scale(16),
     elevation: 8,
-  },
-  cyberpunk: {
-    shadowColor: colors.cyberpunkPrimary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 6,
-  },
+  }
 };
 
-export const styles = StyleSheet.create({
-  // Container Styles
+// Responsive styles for common components
+const NativeAppStyles = StyleSheet.create({
+  // Container styles
   container: {
     flex: 1,
     backgroundColor: colors.backgroundDark,
-  },
-  
-  containerLight: {
-    flex: 1,
-    backgroundColor: colors.backgroundLight,
+    paddingHorizontal: spacing.md,
   },
   
   safeArea: {
     flex: 1,
-    paddingTop: Platform.OS === 'ios' ? 44 : 0,
-    paddingBottom: Platform.OS === 'ios' ? 34 : 0,
+    backgroundColor: colors.backgroundDark,
   },
   
-  // Glass Card Styles (Dark Theme)
-  glassCardDark: {
-    backgroundColor: colors.glassOverlay,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: colors.borderDark,
-    padding: spacing.md,
-    ...shadows.md,
+  scrollContainer: {
+    flexGrow: 1,
+    paddingBottom: spacing.xl,
   },
   
-  glassCardLight: {
-    backgroundColor: colors.glassOverlayLight,
-    borderRadius: borderRadius.lg,
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    padding: spacing.md,
-    ...shadows.md,
-  },
-  
-  // Button Styles
-  premiumButtonPrimary: {
-    backgroundColor: colors.cyberpunkPrimary,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm + 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.cyberpunk,
-  },
-  
-  premiumButtonSecondary: {
-    backgroundColor: 'transparent',
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.lg - 2,
-    paddingVertical: spacing.sm + 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: colors.cyberpunkPrimary,
-  },
-  
-  premiumButtonLight: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm + 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.md,
-  },
-  
-  premiumButtonLightSecondary: {
-    backgroundColor: 'transparent',
-    borderRadius: borderRadius.md,
-    paddingHorizontal: spacing.lg - 2,
-    paddingVertical: spacing.sm + 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: colors.primary,
-  },
-  
-  // Button Text Styles
-  buttonTextPrimary: {
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.semibold,
-    color: '#000000',
-  },
-  
-  buttonTextSecondary: {
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.semibold,
-    color: colors.cyberpunkPrimary,
-  },
-  
-  buttonTextLight: {
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.semibold,
-    color: colors.textPrimary,
-  },
-  
-  buttonTextLightSecondary: {
-    fontSize: fontSize.md,
-    fontWeight: fontWeight.semibold,
-    color: colors.primary,
-  },
-  
-  // Input Styles
-  premiumInput: {
-    backgroundColor: colors.glassOverlay,
-    borderRadius: borderRadius.md,
-    borderWidth: 2,
-    borderColor: colors.borderDark,
-    paddingHorizontal: spacing.md + 2,
-    paddingVertical: spacing.sm + 6,
-    fontSize: fontSize.md,
-    color: colors.textPrimary,
-    minHeight: 44, // Touch target
-  },
-  
-  premiumInputLight: {
-    backgroundColor: colors.glassOverlayLight,
-    borderRadius: borderRadius.md,
-    borderWidth: 2,
-    borderColor: colors.borderLight,
-    paddingHorizontal: spacing.md + 2,
-    paddingVertical: spacing.sm + 6,
-    fontSize: fontSize.md,
-    color: colors.textLight,
-    minHeight: 44, // Touch target
-  },
-  
-  // Text Styles
-  textPrimary: {
-    fontSize: fontSize.md,
-    color: colors.textPrimary,
-    fontWeight: fontWeight.normal,
-  },
-  
-  textSecondary: {
-    fontSize: fontSize.sm,
-    color: colors.textSecondary,
-    fontWeight: fontWeight.normal,
-  },
-  
-  textLight: {
-    fontSize: fontSize.md,
-    color: colors.textLight,
-    fontWeight: fontWeight.normal,
-  },
-  
-  textLightSecondary: {
-    fontSize: fontSize.sm,
-    color: colors.textLightSecondary,
-    fontWeight: fontWeight.normal,
-  },
-  
-  // Heading Styles
-  headingLarge: {
-    fontSize: fontSize.xxxl,
-    fontWeight: fontWeight.bold,
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  
-  headingMedium: {
-    fontSize: fontSize.xl,
-    fontWeight: fontWeight.semibold,
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  
-  headingSmall: {
-    fontSize: fontSize.lg,
-    fontWeight: fontWeight.medium,
-    color: colors.textPrimary,
-    marginBottom: spacing.sm,
-  },
-  
-  headingLargeLight: {
-    fontSize: fontSize.xxxl,
-    fontWeight: fontWeight.bold,
-    color: colors.textLight,
-    marginBottom: spacing.sm,
-  },
-  
-  headingMediumLight: {
-    fontSize: fontSize.xl,
-    fontWeight: fontWeight.semibold,
-    color: colors.textLight,
-    marginBottom: spacing.sm,
-  },
-  
-  headingSmallLight: {
-    fontSize: fontSize.lg,
-    fontWeight: fontWeight.medium,
-    color: colors.textLight,
-    marginBottom: spacing.sm,
-  },
-  
-  // Layout Styles
+  // Layout styles
   row: {
     flexDirection: 'row',
-    alignItems: 'center',
-  },
-  
-  rowBetween: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  
-  rowCenter: {
-    flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
   },
   
@@ -402,51 +181,109 @@ export const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   
-  columnCenter: {
-    flexDirection: 'column',
+  center: {
     justifyContent: 'center',
     alignItems: 'center',
   },
   
-  centered: {
-    justifyContent: 'center',
+  spaceBetween: {
+    justifyContent: 'space-between',
+  },
+  
+  // Card styles
+  card: {
+    backgroundColor: colors.surfaceDark,
+    borderRadius: borderRadius.md,
+    padding: spacing.md,
+    marginVertical: spacing.sm,
+    ...shadows.medium,
+  },
+  
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
+  },
+  
+  // Button styles
+  primaryButton: {
+    backgroundColor: colors.primary,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    ...shadows.small,
+  },
+  
+  secondaryButton: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: colors.primary,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
     alignItems: 'center',
   },
   
-  // Spacing Styles
-  marginXs: { margin: spacing.xs },
-  marginSm: { margin: spacing.sm },
-  marginMd: { margin: spacing.md },
-  marginLg: { margin: spacing.lg },
-  marginXl: { margin: spacing.xl },
-  
-  paddingXs: { padding: spacing.xs },
-  paddingSm: { padding: spacing.sm },
-  paddingMd: { padding: spacing.md },
-  paddingLg: { padding: spacing.lg },
-  paddingXl: { padding: spacing.xl },
-  
-  marginBottomXs: { marginBottom: spacing.xs },
-  marginBottomSm: { marginBottom: spacing.sm },
-  marginBottomMd: { marginBottom: spacing.md },
-  marginBottomLg: { marginBottom: spacing.lg },
-  marginBottomXl: { marginBottom: spacing.xl },
-  
-  marginTopXs: { marginTop: spacing.xs },
-  marginTopSm: { marginTop: spacing.sm },
-  marginTopMd: { marginTop: spacing.md },
-  marginTopLg: { marginTop: spacing.lg },
-  marginTopXl: { marginTop: spacing.xl },
-  
-  // Tree Container Styles
-  treeContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: spacing.sm,
-    ...shadows.md,
+  buttonText: {
+    color: colors.textPrimary,
+    fontSize: typography.body,
+    fontWeight: '600',
   },
   
-  // Loading Styles
+  secondaryButtonText: {
+    color: colors.primary,
+    fontSize: typography.body,
+    fontWeight: '600',
+  },
+  
+  // Text styles
+  title: {
+    fontSize: typography.h2,
+    fontWeight: 'bold',
+    color: colors.textPrimary,
+    marginBottom: spacing.sm,
+  },
+  
+  subtitle: {
+    fontSize: typography.h4,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginBottom: spacing.xs,
+  },
+  
+  bodyText: {
+    fontSize: typography.body,
+    color: colors.textSecondary,
+    lineHeight: typography.lineHeight.normal * typography.body,
+  },
+  
+  captionText: {
+    fontSize: typography.caption,
+    color: colors.textSecondary,
+    lineHeight: typography.lineHeight.normal * typography.caption,
+  },
+  
+  // Input styles
+  textInput: {
+    backgroundColor: colors.surfaceDark,
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    fontSize: typography.body,
+    color: colors.textPrimary,
+    borderWidth: 1,
+    borderColor: colors.borderDark,
+    marginVertical: spacing.sm,
+  },
+  
+  textInputFocused: {
+    borderColor: colors.primary,
+    ...shadows.small,
+  },
+  
+  // Loading styles
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -454,14 +291,13 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.backgroundDark,
   },
   
-  loadingContainerLight: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.backgroundLight,
+  loadingText: {
+    marginTop: spacing.md,
+    fontSize: typography.body,
+    color: colors.textSecondary,
   },
   
-  // Modal Styles
+  // Modal styles
   modalOverlay: {
     flex: 1,
     backgroundColor: colors.overlayDark,
@@ -469,283 +305,112 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   
-  modalContainer: {
+  modalContent: {
     backgroundColor: colors.surfaceDark,
     borderRadius: borderRadius.lg,
     padding: spacing.lg,
-    margin: spacing.md,
-    maxWidth: width - (spacing.md * 2),
-    maxHeight: height - (spacing.lg * 2),
+    marginHorizontal: spacing.lg,
+    maxWidth: deviceSize.isTablet ? 400 : width - (spacing.lg * 2),
+    width: '100%',
+    ...shadows.large,
   },
   
-  modalContainerLight: {
-    backgroundColor: colors.surfaceLight,
-    borderRadius: borderRadius.lg,
-    padding: spacing.lg,
-    margin: spacing.md,
-    maxWidth: width - (spacing.md * 2),
-    maxHeight: height - (spacing.lg * 2),
-    ...shadows.lg,
-  },
-  
-  // Card Styles
-  card: {
+  // Tab bar styles
+  tabBar: {
     backgroundColor: colors.surfaceDark,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    ...shadows.sm,
+    borderTopWidth: 1,
+    borderTopColor: colors.borderDark,
+    paddingBottom: Platform.OS === 'ios' ? spacing.lg : spacing.md,
+    paddingTop: spacing.sm,
+    height: Platform.OS === 'ios' ? verticalScale(84) : verticalScale(60),
   },
   
-  cardLight: {
-    backgroundColor: colors.surfaceLight,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    ...shadows.sm,
-  },
-  
-  // Avatar Styles
-  avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  
-  avatarLarge: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  
-  avatarSmall: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  
-  // Badge Styles
-  badge: {
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.sm,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  
-  badgeText: {
-    fontSize: fontSize.xs,
-    fontWeight: fontWeight.medium,
-    color: colors.textPrimary,
-  },
-  
-  // Divider Styles
-  divider: {
-    height: 1,
-    backgroundColor: colors.borderDark,
-    marginVertical: spacing.sm,
-  },
-  
-  dividerLight: {
-    height: 1,
-    backgroundColor: colors.borderLight,
-    marginVertical: spacing.sm,
-  },
-  
-  // Status Bar Styles
-  statusBar: {
-    backgroundColor: colors.backgroundDark,
-  },
-  
-  statusBarLight: {
-    backgroundColor: colors.backgroundLight,
-  },
-  
-  // Scroll View Styles
-  scrollView: {
-    flex: 1,
-  },
-  
-  scrollViewContent: {
-    flexGrow: 1,
-    padding: spacing.md,
-  },
-  
-  // Grid Styles
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  
-  gridItem: {
-    width: '48%',
-    marginBottom: spacing.sm,
-  },
-  
-  gridItemThird: {
-    width: '31%',
-    marginBottom: spacing.sm,
-  },
-  
-  // Form Styles
-  formContainer: {
-    padding: spacing.md,
-  },
-  
-  formGroup: {
-    marginBottom: spacing.md,
-  },
-  
-  formLabel: {
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.medium,
-    color: colors.textSecondary,
-    marginBottom: spacing.xs,
-  },
-  
-  formLabelLight: {
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.medium,
-    color: colors.textLightSecondary,
-    marginBottom: spacing.xs,
-  },
-  
-  // Tab Styles
-  tabContainer: {
-    flexDirection: 'row',
+  // Header styles
+  header: {
     backgroundColor: colors.surfaceDark,
-    borderRadius: borderRadius.md,
-    padding: spacing.xs,
-  },
-  
-  tabContainerLight: {
-    flexDirection: 'row',
-    backgroundColor: colors.surfaceLight,
-    borderRadius: borderRadius.md,
-    padding: spacing.xs,
-    ...shadows.sm,
-  },
-  
-  tabButton: {
-    flex: 1,
-    paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
-    borderRadius: borderRadius.sm,
-    alignItems: 'center',
+    paddingTop: Platform.OS === 'ios' ? spacing.xl : spacing.lg,
+    paddingBottom: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderDark,
   },
   
-  tabButtonActive: {
-    backgroundColor: colors.primary,
-  },
-  
-  tabButtonText: {
-    fontSize: fontSize.sm,
-    fontWeight: fontWeight.medium,
-    color: colors.textSecondary,
-  },
-  
-  tabButtonTextActive: {
+  headerTitle: {
+    fontSize: typography.h3,
+    fontWeight: 'bold',
     color: colors.textPrimary,
+    textAlign: 'center',
   },
   
-  // List Styles
-  listContainer: {
-    flex: 1,
-  },
-  
+  // List styles
   listItem: {
     backgroundColor: colors.surfaceDark,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    ...shadows.sm,
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.borderDark,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   
-  listItemLight: {
-    backgroundColor: colors.surfaceLight,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-    ...shadows.sm,
+  listItemText: {
+    flex: 1,
+    fontSize: typography.body,
+    color: colors.textPrimary,
   },
   
-  // Error Styles
+  listItemSubtext: {
+    fontSize: typography.bodySmall,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
+  },
+  
+  // Empty state styles
+  emptyState: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+  },
+  
+  emptyStateText: {
+    fontSize: typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: spacing.md,
+  },
+  
+  // Error styles
   errorContainer: {
-    backgroundColor: colors.error,
+    backgroundColor: colors.error + '20',
     borderRadius: borderRadius.md,
     padding: spacing.md,
-    marginBottom: spacing.sm,
+    marginVertical: spacing.sm,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.error,
   },
   
   errorText: {
-    fontSize: fontSize.sm,
-    color: colors.textPrimary,
-    textAlign: 'center',
+    color: colors.error,
+    fontSize: typography.bodySmall,
+    fontWeight: '500',
   },
   
-  // Success Styles
+  // Success styles
   successContainer: {
-    backgroundColor: colors.success,
+    backgroundColor: colors.success + '20',
     borderRadius: borderRadius.md,
     padding: spacing.md,
-    marginBottom: spacing.sm,
+    marginVertical: spacing.sm,
+    borderLeftWidth: 4,
+    borderLeftColor: colors.success,
   },
   
   successText: {
-    fontSize: fontSize.sm,
-    color: colors.textPrimary,
-    textAlign: 'center',
+    color: colors.success,
+    fontSize: typography.bodySmall,
+    fontWeight: '500',
   },
-  
-  // Warning Styles
-  warningContainer: {
-    backgroundColor: colors.warning,
-    borderRadius: borderRadius.md,
-    padding: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  
-  warningText: {
-    fontSize: fontSize.sm,
-    color: '#000000',
-    textAlign: 'center',
-  },
-  
-  // Accessibility Styles
-  touchableArea: {
-    minHeight: 44,
-    minWidth: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  
-  // Platform Specific Styles
-  ...Platform.select({
-    ios: {
-      shadowContainer: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-    },
-    android: {
-      shadowContainer: {
-        elevation: 4,
-      },
-    },
-  }),
 });
 
-export default styles;
+export default NativeAppStyles;
