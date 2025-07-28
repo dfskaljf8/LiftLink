@@ -222,6 +222,7 @@ const App = () => {
           />
         )}
       </NavigationContainer>
+      </DynamicIslandSafeWrapper>
     </AppContext.Provider>
   );
 };
