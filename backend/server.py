@@ -210,26 +210,245 @@ def generate_id():
 async def send_trainer_notification(trainer_id: str, title: str, message: str, data: dict = None):
     """Send push notification to trainer"""
     try:
-        # In a real implementation, this would integrate with a push notification service
-        # like Firebase Cloud Messaging, Apple Push Notification Service, etc.
-        print(f"📱 Push notification to trainer {trainer_id}: {title} - {message}")
-        
-        # Store notification in database for trainer to see in app
-        notification_doc = {
-            "id": generate_id(),
+        # Store notification in database
+        notification_id = generate_id()
+        notification = {
+            "id": notification_id,
             "trainer_id": trainer_id,
             "title": title,
             "message": message,
             "data": data or {},
             "read": False,
-            "created_at": datetime.now().isoformat()
+            "created_at": datetime.now().isoformat(),
+            "type": "trainer_notification"
         }
         
-        await db.trainer_notifications.insert_one(notification_doc)
+        await db.trainer_notifications.insert_one(notification)
+        
+        # TODO: Integrate with push notification service (Firebase, etc.)
+        print(f"📱 Trainer Notification: {trainer_id} - {title}: {message}")
         
         return True
     except Exception as e:
         print(f"❌ Error sending trainer notification: {e}")
+        return False
+
+async def send_user_notification(user_id: str, title: str, message: str, data: dict = None):
+    """Send push notification to user"""
+    try:
+        # Store notification in database
+        notification_id = generate_id()
+        notification = {
+            "id": notification_id,
+            "user_id": user_id,
+            "title": title,
+            "message": message,
+            "data": data or {},
+            "read": False,
+            "created_at": datetime.now().isoformat(),
+            "type": "user_notification"
+        }
+        
+        await db.user_notifications.insert_one(notification)
+        
+        # TODO: Integrate with push notification service (Firebase, etc.)
+        print(f"📱 User Notification: {user_id} - {title}: {message}")
+        
+        return True
+    except Exception as e:
+        print(f"❌ Error sending user notification: {e}")
+        return False
+
+async def notify_payment_received(trainer_id: str, user_id: str, amount: float, session_details: dict):
+    """Send notifications when payment is received"""
+    try:
+        # Get user info for trainer notification
+        user = await db.users.find_one({"id": user_id})
+        user_name = user.get("name", "Client") if user else "Client"
+        
+        # Notify trainer about payment
+        await send_trainer_notification(
+            trainer_id=trainer_id,
+            title="Payment Received 💰",
+            message=f"${amount:.2f} payment received from {user_name} for {session_details.get('session_type', 'session')}",
+            data={
+                "type": "payment_received",
+                "user_id": user_id,
+                "amount": amount,
+                "session_details": session_details
+            }
+        )
+        
+        # Notify user about payment confirmation
+        await send_user_notification(
+            user_id=user_id,
+            title="Payment Confirmed ✅",
+            message=f"Your ${amount:.2f} payment for {session_details.get('session_type', 'session')} has been processed successfully",
+            data={
+                "type": "payment_confirmed",
+                "trainer_id": trainer_id,
+                "amount": amount,
+                "session_details": session_details
+            }
+        )
+        
+        return True
+    except Exception as e:
+        print(f"❌ Error sending payment notifications: {e}")
+        return False
+
+async def notify_session_booked(trainer_id: str, user_id: str, session_details: dict):
+    """Send notifications when session is booked"""
+    try:
+        # Get user and trainer info
+        user = await db.users.find_one({"id": user_id})
+        trainer = await db.users.find_one({"id": trainer_id})
+        
+        user_name = user.get("name", "Client") if user else "Client"
+        trainer_name = trainer.get("name", "Trainer") if trainer else "Trainer"
+        
+        # Notify trainer about new booking
+        await send_trainer_notification(
+            trainer_id=trainer_id,
+            title="New Session Booked 📅",
+            message=f"{user_name} booked a {session_details.get('session_type', 'session')} on {session_details.get('date', 'TBD')} at {session_details.get('time', 'TBD')}",
+            data={
+                "type": "session_booked",
+                "user_id": user_id,
+                "session_details": session_details
+            }
+        )
+        
+        # Notify user about booking confirmation
+        await send_user_notification(
+            user_id=user_id,
+            title="Session Booked ✅",
+            message=f"Your {session_details.get('session_type', 'session')} with {trainer_name} is confirmed for {session_details.get('date', 'TBD')} at {session_details.get('time', 'TBD')}",
+            data={
+                "type": "booking_confirmed",
+                "trainer_id": trainer_id,
+                "session_details": session_details
+            }
+        )
+        
+        return True
+    except Exception as e:
+        print(f"❌ Error sending booking notifications: {e}")
+        return False
+
+async def notify_session_cancelled(trainer_id: str, user_id: str, session_details: dict, cancelled_by: str):
+    """Send notifications when session is cancelled"""
+    try:
+        # Get user and trainer info
+        user = await db.users.find_one({"id": user_id})
+        trainer = await db.users.find_one({"id": trainer_id})
+        
+        user_name = user.get("name", "Client") if user else "Client"
+        trainer_name = trainer.get("name", "Trainer") if trainer else "Trainer"
+        
+        if cancelled_by == "user":
+            # Notify trainer about cancellation
+            await send_trainer_notification(
+                trainer_id=trainer_id,
+                title="Session Cancelled ❌",
+                message=f"{user_name} cancelled their {session_details.get('session_type', 'session')} scheduled for {session_details.get('date', 'TBD')} at {session_details.get('time', 'TBD')}",
+                data={
+                    "type": "session_cancelled",
+                    "user_id": user_id,
+                    "cancelled_by": "client",
+                    "session_details": session_details
+                }
+            )
+            
+            # Confirm cancellation to user
+            await send_user_notification(
+                user_id=user_id,
+                title="Cancellation Confirmed",
+                message=f"Your {session_details.get('session_type', 'session')} with {trainer_name} has been cancelled",
+                data={
+                    "type": "cancellation_confirmed",
+                    "trainer_id": trainer_id,
+                    "session_details": session_details
+                }
+            )
+            
+        elif cancelled_by == "trainer":
+            # Notify user about trainer cancellation
+            await send_user_notification(
+                user_id=user_id,
+                title="Session Cancelled by Trainer ❌",
+                message=f"{trainer_name} cancelled your {session_details.get('session_type', 'session')} scheduled for {session_details.get('date', 'TBD')} at {session_details.get('time', 'TBD')}",
+                data={
+                    "type": "session_cancelled",
+                    "trainer_id": trainer_id,
+                    "cancelled_by": "trainer",
+                    "session_details": session_details
+                }
+            )
+            
+            # Confirm cancellation to trainer
+            await send_trainer_notification(
+                trainer_id=trainer_id,
+                title="Cancellation Confirmed",
+                message=f"You cancelled the {session_details.get('session_type', 'session')} with {user_name}",
+                data={
+                    "type": "cancellation_confirmed",
+                    "user_id": user_id,
+                    "session_details": session_details
+                }
+            )
+        
+        return True
+    except Exception as e:
+        print(f"❌ Error sending cancellation notifications: {e}")
+        return False
+
+async def notify_session_reminder(trainer_id: str, user_id: str, session_details: dict, reminder_type: str):
+    """Send session reminder notifications"""
+    try:
+        # Get user and trainer info
+        user = await db.users.find_one({"id": user_id})
+        trainer = await db.users.find_one({"id": trainer_id})
+        
+        user_name = user.get("name", "Client") if user else "Client"
+        trainer_name = trainer.get("name", "Trainer") if trainer else "Trainer"
+        
+        if reminder_type == "24h":
+            reminder_text = "tomorrow"
+        elif reminder_type == "1h":
+            reminder_text = "in 1 hour"
+        else:
+            reminder_text = "soon"
+        
+        # Remind trainer
+        await send_trainer_notification(
+            trainer_id=trainer_id,
+            title=f"Session Reminder 🔔",
+            message=f"You have a {session_details.get('session_type', 'session')} with {user_name} {reminder_text}",
+            data={
+                "type": "session_reminder",
+                "user_id": user_id,
+                "reminder_type": reminder_type,
+                "session_details": session_details
+            }
+        )
+        
+        # Remind user
+        await send_user_notification(
+            user_id=user_id,
+            title=f"Session Reminder 🔔",
+            message=f"You have a {session_details.get('session_type', 'session')} with {trainer_name} {reminder_text}",
+            data={
+                "type": "session_reminder",
+                "trainer_id": trainer_id,
+                "reminder_type": reminder_type,
+                "session_details": session_details
+            }
+        )
+        
+        return True
+    except Exception as e:
+        print(f"❌ Error sending reminder notifications: {e}")
         return False
 
 async def get_user_by_email(email: str):
