@@ -315,8 +315,8 @@ class PaymentService:
                     'quantity': 1,
                 }],
                 'mode': 'payment',
-                'success_url': 'https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com/success?session_id={CHECKOUT_SESSION_ID}',
-                'cancel_url': 'https://8fe21dd2-35a9-4730-97e3-93ae042411a9.preview.emergentagent.com/cancel',
+                'success_url': 'https://liftlink-ra6t.onrender.com/success?session_id={CHECKOUT_SESSION_ID}',
+                'cancel_url': 'https://liftlink-ra6t.onrender.com/cancel',
                 'customer_email': client_email,
                 'metadata': {
                     'trainer_id': trainer_id,
