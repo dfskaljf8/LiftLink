@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
-import { colors, spacing, typography, borderRadius, shadows, scale, moderateScale } from '../styles/AppStyles';
+import { colors, spacing, typography, borderRadius, shadows, scale, moderateScale, deviceSize } from '../styles/AppStyles';
 
 const { width, height } = Dimensions.get('window');
 
