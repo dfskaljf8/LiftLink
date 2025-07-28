@@ -1890,28 +1890,6 @@ async def create_session_checkout(request: dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-# New Stripe-specific endpoints
-@api_router.post("/payments/create-session-checkout")
-async def create_session_checkout(request: dict):
-    """Create Stripe checkout session for trainee to pay for session"""
-    try:
-        amount = request.get("amount", 7500)  # Amount in cents
-        trainer_id = request.get("trainer_id")
-        client_email = request.get("client_email")
-        session_details = request.get("session_details", {})
-        
-        checkout_data = payment_service.create_session_checkout(
-            amount, trainer_id, client_email, session_details
-        )
-        
-        if checkout_data:
-            return checkout_data
-        else:
-            raise HTTPException(status_code=500, detail="Failed to create checkout session")
-            
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
 @api_router.post("/payments/confirm-payment")
 async def confirm_payment(request: dict):
     """Confirm payment and update session status"""
