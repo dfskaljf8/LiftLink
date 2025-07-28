@@ -556,7 +556,7 @@ async def google_fit_login():
             raise HTTPException(status_code=501, detail="Google Fit integration not configured")
         
         # Real OAuth URL with proper redirect URI
-        redirect_uri = f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/google-fit/callback"
+        redirect_uri = f"{os.environ.get('BACKEND_URL', 'https://liftlink-ra6t.onrender.com')}/api/google-fit/callback"
         
         auth_url = (
             f"https://accounts.google.com/o/oauth2/auth?"
