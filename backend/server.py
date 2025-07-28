@@ -400,6 +400,40 @@ async def create_user(user: User):
         created_at=user_doc["created_at"]
     )
 
+@api_router.get("/trainers/all")
+async def get_all_trainers():
+    """Get all available trainers"""
+    try:
+        # Query all users with trainer role from database
+        trainers_cursor = db.users.find({
+            "role": "trainer"
+        })
+        
+        trainers = []
+        async for trainer in trainers_cursor:
+            trainer_data = {
+                "id": trainer["id"],
+                "name": trainer.get("name", "Professional Trainer"),
+                "display_name": trainer.get("display_name", trainer.get("name", "Professional Trainer")),
+                "specialties": trainer.get("specialties", ["Personal Training"]),
+                "hourly_rate": trainer.get("hourly_rate", 75),
+                "rating": trainer.get("rating", 5.0),
+                "location": trainer.get("location", {}).get("address", "Available for training"),
+                "bio": trainer.get("bio", "Professional fitness trainer"),
+                "availability": trainer.get("availability", "Available by appointment"),
+                "image": trainer.get("profile_image", None),
+                "experience_years": trainer.get("experience_years", 1),
+                "certifications": trainer.get("certifications", []),
+                "price": f"${trainer.get('hourly_rate', 75)}/session"
+            }
+            trainers.append(trainer_data)
+        
+        return {"trainers": trainers}
+        
+    except Exception as e:
+        print(f"❌ Error fetching trainers: {e}")
+        return {"trainers": []}
+
 @api_router.post("/trainers/nearby")
 async def get_nearby_trainers(request: dict):
     """Get trainers near a specific location"""
