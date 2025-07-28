@@ -57,7 +57,7 @@ const PaymentContent = ({ trainer, sessionDetails, onPaymentSuccess, onCancel })
 
     try {
       // Create checkout session
-      const response = await fetch(`${API}/payments/create-session-checkout`, {
+      const response = await fetch(`${API}/api/payments/create-session-checkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
