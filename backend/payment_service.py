@@ -99,84 +99,109 @@ class PaymentService:
             return False
     
     def get_trainer_earnings(self, trainer_id: str, start_date: str = None, end_date: str = None) -> Dict:
-        """Get trainer earnings from Stripe data and mock recent data"""
+        """Get trainer earnings from real Stripe data"""
         try:
             if not self.stripe_key:
-                print("❌ STRIPE ERROR: No API key configured, returning mock data")
-                return self._get_mock_earnings()
-                
-            # In a real implementation, you would query Stripe for actual payment data
-            # For now, we'll get some basic account info and combine with mock data
+                print("❌ STRIPE ERROR: No API key configured")
+                return {
+                    "total_earnings": 0.00,
+                    "this_month": 0.00,
+                    "pending_payments": 0.00,
+                    "completed_sessions": 0,
+                    "avg_session_rate": 0.00,
+                    "stripe_earnings": 0.00,
+                    "recent_payments": []
+                }
             
-            # Get recent charges for this trainer (if any)
+            # Get all charges from Stripe with expanded payment intent data
             charges = stripe.Charge.list(
-                limit=10,
-                expand=['data.payment_intent']
+                limit=100,  # Get more charges for accurate data
+                expand=['data.payment_intent'],
+                created={
+                    'gte': int(datetime.strptime(start_date, '%Y-%m-%d').timestamp()) if start_date else None,
+                    'lte': int(datetime.strptime(end_date, '%Y-%m-%d').timestamp()) if end_date else None
+                } if start_date or end_date else {}
             )
             
-            # Filter charges for this trainer (from metadata)
+            # Filter charges for this specific trainer
             trainer_charges = []
-            total_stripe_earnings = 0
+            total_earnings = 0.00
+            this_month_earnings = 0.00
+            successful_sessions = 0
+            current_month = datetime.now().month
+            current_year = datetime.now().year
             
             for charge in charges.data:
                 if (charge.payment_intent and 
                     charge.payment_intent.metadata and 
-                    charge.payment_intent.metadata.get('trainer_id') == trainer_id):
+                    charge.payment_intent.metadata.get('trainer_id') == trainer_id and
+                    charge.status == 'succeeded'):
+                    
                     trainer_charges.append(charge)
-                    if charge.status == 'succeeded':
-                        total_stripe_earnings += charge.amount
+                    amount_dollars = charge.amount / 100
+                    total_earnings += amount_dollars
+                    successful_sessions += 1
+                    
+                    # Check if charge is from current month
+                    charge_date = datetime.fromtimestamp(charge.created)
+                    if (charge_date.month == current_month and 
+                        charge_date.year == current_year):
+                        this_month_earnings += amount_dollars
             
-            # Combine with mock data for demo purposes
-            mock_earnings = {
-                "total_earnings": (total_stripe_earnings / 100) + 1800.00,  # Add Stripe earnings to mock base
-                "this_month": (total_stripe_earnings / 100) + 450.00,
-                "pending_payments": 75.00,
-                "completed_sessions": len(trainer_charges) + 18,
-                "avg_session_rate": 75.00,
-                "stripe_earnings": total_stripe_earnings / 100,
-                "recent_payments": []
+            # Calculate average session rate
+            avg_session_rate = total_earnings / successful_sessions if successful_sessions > 0 else 0.00
+            
+            # Get pending balance from Stripe
+            try:
+                balance = stripe.Balance.retrieve()
+                pending_amount = 0.00
+                for pending_transaction in balance.pending:
+                    pending_amount += pending_transaction.amount / 100
+            except Exception as e:
+                print(f"Could not retrieve balance: {e}")
+                pending_amount = 0.00
+            
+            # Format recent payments from real Stripe data
+            recent_payments = []
+            for charge in trainer_charges[:10]:  # Last 10 successful payments
+                payment_date = datetime.fromtimestamp(charge.created)
+                recent_payments.append({
+                    "id": charge.id,
+                    "amount": charge.amount / 100,
+                    "date": payment_date.strftime('%Y-%m-%d'),
+                    "client_name": charge.payment_intent.metadata.get('client_name', 
+                                  charge.payment_intent.metadata.get('client_id', 'Client')),
+                    "session_type": charge.payment_intent.metadata.get('session_type', 'Personal Training'),
+                    "stripe_charge": True,
+                    "status": charge.status,
+                    "payment_method": charge.payment_method_details.type if charge.payment_method_details else 'card'
+                })
+            
+            earnings_data = {
+                "total_earnings": round(total_earnings, 2),
+                "this_month": round(this_month_earnings, 2),
+                "pending_payments": round(pending_amount, 2),
+                "completed_sessions": successful_sessions,
+                "avg_session_rate": round(avg_session_rate, 2),
+                "stripe_earnings": round(total_earnings, 2),  # All earnings are from Stripe now
+                "recent_payments": recent_payments
             }
             
-            # Add Stripe payments to recent payments
-            for charge in trainer_charges[:5]:  # Last 5 payments
-                if charge.status == 'succeeded':
-                    mock_earnings["recent_payments"].append({
-                        "id": charge.id,
-                        "amount": charge.amount / 100,
-                        "date": charge.created,
-                        "client_name": charge.payment_intent.metadata.get('client_id', 'Unknown'),
-                        "session_type": "Personal Training",
-                        "stripe_charge": True
-                    })
-            
-            # Add some mock payments to fill the list
-            if len(mock_earnings["recent_payments"]) < 3:
-                mock_payments = [
-                    {
-                        "id": "pi_mock_001",
-                        "amount": 75.00,
-                        "date": "2025-01-10",
-                        "client_name": "John Doe",
-                        "session_type": "Personal Training",
-                        "stripe_charge": False
-                    },
-                    {
-                        "id": "pi_mock_002", 
-                        "amount": 100.00,
-                        "date": "2025-01-09",
-                        "client_name": "Jane Smith",
-                        "session_type": "Nutrition Consultation",
-                        "stripe_charge": False
-                    }
-                ]
-                mock_earnings["recent_payments"].extend(mock_payments)
-            
-            return mock_earnings
+            print(f"💰 Trainer {trainer_id} real Stripe earnings: ${total_earnings:.2f} total, {successful_sessions} sessions")
+            return earnings_data
             
         except stripe.error.StripeError as e:
             logging.error(f"Stripe earnings query failed: {e}")
             print(f"❌ STRIPE ERROR: {e}")
-            return self._get_mock_earnings()
+            return {
+                "total_earnings": 0.00,
+                "this_month": 0.00,
+                "pending_payments": 0.00,
+                "completed_sessions": 0,
+                "avg_session_rate": 0.00,
+                "stripe_earnings": 0.00,
+                "recent_payments": []
+            }
     
     def _get_mock_earnings(self):
         """Return mock earnings data when Stripe is not available"""
