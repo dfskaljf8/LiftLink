@@ -1170,7 +1170,13 @@ async def request_checkin(session_id: str, request: dict):
         
         await db.checkin_requests.insert_one(checkin_request)
         
-        # TODO: In production, send push notification to trainer
+        # Send push notification to trainer
+        await send_trainer_notification(
+            trainer_id=session.get("trainer_id"),
+            title="Check-in Request",
+            message=f"New check-in request for session {session_id}",
+            data={"type": "checkin_request", "request_id": checkin_request["id"]}
+        )
         
         return {"message": "Check-in request sent to trainer", "request_id": checkin_request["id"]}
         
