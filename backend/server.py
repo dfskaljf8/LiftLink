@@ -587,7 +587,7 @@ async def google_fit_callback(code: str, state: str = None):
         
         # Exchange authorization code for access token
         token_url = "https://oauth2.googleapis.com/token"
-        redirect_uri = f"{os.environ.get('BACKEND_URL', 'http://localhost:8001')}/api/google-fit/callback"
+        redirect_uri = f"{os.environ.get('BACKEND_URL', 'https://liftlink-ra6t.onrender.com')}/api/google-fit/callback"
         
         token_data = {
             "client_id": GOOGLE_CLIENT_ID_IOS,
