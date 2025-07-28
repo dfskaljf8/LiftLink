@@ -7,10 +7,14 @@ import {
   Alert,
   Platform,
   PermissionsAndroid,
-  ActivityIndicator
+  ActivityIndicator,
+  Dimensions
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
+import { colors, spacing, typography, borderRadius, shadows, scale, moderateScale } from '../styles/AppStyles';
+
+const { width, height } = Dimensions.get('window');
 
 const TrainerMapView = ({ trainers, onTrainerSelect }) => {
   const [region, setRegion] = useState({
@@ -22,18 +26,6 @@ const TrainerMapView = ({ trainers, onTrainerSelect }) => {
   const [userLocation, setUserLocation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [nearbyTrainers, setNearbyTrainers] = useState([]);
-
-  const colors = {
-    primary: '#4f46e5',
-    secondary: '#10b981',
-    background: '#111827',
-    surface: '#1f2937',
-    text: '#f9fafb',
-    textSecondary: '#9ca3af',
-    error: '#ef4444',
-    success: '#10b981',
-    warning: '#f59e0b'
-  };
 
   useEffect(() => {
     requestLocationPermission();
