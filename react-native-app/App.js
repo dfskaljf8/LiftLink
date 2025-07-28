@@ -716,56 +716,19 @@ const TrainersScreen = () => {
 
   const fetchTrainers = async () => {
     try {
-      // Enhanced mock trainers data
-      const mockTrainers = [
-        {
-          id: 'trainer_001',
-          name: 'Sarah Johnson',
-          specialties: ['Strength Training', 'HIIT'],
-          rating: 4.8,
-          price: '$75/session',
-          location: 'Downtown Gym',
-          image: 'https://via.placeholder.com/150',
-          bio: 'Certified personal trainer with 5 years experience',
-          availability: 'Mon-Fri 6AM-8PM'
-        },
-        {
-          id: 'trainer_002',
-          name: 'Mike Chen',
-          specialties: ['Cardio', 'Weight Loss'],
-          rating: 4.9,
-          price: '$85/session',
-          location: 'Fitness Center',
-          image: 'https://via.placeholder.com/150',
-          bio: 'Expert in cardiovascular training and nutrition',
-          availability: 'Mon-Sat 7AM-9PM'
-        },
-        {
-          id: 'trainer_003',
-          name: 'Emily Rodriguez',
-          specialties: ['Yoga', 'Flexibility'],
-          rating: 4.7,
-          price: '$60/session',
-          location: 'Wellness Studio',
-          image: 'https://via.placeholder.com/150',
-          bio: 'Yoga instructor specializing in mindfulness',
-          availability: 'Daily 5AM-7PM'
-        },
-        {
-          id: 'trainer_004',
-          name: 'David Kim',
-          specialties: ['CrossFit', 'Conditioning'],
-          rating: 4.6,
-          price: '$80/session',
-          location: 'CrossFit Box',
-          image: 'https://via.placeholder.com/150',
-          bio: 'High-intensity training specialist',
-          availability: 'Mon-Fri 5AM-8PM'
-        }
-      ];
-      setTrainers(mockTrainers);
+      // Fetch real trainers from backend API
+      const response = await axios.get(`${API}/trainers/all`);
+      
+      if (response.data && response.data.trainers) {
+        setTrainers(response.data.trainers);
+      } else {
+        // If no trainers found, set empty array
+        setTrainers([]);
+      }
     } catch (error) {
       console.error('Error fetching trainers:', error);
+      // Set empty array on error instead of mock data
+      setTrainers([]);
     } finally {
       setLoading(false);
     }
