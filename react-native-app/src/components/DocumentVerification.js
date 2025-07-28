@@ -15,7 +15,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const API = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+const API = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-ra6t.onrender.com';
 
 const DocumentVerification = ({ route, navigation }) => {
   const { user } = route.params;
