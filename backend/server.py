@@ -76,7 +76,10 @@ async def connect_mongodb():
 # Initialize MongoDB connection at startup
 @app.on_event("startup")
 async def startup_event():
+    global calendar_service
     await connect_mongodb()
+    # Initialize calendar service with database connection
+    calendar_service = CalendarService(db)
 
 # API Router
 from fastapi import APIRouter
