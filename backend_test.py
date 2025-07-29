@@ -873,7 +873,7 @@ def test_friend_request_notification_system():
     
     if response.status_code == 200:
         reject_request_response = response.json()
-        reject_request_id = reject_request_response["id"]
+        reject_request_id = reject_request_response["friend_request_id"]
         print(f"✅ Friend request sent for rejection test")
         
         # Reject the friend request
