@@ -440,36 +440,58 @@ class CalendarService:
             return None
     
     async def cancel_appointment(self, appointment_id: str) -> bool:
-        """Cancel appointment in Google Calendar"""
+        """Cancel appointment in database and Google Calendar if available"""
         try:
-            if not self.api_key or self.api_key == 'your_google_calendar_api_key_here':
-                print(f"📅 MOCK APPOINTMENT CANCELLED: {appointment_id}")
-                return True
+            # First, cancel in database
+            db_cancelled = await self._cancel_db_appointment(appointment_id)
             
-            async with httpx.AsyncClient() as client:
-                response = await client.delete(
-                    f"{self.base_url}/calendars/primary/events/{appointment_id}",
-                    params={'key': self.api_key}
-                )
+            # If Google Calendar API is configured, also cancel there
+            if self.api_key and self.api_key != 'your_google_calendar_api_key_here':
+                print(f"🔑 Also cancelling appointment in Google Calendar: {appointment_id}")
                 
-                if response.status_code == 204:  # No content = successful delete
-                    print(f"📅 GOOGLE CALENDAR APPOINTMENT CANCELLED: {appointment_id}")
-                    return True
-                elif response.status_code == 401:  # Unauthorized - treat as successful for testing
-                    print(f"⚠️  Google Calendar auth issue, treating as successful cancellation: {appointment_id}")
-                    return True
-                elif response.status_code == 404:  # Not found - appointment doesn't exist, treat as successful
-                    print(f"⚠️  Appointment not found in Google Calendar, treating as successful: {appointment_id}")
-                    return True
-                else:
-                    print(f"❌ Google Calendar cancel error: {response.status_code}")
-                    # For testing purposes, still return True to avoid 500 errors
-                    return True
+                async with httpx.AsyncClient() as client:
+                    response = await client.delete(
+                        f"{self.base_url}/calendars/primary/events/{appointment_id}",
+                        params={'key': self.api_key}
+                    )
+                    
+                    if response.status_code == 204:  # No content = successful delete
+                        print(f"📅 GOOGLE CALENDAR APPOINTMENT CANCELLED: {appointment_id}")
+                    elif response.status_code == 401:  # Unauthorized - treat as successful for testing
+                        print(f"⚠️  Google Calendar auth issue, but database cancellation successful: {appointment_id}")
+                    elif response.status_code == 404:  # Not found - appointment doesn't exist, treat as successful
+                        print(f"⚠️  Appointment not found in Google Calendar, but database cancellation successful: {appointment_id}")
+                    else:
+                        print(f"❌ Google Calendar cancel error: {response.status_code}")
+            
+            return db_cancelled
                     
         except Exception as e:
             logging.error(f"Appointment cancellation failed: {e}")
-            # For testing purposes, return True to avoid 500 errors
-            return True
+            return False
+    
+    async def _cancel_db_appointment(self, appointment_id: str) -> bool:
+        """Cancel appointment in database by marking as cancelled"""
+        if not self.db:
+            print("❌ Database connection not available")
+            return False
+        
+        try:
+            result = await self.db.appointments.update_one(
+                {"id": appointment_id},
+                {"$set": {"status": "cancelled", "cancelled_at": datetime.now().isoformat()}}
+            )
+            
+            if result.modified_count > 0:
+                print(f"📅 DATABASE APPOINTMENT CANCELLED: {appointment_id}")
+                return True
+            else:
+                print(f"❌ Appointment {appointment_id} not found in database")
+                return False
+                
+        except Exception as e:
+            print(f"❌ Error cancelling appointment in database: {e}")
+            return False
     
     async def _get_db_appointment_details(self, appointment_id: str) -> Optional[Dict]:
         """Get appointment details from database"""
