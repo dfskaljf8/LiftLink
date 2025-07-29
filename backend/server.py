@@ -203,6 +203,35 @@ class FitnessData(BaseModel):
     avg_duration: int
     recent_workouts: List[dict]
 
+class Appointment(BaseModel):
+    trainer_id: str
+    client_id: Optional[str] = None
+    user_id: Optional[str] = None
+    title: str
+    session_type: str
+    start_time: str
+    end_time: str
+    location: Optional[str] = "LiftLink Gym"
+    notes: Optional[str] = ""
+    status: str = "confirmed"
+    client_email: Optional[str] = None
+
+class AppointmentResponse(BaseModel):
+    id: str
+    trainer_id: str
+    client_id: Optional[str] = None
+    user_id: Optional[str] = None
+    title: str
+    session_type: str
+    start_time: str
+    end_time: str
+    location: Optional[str] = None
+    notes: Optional[str] = None
+    status: str
+    client_name: Optional[str] = None
+    client_email: Optional[str] = None
+    created_at: str
+
 # Utility functions
 def generate_id():
     return str(uuid.uuid4())
