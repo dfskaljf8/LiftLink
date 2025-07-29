@@ -262,7 +262,8 @@ test_results = {
     "enhanced_tree_progress": {"success": False, "details": ""},
     "google_api_integration": {"success": False, "details": ""},
     "stripe_payment_integration": {"success": False, "details": ""},
-    "trainer_features": {"success": False, "details": ""}
+    "trainer_features": {"success": False, "details": ""},
+    "notification_system_integration": {"success": False, "details": ""}
 }
 
 def print_separator():
