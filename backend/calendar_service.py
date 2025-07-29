@@ -15,53 +15,60 @@ class CalendarService:
         self.db = db
         
     async def get_trainer_schedule(self, trainer_id: str, start_date: str = None, end_date: str = None) -> List[Dict]:
-        """Get trainer schedule from Google Calendar with proper error handling"""
+        """Get trainer schedule from database first, then Google Calendar if available"""
         try:
-            if not self.api_key or self.api_key == 'your_google_calendar_api_key_here':
-                print("⚠️  Google Calendar API not configured, using mock data")
-                return self._get_mock_schedule()
+            # First, try to get appointments from database
+            db_schedule = await self._get_db_schedule(trainer_id)
             
-            print(f"🔑 Attempting Google Calendar API call for trainer {trainer_id}")
+            # If we have database appointments, return them
+            if db_schedule:
+                print(f"📅 Retrieved {len(db_schedule)} appointments from database for trainer {trainer_id}")
+                return db_schedule
             
-            # Use real Google Calendar API
-            if not start_date:
-                start_date = datetime.now().isoformat() + 'Z'
-            if not end_date:
-                end_date = (datetime.now() + timedelta(days=7)).isoformat() + 'Z'
-            
-            # Try to get primary calendar first
-            calendar_id = "primary"  # Use primary calendar for now
-            
-            params = {
-                'key': self.api_key,
-                'timeMin': start_date,
-                'timeMax': end_date,
-                'singleEvents': 'true',
-                'orderBy': 'startTime'
-            }
-            
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    f"{self.base_url}/calendars/{calendar_id}/events",
-                    params=params
-                )
+            # If no database appointments and Google Calendar API is configured, try that
+            if self.api_key and self.api_key != 'your_google_calendar_api_key_here':
+                print(f"🔑 No database appointments found, trying Google Calendar API for trainer {trainer_id}")
                 
-                if response.status_code == 200:
-                    data = response.json()
-                    events = self._format_calendar_events(data.get('items', []))
-                    print(f"📅 GOOGLE CALENDAR SUCCESS: Retrieved {len(events)} events")
-                    return events
-                elif response.status_code == 403:
-                    print(f"❌ Google Calendar 403 Error: API not properly configured in Google Cloud Console")
-                    print("🔧 Using mock data - Please configure Google Calendar API in Google Cloud Console")
-                    return self._get_mock_schedule()
-                else:
-                    print(f"❌ Google Calendar API error: {response.status_code} - {response.text}")
-                    return self._get_mock_schedule()
+                # Use real Google Calendar API
+                if not start_date:
+                    start_date = datetime.now().isoformat() + 'Z'
+                if not end_date:
+                    end_date = (datetime.now() + timedelta(days=7)).isoformat() + 'Z'
+                
+                # Try to get primary calendar first
+                calendar_id = "primary"  # Use primary calendar for now
+                
+                params = {
+                    'key': self.api_key,
+                    'timeMin': start_date,
+                    'timeMax': end_date,
+                    'singleEvents': 'true',
+                    'orderBy': 'startTime'
+                }
+                
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(
+                        f"{self.base_url}/calendars/{calendar_id}/events",
+                        params=params
+                    )
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        events = self._format_calendar_events(data.get('items', []))
+                        print(f"📅 GOOGLE CALENDAR SUCCESS: Retrieved {len(events)} events")
+                        return events
+                    elif response.status_code == 403:
+                        print(f"❌ Google Calendar 403 Error: API not properly configured in Google Cloud Console")
+                    else:
+                        print(f"❌ Google Calendar API error: {response.status_code} - {response.text}")
+            
+            # If no data from database or Google Calendar, create empty schedule
+            print(f"📅 No appointments found for trainer {trainer_id} - returning empty schedule")
+            return []
                     
         except Exception as e:
             print(f"❌ Calendar service error: {e}")
-            return self._get_mock_schedule()
+            return []
     
     def _format_calendar_events(self, events: List[Dict]) -> List[Dict]:
         """Format Google Calendar events to LiftLink format"""
