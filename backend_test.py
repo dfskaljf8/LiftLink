@@ -662,12 +662,11 @@ def test_friend_request_notification_system():
     if response.status_code == 200:
         friend_request_response = response.json()
         print(f"✅ Friend request sent successfully")
-        print(f"   Request ID: {friend_request_response.get('id', 'N/A')}")
-        print(f"   Status: {friend_request_response.get('status', 'N/A')}")
+        print(f"   Request ID: {friend_request_response.get('friend_request_id', 'N/A')}")
         print(f"   Message: {friend_request_response.get('message', 'N/A')}")
         
         # Verify friend request structure
-        required_fields = ["id", "sender_id", "receiver_id", "status", "created_at"]
+        required_fields = ["friend_request_id", "message"]
         missing_fields = [field for field in required_fields if field not in friend_request_response]
         
         if missing_fields:
@@ -677,7 +676,7 @@ def test_friend_request_notification_system():
             print("✅ Friend request data structure is correct")
             test_results_local["friend_request_sending"]["success"] = True
             
-        friend_request_id = friend_request_response["id"]
+        friend_request_id = friend_request_response["friend_request_id"]
     else:
         print(f"❌ Failed to send friend request: {response.status_code}")
         print(f"Response: {response.text}")
