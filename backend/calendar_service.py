@@ -311,7 +311,7 @@ class CalendarService:
     
     async def _get_db_schedule(self, trainer_id: str) -> List[Dict]:
         """Get schedule data from database"""
-        if not self.db:
+        if self.db is None:
             print("❌ Database connection not available")
             return []
         
