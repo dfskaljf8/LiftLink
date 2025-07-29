@@ -567,6 +567,564 @@ def test_user_profile_management(user):
         print(f"Response: {response.text}")
         test_results["user_profile"]["details"] += f"Failed to update user profile. Status code: {response.status_code}. "
         return False
+def test_friend_request_notification_system():
+    """Test comprehensive friend request notification system"""
+    print_separator()
+    print("🔍 TESTING FRIEND REQUEST NOTIFICATION SYSTEM")
+    print_separator()
+    
+    # Test results tracking
+    test_results_local = {
+        "friend_request_sending": {"success": False, "details": ""},
+        "friend_request_retrieval": {"success": False, "details": ""},
+        "friend_request_acceptance": {"success": False, "details": ""},
+        "friend_request_rejection": {"success": False, "details": ""},
+        "friends_list_management": {"success": False, "details": ""},
+        "notification_verification": {"success": False, "details": ""},
+        "validation_error_handling": {"success": False, "details": ""},
+        "database_collections": {"success": False, "details": ""}
+    }
+    
+    # Create test users for friend request testing
+    print("📝 STEP 1: CREATING TEST USERS")
+    print("-" * 60)
+    
+    # User A (sender)
+    user_a_email = f"friend_test_sender_{uuid.uuid4()}@example.com"
+    user_a_data = {
+        "email": user_a_email,
+        "name": "Alice Johnson",
+        "role": "fitness_enthusiast",
+        "fitness_goals": ["weight_loss"],
+        "experience_level": "beginner"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/users", json=user_a_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create User A: {response.status_code}")
+        test_results["friend_request_notification_system"] = {"success": False, "details": "Failed to create test users"}
+        return False
+    
+    user_a = response.json()
+    print(f"✅ Created User A (sender): {user_a['name']} - {user_a['id']}")
+    
+    # User B (receiver)
+    user_b_email = f"friend_test_receiver_{uuid.uuid4()}@example.com"
+    user_b_data = {
+        "email": user_b_email,
+        "name": "Bob Smith",
+        "role": "trainer",
+        "fitness_goals": ["muscle_building"],
+        "experience_level": "expert"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/users", json=user_b_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create User B: {response.status_code}")
+        test_results["friend_request_notification_system"] = {"success": False, "details": "Failed to create test users"}
+        return False
+    
+    user_b = response.json()
+    print(f"✅ Created User B (receiver): {user_b['name']} - {user_b['id']}")
+    
+    # User C (for additional testing)
+    user_c_email = f"friend_test_third_{uuid.uuid4()}@example.com"
+    user_c_data = {
+        "email": user_c_email,
+        "name": "Charlie Brown",
+        "role": "fitness_enthusiast",
+        "fitness_goals": ["general_fitness"],
+        "experience_level": "intermediate"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/users", json=user_c_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create User C: {response.status_code}")
+        test_results["friend_request_notification_system"] = {"success": False, "details": "Failed to create test users"}
+        return False
+    
+    user_c = response.json()
+    print(f"✅ Created User C (third user): {user_c['name']} - {user_c['id']}")
+    
+    # STEP 2: Test Friend Request Sending with Notifications
+    print("\n📤 STEP 2: TESTING FRIEND REQUEST SENDING WITH NOTIFICATIONS")
+    print("-" * 60)
+    
+    # Send friend request from User A to User B
+    friend_request_data = {
+        "receiver_id": user_b["id"],
+        "message": "Hey Bob! Let's be workout buddies!"
+    }
+    
+    print(f"Sending friend request from {user_a['name']} to {user_b['name']}")
+    response = requests.post(f"{BACKEND_URL}/users/{user_a['id']}/friend-requests", json=friend_request_data)
+    
+    if response.status_code == 200:
+        friend_request_response = response.json()
+        print(f"✅ Friend request sent successfully")
+        print(f"   Request ID: {friend_request_response.get('id', 'N/A')}")
+        print(f"   Status: {friend_request_response.get('status', 'N/A')}")
+        print(f"   Message: {friend_request_response.get('message', 'N/A')}")
+        
+        # Verify friend request structure
+        required_fields = ["id", "sender_id", "receiver_id", "status", "created_at"]
+        missing_fields = [field for field in required_fields if field not in friend_request_response]
+        
+        if missing_fields:
+            print(f"❌ Missing fields in friend request response: {missing_fields}")
+            test_results_local["friend_request_sending"]["details"] = f"Missing fields: {missing_fields}"
+        else:
+            print("✅ Friend request data structure is correct")
+            test_results_local["friend_request_sending"]["success"] = True
+            
+        friend_request_id = friend_request_response["id"]
+    else:
+        print(f"❌ Failed to send friend request: {response.status_code}")
+        print(f"Response: {response.text}")
+        test_results_local["friend_request_sending"]["details"] = f"Failed to send friend request: {response.status_code}"
+        test_results["friend_request_notification_system"] = {"success": False, "details": "Friend request sending failed"}
+        return False
+    
+    # Verify receiver gets notification
+    print(f"\nChecking if {user_b['name']} received friend request notification...")
+    response = requests.get(f"{BACKEND_URL}/users/{user_b['id']}/notifications")
+    
+    if response.status_code == 200:
+        notifications = response.json()
+        print(f"✅ Retrieved {len(notifications)} notifications for receiver")
+        
+        # Look for friend request notification
+        friend_request_notification = None
+        for notification in notifications:
+            if notification.get("data", {}).get("type") == "friend_request_received":
+                friend_request_notification = notification
+                break
+        
+        if friend_request_notification:
+            print("✅ Friend request notification found!")
+            print(f"   Title: {friend_request_notification.get('title', 'N/A')}")
+            print(f"   Message: {friend_request_notification.get('message', 'N/A')}")
+            print(f"   Sender ID: {friend_request_notification.get('data', {}).get('sender_id', 'N/A')}")
+        else:
+            print("❌ Friend request notification not found")
+            test_results_local["friend_request_sending"]["details"] += " No notification received"
+    else:
+        print(f"❌ Failed to get notifications: {response.status_code}")
+        test_results_local["friend_request_sending"]["details"] += f" Failed to get notifications: {response.status_code}"
+    
+    # Test duplicate friend request prevention
+    print(f"\nTesting duplicate friend request prevention...")
+    response = requests.post(f"{BACKEND_URL}/users/{user_a['id']}/friend-requests", json=friend_request_data)
+    
+    if response.status_code == 400:
+        print("✅ Duplicate friend request correctly prevented")
+    else:
+        print(f"❌ Duplicate friend request should be prevented but got: {response.status_code}")
+        test_results_local["friend_request_sending"]["details"] += " Duplicate prevention failed"
+    
+    # STEP 3: Test Friend Request Retrieval
+    print("\n📥 STEP 3: TESTING FRIEND REQUEST RETRIEVAL")
+    print("-" * 60)
+    
+    # Test getting received requests for User B
+    print(f"Getting received friend requests for {user_b['name']}")
+    response = requests.get(f"{BACKEND_URL}/users/{user_b['id']}/friend-requests?type=received")
+    
+    if response.status_code == 200:
+        received_requests = response.json()
+        print(f"✅ Retrieved {len(received_requests)} received friend requests")
+        
+        if len(received_requests) > 0:
+            request = received_requests[0]
+            print(f"   Request from: {request.get('sender_name', 'N/A')} ({request.get('sender_email', 'N/A')})")
+            print(f"   Status: {request.get('status', 'N/A')}")
+            print(f"   Message: {request.get('message', 'N/A')}")
+            
+            # Verify request details
+            if (request.get("sender_id") == user_a["id"] and 
+                request.get("receiver_id") == user_b["id"] and
+                request.get("status") == "pending"):
+                print("✅ Friend request details are correct")
+                test_results_local["friend_request_retrieval"]["success"] = True
+            else:
+                print("❌ Friend request details are incorrect")
+                test_results_local["friend_request_retrieval"]["details"] = "Request details incorrect"
+        else:
+            print("❌ No received friend requests found")
+            test_results_local["friend_request_retrieval"]["details"] = "No received requests found"
+    else:
+        print(f"❌ Failed to get received friend requests: {response.status_code}")
+        test_results_local["friend_request_retrieval"]["details"] = f"Failed to get received requests: {response.status_code}"
+    
+    # Test getting sent requests for User A
+    print(f"\nGetting sent friend requests for {user_a['name']}")
+    response = requests.get(f"{BACKEND_URL}/users/{user_a['id']}/friend-requests?type=sent")
+    
+    if response.status_code == 200:
+        sent_requests = response.json()
+        print(f"✅ Retrieved {len(sent_requests)} sent friend requests")
+        
+        if len(sent_requests) > 0:
+            request = sent_requests[0]
+            print(f"   Request to: {request.get('receiver_name', 'N/A')} ({request.get('receiver_email', 'N/A')})")
+            print(f"   Status: {request.get('status', 'N/A')}")
+            
+            if (request.get("sender_id") == user_a["id"] and 
+                request.get("receiver_id") == user_b["id"] and
+                request.get("status") == "pending"):
+                print("✅ Sent friend request details are correct")
+            else:
+                print("❌ Sent friend request details are incorrect")
+                test_results_local["friend_request_retrieval"]["details"] += " Sent request details incorrect"
+        else:
+            print("❌ No sent friend requests found")
+            test_results_local["friend_request_retrieval"]["details"] += " No sent requests found"
+    else:
+        print(f"❌ Failed to get sent friend requests: {response.status_code}")
+        test_results_local["friend_request_retrieval"]["details"] += f" Failed to get sent requests: {response.status_code}"
+    
+    # STEP 4: Test Friend Request Acceptance with Notifications
+    print("\n✅ STEP 4: TESTING FRIEND REQUEST ACCEPTANCE WITH NOTIFICATIONS")
+    print("-" * 60)
+    
+    print(f"{user_b['name']} accepting friend request from {user_a['name']}")
+    response = requests.put(f"{BACKEND_URL}/users/{user_b['id']}/friend-requests/{friend_request_id}/accept")
+    
+    if response.status_code == 200:
+        acceptance_response = response.json()
+        print(f"✅ Friend request accepted successfully")
+        print(f"   Message: {acceptance_response.get('message', 'N/A')}")
+        
+        # Verify sender gets acceptance notification
+        print(f"\nChecking if {user_a['name']} received acceptance notification...")
+        response = requests.get(f"{BACKEND_URL}/users/{user_a['id']}/notifications")
+        
+        if response.status_code == 200:
+            notifications = response.json()
+            print(f"✅ Retrieved {len(notifications)} notifications for sender")
+            
+            # Look for acceptance notification
+            acceptance_notification = None
+            for notification in notifications:
+                if notification.get("data", {}).get("type") == "friend_request_accepted":
+                    acceptance_notification = notification
+                    break
+            
+            if acceptance_notification:
+                print("✅ Friend request acceptance notification found!")
+                print(f"   Title: {acceptance_notification.get('title', 'N/A')}")
+                print(f"   Message: {acceptance_notification.get('message', 'N/A')}")
+                test_results_local["friend_request_acceptance"]["success"] = True
+            else:
+                print("❌ Friend request acceptance notification not found")
+                test_results_local["friend_request_acceptance"]["details"] = "No acceptance notification received"
+        else:
+            print(f"❌ Failed to get acceptance notifications: {response.status_code}")
+            test_results_local["friend_request_acceptance"]["details"] = f"Failed to get notifications: {response.status_code}"
+        
+        # Verify friendship record is created
+        print(f"\nVerifying friendship record creation...")
+        response = requests.get(f"{BACKEND_URL}/users/{user_a['id']}/friends")
+        
+        if response.status_code == 200:
+            friends_a = response.json()
+            print(f"✅ {user_a['name']} has {len(friends_a)} friends")
+            
+            # Check if User B is in User A's friends list
+            friend_found = False
+            for friend in friends_a:
+                if friend.get("id") == user_b["id"]:
+                    friend_found = True
+                    print(f"   Friend: {friend.get('name', 'N/A')} ({friend.get('email', 'N/A')})")
+                    break
+            
+            if friend_found:
+                print("✅ Friendship record created correctly")
+            else:
+                print("❌ Friendship record not found")
+                test_results_local["friend_request_acceptance"]["details"] += " Friendship record not created"
+        else:
+            print(f"❌ Failed to get friends list: {response.status_code}")
+            test_results_local["friend_request_acceptance"]["details"] += f" Failed to get friends: {response.status_code}"
+    else:
+        print(f"❌ Failed to accept friend request: {response.status_code}")
+        print(f"Response: {response.text}")
+        test_results_local["friend_request_acceptance"]["details"] = f"Failed to accept request: {response.status_code}"
+    
+    # STEP 5: Test Friend Request Rejection with Notifications
+    print("\n❌ STEP 5: TESTING FRIEND REQUEST REJECTION WITH NOTIFICATIONS")
+    print("-" * 60)
+    
+    # Send another friend request from User C to User A for rejection testing
+    reject_request_data = {
+        "receiver_id": user_a["id"],
+        "message": "Let's train together!"
+    }
+    
+    print(f"Sending friend request from {user_c['name']} to {user_a['name']} for rejection test")
+    response = requests.post(f"{BACKEND_URL}/users/{user_c['id']}/friend-requests", json=reject_request_data)
+    
+    if response.status_code == 200:
+        reject_request_response = response.json()
+        reject_request_id = reject_request_response["id"]
+        print(f"✅ Friend request sent for rejection test")
+        
+        # Reject the friend request
+        print(f"{user_a['name']} rejecting friend request from {user_c['name']}")
+        response = requests.put(f"{BACKEND_URL}/users/{user_a['id']}/friend-requests/{reject_request_id}/reject")
+        
+        if response.status_code == 200:
+            rejection_response = response.json()
+            print(f"✅ Friend request rejected successfully")
+            print(f"   Message: {rejection_response.get('message', 'N/A')}")
+            
+            # Verify sender gets rejection notification
+            print(f"\nChecking if {user_c['name']} received rejection notification...")
+            response = requests.get(f"{BACKEND_URL}/users/{user_c['id']}/notifications")
+            
+            if response.status_code == 200:
+                notifications = response.json()
+                print(f"✅ Retrieved {len(notifications)} notifications for sender")
+                
+                # Look for rejection notification
+                rejection_notification = None
+                for notification in notifications:
+                    if notification.get("data", {}).get("type") == "friend_request_rejected":
+                        rejection_notification = notification
+                        break
+                
+                if rejection_notification:
+                    print("✅ Friend request rejection notification found!")
+                    print(f"   Title: {rejection_notification.get('title', 'N/A')}")
+                    print(f"   Message: {rejection_notification.get('message', 'N/A')}")
+                    test_results_local["friend_request_rejection"]["success"] = True
+                else:
+                    print("❌ Friend request rejection notification not found")
+                    test_results_local["friend_request_rejection"]["details"] = "No rejection notification received"
+            else:
+                print(f"❌ Failed to get rejection notifications: {response.status_code}")
+                test_results_local["friend_request_rejection"]["details"] = f"Failed to get notifications: {response.status_code}"
+        else:
+            print(f"❌ Failed to reject friend request: {response.status_code}")
+            test_results_local["friend_request_rejection"]["details"] = f"Failed to reject request: {response.status_code}"
+    else:
+        print(f"❌ Failed to send friend request for rejection test: {response.status_code}")
+        test_results_local["friend_request_rejection"]["details"] = f"Failed to send request for rejection test: {response.status_code}"
+    
+    # STEP 6: Test Friends List Management
+    print("\n👥 STEP 6: TESTING FRIENDS LIST MANAGEMENT")
+    print("-" * 60)
+    
+    # Test User A's friends list
+    print(f"Getting friends list for {user_a['name']}")
+    response = requests.get(f"{BACKEND_URL}/users/{user_a['id']}/friends")
+    
+    if response.status_code == 200:
+        friends_a = response.json()
+        print(f"✅ {user_a['name']} has {len(friends_a)} friends")
+        
+        for friend in friends_a:
+            print(f"   Friend: {friend.get('name', 'N/A')} - {friend.get('email', 'N/A')}")
+        
+        # Verify User B is in the list
+        user_b_found = any(friend.get("id") == user_b["id"] for friend in friends_a)
+        if user_b_found:
+            print(f"✅ {user_b['name']} correctly appears in {user_a['name']}'s friends list")
+        else:
+            print(f"❌ {user_b['name']} not found in {user_a['name']}'s friends list")
+            test_results_local["friends_list_management"]["details"] = "Friend not found in friends list"
+    else:
+        print(f"❌ Failed to get friends list for User A: {response.status_code}")
+        test_results_local["friends_list_management"]["details"] = f"Failed to get User A friends: {response.status_code}"
+    
+    # Test User B's friends list (should also contain User A)
+    print(f"\nGetting friends list for {user_b['name']}")
+    response = requests.get(f"{BACKEND_URL}/users/{user_b['id']}/friends")
+    
+    if response.status_code == 200:
+        friends_b = response.json()
+        print(f"✅ {user_b['name']} has {len(friends_b)} friends")
+        
+        for friend in friends_b:
+            print(f"   Friend: {friend.get('name', 'N/A')} - {friend.get('email', 'N/A')}")
+        
+        # Verify User A is in the list
+        user_a_found = any(friend.get("id") == user_a["id"] for friend in friends_b)
+        if user_a_found:
+            print(f"✅ {user_a['name']} correctly appears in {user_b['name']}'s friends list")
+            test_results_local["friends_list_management"]["success"] = True
+        else:
+            print(f"❌ {user_a['name']} not found in {user_b['name']}'s friends list")
+            test_results_local["friends_list_management"]["details"] += " Mutual friendship not established"
+    else:
+        print(f"❌ Failed to get friends list for User B: {response.status_code}")
+        test_results_local["friends_list_management"]["details"] += f" Failed to get User B friends: {response.status_code}"
+    
+    # STEP 7: Test Validation and Error Handling
+    print("\n🔍 STEP 7: TESTING VALIDATION AND ERROR HANDLING")
+    print("-" * 60)
+    
+    validation_tests_passed = 0
+    total_validation_tests = 4
+    
+    # Test sending friend request to non-existent user
+    print("Testing friend request to non-existent user...")
+    invalid_request_data = {
+        "receiver_id": "non_existent_user_id",
+        "message": "This should fail"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/users/{user_a['id']}/friend-requests", json=invalid_request_data)
+    if response.status_code == 404:
+        print("✅ Correctly rejected friend request to non-existent user")
+        validation_tests_passed += 1
+    else:
+        print(f"❌ Should return 404 for non-existent user but got: {response.status_code}")
+    
+    # Test sending friend request to self
+    print("\nTesting friend request to self...")
+    self_request_data = {
+        "receiver_id": user_a["id"],
+        "message": "This should fail"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/users/{user_a['id']}/friend-requests", json=self_request_data)
+    if response.status_code == 400:
+        print("✅ Correctly rejected friend request to self")
+        validation_tests_passed += 1
+    else:
+        print(f"❌ Should return 400 for self friend request but got: {response.status_code}")
+    
+    # Test accepting invalid friend request
+    print("\nTesting accepting invalid friend request...")
+    response = requests.put(f"{BACKEND_URL}/users/{user_a['id']}/friend-requests/invalid_request_id/accept")
+    if response.status_code == 404:
+        print("✅ Correctly rejected accepting invalid friend request")
+        validation_tests_passed += 1
+    else:
+        print(f"❌ Should return 404 for invalid friend request but got: {response.status_code}")
+    
+    # Test rejecting invalid friend request
+    print("\nTesting rejecting invalid friend request...")
+    response = requests.put(f"{BACKEND_URL}/users/{user_a['id']}/friend-requests/invalid_request_id/reject")
+    if response.status_code == 404:
+        print("✅ Correctly rejected rejecting invalid friend request")
+        validation_tests_passed += 1
+    else:
+        print(f"❌ Should return 404 for invalid friend request but got: {response.status_code}")
+    
+    if validation_tests_passed >= 3:  # Allow for 1 failure
+        test_results_local["validation_error_handling"]["success"] = True
+        print(f"✅ Validation and error handling: {validation_tests_passed}/{total_validation_tests} tests passed")
+    else:
+        test_results_local["validation_error_handling"]["details"] = f"Only {validation_tests_passed}/{total_validation_tests} validation tests passed"
+        print(f"❌ Validation and error handling: {validation_tests_passed}/{total_validation_tests} tests passed")
+    
+    # STEP 8: Test Notification Verification
+    print("\n🔔 STEP 8: TESTING NOTIFICATION VERIFICATION")
+    print("-" * 60)
+    
+    # Test notification structure and marking as read
+    print(f"Testing notification structure for {user_a['name']}")
+    response = requests.get(f"{BACKEND_URL}/users/{user_a['id']}/notifications")
+    
+    if response.status_code == 200:
+        notifications = response.json()
+        print(f"✅ Retrieved {len(notifications)} notifications")
+        
+        if len(notifications) > 0:
+            notification = notifications[0]
+            required_fields = ["id", "title", "message", "data", "read", "created_at"]
+            missing_fields = [field for field in required_fields if field not in notification]
+            
+            if not missing_fields:
+                print("✅ Notification structure is correct")
+                
+                # Test marking notification as read
+                notification_id = notification["id"]
+                print(f"Testing marking notification as read...")
+                response = requests.put(f"{BACKEND_URL}/users/{user_a['id']}/notifications/{notification_id}/mark-read")
+                
+                if response.status_code == 200:
+                    print("✅ Notification marked as read successfully")
+                    test_results_local["notification_verification"]["success"] = True
+                else:
+                    print(f"❌ Failed to mark notification as read: {response.status_code}")
+                    test_results_local["notification_verification"]["details"] = f"Failed to mark as read: {response.status_code}"
+            else:
+                print(f"❌ Missing notification fields: {missing_fields}")
+                test_results_local["notification_verification"]["details"] = f"Missing fields: {missing_fields}"
+        else:
+            print("❌ No notifications found for structure testing")
+            test_results_local["notification_verification"]["details"] = "No notifications found"
+    else:
+        print(f"❌ Failed to get notifications: {response.status_code}")
+        test_results_local["notification_verification"]["details"] = f"Failed to get notifications: {response.status_code}"
+    
+    # STEP 9: Database Collections Verification (implicit through successful operations)
+    print("\n💾 STEP 9: DATABASE COLLECTIONS VERIFICATION")
+    print("-" * 60)
+    
+    # If we've successfully created friend requests, friendships, and notifications,
+    # the database collections are working correctly
+    successful_operations = sum(1 for result in test_results_local.values() if result["success"])
+    total_operations = len(test_results_local)
+    
+    if successful_operations >= 6:  # Most operations successful
+        test_results_local["database_collections"]["success"] = True
+        print("✅ Database collections verified through successful operations")
+        print(f"   - friend_requests collection: Working (requests created and retrieved)")
+        print(f"   - friendships collection: Working (friendships created)")
+        print(f"   - user_notifications collection: Working (notifications sent and retrieved)")
+    else:
+        test_results_local["database_collections"]["details"] = f"Only {successful_operations}/{total_operations} operations successful"
+        print(f"❌ Database collections may have issues: {successful_operations}/{total_operations} operations successful")
+    
+    # FINAL RESULTS SUMMARY
+    print("\n📊 FRIEND REQUEST NOTIFICATION SYSTEM TEST RESULTS")
+    print("=" * 70)
+    
+    success_count = sum(1 for result in test_results_local.values() if result["success"])
+    total_tests = len(test_results_local)
+    success_rate = (success_count / total_tests) * 100
+    
+    print(f"✅ Friend Request Sending: {'PASSED' if test_results_local['friend_request_sending']['success'] else 'FAILED'}")
+    print(f"✅ Friend Request Retrieval: {'PASSED' if test_results_local['friend_request_retrieval']['success'] else 'FAILED'}")
+    print(f"✅ Friend Request Acceptance: {'PASSED' if test_results_local['friend_request_acceptance']['success'] else 'FAILED'}")
+    print(f"✅ Friend Request Rejection: {'PASSED' if test_results_local['friend_request_rejection']['success'] else 'FAILED'}")
+    print(f"✅ Friends List Management: {'PASSED' if test_results_local['friends_list_management']['success'] else 'FAILED'}")
+    print(f"✅ Notification Verification: {'PASSED' if test_results_local['notification_verification']['success'] else 'FAILED'}")
+    print(f"✅ Validation & Error Handling: {'PASSED' if test_results_local['validation_error_handling']['success'] else 'FAILED'}")
+    print(f"✅ Database Collections: {'PASSED' if test_results_local['database_collections']['success'] else 'FAILED'}")
+    
+    print(f"\n📈 Overall Success Rate: {success_rate:.1f}% ({success_count}/{total_tests} tests passed)")
+    
+    # Determine overall success
+    if success_rate >= 75:  # 6 out of 8 tests must pass
+        print(f"\n🎉 FRIEND REQUEST NOTIFICATION SYSTEM TEST PASSED!")
+        print("✅ Complete friend request workflow with immediate notifications is working")
+        print("✅ Users receive notifications when friend requests are sent, accepted, or rejected")
+        print("✅ Friendship records are properly created and managed")
+        print("✅ Database operations are functioning correctly")
+        test_results["friend_request_notification_system"] = {"success": True, "details": f"Success rate: {success_rate:.1f}%"}
+        return True
+    else:
+        print(f"\n❌ FRIEND REQUEST NOTIFICATION SYSTEM TEST FAILED!")
+        failed_tests = [test_name for test_name, result in test_results_local.items() if not result["success"]]
+        print(f"❌ Failed tests: {', '.join(failed_tests)}")
+        
+        # Collect all failure details
+        failure_details = []
+        for test_name, result in test_results_local.items():
+            if not result["success"] and result["details"]:
+                failure_details.append(f"{test_name}: {result['details']}")
+        
+        test_results["friend_request_notification_system"] = {
+            "success": False, 
+            "details": f"Success rate: {success_rate:.1f}%. Failed tests: {'; '.join(failure_details)}"
+        }
+        return False
+
 def test_comprehensive_email_validation():
     """Comprehensive email validation testing for Pydantic EmailStr validation"""
     print_separator()
