@@ -332,18 +332,45 @@ class CalendarService:
             print(f"❌ Error fetching schedule from database: {e}")
             return []
     
-    def _create_mock_appointment(self, trainer_id: str, appointment_data: Dict) -> Optional[Dict]:
-        """Create mock appointment"""
-        mock_appointment = {
-            "id": f"event_new_{datetime.now().strftime('%Y%m%d%H%M%S')}",
-            "trainer_id": trainer_id,
-            **appointment_data,
-            "status": "confirmed",
-            "created_at": datetime.now().isoformat()
-        }
+    async def _create_db_appointment(self, trainer_id: str, appointment_data: Dict) -> Optional[Dict]:
+        """Create appointment in database"""
+        if not self.db:
+            print("❌ Database connection not available")
+            return None
         
-        print(f"📅 MOCK APPOINTMENT CREATED: {appointment_data.get('title')} for trainer {trainer_id}")
-        return mock_appointment
+        try:
+            from datetime import datetime
+            import uuid
+            
+            # Generate unique appointment ID
+            appointment_id = str(uuid.uuid4())
+            
+            # Prepare appointment document
+            appointment_doc = {
+                "id": appointment_id,
+                "trainer_id": trainer_id,
+                "client_id": appointment_data.get('client_id') or appointment_data.get('user_id'),
+                "user_id": appointment_data.get('user_id') or appointment_data.get('client_id'),
+                "title": appointment_data.get('title', f"{appointment_data.get('session_type', 'Session')}"),
+                "session_type": appointment_data.get('session_type', 'Personal Training'),
+                "start_time": appointment_data.get('start_time'),
+                "end_time": appointment_data.get('end_time'),
+                "location": appointment_data.get('location', 'LiftLink Gym'),
+                "notes": appointment_data.get('notes', ''),
+                "status": appointment_data.get('status', 'confirmed'),
+                "client_email": appointment_data.get('client_email'),
+                "created_at": datetime.now().isoformat()
+            }
+            
+            # Insert into database
+            await self.db.appointments.insert_one(appointment_doc)
+            
+            print(f"📅 DATABASE APPOINTMENT CREATED: {appointment_doc['title']} for trainer {trainer_id}")
+            return appointment_doc
+            
+        except Exception as e:
+            print(f"❌ Error creating appointment in database: {e}")
+            return None
     
     def _get_mock_available_slots(self) -> List[Dict]:
         """Get mock available slots"""
