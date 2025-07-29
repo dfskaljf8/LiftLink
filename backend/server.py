@@ -2045,6 +2045,11 @@ async def cancel_appointment_by_trainer(trainer_id: str, appointment_id: str, ca
 async def cancel_appointment_by_user(user_id: str, appointment_id: str, cancellation_data: dict = {}):
     """Cancel appointment by user and send notifications"""
     try:
+        # Validate user exists
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
         # Get appointment details first
         appointment = await calendar_service.get_appointment_details(appointment_id)
         if not appointment:
