@@ -1413,7 +1413,8 @@ def test_calendar_service_database_integration():
     
     response = requests.get(f"{BACKEND_URL}/trainer/{trainer_id}/schedule")
     if response.status_code == 200:
-        schedule = response.json()
+        schedule_response = response.json()
+        schedule = schedule_response.get("schedule", [])  # Handle the {"schedule": [...]} structure
         print(f"✅ GET schedule successful: {len(schedule)} appointments")
         
         # Verify it's empty (no mock data)
