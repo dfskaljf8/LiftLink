@@ -385,17 +385,62 @@ class CalendarService:
             print(f"❌ Error creating appointment in database: {e}")
             return None
     
-    def _get_mock_available_slots(self) -> List[Dict]:
-        """Get mock available slots"""
-        return [
-            {"start_time": "09:00", "end_time": "10:00", "available": True},
-            {"start_time": "10:00", "end_time": "11:00", "available": True},
-            {"start_time": "11:00", "end_time": "12:00", "available": False},
-            {"start_time": "14:00", "end_time": "15:00", "available": True},
-            {"start_time": "15:00", "end_time": "16:00", "available": True},
-            {"start_time": "16:00", "end_time": "17:00", "available": False},
-            {"start_time": "17:00", "end_time": "18:00", "available": True}
-        ]
+    async def _get_db_available_slots(self, trainer_id: str, date: str) -> List[Dict]:
+        """Get available slots based on database appointments"""
+        if not self.db:
+            print("❌ Database connection not available")
+            return []
+        
+        try:
+            # Get all appointments for this trainer on this date
+            start_of_day = f"{date}T00:00:00Z"
+            end_of_day = f"{date}T23:59:59Z"
+            
+            appointments_cursor = self.db.appointments.find({
+                "trainer_id": trainer_id,
+                "start_time": {"$gte": start_of_day, "$lte": end_of_day},
+                "status": {"$in": ["confirmed", "pending"]}
+            })
+            
+            appointments = await appointments_cursor.to_list(length=100)
+            
+            # Extract booked time slots
+            booked_slots = set()
+            for appointment in appointments:
+                start_time = appointment.get("start_time")
+                if start_time:
+                    try:
+                        start_dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                        booked_slots.add(start_dt.strftime("%H:%M"))
+                    except:
+                        continue
+            
+            # Generate available slots (9 AM to 6 PM, hourly)
+            available_slots = []
+            working_hours = [
+                {"start_time": "09:00", "end_time": "10:00"},
+                {"start_time": "10:00", "end_time": "11:00"},
+                {"start_time": "11:00", "end_time": "12:00"},
+                {"start_time": "14:00", "end_time": "15:00"},
+                {"start_time": "15:00", "end_time": "16:00"},
+                {"start_time": "16:00", "end_time": "17:00"},
+                {"start_time": "17:00", "end_time": "18:00"}
+            ]
+            
+            for slot in working_hours:
+                is_available = slot["start_time"] not in booked_slots
+                available_slots.append({
+                    "start_time": slot["start_time"],
+                    "end_time": slot["end_time"],
+                    "available": is_available
+                })
+            
+            print(f"📅 Generated {len(available_slots)} time slots for trainer {trainer_id} on {date}")
+            return available_slots
+            
+        except Exception as e:
+            print(f"❌ Error fetching available slots from database: {e}")
+            return []
     
     async def get_appointment_details(self, appointment_id: str) -> Optional[Dict]:
         """Get appointment details from database first, then Google Calendar if needed"""
