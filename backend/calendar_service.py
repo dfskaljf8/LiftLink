@@ -228,38 +228,48 @@ class CalendarService:
             return False
     
     async def get_available_slots(self, trainer_id: str, date: str) -> List[Dict]:
-        """Get available time slots for a trainer"""
+        """Get available time slots for a trainer from database first"""
         try:
-            if not self.api_key or self.api_key == 'your_google_calendar_api_key_here':
-                return self._get_mock_available_slots()
+            # First, get available slots based on database appointments
+            db_slots = await self._get_db_available_slots(trainer_id, date)
             
-            # Get busy times from Google Calendar
-            start_time = f"{date}T00:00:00Z"
-            end_time = f"{date}T23:59:59Z"
+            if db_slots:
+                return db_slots
             
-            freebusy_request = {
-                "timeMin": start_time,
-                "timeMax": end_time,
-                "items": [{"id": "primary"}]
-            }
-            
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"{self.base_url}/freebusy",
-                    json=freebusy_request,
-                    params={'key': self.api_key}
-                )
+            # If Google Calendar API is configured, also check that
+            if self.api_key and self.api_key != 'your_google_calendar_api_key_here':
+                print(f"🔑 Checking Google Calendar for busy times")
                 
-                if response.status_code == 200:
-                    data = response.json()
-                    busy_times = data.get('calendars', {}).get('primary', {}).get('busy', [])
-                    return self._calculate_available_slots(busy_times, date)
-                else:
-                    return self._get_mock_available_slots()
+                # Get busy times from Google Calendar
+                start_time = f"{date}T00:00:00Z"
+                end_time = f"{date}T23:59:59Z"
+                
+                freebusy_request = {
+                    "timeMin": start_time,
+                    "timeMax": end_time,
+                    "items": [{"id": "primary"}]
+                }
+                
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        f"{self.base_url}/freebusy",
+                        json=freebusy_request,
+                        params={'key': self.api_key}
+                    )
+                    
+                    if response.status_code == 200:
+                        data = response.json()
+                        busy_times = data.get('calendars', {}).get('primary', {}).get('busy', [])
+                        return self._calculate_available_slots(busy_times, date)
+                    else:
+                        print(f"❌ Google Calendar freebusy error: {response.status_code}")
+            
+            # Return default available slots if no other data available
+            return await self._get_db_available_slots(trainer_id, date)
                     
         except Exception as e:
             logging.error(f"Available slots error: {e}")
-            return self._get_mock_available_slots()
+            return []
     
     def _calculate_available_slots(self, busy_times: List[Dict], date: str) -> List[Dict]:
         """Calculate available slots based on busy times"""
