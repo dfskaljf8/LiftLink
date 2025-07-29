@@ -928,14 +928,16 @@ def test_friend_request_notification_system():
     response = requests.get(f"{BACKEND_URL}/users/{user_a['id']}/friends")
     
     if response.status_code == 200:
-        friends_a = response.json()
+        friends_response = response.json()
+        friends_a = friends_response.get("friends", [])
         print(f"✅ {user_a['name']} has {len(friends_a)} friends")
         
         for friend in friends_a:
-            print(f"   Friend: {friend.get('name', 'N/A')} - {friend.get('email', 'N/A')}")
+            if isinstance(friend, dict):
+                print(f"   Friend: {friend.get('name', 'N/A')} - {friend.get('email', 'N/A')}")
         
         # Verify User B is in the list
-        user_b_found = any(friend.get("id") == user_b["id"] for friend in friends_a)
+        user_b_found = any(isinstance(friend, dict) and friend.get("id") == user_b["id"] for friend in friends_a)
         if user_b_found:
             print(f"✅ {user_b['name']} correctly appears in {user_a['name']}'s friends list")
         else:
@@ -950,14 +952,16 @@ def test_friend_request_notification_system():
     response = requests.get(f"{BACKEND_URL}/users/{user_b['id']}/friends")
     
     if response.status_code == 200:
-        friends_b = response.json()
+        friends_response = response.json()
+        friends_b = friends_response.get("friends", [])
         print(f"✅ {user_b['name']} has {len(friends_b)} friends")
         
         for friend in friends_b:
-            print(f"   Friend: {friend.get('name', 'N/A')} - {friend.get('email', 'N/A')}")
+            if isinstance(friend, dict):
+                print(f"   Friend: {friend.get('name', 'N/A')} - {friend.get('email', 'N/A')}")
         
         # Verify User A is in the list
-        user_a_found = any(friend.get("id") == user_a["id"] for friend in friends_b)
+        user_a_found = any(isinstance(friend, dict) and friend.get("id") == user_a["id"] for friend in friends_b)
         if user_a_found:
             print(f"✅ {user_a['name']} correctly appears in {user_b['name']}'s friends list")
             test_results_local["friends_list_management"]["success"] = True
