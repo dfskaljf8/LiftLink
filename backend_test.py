@@ -1488,7 +1488,8 @@ def test_calendar_service_database_integration():
     
     response = requests.get(f"{BACKEND_URL}/trainer/{trainer_id}/schedule")
     if response.status_code == 200:
-        updated_schedule = response.json()
+        schedule_response = response.json()
+        updated_schedule = schedule_response.get("schedule", [])  # Handle the {"schedule": [...]} structure
         print(f"✅ Retrieved updated schedule: {len(updated_schedule)} appointments")
         
         # Find our created appointment
