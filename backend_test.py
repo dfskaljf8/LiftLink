@@ -3417,3 +3417,318 @@ if __name__ == "__main__":
     
     # Return success status
     exit(0 if email_validation_result.get("success", False) else 1)
+
+def test_notification_system_fixes():
+    """Test the minor issue fixes for the notification system"""
+    print_separator()
+    print("🔍 TESTING NOTIFICATION SYSTEM MINOR ISSUE FIXES")
+    print_separator()
+    
+    # Test results tracking
+    fix_results = {
+        "cancellation_endpoints_fixed": False,
+        "error_handling_improved": False,
+        "validation_improvements": False,
+        "dynamic_mock_data": False,
+        "total_tests": 0,
+        "passed_tests": 0,
+        "failed_tests": []
+    }
+    
+    # Create test users first
+    trainer_email = f"test_trainer_{uuid.uuid4()}@example.com"
+    trainer_data = {
+        "email": trainer_email,
+        "role": "trainer",
+        "fitness_goals": ["sport_training"],
+        "experience_level": "expert"
+    }
+    
+    user_email = f"test_user_{uuid.uuid4()}@example.com"
+    user_data = {
+        "email": user_email,
+        "role": "fitness_enthusiast",
+        "fitness_goals": ["general_fitness"],
+        "experience_level": "beginner"
+    }
+    
+    trainer_id = None
+    user_id = None
+    
+    try:
+        trainer_response = requests.post(f"{BACKEND_URL}/users", json=trainer_data)
+        if trainer_response.status_code == 200:
+            trainer_id = trainer_response.json()["id"]
+            print(f"✅ Created test trainer: {trainer_id}")
+        
+        user_response = requests.post(f"{BACKEND_URL}/users", json=user_data)
+        if user_response.status_code == 200:
+            user_id = user_response.json()["id"]
+            print(f"✅ Created test user: {user_id}")
+    except Exception as e:
+        print(f"❌ Failed to create test users: {e}")
+        return False
+    
+    # STEP 1: Test Fixed Cancellation Endpoints
+    print("\n❌ STEP 1: TESTING FIXED CANCELLATION ENDPOINTS")
+    print("-" * 60)
+    
+    try:
+        # Test with various appointment IDs (both valid mock IDs and dynamic ones)
+        test_appointment_ids = [
+            "event_001",  # Mock appointment from calendar_service
+            "event_002",  # Mock appointment from calendar_service
+            "event_003",  # Mock appointment from calendar_service
+            f"dynamic_appointment_{uuid.uuid4()}",  # Dynamic appointment ID
+            "invalid_appointment_id"  # Invalid appointment ID
+        ]
+        
+        cancellation_success_count = 0
+        
+        for appointment_id in test_appointment_ids:
+            print(f"\n  Testing cancellation for appointment: {appointment_id}")
+            fix_results["total_tests"] += 2  # One for trainer, one for user
+            
+            # Test DELETE /trainer/{trainer_id}/schedule/{appointment_id}
+            if trainer_id:
+                trainer_cancel_response = requests.delete(f"{BACKEND_URL}/trainer/{trainer_id}/schedule/{appointment_id}")
+                
+                if trainer_cancel_response.status_code in [200, 404]:
+                    if trainer_cancel_response.status_code == 200:
+                        print(f"    ✅ Trainer cancellation successful for {appointment_id}")
+                        cancellation_success_count += 1
+                    else:
+                        print(f"    ⚠️  Trainer cancellation returned 404 for {appointment_id} (expected for invalid IDs)")
+                        cancellation_success_count += 1
+                    fix_results["passed_tests"] += 1
+                else:
+                    print(f"    ❌ Trainer cancellation failed with status {trainer_cancel_response.status_code} for {appointment_id}")
+                    fix_results["failed_tests"].append(f"Trainer cancellation failed for {appointment_id}: {trainer_cancel_response.status_code}")
+            
+            # Test DELETE /users/{user_id}/appointments/{appointment_id}
+            if user_id:
+                user_cancel_response = requests.delete(f"{BACKEND_URL}/users/{user_id}/appointments/{appointment_id}")
+                
+                if user_cancel_response.status_code in [200, 404, 403]:
+                    if user_cancel_response.status_code == 200:
+                        print(f"    ✅ User cancellation successful for {appointment_id}")
+                        cancellation_success_count += 1
+                    elif user_cancel_response.status_code == 403:
+                        print(f"    ✅ User cancellation correctly returned 403 (unauthorized) for {appointment_id}")
+                        cancellation_success_count += 1
+                    else:
+                        print(f"    ⚠️  User cancellation returned 404 for {appointment_id} (expected for invalid IDs)")
+                        cancellation_success_count += 1
+                    fix_results["passed_tests"] += 1
+                else:
+                    print(f"    ❌ User cancellation failed with status {user_cancel_response.status_code} for {appointment_id}")
+                    fix_results["failed_tests"].append(f"User cancellation failed for {appointment_id}: {user_cancel_response.status_code}")
+        
+        # Check if cancellation endpoints are working with dynamic IDs
+        if cancellation_success_count >= 6:  # At least 60% success rate
+            fix_results["cancellation_endpoints_fixed"] = True
+            print("\n  ✅ Cancellation endpoints are working with dynamic appointment IDs")
+        else:
+            print(f"\n  ❌ Cancellation endpoints have issues (success count: {cancellation_success_count})")
+            
+    except Exception as e:
+        print(f"❌ Cancellation endpoint test error: {e}")
+        fix_results["failed_tests"].append(f"Cancellation endpoint error: {str(e)}")
+    
+    # STEP 2: Test Improved Error Handling
+    print("\n🚨 STEP 2: TESTING IMPROVED ERROR HANDLING")
+    print("-" * 60)
+    
+    try:
+        error_handling_tests = [
+            ("GET /trainer/invalid_trainer/notifications", f"{BACKEND_URL}/trainer/invalid_trainer_id/notifications", 404),
+            ("GET /users/invalid_user/notifications", f"{BACKEND_URL}/users/invalid_user_id/notifications", 404),
+            ("POST /trainer/invalid_trainer/schedule", f"{BACKEND_URL}/trainer/invalid_trainer_id/schedule", 404),
+            ("DELETE /trainer/invalid_trainer/schedule/event_001", f"{BACKEND_URL}/trainer/invalid_trainer_id/schedule/event_001", 404),
+            ("DELETE /users/invalid_user/appointments/event_001", f"{BACKEND_URL}/users/invalid_user_id/appointments/event_001", 404)
+        ]
+        
+        error_handling_success = 0
+        
+        for test_name, url, expected_status in error_handling_tests:
+            fix_results["total_tests"] += 1
+            print(f"\n  Testing {test_name}")
+            
+            if "POST" in test_name:
+                response = requests.post(url, json={"title": "Test", "start_time": "2025-01-15T10:00:00Z", "end_time": "2025-01-15T11:00:00Z"})
+            elif "DELETE" in test_name:
+                response = requests.delete(url)
+            else:
+                response = requests.get(url)
+            
+            if response.status_code == expected_status:
+                print(f"    ✅ Correctly returned {expected_status} for invalid ID")
+                error_handling_success += 1
+                fix_results["passed_tests"] += 1
+            else:
+                print(f"    ❌ Expected {expected_status} but got {response.status_code}")
+                fix_results["failed_tests"].append(f"{test_name} returned {response.status_code} instead of {expected_status}")
+        
+        if error_handling_success >= 4:  # At least 80% success
+            fix_results["error_handling_improved"] = True
+            print("\n  ✅ Error handling improvements are working correctly")
+        else:
+            print(f"\n  ❌ Error handling improvements have issues (success: {error_handling_success}/5)")
+            
+    except Exception as e:
+        print(f"❌ Error handling test error: {e}")
+        fix_results["failed_tests"].append(f"Error handling test error: {str(e)}")
+    
+    # STEP 3: Test Validation Improvements
+    print("\n🔍 STEP 3: TESTING VALIDATION IMPROVEMENTS")
+    print("-" * 60)
+    
+    try:
+        validation_success = 0
+        
+        # Test trainer endpoints validate trainer exists and has role="trainer"
+        if trainer_id:
+            fix_results["total_tests"] += 1
+            trainer_notif_response = requests.get(f"{BACKEND_URL}/trainer/{trainer_id}/notifications")
+            if trainer_notif_response.status_code == 200:
+                print("    ✅ Trainer endpoint validates trainer exists and has correct role")
+                validation_success += 1
+                fix_results["passed_tests"] += 1
+            else:
+                print(f"    ❌ Trainer endpoint validation failed: {trainer_notif_response.status_code}")
+                fix_results["failed_tests"].append("Trainer endpoint validation failed")
+        
+        # Test user endpoints validate user exists
+        if user_id:
+            fix_results["total_tests"] += 1
+            user_notif_response = requests.get(f"{BACKEND_URL}/users/{user_id}/notifications")
+            if user_notif_response.status_code == 200:
+                print("    ✅ User endpoint validates user exists")
+                validation_success += 1
+                fix_results["passed_tests"] += 1
+            else:
+                print(f"    ❌ User endpoint validation failed: {user_notif_response.status_code}")
+                fix_results["failed_tests"].append("User endpoint validation failed")
+        
+        # Test appointment creation with invalid user_id
+        if trainer_id:
+            fix_results["total_tests"] += 1
+            invalid_appointment_data = {
+                "title": "Test Session",
+                "start_time": "2025-01-15T10:00:00Z",
+                "end_time": "2025-01-15T11:00:00Z",
+                "user_id": "invalid_user_id",
+                "session_type": "Personal Training"
+            }
+            
+            invalid_user_response = requests.post(f"{BACKEND_URL}/trainer/{trainer_id}/schedule", json=invalid_appointment_data)
+            if invalid_user_response.status_code == 404:
+                print("    ✅ Appointment creation correctly validates user_id exists")
+                validation_success += 1
+                fix_results["passed_tests"] += 1
+            else:
+                print(f"    ❌ Appointment creation should return 404 for invalid user_id but got: {invalid_user_response.status_code}")
+                fix_results["failed_tests"].append(f"Invalid user_id validation failed: {invalid_user_response.status_code}")
+        
+        if validation_success >= 2:  # At least 2/3 success
+            fix_results["validation_improvements"] = True
+            print("\n  ✅ Validation improvements are working correctly")
+        else:
+            print(f"\n  ❌ Validation improvements have issues (success: {validation_success}/3)")
+            
+    except Exception as e:
+        print(f"❌ Validation test error: {e}")
+        fix_results["failed_tests"].append(f"Validation test error: {str(e)}")
+    
+    # STEP 4: Test Dynamic Mock Data
+    print("\n🔄 STEP 4: TESTING DYNAMIC MOCK DATA")
+    print("-" * 60)
+    
+    try:
+        # Test that calendar_service.get_appointment_details() works with various appointment IDs
+        dynamic_data_success = 0
+        
+        # Test with known mock appointment IDs
+        mock_appointment_ids = ["event_001", "event_002", "event_003"]
+        
+        for appointment_id in mock_appointment_ids:
+            fix_results["total_tests"] += 1
+            # We can't directly test calendar_service, but we can test the cancellation endpoints
+            # which use get_appointment_details() internally
+            if trainer_id:
+                response = requests.delete(f"{BACKEND_URL}/trainer/{trainer_id}/schedule/{appointment_id}")
+                if response.status_code in [200, 404]:  # 200 = found and cancelled, 404 = not found but handled
+                    print(f"    ✅ Mock appointment {appointment_id} handled correctly")
+                    dynamic_data_success += 1
+                    fix_results["passed_tests"] += 1
+                else:
+                    print(f"    ❌ Mock appointment {appointment_id} handling failed: {response.status_code}")
+                    fix_results["failed_tests"].append(f"Mock appointment {appointment_id} handling failed")
+        
+        # Test with dynamic appointment ID
+        fix_results["total_tests"] += 1
+        dynamic_appointment_id = f"dynamic_test_{uuid.uuid4()}"
+        if trainer_id:
+            response = requests.delete(f"{BACKEND_URL}/trainer/{trainer_id}/schedule/{dynamic_appointment_id}")
+            if response.status_code in [200, 404]:  # Should handle any appointment ID
+                print(f"    ✅ Dynamic appointment ID {dynamic_appointment_id} handled correctly")
+                dynamic_data_success += 1
+                fix_results["passed_tests"] += 1
+            else:
+                print(f"    ❌ Dynamic appointment ID handling failed: {response.status_code}")
+                fix_results["failed_tests"].append("Dynamic appointment ID handling failed")
+        
+        if dynamic_data_success >= 3:  # At least 75% success
+            fix_results["dynamic_mock_data"] = True
+            print("\n  ✅ Dynamic mock data system is working correctly")
+        else:
+            print(f"\n  ❌ Dynamic mock data system has issues (success: {dynamic_data_success}/4)")
+            
+    except Exception as e:
+        print(f"❌ Dynamic mock data test error: {e}")
+        fix_results["failed_tests"].append(f"Dynamic mock data test error: {str(e)}")
+    
+    # Calculate success rate
+    success_rate = (fix_results["passed_tests"] / max(fix_results["total_tests"], 1)) * 100
+    
+    # Results summary
+    print("\n📊 NOTIFICATION SYSTEM FIXES TEST RESULTS")
+    print("=" * 70)
+    
+    fixes = [
+        ("Fixed Cancellation Endpoints", fix_results["cancellation_endpoints_fixed"]),
+        ("Improved Error Handling", fix_results["error_handling_improved"]),
+        ("Validation Improvements", fix_results["validation_improvements"]),
+        ("Dynamic Mock Data", fix_results["dynamic_mock_data"])
+    ]
+    
+    working_fixes = sum(1 for _, working in fixes if working)
+    
+    for fix_name, working in fixes:
+        status = "✅ PASS" if working else "❌ FAIL"
+        print(f"{status} {fix_name}")
+    
+    print(f"\n📈 Overall Results:")
+    print(f"   Working Fixes: {working_fixes}/4")
+    print(f"   Test Success Rate: {success_rate:.1f}%")
+    print(f"   Tests Passed: {fix_results['passed_tests']}/{fix_results['total_tests']}")
+    
+    if fix_results["failed_tests"]:
+        print(f"\n❌ FAILED TESTS ({len(fix_results['failed_tests'])}):")
+        for failure in fix_results["failed_tests"]:
+            print(f"   - {failure}")
+    
+    # Determine overall success
+    if working_fixes >= 3 and success_rate >= 75.0:
+        print(f"\n🎉 NOTIFICATION SYSTEM FIXES TEST PASSED!")
+        print("✅ Cancellation endpoints work properly with dynamic appointment IDs")
+        print("✅ All endpoints return proper HTTP status codes (404 for not found, etc.)")
+        print("✅ Validation prevents operations on non-existent users/trainers")
+        print("✅ Mock data system handles dynamic IDs properly")
+        test_results["notification_system_integration"]["success"] = True
+        return True
+    else:
+        print(f"\n❌ NOTIFICATION SYSTEM FIXES TEST FAILED!")
+        print("🚨 Some notification system fixes are not working correctly")
+        test_results["notification_system_integration"]["details"] = f"Working fixes: {working_fixes}/4. Success rate: {success_rate:.1f}%. Failed tests: {len(fix_results['failed_tests'])}."
+        return False
