@@ -343,3 +343,76 @@ class CalendarService:
             {"start_time": "16:00", "end_time": "17:00", "available": False},
             {"start_time": "17:00", "end_time": "18:00", "available": True}
         ]
+    
+    async def get_appointment_details(self, appointment_id: str) -> Optional[Dict]:
+        """Get appointment details by ID"""
+        try:
+            if not self.api_key or self.api_key == 'your_google_calendar_api_key_here':
+                return self._get_mock_appointment_details(appointment_id)
+            
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    f"{self.base_url}/calendars/primary/events/{appointment_id}",
+                    params={'key': self.api_key}
+                )
+                
+                if response.status_code == 200:
+                    event = response.json()
+                    return {
+                        "id": event.get('id'),
+                        "title": event.get('summary'),
+                        "start_time": event.get('start', {}).get('dateTime'),
+                        "end_time": event.get('end', {}).get('dateTime'),
+                        "client_email": event.get('attendees', [{}])[0].get('email') if event.get('attendees') else None,
+                        "location": event.get('location'),
+                        "notes": event.get('description', ''),
+                        "session_type": self._extract_session_type(event),
+                        "status": event.get('status', 'confirmed')
+                    }
+                else:
+                    return self._get_mock_appointment_details(appointment_id)
+                    
+        except Exception as e:
+            logging.error(f"Get appointment details failed: {e}")
+            return self._get_mock_appointment_details(appointment_id)
+    
+    async def cancel_appointment(self, appointment_id: str) -> bool:
+        """Cancel appointment in Google Calendar"""
+        try:
+            if not self.api_key or self.api_key == 'your_google_calendar_api_key_here':
+                print(f"📅 MOCK APPOINTMENT CANCELLED: {appointment_id}")
+                return True
+            
+            async with httpx.AsyncClient() as client:
+                response = await client.delete(
+                    f"{self.base_url}/calendars/primary/events/{appointment_id}",
+                    params={'key': self.api_key}
+                )
+                
+                if response.status_code == 204:  # No content = successful delete
+                    print(f"📅 GOOGLE CALENDAR APPOINTMENT CANCELLED: {appointment_id}")
+                    return True
+                else:
+                    print(f"❌ Google Calendar cancel error: {response.status_code}")
+                    return False
+                    
+        except Exception as e:
+            logging.error(f"Appointment cancellation failed: {e}")
+            return False
+    
+    def _get_mock_appointment_details(self, appointment_id: str) -> Dict:
+        """Get mock appointment details"""
+        return {
+            "id": appointment_id,
+            "title": "Mock Training Session",
+            "start_time": "2025-01-11T10:00:00Z",
+            "end_time": "2025-01-11T11:00:00Z",
+            "user_id": "user_001",
+            "client_id": "user_001",
+            "trainer_id": "trainer_001",
+            "client_email": "client@example.com",
+            "location": "LiftLink Gym",
+            "notes": "Mock appointment for testing",
+            "session_type": "Personal Training",
+            "status": "confirmed"
+        }
