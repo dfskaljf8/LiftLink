@@ -107,54 +107,67 @@ class CalendarService:
         return 'Training Session'
     
     async def create_appointment(self, trainer_id: str, appointment_data: Dict) -> Optional[Dict]:
-        """Create new appointment in Google Calendar"""
+        """Create new appointment in database first, then Google Calendar if available"""
         try:
-            if not self.api_key or self.api_key == 'your_google_calendar_api_key_here':
-                return self._create_mock_appointment(trainer_id, appointment_data)
+            # First, create appointment in database
+            db_appointment = await self._create_db_appointment(trainer_id, appointment_data)
             
-            # Prepare event data for Google Calendar
-            event_data = {
-                'summary': appointment_data.get('title', 'Training Session'),
-                'description': appointment_data.get('notes', ''),
-                'start': {
-                    'dateTime': appointment_data.get('start_time'),
-                    'timeZone': 'UTC'
-                },
-                'end': {
-                    'dateTime': appointment_data.get('end_time'),
-                    'timeZone': 'UTC'
-                },
-                'location': appointment_data.get('location', 'LiftLink Gym'),
-                'attendees': [
-                    {'email': appointment_data.get('client_email', 'client@example.com')}
-                ],
-                'reminders': {
-                    'useDefault': False,
-                    'overrides': [
-                        {'method': 'email', 'minutes': 24 * 60},
-                        {'method': 'popup', 'minutes': 10}
-                    ]
-                }
-            }
-            
-            async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    f"{self.base_url}/calendars/primary/events",
-                    json=event_data,
-                    params={'key': self.api_key}
-                )
+            # If Google Calendar API is configured, also create there
+            if (self.api_key and self.api_key != 'your_google_calendar_api_key_here' and 
+                appointment_data.get('client_email')):
                 
-                if response.status_code == 200:
-                    created_event = response.json()
-                    print(f"📅 GOOGLE CALENDAR APPOINTMENT CREATED: {created_event['summary']}")
-                    return self._format_created_event(created_event)
-                else:
-                    logging.warning(f"Google Calendar create error: {response.status_code}")
-                    return self._create_mock_appointment(trainer_id, appointment_data)
+                print(f"🔑 Creating appointment in Google Calendar as well")
+                
+                # Prepare event data for Google Calendar
+                event_data = {
+                    'summary': appointment_data.get('title', 'Training Session'),
+                    'description': appointment_data.get('notes', ''),
+                    'start': {
+                        'dateTime': appointment_data.get('start_time'),
+                        'timeZone': 'UTC'
+                    },
+                    'end': {
+                        'dateTime': appointment_data.get('end_time'),
+                        'timeZone': 'UTC'
+                    },
+                    'location': appointment_data.get('location', 'LiftLink Gym'),
+                    'attendees': [
+                        {'email': appointment_data.get('client_email', 'client@example.com')}
+                    ],
+                    'reminders': {
+                        'useDefault': False,
+                        'overrides': [
+                            {'method': 'email', 'minutes': 24 * 60},
+                            {'method': 'popup', 'minutes': 10}
+                        ]
+                    }
+                }
+                
+                async with httpx.AsyncClient() as client:
+                    response = await client.post(
+                        f"{self.base_url}/calendars/primary/events",
+                        json=event_data,
+                        params={'key': self.api_key}
+                    )
+                    
+                    if response.status_code == 200:
+                        created_event = response.json()
+                        print(f"📅 GOOGLE CALENDAR APPOINTMENT CREATED: {created_event['summary']}")
+                        
+                        # Update database appointment with Google Calendar ID
+                        if db_appointment and self.db:
+                            await self.db.appointments.update_one(
+                                {"id": db_appointment["id"]},
+                                {"$set": {"google_calendar_id": created_event.get('id')}}
+                            )
+                    else:
+                        print(f"❌ Google Calendar create error: {response.status_code}")
+            
+            return db_appointment
                     
         except Exception as e:
             logging.error(f"Appointment creation failed: {e}")
-            return self._create_mock_appointment(trainer_id, appointment_data)
+            return None
     
     def _format_created_event(self, event: Dict) -> Dict:
         """Format created Google Calendar event"""
