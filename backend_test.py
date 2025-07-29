@@ -689,9 +689,10 @@ def test_friend_request_notification_system():
     response = requests.get(f"{BACKEND_URL}/users/{user_b['id']}/notifications")
     
     if response.status_code == 200:
-        notifications = response.json()
+        notifications_response = response.json()
+        notifications = notifications_response.get("notifications", [])
         print(f"✅ Retrieved {len(notifications)} notifications for receiver")
-        print(f"DEBUG: Notifications response: {notifications}")
+        print(f"DEBUG: Notifications response: {notifications_response}")
         
         # Look for friend request notification
         friend_request_notification = None
