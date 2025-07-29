@@ -1545,7 +1545,8 @@ def test_calendar_service_database_integration():
         # Verify appointment is marked as cancelled in database
         response = requests.get(f"{BACKEND_URL}/trainer/{trainer_id}/schedule")
         if response.status_code == 200:
-            schedule_after_cancel = response.json()
+            schedule_response = response.json()
+            schedule_after_cancel = schedule_response.get("schedule", [])  # Handle the {"schedule": [...]} structure
             
             # Check if cancelled appointment is excluded from active schedule
             cancelled_found = any(apt.get("id") == appointment_id for apt in schedule_after_cancel)
