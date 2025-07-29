@@ -386,7 +386,11 @@ class CalendarService:
             }
             
             # Insert into database
-            await self.db.appointments.insert_one(appointment_doc)
+            result = await self.db.appointments.insert_one(appointment_doc)
+            
+            # Remove MongoDB's _id field to avoid serialization issues
+            if '_id' in appointment_doc:
+                del appointment_doc['_id']
             
             print(f"📅 DATABASE APPOINTMENT CREATED: {appointment_doc['title']} for trainer {trainer_id}")
             return appointment_doc
