@@ -638,9 +638,9 @@ async def create_user(user: User):
         id=user_id,
         email=user.email,
         name=user.name,
-        role=user.role.value,
-        fitness_goals=[goal.value for goal in user.fitness_goals],
-        experience_level=user.experience_level.value,
+        role=user.role.value if hasattr(user.role, 'value') else user.role,
+        fitness_goals=[goal.value if hasattr(goal, 'value') else goal for goal in user.fitness_goals],
+        experience_level=user.experience_level.value if hasattr(user.experience_level, 'value') else user.experience_level,
         created_at=user_doc["created_at"]
     )
 
