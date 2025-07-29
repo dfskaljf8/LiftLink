@@ -502,6 +502,82 @@ async def notify_session_reminder(trainer_id: str, user_id: str, session_details
         print(f"❌ Error sending reminder notifications: {e}")
         return False
 
+async def notify_friend_request_sent(sender_id: str, receiver_id: str, message: str = ""):
+    """Send friend request notification to receiver"""
+    try:
+        # Get sender info
+        sender = await db.users.find_one({"id": sender_id})
+        sender_name = sender.get("name", "Someone") if sender else "Someone"
+        
+        # Send notification to receiver
+        await send_user_notification(
+            user_id=receiver_id,
+            title=f"New Friend Request 👥",
+            message=f"{sender_name} sent you a friend request{': ' + message if message else ''}",
+            data={
+                "type": "friend_request_received",
+                "sender_id": sender_id,
+                "sender_name": sender_name,
+                "message": message
+            }
+        )
+        
+        print(f"📱 Friend request notification sent to {receiver_id} from {sender_name}")
+        return True
+    except Exception as e:
+        print(f"❌ Error sending friend request notification: {e}")
+        return False
+
+async def notify_friend_request_accepted(sender_id: str, receiver_id: str):
+    """Send friend request accepted notification to sender"""
+    try:
+        # Get receiver info (who accepted the request)
+        receiver = await db.users.find_one({"id": receiver_id})
+        receiver_name = receiver.get("name", "Someone") if receiver else "Someone"
+        
+        # Send notification to original sender
+        await send_user_notification(
+            user_id=sender_id,
+            title=f"Friend Request Accepted! 🎉",
+            message=f"{receiver_name} accepted your friend request",
+            data={
+                "type": "friend_request_accepted",
+                "receiver_id": receiver_id,
+                "receiver_name": receiver_name
+            }
+        )
+        
+        print(f"📱 Friend request accepted notification sent to {sender_id} from {receiver_name}")
+        return True
+    except Exception as e:
+        print(f"❌ Error sending friend request accepted notification: {e}")
+        return False
+
+async def notify_friend_request_rejected(sender_id: str, receiver_id: str):
+    """Send friend request rejected notification to sender"""
+    try:
+        # Get receiver info (who rejected the request)
+        receiver = await db.users.find_one({"id": receiver_id})
+        receiver_name = receiver.get("name", "Someone") if receiver else "Someone"
+        
+        # Send notification to original sender
+        await send_user_notification(
+            user_id=sender_id,
+            title=f"Friend Request Declined",
+            message=f"{receiver_name} declined your friend request",
+            data={
+                "type": "friend_request_rejected",
+                "receiver_id": receiver_id,
+                "receiver_name": receiver_name
+            }
+        )
+        
+        print(f"📱 Friend request rejected notification sent to {sender_id} from {receiver_name}")
+        return True
+    except Exception as e:
+        print(f"❌ Error sending friend request rejected notification: {e}")
+        return False
+
 async def get_user_by_email(email: str):
     return await db.users.find_one({"email": email})
 
