@@ -1458,7 +1458,8 @@ def test_calendar_service_database_integration():
     
     response = requests.post(f"{BACKEND_URL}/trainer/{trainer_id}/schedule", json=appointment_data)
     if response.status_code == 200:
-        created_appointment = response.json()
+        response_data = response.json()
+        created_appointment = response_data.get("appointment", {})
         print(f"✅ Appointment created successfully")
         print(f"   ID: {created_appointment.get('id', 'N/A')}")
         print(f"   Title: {created_appointment.get('title', 'N/A')}")
