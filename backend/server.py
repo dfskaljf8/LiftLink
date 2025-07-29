@@ -2184,7 +2184,7 @@ async def stripe_webhook(request: Request):
             event.get('data', {})
         )
         
-        # Update database based on event type
+        # Update database based on event type and send notifications
         if event.get('type') == 'account.updated':
             account = event.get('data', {}).get('object', {})
             if account.get('charges_enabled') and account.get('payouts_enabled'):
@@ -2194,6 +2194,49 @@ async def stripe_webhook(request: Request):
                     {"$set": {"stripe_onboarding_complete": True}}
                 )
                 print(f"✅ Updated trainer onboarding status for account {account.get('id')}")
+        
+        elif event.get('type') == 'payment_intent.succeeded':
+            # Handle successful payment and send notifications
+            payment_intent = event.get('data', {}).get('object', {})
+            metadata = payment_intent.get('metadata', {})
+            trainer_id = metadata.get('trainer_id')
+            client_id = metadata.get('client_id')
+            amount = payment_intent.get('amount', 0) / 100  # Convert cents to dollars
+            
+            if trainer_id and client_id:
+                session_details = {
+                    'session_type': metadata.get('session_type', 'Personal Training'),
+                    'amount': amount,
+                    'payment_intent_id': payment_intent.get('id')
+                }
+                
+                # Send payment received notifications
+                await notify_payment_received(trainer_id, client_id, amount, session_details)
+                print(f"📱 Payment notifications sent for ${amount:.2f} payment")
+        
+        elif event.get('type') == 'checkout.session.completed':
+            # Handle completed checkout session
+            session = event.get('data', {}).get('object', {})
+            metadata = session.get('metadata', {})
+            trainer_id = metadata.get('trainer_id')
+            amount = session.get('amount_total', 0) / 100  # Convert cents to dollars
+            client_email = session.get('customer_email')
+            
+            if trainer_id and client_email:
+                # Get client info from email
+                user = await db.users.find_one({"email": client_email})
+                client_id = user.get('id') if user else 'unknown_client'
+                
+                session_details = {
+                    'session_type': metadata.get('session_type', 'Personal Training'),
+                    'amount': amount,
+                    'checkout_session_id': session.get('id'),
+                    'client_email': client_email
+                }
+                
+                # Send payment received notifications
+                await notify_payment_received(trainer_id, client_id, amount, session_details)
+                print(f"📱 Checkout completion notifications sent for ${amount:.2f} payment")
         
         return {"received": True, "handled": event_handled}
         
