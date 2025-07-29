@@ -4044,15 +4044,18 @@ def test_notification_system_fixes():
         return False
 
 if __name__ == "__main__":
-    print("🚀 STARTING NOTIFICATION SYSTEM FIXES TESTING")
+    print("🚀 STARTING CALENDAR SERVICE DATABASE INTEGRATION TESTING")
     print("=" * 80)
-    print("Focus: Testing minor issue fixes for the notification system")
-    print("Target: Verify cancellation endpoints, error handling, validation, and dynamic mock data")
+    print("Focus: Testing mock data removal and database integration")
+    print("Target: Verify calendar service uses real database operations, not mock data")
     print("=" * 80)
     
-    # Run notification system fixes test
-    print("\n🎯 PRIMARY TEST: NOTIFICATION SYSTEM FIXES")
-    notification_fixes_result = test_notification_system_fixes()
+    # Initialize test results for calendar database integration
+    test_results["calendar_database_integration"] = {"success": False, "details": ""}
+    
+    # Run calendar database integration test
+    print("\n🎯 PRIMARY TEST: CALENDAR SERVICE DATABASE INTEGRATION")
+    calendar_integration_result = test_calendar_service_database_integration()
     
     # Print final results
     print_separator()
@@ -4065,19 +4068,21 @@ if __name__ == "__main__":
     print(f"✅ Tests Passed: {passed_tests}/{total_tests}")
     print(f"❌ Tests Failed: {total_tests - passed_tests}/{total_tests}")
     
-    # Focus on notification system results
-    notification_result = test_results.get("notification_system_integration", {})
-    if notification_result.get("success"):
-        print("\n🎉 NOTIFICATION SYSTEM FIXES: PASSED")
-        print("✅ Cancellation endpoints work properly with dynamic appointment IDs")
-        print("✅ All endpoints return proper HTTP status codes")
-        print("✅ Validation prevents operations on non-existent users/trainers")
-        print("✅ Mock data system handles dynamic IDs properly")
+    # Focus on calendar database integration results
+    calendar_result = test_results.get("calendar_database_integration", {})
+    if calendar_result.get("success"):
+        print("\n🎉 CALENDAR SERVICE DATABASE INTEGRATION: PASSED")
+        print("✅ Mock data successfully removed from calendar service")
+        print("✅ Database operations working correctly for appointments")
+        print("✅ Appointments stored and retrieved from database")
+        print("✅ Available slots calculated from real appointments")
+        print("✅ Proper fallback behavior when no appointments exist")
+        print("✅ Database collections have proper structure")
     else:
-        print("\n❌ NOTIFICATION SYSTEM FIXES: FAILED")
-        print("🚨 Issues found with notification system fixes")
-        if notification_result.get("details"):
-            print(f"Details: {notification_result['details']}")
+        print("\n❌ CALENDAR SERVICE DATABASE INTEGRATION: FAILED")
+        print("🚨 Issues found with calendar database integration")
+        if calendar_result.get("details"):
+            print(f"Details: {calendar_result['details']}")
     
     # Show detailed results for failed tests
     failed_tests = {name: result for name, result in test_results.items() if not result["success"]}
@@ -4087,10 +4092,10 @@ if __name__ == "__main__":
         for test_name, result in failed_tests.items():
             print(f"   - {test_name}: {result.get('details', 'No details available')}")
     
-    print(f"\n🏁 NOTIFICATION SYSTEM FIXES TESTING COMPLETED")
+    print(f"\n🏁 CALENDAR SERVICE DATABASE INTEGRATION TESTING COMPLETED")
     
     # Return success status
-    exit(0 if notification_result.get("success", False) else 1)
+    exit(0 if calendar_result.get("success", False) else 1)
 
 def test_notification_system_fixes():
     """Test the minor issue fixes for the notification system"""
