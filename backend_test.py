@@ -734,6 +734,7 @@ def test_friend_request_notification_system():
     if response.status_code == 200:
         received_requests = response.json()
         print(f"✅ Retrieved {len(received_requests)} received friend requests")
+        print(f"DEBUG: Received requests response: {received_requests}")
         
         if len(received_requests) > 0:
             request = received_requests[0]
