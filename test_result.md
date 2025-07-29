@@ -526,7 +526,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Notification System Integration"
+    - "React Native Frontend Testing"
   stuck_tasks:
     - "React Native Mobile App Testing - Environment Limitation"
   test_all: false
