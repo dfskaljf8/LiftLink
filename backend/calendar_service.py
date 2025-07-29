@@ -398,36 +398,46 @@ class CalendarService:
         ]
     
     async def get_appointment_details(self, appointment_id: str) -> Optional[Dict]:
-        """Get appointment details by ID"""
+        """Get appointment details from database first, then Google Calendar if needed"""
         try:
-            if not self.api_key or self.api_key == 'your_google_calendar_api_key_here':
-                return self._get_mock_appointment_details(appointment_id)
+            # First, try to get appointment from database
+            db_appointment = await self._get_db_appointment_details(appointment_id)
             
-            async with httpx.AsyncClient() as client:
-                response = await client.get(
-                    f"{self.base_url}/calendars/primary/events/{appointment_id}",
-                    params={'key': self.api_key}
-                )
+            if db_appointment:
+                return db_appointment
+            
+            # If not found in database and Google Calendar API is configured, try that
+            if self.api_key and self.api_key != 'your_google_calendar_api_key_here':
+                print(f"🔑 Appointment not found in database, trying Google Calendar API for {appointment_id}")
                 
-                if response.status_code == 200:
-                    event = response.json()
-                    return {
-                        "id": event.get('id'),
-                        "title": event.get('summary'),
-                        "start_time": event.get('start', {}).get('dateTime'),
-                        "end_time": event.get('end', {}).get('dateTime'),
-                        "client_email": event.get('attendees', [{}])[0].get('email') if event.get('attendees') else None,
-                        "location": event.get('location'),
-                        "notes": event.get('description', ''),
-                        "session_type": self._extract_session_type(event),
-                        "status": event.get('status', 'confirmed')
-                    }
-                else:
-                    return self._get_mock_appointment_details(appointment_id)
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(
+                        f"{self.base_url}/calendars/primary/events/{appointment_id}",
+                        params={'key': self.api_key}
+                    )
+                    
+                    if response.status_code == 200:
+                        event = response.json()
+                        return {
+                            "id": event.get('id'),
+                            "title": event.get('summary'),
+                            "start_time": event.get('start', {}).get('dateTime'),
+                            "end_time": event.get('end', {}).get('dateTime'),
+                            "client_email": event.get('attendees', [{}])[0].get('email') if event.get('attendees') else None,
+                            "location": event.get('location'),
+                            "notes": event.get('description', ''),
+                            "session_type": self._extract_session_type(event),
+                            "status": event.get('status', 'confirmed')
+                        }
+                    else:
+                        print(f"❌ Google Calendar API error: {response.status_code}")
+            
+            print(f"❌ Appointment {appointment_id} not found anywhere")
+            return None
                     
         except Exception as e:
             logging.error(f"Get appointment details failed: {e}")
-            return self._get_mock_appointment_details(appointment_id)
+            return None
     
     async def cancel_appointment(self, appointment_id: str) -> bool:
         """Cancel appointment in Google Calendar"""
