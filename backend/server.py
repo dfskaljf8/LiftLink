@@ -1658,6 +1658,11 @@ async def update_user_name(user_id: str, request: UpdateUserNameRequest):
 async def get_trainer_notifications(trainer_id: str, limit: int = 20):
     """Get trainer's recent notifications"""
     try:
+        # Validate trainer exists
+        trainer = await db.users.find_one({"id": trainer_id, "role": "trainer"})
+        if not trainer:
+            raise HTTPException(status_code=404, detail="Trainer not found")
+        
         # Get recent notifications for trainer
         notifications_cursor = db.trainer_notifications.find({
             "trainer_id": trainer_id
@@ -1682,13 +1687,11 @@ async def get_trainer_notifications(trainer_id: str, limit: int = 20):
             "unread_count": len([n for n in notifications if not n.get("read", False)])
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"❌ Error fetching trainer notifications: {e}")
-        return {
-            "trainer_id": trainer_id,
-            "notifications": [],
-            "unread_count": 0
-        }
+        raise HTTPException(status_code=500, detail="Failed to fetch notifications")
 
 @api_router.put("/trainer/{trainer_id}/notifications/{notification_id}/mark-read")
 async def mark_notification_read(trainer_id: str, notification_id: str):
