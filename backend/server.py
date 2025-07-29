@@ -1893,9 +1893,27 @@ async def get_trainer_schedule(trainer_id: str):
 
 @api_router.post("/trainer/{trainer_id}/schedule")
 async def create_appointment(trainer_id: str, appointment_data: dict):
-    """Create new appointment"""
+    """Create new appointment and send booking notifications"""
     appointment = await calendar_service.create_appointment(trainer_id, appointment_data)
     if appointment:
+        # Extract user_id from appointment data
+        user_id = appointment_data.get('user_id') or appointment_data.get('client_id')
+        
+        if user_id:
+            # Prepare session details for notification
+            session_details = {
+                'session_type': appointment_data.get('session_type', 'Training Session'),
+                'date': appointment_data.get('date') or appointment.get('start_time', 'TBD'),
+                'time': appointment_data.get('time') or appointment.get('start_time', 'TBD'),
+                'location': appointment_data.get('location', 'TBD'),
+                'notes': appointment_data.get('notes', ''),
+                'appointment_id': appointment.get('id')
+            }
+            
+            # Send booking notifications to both trainer and user
+            await notify_session_booked(trainer_id, user_id, session_details)
+            print(f"📱 Booking notifications sent for appointment {appointment.get('id')}")
+        
         return {"message": "Appointment created successfully", "appointment": appointment}
     else:
         raise HTTPException(status_code=500, detail="Failed to create appointment")
