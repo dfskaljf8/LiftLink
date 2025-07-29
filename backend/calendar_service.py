@@ -550,7 +550,7 @@ class CalendarService:
     
     async def _get_db_appointment_details(self, appointment_id: str) -> Optional[Dict]:
         """Get appointment details from database"""
-        if not self.db:
+        if self.db is None:
             print("❌ Database connection not available")
             return None
         
