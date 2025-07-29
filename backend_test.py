@@ -889,13 +889,14 @@ def test_friend_request_notification_system():
             response = requests.get(f"{BACKEND_URL}/users/{user_c['id']}/notifications")
             
             if response.status_code == 200:
-                notifications = response.json()
+                notifications_response = response.json()
+                notifications = notifications_response.get("notifications", [])
                 print(f"✅ Retrieved {len(notifications)} notifications for sender")
                 
                 # Look for rejection notification
                 rejection_notification = None
                 for notification in notifications:
-                    if notification.get("data", {}).get("type") == "friend_request_rejected":
+                    if isinstance(notification, dict) and notification.get("data", {}).get("type") == "friend_request_rejected":
                         rejection_notification = notification
                         break
                 
