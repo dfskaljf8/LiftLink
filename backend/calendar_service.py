@@ -279,46 +279,51 @@ class CalendarService:
         
         return available_slots
     
-    def _get_mock_schedule(self) -> List[Dict]:
-        """Get mock schedule data"""
-        return [
-            {
-                "id": "event_001",
-                "title": "Personal Training - John Doe",
-                "start_time": "2025-01-11T09:00:00Z",
-                "end_time": "2025-01-11T10:00:00Z",
-                "client_id": "client_001",
-                "client_name": "John Doe",
-                "session_type": "Personal Training",
-                "status": "confirmed",
-                "location": "LiftLink Gym - Studio A",
-                "notes": "Focus on upper body strength"
-            },
-            {
-                "id": "event_002",
-                "title": "Group Fitness - HIIT Class",
-                "start_time": "2025-01-11T18:00:00Z", 
-                "end_time": "2025-01-11T19:00:00Z",
-                "client_id": None,
-                "client_name": "Group Class",
-                "session_type": "Group Fitness",
-                "status": "confirmed",
-                "location": "LiftLink Gym - Main Floor",
-                "notes": "High intensity interval training"
-            },
-            {
-                "id": "event_003",
-                "title": "Nutrition Consultation - Jane Smith",
-                "start_time": "2025-01-12T14:00:00Z",
-                "end_time": "2025-01-12T15:00:00Z", 
-                "client_id": "client_002",
-                "client_name": "Jane Smith",
-                "session_type": "Nutrition Consultation",
-                "status": "pending",
-                "location": "Virtual Meeting",
-                "notes": "Weekly nutrition check-in"
-            }
-        ]
+    async def _get_db_schedule(self, trainer_id: str) -> List[Dict]:
+        """Get schedule data from database"""
+        if not self.db:
+            print("❌ Database connection not available")
+            return []
+        
+        try:
+            # Get appointments from database for this trainer
+            appointments_cursor = self.db.appointments.find({
+                "trainer_id": trainer_id,
+                "status": {"$in": ["confirmed", "pending"]}
+            }).sort([("start_time", 1)])
+            
+            appointments = await appointments_cursor.to_list(length=100)
+            
+            formatted_appointments = []
+            for appointment in appointments:
+                # Get client name if client_id exists
+                client_name = "Unknown Client"
+                if appointment.get("client_id") or appointment.get("user_id"):
+                    client_id = appointment.get("client_id") or appointment.get("user_id")
+                    client = await self.db.users.find_one({"id": client_id})
+                    if client:
+                        client_name = client.get("name", client.get("email", "Unknown Client"))
+                
+                formatted_appointment = {
+                    "id": appointment["id"],
+                    "title": appointment.get("title", f"{appointment.get('session_type', 'Session')} - {client_name}"),
+                    "start_time": appointment["start_time"],
+                    "end_time": appointment["end_time"],
+                    "client_id": appointment.get("client_id") or appointment.get("user_id"),
+                    "client_name": client_name,
+                    "session_type": appointment.get("session_type", "Personal Training"),
+                    "status": appointment.get("status", "confirmed"),
+                    "location": appointment.get("location", "LiftLink Gym"),
+                    "notes": appointment.get("notes", "")
+                }
+                formatted_appointments.append(formatted_appointment)
+            
+            print(f"📅 Retrieved {len(formatted_appointments)} appointments from database for trainer {trainer_id}")
+            return formatted_appointments
+            
+        except Exception as e:
+            print(f"❌ Error fetching schedule from database: {e}")
+            return []
     
     def _create_mock_appointment(self, trainer_id: str, appointment_data: Dict) -> Optional[Dict]:
         """Create mock appointment"""
