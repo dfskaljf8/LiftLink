@@ -9,9 +9,10 @@ import httpx
 from urllib.parse import urlencode
 
 class CalendarService:
-    def __init__(self):
+    def __init__(self, db=None):
         self.api_key = os.environ.get('GOOGLE_CALENDAR_API_KEY')
         self.base_url = "https://www.googleapis.com/calendar/v3"
+        self.db = db
         
     async def get_trainer_schedule(self, trainer_id: str, start_date: str = None, end_date: str = None) -> List[Dict]:
         """Get trainer schedule from Google Calendar with proper error handling"""
