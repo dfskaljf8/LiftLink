@@ -397,7 +397,7 @@ class CalendarService:
     
     async def _get_db_available_slots(self, trainer_id: str, date: str) -> List[Dict]:
         """Get available slots based on database appointments"""
-        if not self.db:
+        if self.db is None:
             print("❌ Database connection not available")
             return []
         
