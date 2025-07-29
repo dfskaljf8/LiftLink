@@ -461,43 +461,46 @@ class CalendarService:
             # For testing purposes, return True to avoid 500 errors
             return True
     
-    def _get_mock_appointment_details(self, appointment_id: str) -> Dict:
-        """Get mock appointment details with dynamic data"""
-        # Check if appointment_id matches any created mock appointments
-        # For testing purposes, we'll extract trainer_id and user_id from mock schedule
-        mock_schedule = self._get_mock_schedule()
+    async def _get_db_appointment_details(self, appointment_id: str) -> Optional[Dict]:
+        """Get appointment details from database"""
+        if not self.db:
+            print("❌ Database connection not available")
+            return None
         
-        # Check if the appointment exists in mock schedule
-        for appointment in mock_schedule:
-            if appointment["id"] == appointment_id:
+        try:
+            appointment = await self.db.appointments.find_one({"id": appointment_id})
+            
+            if appointment:
+                # Get client details if available
+                client_email = appointment.get("client_email")
+                client_name = "Unknown Client"
+                
+                if appointment.get("client_id") or appointment.get("user_id"):
+                    client_id = appointment.get("client_id") or appointment.get("user_id")
+                    client = await self.db.users.find_one({"id": client_id})
+                    if client:
+                        client_name = client.get("name", client.get("email", "Unknown Client"))
+                        if not client_email:
+                            client_email = client.get("email")
+                
                 return {
-                    "id": appointment_id,
-                    "title": appointment["title"],
+                    "id": appointment["id"],
+                    "title": appointment.get("title", f"{appointment.get('session_type', 'Session')} - {client_name}"),
                     "start_time": appointment["start_time"],
                     "end_time": appointment["end_time"],
-                    "user_id": appointment.get("client_id", "user_001"),
-                    "client_id": appointment.get("client_id", "user_001"),
-                    "trainer_id": "trainer_001",  # Default trainer for mock data
-                    "client_email": "client@example.com",
+                    "user_id": appointment.get("user_id") or appointment.get("client_id"),
+                    "client_id": appointment.get("client_id") or appointment.get("user_id"),
+                    "trainer_id": appointment["trainer_id"],
+                    "client_email": client_email,
                     "location": appointment.get("location", "LiftLink Gym"),
-                    "notes": appointment.get("notes", "Mock appointment for testing"),
+                    "notes": appointment.get("notes", ""),
                     "session_type": appointment.get("session_type", "Personal Training"),
                     "status": appointment.get("status", "confirmed")
                 }
-        
-        # If not found in mock schedule, create a dynamic mock appointment
-        # This helps with testing by allowing any appointment_id to be "found"
-        return {
-            "id": appointment_id,
-            "title": "Mock Training Session",
-            "start_time": "2025-01-11T10:00:00Z",
-            "end_time": "2025-01-11T11:00:00Z",
-            "user_id": "user_001",
-            "client_id": "user_001", 
-            "trainer_id": "trainer_001",
-            "client_email": "client@example.com",
-            "location": "LiftLink Gym",
-            "notes": "Mock appointment for testing",
-            "session_type": "Personal Training",
-            "status": "confirmed"
-        }
+            else:
+                print(f"❌ Appointment {appointment_id} not found in database")
+                return None
+                
+        except Exception as e:
+            print(f"❌ Error fetching appointment details from database: {e}")
+            return None
