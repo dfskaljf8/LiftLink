@@ -1924,6 +1924,86 @@ async def get_available_slots(trainer_id: str, date: str):
     slots = await calendar_service.get_available_slots(trainer_id, date)
     return {"available_slots": slots}
 
+@api_router.delete("/trainer/{trainer_id}/schedule/{appointment_id}")
+async def cancel_appointment_by_trainer(trainer_id: str, appointment_id: str, cancellation_data: dict = {}):
+    """Cancel appointment by trainer and send notifications"""
+    try:
+        # Get appointment details first
+        appointment = await calendar_service.get_appointment_details(appointment_id)
+        if not appointment:
+            raise HTTPException(status_code=404, detail="Appointment not found")
+        
+        # Cancel the appointment
+        cancelled = await calendar_service.cancel_appointment(appointment_id)
+        if not cancelled:
+            raise HTTPException(status_code=500, detail="Failed to cancel appointment")
+        
+        # Extract user_id and prepare session details
+        user_id = appointment.get('user_id') or appointment.get('client_id')
+        if user_id:
+            session_details = {
+                'session_type': appointment.get('session_type', 'Training Session'),
+                'date': appointment.get('date') or appointment.get('start_time', 'TBD'),
+                'time': appointment.get('time') or appointment.get('start_time', 'TBD'),
+                'location': appointment.get('location', 'TBD'),
+                'appointment_id': appointment_id,
+                'reason': cancellation_data.get('reason', 'No reason provided')
+            }
+            
+            # Send cancellation notifications
+            await notify_session_cancelled(trainer_id, user_id, session_details, "trainer")
+            print(f"📱 Trainer cancellation notifications sent for appointment {appointment_id}")
+        
+        return {"message": "Appointment cancelled successfully", "appointment_id": appointment_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error cancelling appointment: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.delete("/users/{user_id}/appointments/{appointment_id}")
+async def cancel_appointment_by_user(user_id: str, appointment_id: str, cancellation_data: dict = {}):
+    """Cancel appointment by user and send notifications"""
+    try:
+        # Get appointment details first
+        appointment = await calendar_service.get_appointment_details(appointment_id)
+        if not appointment:
+            raise HTTPException(status_code=404, detail="Appointment not found")
+        
+        # Verify user has permission to cancel this appointment
+        if appointment.get('user_id') != user_id and appointment.get('client_id') != user_id:
+            raise HTTPException(status_code=403, detail="Not authorized to cancel this appointment")
+        
+        # Cancel the appointment
+        cancelled = await calendar_service.cancel_appointment(appointment_id)
+        if not cancelled:
+            raise HTTPException(status_code=500, detail="Failed to cancel appointment")
+        
+        # Extract trainer_id and prepare session details
+        trainer_id = appointment.get('trainer_id')
+        if trainer_id:
+            session_details = {
+                'session_type': appointment.get('session_type', 'Training Session'),
+                'date': appointment.get('date') or appointment.get('start_time', 'TBD'),
+                'time': appointment.get('time') or appointment.get('start_time', 'TBD'),
+                'location': appointment.get('location', 'TBD'),
+                'appointment_id': appointment_id,
+                'reason': cancellation_data.get('reason', 'No reason provided')
+            }
+            
+            # Send cancellation notifications
+            await notify_session_cancelled(trainer_id, user_id, session_details, "user")
+            print(f"📱 User cancellation notifications sent for appointment {appointment_id}")
+        
+        return {"message": "Appointment cancelled successfully", "appointment_id": appointment_id}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error cancelling appointment: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Trainer Earnings
 @api_router.get("/trainer/{trainer_id}/earnings")
 async def get_trainer_earnings(trainer_id: str):
