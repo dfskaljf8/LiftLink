@@ -833,13 +833,14 @@ def test_friend_request_notification_system():
         response = requests.get(f"{BACKEND_URL}/users/{user_a['id']}/friends")
         
         if response.status_code == 200:
-            friends_a = response.json()
+            friends_response = response.json()
+            friends_a = friends_response.get("friends", [])
             print(f"✅ {user_a['name']} has {len(friends_a)} friends")
             
             # Check if User B is in User A's friends list
             friend_found = False
             for friend in friends_a:
-                if friend.get("id") == user_b["id"]:
+                if isinstance(friend, dict) and friend.get("id") == user_b["id"]:
                     friend_found = True
                     print(f"   Friend: {friend.get('name', 'N/A')} ({friend.get('email', 'N/A')})")
                     break
