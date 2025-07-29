@@ -1654,7 +1654,8 @@ def test_calendar_service_database_integration():
         # Test schedule for trainer with no appointments
         response = requests.get(f"{BACKEND_URL}/trainer/{fallback_trainer_id}/schedule")
         if response.status_code == 200:
-            empty_schedule = response.json()
+            schedule_response = response.json()
+            empty_schedule = schedule_response.get("schedule", [])  # Handle the {"schedule": [...]} structure
             
             if len(empty_schedule) == 0:
                 print("✅ Empty schedule returned for trainer with no appointments (no mock data)")
