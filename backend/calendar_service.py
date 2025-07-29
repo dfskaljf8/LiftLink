@@ -527,7 +527,7 @@ class CalendarService:
     
     async def _cancel_db_appointment(self, appointment_id: str) -> bool:
         """Cancel appointment in database by marking as cancelled"""
-        if not self.db:
+        if self.db is None:
             print("❌ Database connection not available")
             return False
         
