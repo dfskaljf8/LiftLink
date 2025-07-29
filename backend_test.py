@@ -732,9 +732,10 @@ def test_friend_request_notification_system():
     response = requests.get(f"{BACKEND_URL}/users/{user_b['id']}/friend-requests?type=received")
     
     if response.status_code == 200:
-        received_requests = response.json()
+        received_response = response.json()
+        received_requests = received_response.get("friend_requests", [])
         print(f"✅ Retrieved {len(received_requests)} received friend requests")
-        print(f"DEBUG: Received requests response: {received_requests}")
+        print(f"DEBUG: Received requests response: {received_response}")
         
         if len(received_requests) > 0:
             request = received_requests[0]
@@ -763,7 +764,8 @@ def test_friend_request_notification_system():
     response = requests.get(f"{BACKEND_URL}/users/{user_a['id']}/friend-requests?type=sent")
     
     if response.status_code == 200:
-        sent_requests = response.json()
+        sent_response = response.json()
+        sent_requests = sent_response.get("friend_requests", [])
         print(f"✅ Retrieved {len(sent_requests)} sent friend requests")
         
         if len(sent_requests) > 0:
