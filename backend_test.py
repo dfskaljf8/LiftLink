@@ -4609,18 +4609,18 @@ def test_notification_system_fixes():
         return False
 
 if __name__ == "__main__":
-    print("🚀 STARTING CALENDAR SERVICE DATABASE INTEGRATION TESTING")
+    print("🚀 STARTING FRIEND REQUEST NOTIFICATION SYSTEM TESTING")
     print("=" * 80)
-    print("Focus: Testing mock data removal and database integration")
-    print("Target: Verify calendar service uses real database operations, not mock data")
+    print("Focus: Testing comprehensive friend request system with immediate notifications")
+    print("Target: Verify complete friend request workflow with notifications")
     print("=" * 80)
     
-    # Initialize test results for calendar database integration
-    test_results["calendar_database_integration"] = {"success": False, "details": ""}
+    # Initialize test results for friend request notification system
+    test_results["friend_request_notification_system"] = {"success": False, "details": ""}
     
-    # Run calendar database integration test
-    print("\n🎯 PRIMARY TEST: CALENDAR SERVICE DATABASE INTEGRATION")
-    calendar_integration_result = test_calendar_service_database_integration()
+    # Run friend request notification system test
+    print("\n🎯 PRIMARY TEST: FRIEND REQUEST NOTIFICATION SYSTEM")
+    friend_request_result = test_friend_request_notification_system()
     
     # Print final results
     print_separator()
@@ -4633,21 +4633,23 @@ if __name__ == "__main__":
     print(f"✅ Tests Passed: {passed_tests}/{total_tests}")
     print(f"❌ Tests Failed: {total_tests - passed_tests}/{total_tests}")
     
-    # Focus on calendar database integration results
-    calendar_result = test_results.get("calendar_database_integration", {})
-    if calendar_result.get("success"):
-        print("\n🎉 CALENDAR SERVICE DATABASE INTEGRATION: PASSED")
-        print("✅ Mock data successfully removed from calendar service")
-        print("✅ Database operations working correctly for appointments")
-        print("✅ Appointments stored and retrieved from database")
-        print("✅ Available slots calculated from real appointments")
-        print("✅ Proper fallback behavior when no appointments exist")
-        print("✅ Database collections have proper structure")
+    # Focus on friend request notification system results
+    friend_request_system_result = test_results.get("friend_request_notification_system", {})
+    if friend_request_system_result.get("success"):
+        print("\n🎉 FRIEND REQUEST NOTIFICATION SYSTEM: PASSED")
+        print("✅ Friend request sending with notifications working")
+        print("✅ Friend request retrieval (sent/received) working")
+        print("✅ Friend request acceptance with notifications working")
+        print("✅ Friend request rejection with notifications working")
+        print("✅ Friends list management working")
+        print("✅ Notification verification working")
+        print("✅ Validation and error handling working")
+        print("✅ Database collections working correctly")
     else:
-        print("\n❌ CALENDAR SERVICE DATABASE INTEGRATION: FAILED")
-        print("🚨 Issues found with calendar database integration")
-        if calendar_result.get("details"):
-            print(f"Details: {calendar_result['details']}")
+        print("\n❌ FRIEND REQUEST NOTIFICATION SYSTEM: FAILED")
+        print("🚨 Issues found with friend request notification system")
+        if friend_request_system_result.get("details"):
+            print(f"Details: {friend_request_system_result['details']}")
     
     # Show detailed results for failed tests
     failed_tests = {name: result for name, result in test_results.items() if not result["success"]}
@@ -4657,10 +4659,10 @@ if __name__ == "__main__":
         for test_name, result in failed_tests.items():
             print(f"   - {test_name}: {result.get('details', 'No details available')}")
     
-    print(f"\n🏁 CALENDAR SERVICE DATABASE INTEGRATION TESTING COMPLETED")
+    print(f"\n🏁 FRIEND REQUEST NOTIFICATION SYSTEM TESTING COMPLETED")
     
     # Return success status
-    exit(0 if calendar_result.get("success", False) else 1)
+    exit(0 if friend_request_system_result.get("success", False) else 1)
 
 def test_notification_system_fixes():
     """Test the minor issue fixes for the notification system"""
