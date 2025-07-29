@@ -1714,6 +1714,11 @@ async def mark_notification_read(trainer_id: str, notification_id: str):
 async def get_user_notifications(user_id: str, limit: int = 20):
     """Get user's recent notifications"""
     try:
+        # Validate user exists
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
         # Get recent notifications for user
         notifications_cursor = db.user_notifications.find({
             "user_id": user_id
@@ -1738,13 +1743,11 @@ async def get_user_notifications(user_id: str, limit: int = 20):
             "unread_count": len([n for n in notifications if not n.get("read", False)])
         }
         
+    except HTTPException:
+        raise
     except Exception as e:
         print(f"❌ Error fetching user notifications: {e}")
-        return {
-            "user_id": user_id,
-            "notifications": [],
-            "unread_count": 0
-        }
+        raise HTTPException(status_code=500, detail="Failed to fetch notifications")
 
 @api_router.put("/users/{user_id}/notifications/{notification_id}/mark-read")
 async def mark_user_notification_read(user_id: str, notification_id: str):
