@@ -1474,7 +1474,7 @@ from calendar_service import CalendarService
 from verification_service import VerificationService
 
 payment_service = PaymentService()
-calendar_service = CalendarService()
+calendar_service = CalendarService(db)
 verification_service = VerificationService()
 
 # Enhanced User Model with verification
