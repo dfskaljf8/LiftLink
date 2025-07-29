@@ -1594,7 +1594,8 @@ def test_calendar_service_database_integration():
         response = requests.get(f"{BACKEND_URL}/trainer/{trainer_id}/available-slots", params={"date": tomorrow})
         
         if response.status_code == 200:
-            available_slots = response.json()
+            slots_response = response.json()
+            available_slots = slots_response.get("available_slots", [])  # Handle the {"available_slots": [...]} structure
             print(f"✅ Retrieved available slots: {len(available_slots)} slots")
             
             # Verify slots structure
