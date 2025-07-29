@@ -1899,6 +1899,271 @@ async def mark_user_notification_read(user_id: str, notification_id: str):
         print(f"❌ Error marking user notification as read: {e}")
         raise HTTPException(status_code=500, detail="Failed to update notification")
 
+# Friend Request Endpoints
+@api_router.post("/users/{sender_id}/friend-requests")
+async def send_friend_request(sender_id: str, request_data: dict):
+    """Send a friend request to another user"""
+    try:
+        receiver_id = request_data.get("receiver_id")
+        message = request_data.get("message", "")
+        
+        if not receiver_id:
+            raise HTTPException(status_code=400, detail="Receiver ID is required")
+        
+        # Validate sender exists
+        sender = await db.users.find_one({"id": sender_id})
+        if not sender:
+            raise HTTPException(status_code=404, detail="Sender not found")
+        
+        # Validate receiver exists
+        receiver = await db.users.find_one({"id": receiver_id})
+        if not receiver:
+            raise HTTPException(status_code=404, detail="Receiver not found")
+        
+        # Check if users are already friends
+        existing_friendship = await db.friendships.find_one({
+            "$or": [
+                {"user1_id": sender_id, "user2_id": receiver_id},
+                {"user1_id": receiver_id, "user2_id": sender_id}
+            ]
+        })
+        
+        if existing_friendship:
+            raise HTTPException(status_code=400, detail="Users are already friends")
+        
+        # Check if friend request already exists
+        existing_request = await db.friend_requests.find_one({
+            "$or": [
+                {"sender_id": sender_id, "receiver_id": receiver_id, "status": "pending"},
+                {"sender_id": receiver_id, "receiver_id": sender_id, "status": "pending"}
+            ]
+        })
+        
+        if existing_request:
+            raise HTTPException(status_code=400, detail="Friend request already exists")
+        
+        # Create friend request
+        friend_request_id = generate_id()
+        friend_request_doc = {
+            "id": friend_request_id,
+            "sender_id": sender_id,
+            "receiver_id": receiver_id,
+            "status": "pending",
+            "message": message,
+            "created_at": datetime.now().isoformat()
+        }
+        
+        await db.friend_requests.insert_one(friend_request_doc)
+        
+        # Send notification to receiver
+        await notify_friend_request_sent(sender_id, receiver_id, message)
+        
+        return {
+            "message": "Friend request sent successfully",
+            "friend_request_id": friend_request_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error sending friend request: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send friend request")
+
+@api_router.get("/users/{user_id}/friend-requests")
+async def get_friend_requests(user_id: str, type: str = "received"):
+    """Get friend requests for a user (sent or received)"""
+    try:
+        # Validate user exists
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get friend requests based on type
+        if type == "sent":
+            query = {"sender_id": user_id}
+        else:  # received
+            query = {"receiver_id": user_id}
+        
+        requests_cursor = db.friend_requests.find(query).sort([("created_at", -1)])
+        friend_requests = await requests_cursor.to_list(length=100)
+        
+        # Format friend requests with user details
+        formatted_requests = []
+        for request in friend_requests:
+            # Get sender and receiver details
+            sender = await db.users.find_one({"id": request["sender_id"]})
+            receiver = await db.users.find_one({"id": request["receiver_id"]})
+            
+            formatted_request = {
+                "id": request["id"],
+                "sender_id": request["sender_id"],
+                "receiver_id": request["receiver_id"],
+                "sender_name": sender.get("name", "Unknown") if sender else "Unknown",
+                "receiver_name": receiver.get("name", "Unknown") if receiver else "Unknown",
+                "sender_email": sender.get("email", "") if sender else "",
+                "receiver_email": receiver.get("email", "") if receiver else "",
+                "status": request["status"],
+                "message": request.get("message", ""),
+                "created_at": request["created_at"],
+                "updated_at": request.get("updated_at")
+            }
+            formatted_requests.append(formatted_request)
+        
+        return {
+            "user_id": user_id,
+            "type": type,
+            "friend_requests": formatted_requests,
+            "count": len(formatted_requests)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error fetching friend requests: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch friend requests")
+
+@api_router.put("/users/{user_id}/friend-requests/{request_id}/accept")
+async def accept_friend_request(user_id: str, request_id: str):
+    """Accept a friend request"""
+    try:
+        # Validate user exists
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get friend request
+        friend_request = await db.friend_requests.find_one({
+            "id": request_id,
+            "receiver_id": user_id,
+            "status": "pending"
+        })
+        
+        if not friend_request:
+            raise HTTPException(status_code=404, detail="Friend request not found or already processed")
+        
+        sender_id = friend_request["sender_id"]
+        
+        # Update friend request status
+        await db.friend_requests.update_one(
+            {"id": request_id},
+            {"$set": {
+                "status": "accepted",
+                "updated_at": datetime.now().isoformat()
+            }}
+        )
+        
+        # Create friendship record
+        friendship_id = generate_id()
+        friendship_doc = {
+            "id": friendship_id,
+            "user1_id": sender_id,
+            "user2_id": user_id,
+            "created_at": datetime.now().isoformat()
+        }
+        
+        await db.friendships.insert_one(friendship_doc)
+        
+        # Send acceptance notification to sender
+        await notify_friend_request_accepted(sender_id, user_id)
+        
+        return {
+            "message": "Friend request accepted",
+            "friendship_id": friendship_id
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error accepting friend request: {e}")
+        raise HTTPException(status_code=500, detail="Failed to accept friend request")
+
+@api_router.put("/users/{user_id}/friend-requests/{request_id}/reject")
+async def reject_friend_request(user_id: str, request_id: str):
+    """Reject a friend request"""
+    try:
+        # Validate user exists
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get friend request
+        friend_request = await db.friend_requests.find_one({
+            "id": request_id,
+            "receiver_id": user_id,
+            "status": "pending"
+        })
+        
+        if not friend_request:
+            raise HTTPException(status_code=404, detail="Friend request not found or already processed")
+        
+        sender_id = friend_request["sender_id"]
+        
+        # Update friend request status
+        await db.friend_requests.update_one(
+            {"id": request_id},
+            {"$set": {
+                "status": "rejected", 
+                "updated_at": datetime.now().isoformat()
+            }}
+        )
+        
+        # Send rejection notification to sender
+        await notify_friend_request_rejected(sender_id, user_id)
+        
+        return {"message": "Friend request rejected"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error rejecting friend request: {e}")
+        raise HTTPException(status_code=500, detail="Failed to reject friend request")
+
+@api_router.get("/users/{user_id}/friends")
+async def get_user_friends(user_id: str):
+    """Get user's friends list"""
+    try:
+        # Validate user exists
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get friendships
+        friendships_cursor = db.friendships.find({
+            "$or": [
+                {"user1_id": user_id},
+                {"user2_id": user_id}
+            ]
+        })
+        
+        friendships = await friendships_cursor.to_list(length=100)
+        
+        # Get friend details
+        friends = []
+        for friendship in friendships:
+            friend_id = friendship["user2_id"] if friendship["user1_id"] == user_id else friendship["user1_id"]
+            friend = await db.users.find_one({"id": friend_id})
+            
+            if friend:
+                friends.append({
+                    "id": friend["id"],
+                    "name": friend.get("name", "Unknown"),
+                    "email": friend.get("email", ""),
+                    "role": friend.get("role", ""),
+                    "friendship_created_at": friendship["created_at"]
+                })
+        
+        return {
+            "user_id": user_id,
+            "friends": friends,
+            "count": len(friends)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error fetching friends: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch friends")
+
 @api_router.get("/trainer/{trainer_id}/clients")
 async def get_trainer_clients(trainer_id: str):
     """Get trainer's clients list"""
