@@ -2002,6 +2002,11 @@ async def get_available_slots(trainer_id: str, date: str):
 async def cancel_appointment_by_trainer(trainer_id: str, appointment_id: str, cancellation_data: dict = {}):
     """Cancel appointment by trainer and send notifications"""
     try:
+        # Validate trainer exists
+        trainer = await db.users.find_one({"id": trainer_id, "role": "trainer"})
+        if not trainer:
+            raise HTTPException(status_code=404, detail="Trainer not found")
+        
         # Get appointment details first
         appointment = await calendar_service.get_appointment_details(appointment_id)
         if not appointment:
