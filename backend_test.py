@@ -691,11 +691,13 @@ def test_friend_request_notification_system():
     if response.status_code == 200:
         notifications = response.json()
         print(f"✅ Retrieved {len(notifications)} notifications for receiver")
+        print(f"DEBUG: Notifications response: {notifications}")
         
         # Look for friend request notification
         friend_request_notification = None
         for notification in notifications:
-            if notification.get("data", {}).get("type") == "friend_request_received":
+            print(f"DEBUG: Notification type: {type(notification)}, content: {notification}")
+            if isinstance(notification, dict) and notification.get("data", {}).get("type") == "friend_request_received":
                 friend_request_notification = notification
                 break
         
