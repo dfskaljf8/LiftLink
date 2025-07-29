@@ -1956,6 +1956,18 @@ async def get_trainer_schedule(trainer_id: str):
 @api_router.post("/trainer/{trainer_id}/schedule")
 async def create_appointment(trainer_id: str, appointment_data: dict):
     """Create new appointment and send booking notifications"""
+    # Validate trainer exists
+    trainer = await db.users.find_one({"id": trainer_id, "role": "trainer"})
+    if not trainer:
+        raise HTTPException(status_code=404, detail="Trainer not found")
+    
+    # Validate user exists if provided
+    user_id = appointment_data.get('user_id') or appointment_data.get('client_id')
+    if user_id:
+        user = await db.users.find_one({"id": user_id})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+    
     appointment = await calendar_service.create_appointment(trainer_id, appointment_data)
     if appointment:
         # Extract user_id from appointment data
