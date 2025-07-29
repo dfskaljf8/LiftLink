@@ -1691,7 +1691,8 @@ def test_calendar_service_database_integration():
     
     response = requests.get(f"{BACKEND_URL}/trainer/{trainer_id}/schedule")
     if response.status_code == 200:
-        final_schedule = response.json()
+        schedule_response = response.json()
+        final_schedule = schedule_response.get("schedule", [])  # Handle the {"schedule": [...]} structure
         
         # Check for mock data patterns
         mock_indicators = ["mock", "test_client", "sample", "demo"]
