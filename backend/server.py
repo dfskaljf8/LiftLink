@@ -235,6 +235,25 @@ class AppointmentResponse(BaseModel):
     client_email: Optional[str] = None
     created_at: str
 
+class FriendRequest(BaseModel):
+    sender_id: str
+    receiver_id: str
+    status: str = "pending"  # pending, accepted, rejected
+    message: Optional[str] = ""
+
+class FriendRequestResponse(BaseModel):
+    id: str
+    sender_id: str
+    receiver_id: str
+    sender_name: Optional[str] = None
+    receiver_name: Optional[str] = None
+    sender_email: Optional[str] = None
+    receiver_email: Optional[str] = None
+    status: str
+    message: Optional[str] = None
+    created_at: str
+    updated_at: Optional[str] = None
+
 # Utility functions
 def generate_id():
     return str(uuid.uuid4())
