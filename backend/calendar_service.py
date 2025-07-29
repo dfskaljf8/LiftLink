@@ -357,7 +357,7 @@ class CalendarService:
     
     async def _create_db_appointment(self, trainer_id: str, appointment_data: Dict) -> Optional[Dict]:
         """Create appointment in database"""
-        if not self.db:
+        if self.db is None:
             print("❌ Database connection not available")
             return None
         
