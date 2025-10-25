@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.liftlinkmobile">
+    package="com.liftlinkapp">
 
     <!-- Essential Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
