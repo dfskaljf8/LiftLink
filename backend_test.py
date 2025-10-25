@@ -6250,23 +6250,23 @@ def test_notification_system_fixes():
         return False
 
 if __name__ == "__main__":
-    print("🚀 STARTING STRIPE PAYMENT CHECKOUT & AUTHORIZATION TESTING")
+    print("🚀 STARTING PAYMENT CHECKOUT & AUTHORIZATION FIXES TESTING")
     print("=" * 80)
-    print("Focus: Payment Amount Formatting & Authorization System Verification")
-    print("Target: Diagnose Stripe payment checkout issue and verify authorization")
-    print("Scope: Payment Endpoints, JWT Authentication, User/Trainer Authorization, Cross-User Protection")
+    print("Focus: Verify FIXES for Payment Checkout and Authorization Issues")
+    print("Target: Test Stripe amount formatting fix (75.0 vs 7500 cents) and trainer authorization")
+    print("Scope: Payment Endpoints, JWT Authentication, Trainer Security, Cross-Trainer Protection")
     print("=" * 80)
     
-    # Initialize test results for payment and authorization testing
-    test_results["stripe_payment_checkout_authorization"] = {"success": False, "details": ""}
+    # Initialize test results for payment and authorization fixes testing
+    test_results["stripe_payment_checkout_authorization_fixes"] = {"success": False, "details": ""}
     
-    # Run the specific test requested in the review
-    print("\n🎯 PRIMARY TEST: STRIPE PAYMENT CHECKOUT & AUTHORIZATION")
-    test_success = test_stripe_payment_checkout_and_authorization()
+    # Run the specific test for the fixes requested in the review
+    print("\n🎯 PRIMARY TEST: PAYMENT CHECKOUT & AUTHORIZATION FIXES")
+    test_success = test_payment_checkout_and_authorization_fixes()
     
     # Print final results
     print_separator()
-    print("📊 STRIPE PAYMENT & AUTHORIZATION TEST SUMMARY")
+    print("📊 PAYMENT CHECKOUT & AUTHORIZATION FIXES TEST SUMMARY")
     print_separator()
     
     passed_tests = sum(1 for result in test_results.values() if result["success"])
@@ -6275,21 +6275,21 @@ if __name__ == "__main__":
     print(f"✅ Tests Passed: {passed_tests}/{total_tests}")
     print(f"❌ Tests Failed: {total_tests - passed_tests}/{total_tests}")
     
-    # Focus on payment and authorization results
-    payment_auth_result = test_results.get("stripe_payment_checkout_authorization", {})
-    if payment_auth_result.get("success"):
-        print("\n🎉 STRIPE PAYMENT CHECKOUT & AUTHORIZATION SYSTEM: PASSED!")
-        print("✅ Payment amount formatting verified")
-        print("✅ Payment endpoints working correctly")
-        print("✅ JWT authentication system functional")
-        print("✅ User authorization controls in place")
-        print("✅ Trainer authorization working")
-        print("✅ Cross-user protection verified")
+    # Focus on payment and authorization fixes results
+    fixes_result = test_results.get("stripe_payment_checkout_authorization_fixes", {})
+    if fixes_result.get("success"):
+        print("\n🎉 PAYMENT CHECKOUT & AUTHORIZATION FIXES: PASSED!")
+        print("✅ Payment System: Stripe amount formatting fixed (no 75.0 vs 7500 errors)")
+        print("✅ Authorization Fix: All trainer endpoints require JWT + role validation")
+        print("✅ Cross-User Protection: Trainers cannot access other trainers' data")
+        print("✅ User Security: User authorization still working correctly")
+        print("✅ Authentication: JWT tokens required for all protected endpoints")
+        print("✅ Production Ready: Both payment system and authorization working correctly")
     else:
-        print("\n❌ STRIPE PAYMENT CHECKOUT & AUTHORIZATION SYSTEM: FAILED!")
-        print("⚠️  Issues detected that need immediate attention")
-        if payment_auth_result.get("details"):
-            print(f"Details: {payment_auth_result['details']}")
+        print("\n❌ PAYMENT CHECKOUT & AUTHORIZATION FIXES: FAILED!")
+        print("🚨 Critical fixes are not working properly - issues need immediate attention")
+        if fixes_result.get("details"):
+            print(f"Details: {fixes_result['details']}")
     
     # Show detailed results for failed tests
     failed_tests = {name: result for name, result in test_results.items() if not result["success"]}
@@ -6299,10 +6299,10 @@ if __name__ == "__main__":
         for test_name, result in failed_tests.items():
             print(f"   - {test_name}: {result.get('details', 'No details available')}")
     
-    print(f"\n🏁 STRIPE PAYMENT & AUTHORIZATION TESTING COMPLETED")
+    print(f"\n🏁 PAYMENT CHECKOUT & AUTHORIZATION FIXES TESTING COMPLETED")
     
     # Return success status
-    exit(0 if payment_auth_result.get("success", False) else 1)
+    exit(0 if fixes_result.get("success", False) else 1)
 
 def test_notification_system_fixes():
     """Test the minor issue fixes for the notification system"""
