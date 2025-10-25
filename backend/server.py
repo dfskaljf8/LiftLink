@@ -2087,9 +2087,12 @@ async def send_friend_request(sender_id: str, request_data: dict, current_user: 
         raise HTTPException(status_code=500, detail="Failed to send friend request")
 
 @api_router.get("/users/{user_id}/friend-requests")
-async def get_friend_requests(user_id: str, type: str = "received"):
+async def get_friend_requests(user_id: str, type: str = "received", current_user: dict = Depends(get_current_user)):
     """Get friend requests for a user (sent or received)"""
     try:
+        # Validate user can only access their own friend requests
+        validate_user_access(user_id, current_user)
+        
         # Validate user exists
         user = await db.users.find_one({"id": user_id})
         if not user:
