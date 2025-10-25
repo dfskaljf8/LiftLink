@@ -5993,23 +5993,23 @@ def test_notification_system_fixes():
         return False
 
 if __name__ == "__main__":
-    print("🚀 STARTING FINAL PRODUCTION READINESS VALIDATION")
+    print("🚀 STARTING STRIPE PAYMENT CHECKOUT & AUTHORIZATION TESTING")
     print("=" * 80)
-    print("Focus: FINAL PRODUCTION READINESS VALIDATION after JWT token fix")
-    print("Target: Definitive test to confirm LiftLink is ready for production deployment")
-    print("Scope: JWT Authentication, Authorization, Security, Live Notifications, Complete Workflows")
+    print("Focus: Payment Amount Formatting & Authorization System Verification")
+    print("Target: Diagnose Stripe payment checkout issue and verify authorization")
+    print("Scope: Payment Endpoints, JWT Authentication, User/Trainer Authorization, Cross-User Protection")
     print("=" * 80)
     
-    # Initialize test results for production readiness validation
-    test_results["final_production_readiness"] = {"success": False, "details": ""}
+    # Initialize test results for payment and authorization testing
+    test_results["stripe_payment_checkout_authorization"] = {"success": False, "details": ""}
     
-    # Run final production readiness validation test
-    print("\n🎯 PRIMARY TEST: FINAL PRODUCTION READINESS VALIDATION")
-    production_result = test_final_production_readiness_validation()
+    # Run the specific test requested in the review
+    print("\n🎯 PRIMARY TEST: STRIPE PAYMENT CHECKOUT & AUTHORIZATION")
+    test_success = test_stripe_payment_checkout_and_authorization()
     
     # Print final results
     print_separator()
-    print("📊 FINAL PRODUCTION READINESS RESULTS")
+    print("📊 STRIPE PAYMENT & AUTHORIZATION TEST SUMMARY")
     print_separator()
     
     passed_tests = sum(1 for result in test_results.values() if result["success"])
@@ -6018,36 +6018,34 @@ if __name__ == "__main__":
     print(f"✅ Tests Passed: {passed_tests}/{total_tests}")
     print(f"❌ Tests Failed: {total_tests - passed_tests}/{total_tests}")
     
-    # Focus on production readiness results
-    production_system_result = test_results.get("final_production_readiness", {})
-    if production_system_result.get("success"):
-        print("\n🎉 FINAL PRODUCTION READINESS VALIDATION: PASSED")
-        print("✅ JWT token delivery confirmed (access_token field in login response)")
-        print("✅ Complete authentication flow working (Registration → Verification → Login → JWT → Protected Access)")
-        print("✅ Authentication system enforced (401 without token)")
-        print("✅ Authorization system working (user/trainer access control)")
-        print("✅ Input security implemented (XSS protection and validation)")
-        print("✅ Live notifications secured (WebSocket + database integration)")
-        print("✅ Complete workflows functional (end-to-end user/trainer flows)")
-        print("✅ LiftLink is PRODUCTION READY for deployment!")
+    # Focus on payment and authorization results
+    payment_auth_result = test_results.get("stripe_payment_checkout_authorization", {})
+    if payment_auth_result.get("success"):
+        print("\n🎉 STRIPE PAYMENT CHECKOUT & AUTHORIZATION SYSTEM: PASSED!")
+        print("✅ Payment amount formatting verified")
+        print("✅ Payment endpoints working correctly")
+        print("✅ JWT authentication system functional")
+        print("✅ User authorization controls in place")
+        print("✅ Trainer authorization working")
+        print("✅ Cross-user protection verified")
     else:
-        print("\n❌ FINAL PRODUCTION READINESS VALIDATION: FAILED")
-        print("🚨 Critical issues prevent production deployment")
-        if production_system_result.get("details"):
-            print(f"Details: {production_system_result['details']}")
+        print("\n❌ STRIPE PAYMENT CHECKOUT & AUTHORIZATION SYSTEM: FAILED!")
+        print("⚠️  Issues detected that need immediate attention")
+        if payment_auth_result.get("details"):
+            print(f"Details: {payment_auth_result['details']}")
     
     # Show detailed results for failed tests
     failed_tests = {name: result for name, result in test_results.items() if not result["success"]}
     
     if failed_tests:
-        print(f"\n❌ FAILED PRODUCTION READINESS TESTS:")
+        print(f"\n❌ FAILED TESTS:")
         for test_name, result in failed_tests.items():
             print(f"   - {test_name}: {result.get('details', 'No details available')}")
     
-    print(f"\n🏁 FINAL PRODUCTION READINESS VALIDATION COMPLETED")
+    print(f"\n🏁 STRIPE PAYMENT & AUTHORIZATION TESTING COMPLETED")
     
     # Return success status
-    exit(0 if production_system_result.get("success", False) else 1)
+    exit(0 if payment_auth_result.get("success", False) else 1)
 
 def test_notification_system_fixes():
     """Test the minor issue fixes for the notification system"""
