@@ -415,7 +415,7 @@ async def send_trainer_notification(trainer_id: str, title: str, message: str, d
         return False
 
 async def send_user_notification(user_id: str, title: str, message: str, data: dict = None):
-    """Send push notification to user"""
+    """Send push notification to user with live WebSocket delivery"""
     try:
         # Store notification in database
         notification_id = generate_id()
@@ -431,6 +431,19 @@ async def send_user_notification(user_id: str, title: str, message: str, data: d
         }
         
         await db.user_notifications.insert_one(notification)
+        
+        # Send live notification via WebSocket
+        live_notification = {
+            "id": notification_id,
+            "type": "notification",
+            "title": title,
+            "message": message,
+            "data": data or {},
+            "created_at": notification["created_at"],
+            "priority": "normal"
+        }
+        
+        await notification_manager.send_personal_message(live_notification, user_id)
         
         # TODO: Integrate with push notification service (Firebase, etc.)
         print(f"📱 User Notification: {user_id} - {title}: {message}")
