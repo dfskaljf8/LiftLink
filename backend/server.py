@@ -1753,7 +1753,7 @@ class CertificationRequest(BaseModel):
     image_data: str
 
 class UpdateUserNameRequest(BaseModel):
-    name: str
+    name: str = Field(..., max_length=100, min_length=1, description="User name")
 
 class VerificationResponse(BaseModel):
     status: str
