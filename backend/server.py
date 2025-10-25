@@ -1227,8 +1227,11 @@ async def get_user(user_id: str, current_user: dict = Depends(get_current_user))
     )
 
 @api_router.put("/users/{user_id}", response_model=UserResponse)
-async def update_user(user_id: str, user_update: User):
-    """Update user profile"""
+async def update_user(user_id: str, user_update: User, current_user: dict = Depends(get_current_user)):
+    """Update user profile - users can only update their own profile"""
+    # Validate user can only update their own data
+    validate_user_access(user_id, current_user)
+    
     update_data = {
         "role": user_update.role.value,
         "fitness_goals": [goal.value for goal in user_update.fitness_goals],
