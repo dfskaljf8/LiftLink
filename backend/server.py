@@ -809,15 +809,26 @@ async def login_user(request: LoginRequest):
     else:
         fitness_goals_str = [goal.value if hasattr(goal, 'value') else str(goal) for goal in fitness_goals]
     
-    return UserResponse(
+    # Create JWT token for authenticated user
+    user_role_str = user["role"].value if hasattr(user["role"], 'value') else user["role"]
+    access_token = create_access_token(user["id"], user["email"], user_role_str)
+    
+    user_response = UserResponse(
         id=user["id"],
         email=user["email"],
         name=user.get("name"),
-        role=user["role"].value if hasattr(user["role"], 'value') else user["role"],
+        role=user_role_str,
         fitness_goals=fitness_goals_str,
         experience_level=user["experience_level"].value if hasattr(user["experience_level"], 'value') else user["experience_level"],
         created_at=user["created_at"].isoformat() if isinstance(user["created_at"], datetime) else user["created_at"]
     )
+    
+    # Add token to response (we'll update the model to include this)
+    user_response_dict = user_response.dict()
+    user_response_dict["access_token"] = access_token
+    user_response_dict["token_type"] = "bearer"
+    
+    return user_response_dict
 
 @api_router.post("/users", response_model=UserResponse)
 async def create_user(user: User):
