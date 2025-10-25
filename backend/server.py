@@ -2126,10 +2126,14 @@ async def send_friend_request(sender_id: str, request_data: dict, current_user: 
         validate_user_access(sender_id, current_user)
         
         receiver_id = request_data.get("receiver_id")
-        message = request_data.get("message", "")
+        message = sanitize_input(request_data.get("message", ""))
         
         if not receiver_id:
             raise HTTPException(status_code=400, detail="Receiver ID is required")
+        
+        # Validate message length
+        if len(message) > 500:
+            raise HTTPException(status_code=400, detail="Message too long (max 500 characters)")
         
         # Prevent self friend requests
         if sender_id == receiver_id:
