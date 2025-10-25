@@ -932,12 +932,12 @@ async def login_user(request: LoginRequest):
         created_at=user["created_at"].isoformat() if isinstance(user["created_at"], datetime) else user["created_at"]
     )
     
-    # Add token to response (we'll update the model to include this)
-    user_response_dict = user_response.dict()
-    user_response_dict["access_token"] = access_token
-    user_response_dict["token_type"] = "bearer"
-    
-    return user_response_dict
+    # Return JWT token with user data according to FastAPI best practices
+    return LoginResponse(
+        access_token=access_token,
+        token_type="bearer",
+        user=user_response
+    )
 
 @api_router.post("/users", response_model=UserResponse)
 async def create_user(user: User):
