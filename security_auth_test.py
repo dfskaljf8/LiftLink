@@ -35,7 +35,38 @@ def create_test_user(role="fitness_enthusiast", name_suffix=""):
     
     response = requests.post(f"{BACKEND_URL}/users", json=user_data)
     if response.status_code == 200:
-        return response.json()
+        user = response.json()
+        
+        # Verify age for the user (required for login)
+        age_verification_data = {
+            "document_type": "drivers_license",
+            "document_number": "DL123456789",
+            "date_of_birth": "1990-01-01",
+            "full_name": user_data["name"]
+        }
+        
+        verify_response = requests.post(f"{BACKEND_URL}/verify-government-id", json=age_verification_data)
+        if verify_response.status_code == 200:
+            print(f"✅ Age verification completed for {user['email']}")
+        else:
+            print(f"⚠️ Age verification failed for {user['email']}: {verify_response.status_code}")
+        
+        # If trainer, also verify fitness certification
+        if role == "trainer":
+            cert_verification_data = {
+                "certification_type": "NASM",
+                "certification_number": "NASM123456",
+                "expiration_date": "2025-12-31",
+                "issuing_organization": "NASM"
+            }
+            
+            cert_response = requests.post(f"{BACKEND_URL}/verify-fitness-certification", json=cert_verification_data)
+            if cert_response.status_code == 200:
+                print(f"✅ Fitness certification verified for {user['email']}")
+            else:
+                print(f"⚠️ Fitness certification failed for {user['email']}: {cert_response.status_code}")
+        
+        return user
     else:
         print(f"❌ Failed to create test user: {response.status_code}")
         print(f"Response: {response.text}")
