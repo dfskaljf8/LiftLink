@@ -6,7 +6,8 @@ import {
   Platform,
   Vibration,
   Dimensions,
-  StatusBar
+  StatusBar,
+  TouchableOpacity
 } from 'react-native';
 import NotificationToast from './NotificationToast';
 import { LoadingOverlay, ErrorOverlay, SuccessOverlay } from './LoadingOverlay';
