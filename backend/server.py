@@ -1987,9 +1987,12 @@ async def get_user_notifications(user_id: str, limit: int = 20, current_user: di
         raise HTTPException(status_code=500, detail="Failed to fetch notifications")
 
 @api_router.put("/users/{user_id}/notifications/{notification_id}/mark-read")
-async def mark_user_notification_read(user_id: str, notification_id: str):
+async def mark_user_notification_read(user_id: str, notification_id: str, current_user: dict = Depends(get_current_user)):
     """Mark a user notification as read"""
     try:
+        # Validate user can only access their own notifications
+        validate_user_access(user_id, current_user)
+        
         result = await db.user_notifications.update_one(
             {"id": notification_id, "user_id": user_id},
             {"$set": {"read": True, "read_at": datetime.now().isoformat()}}
