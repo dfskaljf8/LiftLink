@@ -6665,59 +6665,46 @@ def test_notification_system_fixes():
         return False
 
 if __name__ == "__main__":
-    print("🚀 STARTING PAYMENT CHECKOUT & AUTHORIZATION FIXES TESTING")
-    print("=" * 80)
-    print("Focus: Verify FIXES for Payment Checkout and Authorization Issues")
-    print("Target: Test Stripe amount formatting fix (75.0 vs 7500 cents) and trainer authorization")
-    print("Scope: Payment Endpoints, JWT Authentication, Trainer Security, Cross-Trainer Protection")
-    print("=" * 80)
+    print("🎯 STARTING FINAL VERIFICATION TESTING - PRODUCTION READINESS CHECK")
+    print("="*80)
+    print("Focus: FINAL VERIFICATION after all fixes")
+    print("Target: Payment System + Authorization System + Production Readiness")
+    print("Scope: Session Cost Endpoint, Stripe Checkout, JWT Auth, Cross-User Protection")
+    print("="*80)
     
-    # Initialize test results for payment and authorization fixes testing
-    test_results["stripe_payment_checkout_authorization_fixes"] = {"success": False, "details": ""}
-    
-    # Run the specific test for the fixes requested in the review
-    print("\n🎯 PRIMARY TEST: PAYMENT CHECKOUT & AUTHORIZATION FIXES")
-    test_success = test_payment_checkout_and_authorization_fixes()
+    # Run the final verification test as requested in the review
+    final_verification_passed = test_final_verification_payment_and_authorization()
     
     # Print final results
     print_separator()
-    print("📊 PAYMENT CHECKOUT & AUTHORIZATION FIXES TEST SUMMARY")
+    print("📊 FINAL VERIFICATION RESULTS SUMMARY")
     print_separator()
     
-    passed_tests = sum(1 for result in test_results.values() if result["success"])
-    total_tests = len(test_results)
-    
-    print(f"✅ Tests Passed: {passed_tests}/{total_tests}")
-    print(f"❌ Tests Failed: {total_tests - passed_tests}/{total_tests}")
-    
-    # Focus on payment and authorization fixes results
-    fixes_result = test_results.get("stripe_payment_checkout_authorization_fixes", {})
-    if fixes_result.get("success"):
-        print("\n🎉 PAYMENT CHECKOUT & AUTHORIZATION FIXES: PASSED!")
-        print("✅ Payment System: Stripe amount formatting fixed (no 75.0 vs 7500 errors)")
-        print("✅ Authorization Fix: All trainer endpoints require JWT + role validation")
-        print("✅ Cross-User Protection: Trainers cannot access other trainers' data")
-        print("✅ User Security: User authorization still working correctly")
-        print("✅ Authentication: JWT tokens required for all protected endpoints")
-        print("✅ Production Ready: Both payment system and authorization working correctly")
+    if final_verification_passed:
+        print("🎉 FINAL VERIFICATION: PASSED")
+        print("✅ LiftLink is PRODUCTION READY!")
+        print("\n🚀 All critical systems verified:")
+        print("   ✅ Payment System: Session cost endpoint + Stripe checkout working")
+        print("   ✅ Authorization System: JWT tokens required for all protected endpoints")
+        print("   ✅ Cross-User Protection: 401/403 responses working correctly")
+        print("   ✅ Live Notifications: WebSocket system operational with security")
+        print("   ✅ Input Security: XSS protection and validation working")
     else:
-        print("\n❌ PAYMENT CHECKOUT & AUTHORIZATION FIXES: FAILED!")
-        print("🚨 Critical fixes are not working properly - issues need immediate attention")
-        if fixes_result.get("details"):
-            print(f"Details: {fixes_result['details']}")
+        print("❌ FINAL VERIFICATION: FAILED")
+        print("❌ LiftLink is NOT READY for production deployment")
+        print("\n🔧 Critical issues need to be resolved:")
+        
+        # Show specific failures
+        final_result = test_results.get("final_verification_payment_and_authorization", {})
+        if final_result.get("details"):
+            print(f"   Details: {final_result['details']}")
     
-    # Show detailed results for failed tests
-    failed_tests = {name: result for name, result in test_results.items() if not result["success"]}
-    
-    if failed_tests:
-        print(f"\n❌ FAILED TESTS:")
-        for test_name, result in failed_tests.items():
-            print(f"   - {test_name}: {result.get('details', 'No details available')}")
-    
-    print(f"\n🏁 PAYMENT CHECKOUT & AUTHORIZATION FIXES TESTING COMPLETED")
+    print("\n" + "="*80)
+    print("END OF FINAL VERIFICATION TESTING")
+    print("="*80)
     
     # Return success status
-    exit(0 if fixes_result.get("success", False) else 1)
+    exit(0 if final_verification_passed else 1)
 
 def test_notification_system_fixes():
     """Test the minor issue fixes for the notification system"""
