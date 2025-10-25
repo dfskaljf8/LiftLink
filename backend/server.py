@@ -389,7 +389,7 @@ def generate_id():
     return str(uuid.uuid4())
 
 async def send_trainer_notification(trainer_id: str, title: str, message: str, data: dict = None):
-    """Send push notification to trainer"""
+    """Send push notification to trainer with live WebSocket delivery"""
     try:
         # Store notification in database
         notification_id = generate_id()
@@ -405,6 +405,19 @@ async def send_trainer_notification(trainer_id: str, title: str, message: str, d
         }
         
         await db.trainer_notifications.insert_one(notification)
+        
+        # Send live notification via WebSocket
+        live_notification = {
+            "id": notification_id,
+            "type": "notification",
+            "title": title,
+            "message": message,
+            "data": data or {},
+            "created_at": notification["created_at"],
+            "priority": "normal"
+        }
+        
+        await notification_manager.send_personal_message(live_notification, trainer_id)
         
         # TODO: Integrate with push notification service (Firebase, etc.)
         print(f"📱 Trainer Notification: {trainer_id} - {title}: {message}")
