@@ -72,19 +72,22 @@ security = HTTPBearer()
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
     """Get current authenticated user from token"""
-    token = credentials.credentials
-    payload = verify_token(token)
-    
-    # Verify user still exists in database
-    user = await db.users.find_one({"id": payload["user_id"]})
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
-    
-    return {
-        "id": payload["user_id"],
-        "email": payload["email"],
-        "role": payload["role"]
-    }
+    try:
+        token = credentials.credentials
+        payload = verify_token(token)
+        
+        # Verify user still exists in database
+        user = await db.users.find_one({"id": payload["user_id"]})
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        
+        return {
+            "id": payload["user_id"],
+            "email": payload["email"],
+            "role": payload["role"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Authentication required")
 
 async def get_current_trainer(current_user: dict = Depends(get_current_user)) -> dict:
     """Get current authenticated trainer"""
