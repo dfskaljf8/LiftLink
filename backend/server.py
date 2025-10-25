@@ -1945,9 +1945,12 @@ async def mark_notification_read(trainer_id: str, notification_id: str, current_
         raise HTTPException(status_code=500, detail="Failed to update notification")
 
 @api_router.get("/users/{user_id}/notifications")
-async def get_user_notifications(user_id: str, limit: int = 20):
+async def get_user_notifications(user_id: str, limit: int = 20, current_user: dict = Depends(get_current_user)):
     """Get user's recent notifications"""
     try:
+        # Validate user can only access their own notifications
+        validate_user_access(user_id, current_user)
+        
         # Validate user exists
         user = await db.users.find_one({"id": user_id})
         if not user:
