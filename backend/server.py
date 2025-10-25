@@ -56,10 +56,7 @@ def sanitize_input(input_str: str) -> str:
     if not isinstance(input_str, str):
         return str(input_str)
     
-    # HTML escape to prevent XSS
-    sanitized = html.escape(input_str)
-    
-    # Additional XSS patterns to remove
+    # First, check and remove dangerous patterns BEFORE HTML escaping
     dangerous_patterns = [
         r'<script.*?>.*?</script>',
         r'javascript:',
@@ -68,11 +65,38 @@ def sanitize_input(input_str: str) -> str:
         r'<object.*?>.*?</object>',
         r'<embed.*?>',
         r'<link.*?>',
-        r'<meta.*?>'
+        r'<meta.*?>',
+        r'data:text/html',
+        r'vbscript:',
+        r'expression\s*\(',
+        r'@import',
+        r'<svg.*?onload',
+        r'<img.*?onerror'
     ]
     
+    sanitized = input_str
+    
+    # Remove dangerous patterns first (case insensitive)
     for pattern in dangerous_patterns:
         sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE | re.DOTALL)
+    
+    # Then HTML escape to prevent XSS
+    sanitized = html.escape(sanitized)
+    
+    # Remove any remaining suspicious sequences after escaping
+    suspicious_sequences = [
+        '&lt;script',
+        '&lt;iframe',
+        '&lt;object',
+        '&lt;embed',
+        '&lt;link',
+        '&lt;meta',
+        'javascript&colon;',
+        'vbscript&colon;'
+    ]
+    
+    for sequence in suspicious_sequences:
+        sanitized = sanitized.replace(sequence, '')
     
     # Limit length to prevent DoS
     return sanitized[:1000] if len(sanitized) > 1000 else sanitized
