@@ -541,9 +541,10 @@ metadata:
 
 test_plan:
   current_focus:
-    - "React Native Frontend Testing"
+    - "Comprehensive Security & Authorization Testing"
   stuck_tasks:
     - "React Native Mobile App Testing - Environment Limitation"
+    - "Authorization & Access Control Vulnerabilities"
   test_all: false
   test_priority: "high_first"
 
