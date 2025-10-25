@@ -1604,8 +1604,11 @@ async def create_session(session: Session):
     return SessionResponse(**session_doc)
 
 @api_router.get("/users/{user_id}/sessions", response_model=List[SessionResponse])
-async def get_user_sessions(user_id: str):
-    """Get all sessions for a user"""
+async def get_user_sessions(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Get all sessions for a user - users can only access their own sessions"""
+    # Validate user can only access their own sessions
+    validate_user_access(user_id, current_user)
+    
     sessions_cursor = db.sessions.find({"user_id": user_id}).sort("created_at", -1)
     sessions = await sessions_cursor.to_list(length=100)
     
