@@ -18,6 +18,7 @@ import jwt
 from functools import wraps
 import json
 import asyncio
+import html
 
 # Load environment variables from .env file
 load_dotenv()
