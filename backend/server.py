@@ -956,7 +956,7 @@ async def create_user(user: User):
     user_doc = {
         "id": user_id,
         "email": user.email,
-        "name": user.name,
+        "name": sanitize_input(user.name) if user.name else None,
         "role": user.role.value if hasattr(user.role, 'value') else user.role,
         "fitness_goals": [goal.value if hasattr(goal, 'value') else goal for goal in user.fitness_goals],
         "experience_level": user.experience_level.value if hasattr(user.experience_level, 'value') else user.experience_level,
