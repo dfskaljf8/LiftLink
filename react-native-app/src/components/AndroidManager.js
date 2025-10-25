@@ -6,12 +6,42 @@ import {
   ToastAndroid,
   Vibration,
   Linking,
-  DeviceInfo,
   AppState,
-  StatusBar
+  StatusBar,
+  Share
 } from 'react-native';
-import PushNotification, { Importance } from 'react-native-push-notification';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Note: These would be actual dependencies in a real app
+// import PushNotification, { Importance } from 'react-native-push-notification';
+// import DeviceInfo from 'react-native-device-info';
+
+// Mock implementations for now
+const PushNotification = {
+  configure: () => {},
+  createChannel: () => {},
+  localNotification: () => {},
+};
+
+const DeviceInfo = {
+  getUniqueId: () => Promise.resolve('android-device-id'),
+  getSystemName: () => 'Android',
+  getSystemVersion: () => Platform.Version.toString(),
+  getModel: () => 'Android Device',
+  getBrand: () => 'Android',
+  getBuildNumber: () => '1.0.0',
+  getBundleId: () => 'com.liftlink',
+  getReadableVersion: () => '1.0.0',
+  hasNotch: () => false,
+  getBatteryLevel: () => Promise.resolve(0.8),
+  isTablet: () => false,
+};
+
+const Importance = {
+  HIGH: 4,
+  DEFAULT: 3,
+  LOW: 2,
+};
 
 const AndroidContext = createContext();
 
