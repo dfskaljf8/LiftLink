@@ -1880,9 +1880,12 @@ async def update_user_name(user_id: str, request: UpdateUserNameRequest):
 
 
 @api_router.get("/trainer/{trainer_id}/notifications")
-async def get_trainer_notifications(trainer_id: str, limit: int = 20):
+async def get_trainer_notifications(trainer_id: str, limit: int = 20, current_user: dict = Depends(get_current_trainer)):
     """Get trainer's recent notifications"""
     try:
+        # Validate trainer can only access their own notifications
+        validate_trainer_access(trainer_id, current_user)
+        
         # Validate trainer exists
         trainer = await db.users.find_one({"id": trainer_id, "role": "trainer"})
         if not trainer:
