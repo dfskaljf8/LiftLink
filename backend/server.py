@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException, Depends, Request
+from fastapi import FastAPI, HTTPException, Depends, Request, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, validator
 from typing import List, Optional
@@ -13,6 +14,8 @@ import re
 import logging
 from dotenv import load_dotenv
 import stripe
+import jwt
+from functools import wraps
 
 # Load environment variables from .env file
 load_dotenv()
