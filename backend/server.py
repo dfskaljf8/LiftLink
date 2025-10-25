@@ -2586,8 +2586,11 @@ async def cancel_appointment_by_user(user_id: str, appointment_id: str, cancella
 
 # Trainer Earnings
 @api_router.get("/trainer/{trainer_id}/earnings")
-async def get_trainer_earnings(trainer_id: str):
-    """Get trainer earnings data"""
+async def get_trainer_earnings(trainer_id: str, current_user: dict = Depends(get_current_trainer)):
+    """Get trainer earnings data - requires trainer authentication"""
+    # Validate trainer can only access their own earnings
+    validate_trainer_access(trainer_id, current_user)
+    
     earnings = payment_service.get_trainer_earnings(trainer_id)
     return earnings
 
