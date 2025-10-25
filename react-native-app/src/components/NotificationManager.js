@@ -126,19 +126,32 @@ export const NotificationProvider = ({ children }) => {
     setNotifications(prev => [notification, ...prev]);
     setUnreadCount(prev => prev + 1);
 
-    // Show alert for important notifications
+    // Show toast notification for immediate feedback
+    showToast(notification);
+
+    // Show alert for high-priority notifications
     if (notification.priority === 'high' || notification.data?.type === 'friend_request_received') {
-      Alert.alert(
-        notification.title,
-        notification.message,
-        [
-          { text: 'OK', style: 'default' },
-          { text: 'View', onPress: () => handleNotificationPress(notification) }
-        ]
-      );
+      setTimeout(() => {
+        Alert.alert(
+          notification.title,
+          notification.message,
+          [
+            { text: 'OK', style: 'default' },
+            { text: 'View', onPress: () => handleNotificationPress(notification) }
+          ]
+        );
+      }, 1000); // Delay to show after toast
     }
 
     console.log('📱 Live notification received:', notification.title);
+  };
+
+  const showToast = (notification) => {
+    // This would integrate with a global toast system
+    // For now, we'll use a callback that can be set from outside
+    if (window.showGlobalToast) {
+      window.showGlobalToast(notification);
+    }
   };
 
   const handleNotificationPress = (notification) => {
