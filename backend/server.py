@@ -2766,7 +2766,19 @@ async def request_payout(trainer_id: str, request: dict):
 async def create_session_checkout(request: dict):
     """Create Stripe checkout session for trainee to pay for session with Connect"""
     try:
-        amount = request.get("amount", 7500)  # Amount in cents
+        # Get and validate amount (ensure it's in cents as integer)
+        raw_amount = request.get("amount", 7500)
+        
+        # Convert amount to integer cents if it's passed as dollars
+        if isinstance(raw_amount, (int, float)):
+            if raw_amount < 100:  # Likely dollars, convert to cents
+                amount = int(raw_amount * 100)
+                print(f"💳 Converting ${raw_amount} to {amount} cents")
+            else:  # Already in cents
+                amount = int(raw_amount)
+        else:
+            amount = 7500  # Default amount in cents
+            
         trainer_id = request.get("trainer_id")
         client_email = request.get("client_email")
         session_details = request.get("session_details", {})
