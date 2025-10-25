@@ -419,7 +419,7 @@ class FriendRequest(BaseModel):
     sender_id: str
     receiver_id: str
     status: str = "pending"  # pending, accepted, rejected
-    message: Optional[str] = ""
+    message: Optional[str] = Field("", max_length=500, description="Friend request message")
 
 class FriendRequestResponse(BaseModel):
     id: str
