@@ -96,6 +96,36 @@ class ProductionValidator:
     
     def _obtain_jwt_tokens(self):
         """Obtain JWT tokens for authenticated testing"""
+        # First verify both users (simulate age verification)
+        print("Performing age verification for test users...")
+        
+        # Verify trainer
+        verify_data = {
+            "user_id": self.test_users["trainer"]["id"],
+            "document_type": "government_id",
+            "document_number": "TRAINER123456789",
+            "date_of_birth": "1985-01-01",
+            "full_name": self.test_users["trainer"]["name"]
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/verify-age", json=verify_data)
+        if response.status_code == 200:
+            print("✅ Trainer age verification completed")
+        
+        # Verify user
+        verify_data = {
+            "user_id": self.test_users["user"]["id"],
+            "document_type": "government_id", 
+            "document_number": "USER123456789",
+            "date_of_birth": "1990-01-01",
+            "full_name": self.test_users["user"]["name"]
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/verify-age", json=verify_data)
+        if response.status_code == 200:
+            print("✅ User age verification completed")
+        
+        # Now try to login
         # Login trainer
         login_data = {"email": self.test_users["trainer"]["email"]}
         response = requests.post(f"{BACKEND_URL}/login", json=login_data)
@@ -103,6 +133,8 @@ class ProductionValidator:
             login_response = response.json()
             self.jwt_tokens["trainer"] = login_response.get("access_token")
             print(f"✅ Trainer JWT obtained")
+        else:
+            print(f"❌ Trainer login failed: {response.status_code} - {response.text}")
         
         # Login user
         login_data = {"email": self.test_users["user"]["email"]}
@@ -111,6 +143,8 @@ class ProductionValidator:
             login_response = response.json()
             self.jwt_tokens["user"] = login_response.get("access_token")
             print(f"✅ User JWT obtained")
+        else:
+            print(f"❌ User login failed: {response.status_code} - {response.text}")
     
     def test_security_fixes_verification(self):
         """Test all security fixes as requested in the review"""
