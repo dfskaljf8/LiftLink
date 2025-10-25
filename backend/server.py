@@ -987,10 +987,13 @@ async def create_user(user: User):
     
     user_id = generate_id()
     
+    # Sanitize user input to prevent XSS attacks
+    sanitized_name = sanitize_input(user.name) if user.name else None
+    
     user_doc = {
         "id": user_id,
         "email": user.email,
-        "name": sanitize_input(user.name) if user.name else None,
+        "name": sanitized_name,
         "role": user.role.value if hasattr(user.role, 'value') else user.role,
         "fitness_goals": [goal.value if hasattr(goal, 'value') else goal for goal in user.fitness_goals],
         "experience_level": user.experience_level.value if hasattr(user.experience_level, 'value') else user.experience_level,
@@ -1005,7 +1008,7 @@ async def create_user(user: User):
     return UserResponse(
         id=user_id,
         email=user.email,
-        name=user.name,
+        name=sanitized_name,  # Return sanitized name, not original
         role=user.role.value if hasattr(user.role, 'value') else user.role,
         fitness_goals=[goal.value if hasattr(goal, 'value') else goal for goal in user.fitness_goals],
         experience_level=user.experience_level.value if hasattr(user.experience_level, 'value') else user.experience_level,
