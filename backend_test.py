@@ -1554,20 +1554,7 @@ def test_payment_checkout_and_authorization_fixes():
             "success": False, 
             "details": f"Success rate: {success_rate:.1f}%. Failed fixes: {'; '.join(failure_details)}"
         }
-        return False "checkout_session_id" in checkout_response:
-                session_id = checkout_response["checkout_session_id"]
-                print(f"   Stripe Session ID: {session_id}")
-                
-                # Check if amount is properly formatted for Stripe (should be in cents)
-                if "amount" in checkout_response:
-                    stripe_amount = checkout_response["amount"]
-                    expected_cents = int(amount * 100)
-                    
-                    if stripe_amount == expected_cents:
-                        print(f"   ✅ Amount correctly converted to cents: {stripe_amount}")
-                    else:
-                        print(f"   ❌ Amount conversion issue: Expected {expected_cents}, got {stripe_amount}")
-                        test_results_local["payment_amount_formatting"]["details"] += f" Amount conversion issue for ${amount}"
+        return False
             else:
                 print(f"   ❌ No checkout session ID returned")
         else:
