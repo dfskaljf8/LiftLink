@@ -263,7 +263,8 @@ test_results = {
     "google_api_integration": {"success": False, "details": ""},
     "stripe_payment_integration": {"success": False, "details": ""},
     "trainer_features": {"success": False, "details": ""},
-    "notification_system_integration": {"success": False, "details": ""}
+    "notification_system_integration": {"success": False, "details": ""},
+    "comprehensive_security": {"success": False, "details": ""}
 }
 
 def print_separator():
