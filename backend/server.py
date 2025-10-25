@@ -1890,7 +1890,7 @@ async def update_user_name(user_id: str, request: UpdateUserNameRequest):
         # Update user name in database
         result = await db.users.update_one(
             {"id": user_id},
-            {"$set": {"name": request.name}}
+            {"$set": {"name": sanitize_input(request.name)}}
         )
         
         if result.matched_count == 0:
