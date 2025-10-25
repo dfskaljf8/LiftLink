@@ -124,6 +124,47 @@ def validate_trainer_access(trainer_id: str, current_user: dict):
     if current_user["id"] != trainer_id:
         raise HTTPException(status_code=403, detail="Access denied: Can only access your own trainer data")
 
+# Live Notification System with WebSockets
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[str, WebSocket] = {}
+        
+    async def connect(self, websocket: WebSocket, user_id: str):
+        await websocket.accept()
+        self.active_connections[user_id] = websocket
+        print(f"📱 User {user_id} connected to live notifications")
+        
+    def disconnect(self, user_id: str):
+        if user_id in self.active_connections:
+            del self.active_connections[user_id]
+            print(f"📱 User {user_id} disconnected from live notifications")
+            
+    async def send_personal_message(self, message: dict, user_id: str):
+        """Send live notification to specific user"""
+        if user_id in self.active_connections:
+            try:
+                websocket = self.active_connections[user_id]
+                await websocket.send_text(json.dumps(message))
+                print(f"📱 Live notification sent to user {user_id}: {message.get('title', 'Notification')}")
+                return True
+            except Exception as e:
+                print(f"❌ Failed to send live notification to user {user_id}: {e}")
+                # Remove stale connection
+                self.disconnect(user_id)
+                return False
+        return False
+        
+    async def broadcast_to_users(self, message: dict, user_ids: List[str]):
+        """Send live notification to multiple users"""
+        successful_sends = 0
+        for user_id in user_ids:
+            if await self.send_personal_message(message, user_id):
+                successful_sends += 1
+        return successful_sends
+
+# Global connection manager instance
+notification_manager = ConnectionManager()
+
 # MongoDB setup
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 DB_NAME = os.environ.get('DB_NAME', 'liftlink_db')
