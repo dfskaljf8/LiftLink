@@ -1204,7 +1204,7 @@ async def update_user(user_id: str, user_update: User, current_user: dict = Depe
     
     # Add name if provided
     if user_update.name:
-        update_data["name"] = user_update.name
+        update_data["name"] = sanitize_input(user_update.name)
     
     result = await db.users.update_one(
         {"id": user_id},
