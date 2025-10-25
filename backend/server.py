@@ -2011,14 +2011,21 @@ async def mark_user_notification_read(user_id: str, notification_id: str, curren
 
 # Friend Request Endpoints
 @api_router.post("/users/{sender_id}/friend-requests")
-async def send_friend_request(sender_id: str, request_data: dict):
+async def send_friend_request(sender_id: str, request_data: dict, current_user: dict = Depends(get_current_user)):
     """Send a friend request to another user"""
     try:
+        # Validate user can only send friend requests as themselves
+        validate_user_access(sender_id, current_user)
+        
         receiver_id = request_data.get("receiver_id")
         message = request_data.get("message", "")
         
         if not receiver_id:
             raise HTTPException(status_code=400, detail="Receiver ID is required")
+        
+        # Prevent self friend requests
+        if sender_id == receiver_id:
+            raise HTTPException(status_code=400, detail="Cannot send friend request to yourself")
         
         # Validate sender exists
         sender = await db.users.find_one({"id": sender_id})
