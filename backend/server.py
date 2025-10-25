@@ -304,8 +304,8 @@ class SessionSource(str, Enum):
 
 # Models
 class User(BaseModel):
-    email: str = Field(..., description="User email address")
-    name: Optional[str] = None
+    email: str = Field(..., description="User email address", max_length=254)
+    name: Optional[str] = Field(None, max_length=100, description="User name")
     role: UserRole
     fitness_goals: List[FitnessGoal]
     experience_level: ExperienceLevel
