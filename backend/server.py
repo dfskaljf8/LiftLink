@@ -38,6 +38,90 @@ def validate_email(email: str) -> bool:
     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(email_pattern, email) is not None
 
+# Security Configuration
+JWT_SECRET = os.environ.get('JWT_SECRET', 'liftlink_secret_key_change_in_production')
+JWT_ALGORITHM = 'HS256'
+JWT_EXPIRATION_HOURS = 24
+
+# Security utility functions
+def create_access_token(user_id: str, email: str, role: str) -> str:
+    """Create JWT access token for user"""
+    payload = {
+        'user_id': user_id,
+        'email': email,
+        'role': role,
+        'exp': datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS),
+        'iat': datetime.utcnow()
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+def verify_token(token: str) -> dict:
+    """Verify JWT token and return payload"""
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+# Authentication dependency
+security = HTTPBearer()
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
+    """Get current authenticated user from token"""
+    token = credentials.credentials
+    payload = verify_token(token)
+    
+    # Verify user still exists in database
+    user = await db.users.find_one({"id": payload["user_id"]})
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    
+    return {
+        "id": payload["user_id"],
+        "email": payload["email"],
+        "role": payload["role"]
+    }
+
+async def get_current_trainer(current_user: dict = Depends(get_current_user)) -> dict:
+    """Get current authenticated trainer"""
+    if current_user["role"] != "trainer":
+        raise HTTPException(status_code=403, detail="Trainer access required")
+    return current_user
+
+def require_auth(f):
+    """Decorator to require authentication for endpoints"""
+    @wraps(f)
+    async def wrapper(*args, **kwargs):
+        # Check if current_user is in kwargs (injected by Depends)
+        if 'current_user' not in kwargs:
+            raise HTTPException(status_code=401, detail="Authentication required")
+        return await f(*args, **kwargs)
+    return wrapper
+
+def require_trainer_role(f):
+    """Decorator to require trainer role for endpoints"""
+    @wraps(f)
+    async def wrapper(*args, **kwargs):
+        current_user = kwargs.get('current_user')
+        if not current_user or current_user.get("role") != "trainer":
+            raise HTTPException(status_code=403, detail="Trainer access required")
+        return await f(*args, **kwargs)
+    return wrapper
+
+def validate_user_access(user_id: str, current_user: dict):
+    """Validate that user can only access their own data"""
+    if current_user["id"] != user_id:
+        raise HTTPException(status_code=403, detail="Access denied: Can only access your own data")
+
+def validate_trainer_access(trainer_id: str, current_user: dict):
+    """Validate that trainer can only access their own data"""
+    if current_user["role"] != "trainer":
+        raise HTTPException(status_code=403, detail="Trainer access required")
+    if current_user["id"] != trainer_id:
+        raise HTTPException(status_code=403, detail="Access denied: Can only access your own trainer data")
+
 # MongoDB setup
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
 DB_NAME = os.environ.get('DB_NAME', 'liftlink_db')
