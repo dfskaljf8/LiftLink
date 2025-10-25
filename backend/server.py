@@ -400,6 +400,11 @@ class AppointmentResponse(BaseModel):
     client_email: Optional[str] = None
     created_at: str
 
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse
+
 class FriendRequest(BaseModel):
     sender_id: str
     receiver_id: str
