@@ -1055,81 +1055,8 @@ async def get_nearby_trainers(request: dict):
         print(f"❌ Error fetching nearby trainers: {e}")
         return {"trainers": []}
 
-@api_router.put("/users/{user_id}")
-async def update_user_profile(user_id: str, update_data: dict):
-    """Update user profile information"""
-    try:
-        # Validate that user exists
-        existing_user = await db.users.find_one({"id": user_id})
-        if not existing_user:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-        # Prepare update data
-        allowed_fields = [
-            "name", "fitness_goals", "experience_level", "dark_mode", 
-            "phone", "bio", "specialties", "hourly_rate", "availability",
-            "certifications", "location"
-        ]
-        
-        update_fields = {}
-        for field, value in update_data.items():
-            if field in allowed_fields and value is not None:
-                update_fields[field] = value
-        
-        if not update_fields:
-            raise HTTPException(status_code=400, detail="No valid fields to update")
-        
-        # Add updated timestamp
-        update_fields["updated_at"] = datetime.now().isoformat()
-        
-        # Update user in database
-        result = await db.users.update_one(
-            {"id": user_id},
-            {"$set": update_fields}
-        )
-        
-        if result.modified_count == 0:
-            raise HTTPException(status_code=400, detail="No changes made")
-        
-        # Get updated user data
-        updated_user = await db.users.find_one({"id": user_id})
-        if not updated_user:
-            raise HTTPException(status_code=500, detail="Failed to retrieve updated user")
-        
-        # Format response
-        user_response = {
-            "id": updated_user["id"],
-            "email": updated_user["email"],
-            "name": updated_user.get("name"),
-            "role": updated_user["role"],
-            "fitness_goals": updated_user.get("fitness_goals", []),
-            "experience_level": updated_user.get("experience_level", "beginner"),
-            "dark_mode": updated_user.get("dark_mode", True),
-            "phone": updated_user.get("phone"),
-            "bio": updated_user.get("bio"),
-            "created_at": updated_user.get("created_at"),
-            "updated_at": updated_user.get("updated_at")
-        }
-        
-        # Add trainer-specific fields if applicable
-        if updated_user.get("role") == "trainer":
-            user_response.update({
-                "specialties": updated_user.get("specialties", []),
-                "hourly_rate": updated_user.get("hourly_rate"),
-                "availability": updated_user.get("availability"),
-                "certifications": updated_user.get("certifications", []),
-                "location": updated_user.get("location"),
-                "rating": updated_user.get("rating", 5.0)
-            })
-        
-        print(f"✅ User {user_id} profile updated successfully")
-        return user_response
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        print(f"❌ Error updating user profile: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
+# Removed duplicate PUT /users/{user_id} endpoint without authentication
+# The secure version with authentication is defined later in the file
 
 @api_router.get("/dashboard/stats/{user_id}")
 async def get_dashboard_stats(user_id: str):
