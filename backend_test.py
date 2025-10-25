@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime, timedelta
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://fitness-hub-29.preview.emergentagent.com/api"
+BACKEND_URL = "https://liftlink-fitness.preview.emergentagent.com/api"
 
 def test_mongodb_atlas_ssl_fix():
     """Test MongoDB Atlas SSL compatibility fix and database connectivity"""

@@ -11,7 +11,7 @@ import time
 from datetime import datetime, timedelta
 
 # Backend URL
-BACKEND_URL = "https://fitness-hub-29.preview.emergentagent.com/api"
+BACKEND_URL = "https://liftlink-fitness.preview.emergentagent.com/api"
 
 def print_section(title):
     print(f"\n{'='*80}")

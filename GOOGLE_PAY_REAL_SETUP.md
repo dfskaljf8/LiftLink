@@ -28,10 +28,10 @@
 2. Application type: "Web application"
 3. Name: "LiftLink Google Pay Client"
 4. Authorized JavaScript origins:
-   - `https://01b98fd4-832c-44fe-aca5-1918bbf9259a.preview.emergentagent.com`
+   - `https://liftlink-fitness.preview.emergentagent.com`
    - `https://yourdomain.com` (your production domain)
 5. Authorized redirect URIs:
-   - `https://01b98fd4-832c-44fe-aca5-1918bbf9259a.preview.emergentagent.com/api/google-pay/callback`
+   - `https://liftlink-fitness.preview.emergentagent.com/api/google-pay/callback`
 
 ### 2. **Google Pay Business Console Setup**
 
