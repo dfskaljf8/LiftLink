@@ -568,12 +568,13 @@ metadata:
 
 test_plan:
   current_focus:
-    - "Comprehensive Security & Authorization Testing"
+    - "Stripe Payment Checkout Issue & Authorization System Testing"
   stuck_tasks:
     - "React Native Mobile App Testing - Environment Limitation"
-    - "Authorization & Access Control Vulnerabilities"
+    - "Stripe Payment Amount Formatting Issue"
+    - "Trainer Authorization Vulnerabilities"
   test_all: false
-  test_priority: "high_first"
+  test_priority: "critical_first"
 
 agent_communication:
   - agent: "main"
