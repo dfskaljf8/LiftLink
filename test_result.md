@@ -139,13 +139,25 @@ backend:
 
 user_problem_statement: "Build LiftLink Platform - a sophisticated fitness ecosystem with cyberpunk-themed onboarding, tree progression system (seed to redwood), AI-powered features, and dark/light mode toggle. Focus on frontend-backend integration with proper user journey."
 
+  - task: "Stripe Payment Checkout Issue & Authorization System Testing"
+    implemented: true
+    working: false
+    file: "/app/backend/server.py, /app/backend/payment_service.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "🚨 CRITICAL PAYMENT & AUTHORIZATION ISSUES DISCOVERED: Comprehensive testing revealed multiple critical issues requiring immediate attention. PAYMENT AMOUNT FORMATTING ISSUE IDENTIFIED: ❌ Stripe checkout creation fails with 'Invalid integer: 75.0' error - the system is sending float values (75.0) to Stripe instead of required integer cents (7500). Session cost endpoint returns correct cents format (7500) but checkout creation converts to float causing Stripe API rejection. This is the exact source of the 75.0 vs 7500 formatting issue reported. AUTHORIZATION VULNERABILITIES FOUND: ❌ Trainer endpoints lack authentication - GET /api/trainer/{trainer_id}/earnings and GET /api/trainer/{trainer_id}/schedule return 200 instead of 401 without JWT tokens, allowing unauthorized access to sensitive trainer data. ❌ Cross-user protection insufficient - Trainer A can access Trainer B's earnings and schedule without proper authorization validation. ✅ WORKING COMPONENTS: JWT authentication enforced on user endpoints (401 without token), User authorization working correctly (users cannot access other users' data), Payment endpoints accessible and structured correctly. IMMEDIATE FIXES REQUIRED: 1) Fix Stripe amount conversion - ensure integers in cents are passed to Stripe API, 2) Add JWT authentication to trainer earnings and schedule endpoints, 3) Implement trainer-specific authorization validation to prevent cross-trainer data access. PRODUCTION IMPACT: Payment system currently non-functional due to Stripe format errors, Trainer data exposed without proper authentication controls."
+
   - task: "MongoDB Atlas SSL Compatibility Fix"
     implemented: true
     working: true
     file: "/app/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
       - working: true
         agent: "main"
