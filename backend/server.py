@@ -1922,9 +1922,12 @@ async def get_trainer_notifications(trainer_id: str, limit: int = 20, current_us
         raise HTTPException(status_code=500, detail="Failed to fetch notifications")
 
 @api_router.put("/trainer/{trainer_id}/notifications/{notification_id}/mark-read")
-async def mark_notification_read(trainer_id: str, notification_id: str):
+async def mark_notification_read(trainer_id: str, notification_id: str, current_user: dict = Depends(get_current_trainer)):
     """Mark a trainer notification as read"""
     try:
+        # Validate trainer can only access their own notifications
+        validate_trainer_access(trainer_id, current_user)
+        
         result = await db.trainer_notifications.update_one(
             {"id": notification_id, "trainer_id": trainer_id},
             {"$set": {"read": True, "read_at": datetime.now().isoformat()}}
