@@ -41,6 +41,32 @@ def validate_email(email: str) -> bool:
     email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(email_pattern, email) is not None
 
+def sanitize_input(input_str: str) -> str:
+    """Sanitize user input to prevent XSS attacks"""
+    if not isinstance(input_str, str):
+        return str(input_str)
+    
+    # HTML escape to prevent XSS
+    sanitized = html.escape(input_str)
+    
+    # Additional XSS patterns to remove
+    dangerous_patterns = [
+        r'<script.*?>.*?</script>',
+        r'javascript:',
+        r'on\w+\s*=',
+        r'<iframe.*?>.*?</iframe>',
+        r'<object.*?>.*?</object>',
+        r'<embed.*?>',
+        r'<link.*?>',
+        r'<meta.*?>'
+    ]
+    
+    for pattern in dangerous_patterns:
+        sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE | re.DOTALL)
+    
+    # Limit length to prevent DoS
+    return sanitized[:1000] if len(sanitized) > 1000 else sanitized
+
 # Security Configuration
 JWT_SECRET = os.environ.get('JWT_SECRET', 'liftlink_secret_key_change_in_production')
 JWT_ALGORITHM = 'HS256'
