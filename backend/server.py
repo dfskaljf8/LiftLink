@@ -2444,8 +2444,11 @@ async def get_trainer_sessions_today(trainer_id: str):
 
 
 @api_router.get("/trainer/{trainer_id}/schedule")
-async def get_trainer_schedule(trainer_id: str):
-    """Get trainer's schedule"""
+async def get_trainer_schedule(trainer_id: str, current_user: dict = Depends(get_current_trainer)):
+    """Get trainer's schedule - requires trainer authentication"""
+    # Validate trainer can only access their own schedule
+    validate_trainer_access(trainer_id, current_user)
+    
     schedule = await calendar_service.get_trainer_schedule(trainer_id)
     return {"schedule": schedule}
 
