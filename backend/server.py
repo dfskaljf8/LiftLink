@@ -2453,8 +2453,11 @@ async def get_trainer_schedule(trainer_id: str, current_user: dict = Depends(get
     return {"schedule": schedule}
 
 @api_router.post("/trainer/{trainer_id}/schedule")
-async def create_appointment(trainer_id: str, appointment_data: dict):
+async def create_appointment(trainer_id: str, appointment_data: dict, current_user: dict = Depends(get_current_trainer)):
     """Create new appointment and send booking notifications"""
+    # Validate trainer can only create appointments for themselves
+    validate_trainer_access(trainer_id, current_user)
+    
     # Validate trainer exists
     trainer = await db.users.find_one({"id": trainer_id, "role": "trainer"})
     if not trainer:
