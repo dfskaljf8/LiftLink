@@ -80,8 +80,8 @@ def sanitize_input(input_str: str) -> str:
     for pattern in dangerous_patterns:
         sanitized = re.sub(pattern, '', sanitized, flags=re.IGNORECASE | re.DOTALL)
     
-    # Then HTML escape to prevent XSS
-    sanitized = html.escape(sanitized)
+    # Then HTML escape to prevent XSS (quote=False preserves apostrophes and single quotes)
+    sanitized = html.escape(sanitized, quote=False)
     
     # Remove any remaining suspicious sequences after escaping
     suspicious_sequences = [
