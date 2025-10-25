@@ -2916,6 +2916,46 @@ async def stripe_webhook(request: Request):
         logging.error(f"Webhook error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# WebSocket endpoint for live notifications
+@app.websocket("/ws/notifications/{user_id}")
+async def websocket_notifications(websocket: WebSocket, user_id: str, token: str = None):
+    """WebSocket endpoint for live notifications"""
+    try:
+        # Authenticate user via token
+        if not token:
+            await websocket.close(code=4001, reason="Authentication token required")
+            return
+            
+        try:
+            payload = verify_token(token)
+            if payload["user_id"] != user_id:
+                await websocket.close(code=4003, reason="Token user mismatch")
+                return
+        except HTTPException:
+            await websocket.close(code=4001, reason="Invalid or expired token")
+            return
+        
+        # Connect user to live notifications
+        await notification_manager.connect(websocket, user_id)
+        
+        try:
+            # Keep connection alive and handle incoming messages
+            while True:
+                # Wait for client messages (ping/pong to keep connection alive)
+                data = await websocket.receive_text()
+                message = json.loads(data)
+                
+                if message.get("type") == "ping":
+                    await websocket.send_text(json.dumps({"type": "pong"}))
+                    
+        except WebSocketDisconnect:
+            notification_manager.disconnect(user_id)
+            print(f"📱 WebSocket disconnected for user {user_id}")
+            
+    except Exception as e:
+        print(f"❌ WebSocket error for user {user_id}: {e}")
+        notification_manager.disconnect(user_id)
+
 # Add API router to app
 app.include_router(api_router, prefix="/api")
 
