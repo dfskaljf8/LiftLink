@@ -38,7 +38,17 @@ import re
 
 # Simple email validation function to replace EmailStr
 def validate_email(email: str) -> bool:
-    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    # Enhanced email validation to prevent consecutive dots and other invalid formats
+    email_pattern = r'^[a-zA-Z0-9]([a-zA-Z0-9._%-]*[a-zA-Z0-9])?@[a-zA-Z0-9]([a-zA-Z0-9.-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$'
+    
+    # Additional checks for invalid patterns
+    if '..' in email:  # Consecutive dots
+        return False
+    if email.startswith('.') or email.endswith('.'):  # Leading/trailing dots
+        return False
+    if '@.' in email or '.@' in email:  # Dots adjacent to @
+        return False
+    
     return re.match(email_pattern, email) is not None
 
 def sanitize_input(input_str: str) -> str:
