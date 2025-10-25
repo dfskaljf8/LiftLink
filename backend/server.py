@@ -1207,8 +1207,11 @@ async def get_dashboard_stats(user_id: str):
         raise HTTPException(status_code=500, detail="Failed to fetch dashboard statistics")
 
 @api_router.get("/users/{user_id}", response_model=UserResponse)
-async def get_user(user_id: str):
-    """Get user by ID"""
+async def get_user(user_id: str, current_user: dict = Depends(get_current_user)):
+    """Get user by ID - users can only access their own profile"""
+    # Validate user can only access their own data
+    validate_user_access(user_id, current_user)
+    
     user = await get_user_by_id(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
