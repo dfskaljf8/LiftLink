@@ -1555,13 +1555,6 @@ def test_payment_checkout_and_authorization_fixes():
             "details": f"Success rate: {success_rate:.1f}%. Failed fixes: {'; '.join(failure_details)}"
         }
         return False
-            else:
-                print(f"   ❌ No checkout session ID returned")
-        else:
-            print(f"❌ Checkout session creation failed for ${amount}: {response.status_code}")
-            test_results_local["payment_amount_formatting"]["details"] += f" Checkout failed for ${amount}"
-    
-    # STEP 3: Test Payment Endpoints
     print("\n💳 STEP 3: TESTING PAYMENT ENDPOINTS")
     print("-" * 60)
     
