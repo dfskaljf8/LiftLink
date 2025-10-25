@@ -2832,26 +2832,41 @@ async def confirm_payment(request: dict):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@api_router.get("/payments/session-cost/{trainer_id}")
-async def get_session_cost(trainer_id: str, session_type: str = "personal_training"):
-    """Get the cost for a session with a specific trainer"""
-    # In a real app, this would be stored in trainer profile
-    session_costs = {
-        "personal_training": 7500,  # $75.00
-        "group_training": 3500,     # $35.00
-        "nutrition_consultation": 10000,  # $100.00
-        "specialized_training": 12500      # $125.00
-    }
-    
-    cost = session_costs.get(session_type, 7500)
-    
-    return {
-        "trainer_id": trainer_id,
-        "session_type": session_type,
-        "cost_cents": cost,
-        "cost_dollars": cost / 100,
-        "currency": "USD"
-    }
+@api_router.get("/payments/session-cost/{trainer_id}/{session_type}")
+async def get_session_cost(trainer_id: str, session_type: str):
+    """Get session cost for a specific trainer and session type"""
+    try:
+        # Validate trainer exists
+        trainer = await db.users.find_one({"id": trainer_id, "role": "trainer"})
+        if not trainer:
+            raise HTTPException(status_code=404, detail="Trainer not found")
+        
+        # Define session costs (in cents for Stripe)
+        session_costs = {
+            "personal_training": 7500,  # $75.00
+            "group_fitness": 3500,     # $35.00
+            "nutrition_consultation": 5000,  # $50.00
+            "sport_training": 9000,    # $90.00
+            "rehabilitation": 8500     # $85.00
+        }
+        
+        # Get cost for session type
+        session_type_lower = session_type.lower().replace(" ", "_")
+        amount = session_costs.get(session_type_lower, 7500)  # Default to $75
+        
+        return {
+            "trainer_id": trainer_id,
+            "session_type": session_type,
+            "amount": amount,  # Amount in cents for Stripe
+            "amount_display": f"${amount/100:.2f}",  # Display format
+            "currency": "usd"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Error getting session cost: {e}")
+        raise HTTPException(status_code=500, detail="Failed to get session cost")
 
 @api_router.post("/webhook/stripe")
 async def stripe_webhook(request: Request):
