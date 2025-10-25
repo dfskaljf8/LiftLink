@@ -872,7 +872,7 @@ async def check_user_exists(request: CheckUserRequest):
         return CheckUserResponse(exists=True, user_id=user["id"], role=user_role)
     return CheckUserResponse(exists=False)
 
-@api_router.post("/login", response_model=UserResponse)
+@api_router.post("/login", response_model=LoginResponse)
 async def login_user(request: LoginRequest):
     """Sign in existing user with verification check"""
     # Validate email format
