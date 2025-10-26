@@ -305,7 +305,7 @@ def test_payment_system_100(trainer_id, user_jwt):
         
         if response.status_code == 200:
             cost_data = response.json()
-            if cost_data.get("amount_cents") == 7500:
+            if cost_data.get("amount") == 7500:
                 results["tests"]["session_cost_personal"] = {"passed": True, "error": None}
                 results["passed"] += 1
                 print("✅ Session cost - personal_training: PASS ($75.00)")
@@ -1265,7 +1265,7 @@ def test_payment_system_individual(trainer_id, user_jwt):
         
         if response.status_code == 200:
             cost_data = response.json()
-            if cost_data.get("amount_cents") == 7500:  # $75.00 in cents
+            if cost_data.get("amount") == 7500:  # $75.00 in cents
                 results["session_cost_personal"] = {"passed": True, "error": None}
                 print("✅ Session cost endpoint - personal_training: PASS")
             else:
