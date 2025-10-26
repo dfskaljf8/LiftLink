@@ -1024,6 +1024,70 @@ async def create_user(user: User):
         created_at=user_doc["created_at"]
     )
 
+@api_router.post("/create-test-user", response_model=LoginResponse)
+async def create_test_user(user: User):
+    """Create a fully verified test user for testing purposes - TESTING ONLY"""
+    # Validate email format
+    if not validate_email(user.email):
+        raise HTTPException(status_code=422, detail="Invalid email format")
+    
+    # Check if user already exists
+    existing_user = await get_user_by_email(user.email)
+    if existing_user:
+        # If exists, just return login response
+        user_id = existing_user["id"]
+    else:
+        user_id = generate_id()
+        
+        # Sanitize user input
+        sanitized_name = sanitize_input(user.name) if user.name else None
+        
+        # Create fully verified user
+        user_doc = {
+            "id": user_id,
+            "email": user.email,
+            "name": sanitized_name,
+            "role": user.role.value if hasattr(user.role, 'value') else user.role,
+            "fitness_goals": [goal.value if hasattr(goal, 'value') else goal for goal in user.fitness_goals],
+            "experience_level": user.experience_level.value if hasattr(user.experience_level, 'value') else user.experience_level,
+            "created_at": datetime.now().isoformat(),
+            "age_verified": True,  # Auto-verified for testing
+            "cert_verified": True if (user.role.value if hasattr(user.role, 'value') else user.role) == "trainer" else False,
+            "verification_status": "approved"  # Auto-approved for testing
+        }
+        
+        await db.users.insert_one(user_doc)
+        existing_user = user_doc
+    
+    # Generate JWT token
+    user_role = existing_user["role"]
+    access_token = create_access_token(
+        user_id=user_id,
+        email=user.email,
+        role=user_role
+    )
+    
+    # Prepare user response
+    user_role_str = user_role if isinstance(user_role, str) else user_role.value
+    fitness_goals = existing_user.get("fitness_goals", [])
+    fitness_goals_str = [goal if isinstance(goal, str) else goal.value for goal in fitness_goals]
+    
+    user_response = UserResponse(
+        id=user_id,
+        email=existing_user["email"],
+        name=existing_user.get("name"),
+        role=user_role_str,
+        fitness_goals=fitness_goals_str,
+        experience_level=existing_user["experience_level"],
+        created_at=existing_user["created_at"]
+    )
+    
+    return LoginResponse(
+        access_token=access_token,
+        token_type="bearer",
+        user=user_response
+    )
+
 @api_router.get("/trainers/all")
 async def get_all_trainers():
     """Get all available trainers"""
