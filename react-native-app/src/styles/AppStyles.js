@@ -116,9 +116,10 @@ export const colors = {
   surface: '#1A1A1A',
   card: '#1A1A1A',
   
-  // Text Colors
-  textPrimary: '#f1f5f9',
-  textSecondary: '#94a3b8',
+  // Text Colors (Matching Design Mockups)
+  textPrimary: '#FFFFFF',
+  textSecondary: '#B8B8B8',
+  textTertiary: '#7A7A7A',
   textLight: '#1e293b',
   textLightSecondary: '#64748b',
   
