@@ -34,6 +34,7 @@ import TreeSVG from './src/components/TreeSVG';
 import LiftCoin from './src/components/LiftCoin';
 import AppleReviewLogin from './src/components/AppleReviewLogin';
 import { DynamicIslandStatusBar, DynamicIslandSafeWrapper } from './src/components/DynamicIslandUtils';
+import gestureManager from './src/components/MobileGestureManager';
 
 // Import React Native styles (converted from CSS)
 import NativeAppStyles, { colors, deviceSize } from './src/styles/AppStyles';
