@@ -10,6 +10,150 @@ import threading
 # Get the backend URL from the frontend .env file
 BACKEND_URL = "https://liftlink-fitness.preview.emergentagent.com/api"
 
+def run_100_percent_validation():
+    """
+    FINAL 100% VALIDATION - ALL SYSTEMS
+    
+    Achieve 100% pass rate across all backend systems using proper test methodology.
+    Uses /api/create-test-user endpoint for fully verified users with JWT tokens.
+    """
+    print("="*80)
+    print("🎯 FINAL 100% VALIDATION - ALL SYSTEMS")
+    print("="*80)
+    
+    # Test results tracking
+    results = {
+        "authentication": {"passed": 0, "total": 8, "tests": {}},
+        "payment": {"passed": 0, "total": 5, "tests": {}},
+        "core_api": {"passed": 0, "total": 8, "tests": {}},
+        "security": {"passed": 0, "total": 9, "tests": {}},
+        "live_notifications": {"passed": 0, "total": 4, "tests": {}},
+        "mongodb": {"passed": 0, "total": 5, "tests": {}}
+    }
+    
+    # Create verified test users with JWT tokens
+    print("\n📝 SETUP: CREATING VERIFIED TEST USERS WITH JWT TOKENS")
+    print("-" * 60)
+    
+    # Create verified user
+    user_email = f"test_user_{uuid.uuid4()}@example.com"
+    user_data = {
+        "email": user_email,
+        "name": "Test User",
+        "role": "fitness_enthusiast",
+        "fitness_goals": ["weight_loss"],
+        "experience_level": "beginner"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/create-test-user", json=user_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create verified user: {response.status_code}")
+        return False
+    
+    user_login = response.json()
+    user_jwt = user_login["access_token"]
+    user_id = user_login["user"]["id"]
+    print(f"✅ Created verified user: {user_login['user']['name']} - {user_id}")
+    print(f"   JWT Token: {user_jwt[:30]}...")
+    
+    # Create verified trainer
+    trainer_email = f"test_trainer_{uuid.uuid4()}@example.com"
+    trainer_data = {
+        "email": trainer_email,
+        "name": "Test Trainer",
+        "role": "trainer",
+        "fitness_goals": ["sport_training"],
+        "experience_level": "expert"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/create-test-user", json=trainer_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create verified trainer: {response.status_code}")
+        return False
+    
+    trainer_login = response.json()
+    trainer_jwt = trainer_login["access_token"]
+    trainer_id = trainer_login["user"]["id"]
+    print(f"✅ Created verified trainer: {trainer_login['user']['name']} - {trainer_id}")
+    print(f"   JWT Token: {trainer_jwt[:30]}...")
+    
+    # Get real trainer ID from /api/trainers/all for payment tests
+    response = requests.get(f"{BACKEND_URL}/trainers/all")
+    real_trainer_id = trainer_id  # Default to our test trainer
+    if response.status_code == 200:
+        trainers_data = response.json()
+        if trainers_data.get("trainers"):
+            real_trainer_id = trainers_data["trainers"][0]["id"]
+            print(f"✅ Using real trainer ID for payment tests: {real_trainer_id}")
+    
+    # Run all test categories
+    print("\n" + "="*80)
+    print("🔐 AUTHENTICATION SYSTEM TESTING (Target: 8/8 = 100%)")
+    print("="*80)
+    results["authentication"] = test_authentication_system_100(user_id, trainer_id, user_jwt, trainer_jwt)
+    
+    print("\n" + "="*80)
+    print("💳 PAYMENT SYSTEM TESTING (Target: 5/5 = 100%)")
+    print("="*80)
+    results["payment"] = test_payment_system_100(real_trainer_id, user_jwt)
+    
+    print("\n" + "="*80)
+    print("🔧 CORE API ENDPOINTS TESTING (Target: 8/8 = 100%)")
+    print("="*80)
+    results["core_api"] = test_core_api_endpoints_100(user_id, trainer_id, user_jwt, trainer_jwt)
+    
+    print("\n" + "="*80)
+    print("🛡️ SECURITY TESTING (Target: 9/9 = 100%)")
+    print("="*80)
+    results["security"] = test_security_system_100(user_id, user_jwt)
+    
+    print("\n" + "="*80)
+    print("📱 LIVE NOTIFICATIONS TESTING (Target: 4/4 = 100%)")
+    print("="*80)
+    results["live_notifications"] = test_live_notifications_100(user_id, trainer_id, user_jwt, trainer_jwt)
+    
+    print("\n" + "="*80)
+    print("🗄️ MONGODB TESTING (Target: 5/5 = 100%)")
+    print("="*80)
+    results["mongodb"] = test_mongodb_100(user_id, user_jwt)
+    
+    # Calculate overall results
+    print("\n" + "="*80)
+    print("📊 FINAL 100% VALIDATION RESULTS")
+    print("="*80)
+    
+    total_passed = 0
+    total_tests = 0
+    
+    for category, result in results.items():
+        passed = result["passed"]
+        total = result["total"]
+        percentage = (passed / total * 100) if total > 0 else 0
+        
+        total_passed += passed
+        total_tests += total
+        
+        status = "✅ PASS" if passed == total else "❌ FAIL"
+        print(f"{category.upper()}: {passed}/{total} ({percentage:.1f}%) {status}")
+        
+        # Show failing tests
+        for test_name, test_result in result["tests"].items():
+            if not test_result["passed"]:
+                print(f"   ❌ {test_name}: {test_result['error']}")
+    
+    overall_percentage = (total_passed / total_tests * 100) if total_tests > 0 else 0
+    overall_status = "✅ PRODUCTION READY" if total_passed == total_tests else "❌ NOT READY"
+    
+    print(f"\nOVERALL: {total_passed}/{total_tests} ({overall_percentage:.1f}%) {overall_status}")
+    
+    if total_passed == total_tests:
+        print("\n🎉 100% PASS RATE ACHIEVED - ALL SYSTEMS PRODUCTION READY!")
+    else:
+        failing_count = total_tests - total_passed
+        print(f"\n⚠️ {failing_count} tests still failing - requires fixes before production")
+    
+    return total_passed == total_tests
+
 def run_granular_failing_tests():
     """
     DETAILED BREAKDOWN - IDENTIFY SPECIFIC FAILING TESTS
