@@ -91,13 +91,16 @@ export const moderateScale = (size, factor = 0.5) => {
 // Fully responsive and optimized for all mobile screen sizes
 
 export const colors = {
-  // Primary Theme Colors
-  primary: '#4f46e5',
-  secondary: '#10b981',
-  accent: '#8b5cf6',
-  warning: '#f59e0b',
-  error: '#ef4444',
-  success: '#10b981',
+  // PRIMARY LIME GREEN/NEON GREEN (Matching Design Mockups)
+  limeGreen: '#BFFF00',
+  neonGreen: '#CCFF00',
+  electricGreen: '#B2FF00',
+  primary: '#BFFF00',
+  secondary: '#CCFF00',
+  accent: '#B2FF00',
+  warning: '#FFD700',
+  error: '#FF4444',
+  success: '#00FF88',
   
   // Cyberpunk Theme Colors
   cyberpunkPrimary: '#C4D600',
