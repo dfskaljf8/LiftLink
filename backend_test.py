@@ -10168,3 +10168,24 @@ def test_notification_system_fixes():
         print("🚨 Some notification system fixes are not working correctly")
         test_results["notification_system_integration"]["details"] = f"Working fixes: {working_fixes}/4. Success rate: {success_rate:.1f}%. Failed tests: {len(fix_results['failed_tests'])}."
         return False
+
+
+if __name__ == "__main__":
+    print("🚀 Starting LiftLink Backend Testing Suite")
+    print("=" * 80)
+    
+    # Run comprehensive endpoint testing to identify all broken endpoints
+    print("
+🔍 RUNNING COMPREHENSIVE ENDPOINT TESTING")
+    success = identify_all_broken_endpoints()
+    
+    if success:
+        print("
+🎉 ALL ENDPOINTS WORKING - NO BROKEN ENDPOINTS FOUND!")
+    else:
+        print("
+⚠️ BROKEN ENDPOINTS IDENTIFIED - REVIEW RESULTS ABOVE")
+    
+    print("
+" + "=" * 80)
+    print("🏁 Endpoint Testing Complete")
