@@ -479,6 +479,7 @@ def test_core_api_endpoints_100(user_id, trainer_id, user_jwt, trainer_jwt, user
     try:
         headers = {"Authorization": f"Bearer {user_jwt}"}
         update_data = {
+            "email": user_email,
             "role": "fitness_enthusiast",
             "fitness_goals": ["muscle_building"],
             "experience_level": "intermediate"
