@@ -207,7 +207,7 @@ const App = () => {
       handleScheduleSession
     }}>
       <DynamicIslandSafeWrapper backgroundColor={colors.background}>
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}>
           <DynamicIslandStatusBar barStyle="light-content" backgroundColor={colors.background} />
           <MainNavigator />
         
