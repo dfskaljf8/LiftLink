@@ -107,11 +107,14 @@ export const colors = {
   cyberpunkSecondary: '#00D4AA',
   cyberpunkAccent: '#FFD700',
   
-  // Background Colors
-  backgroundDark: '#0f172a',
+  // Background Colors (Matching Dark Design Mockups)
+  backgroundDark: '#0A0A0A',
   backgroundLight: '#f8fafc',
-  surfaceDark: '#1e293b',
+  surfaceDark: '#1A1A1A',
   surfaceLight: '#ffffff',
+  background: '#0A0A0A',
+  surface: '#1A1A1A',
+  card: '#1A1A1A',
   
   // Text Colors
   textPrimary: '#f1f5f9',
