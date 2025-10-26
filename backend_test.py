@@ -10175,17 +10175,13 @@ if __name__ == "__main__":
     print("=" * 80)
     
     # Run comprehensive endpoint testing to identify all broken endpoints
-    print("
-🔍 RUNNING COMPREHENSIVE ENDPOINT TESTING")
+    print("\n🔍 RUNNING COMPREHENSIVE ENDPOINT TESTING")
     success = identify_all_broken_endpoints()
     
     if success:
-        print("
-🎉 ALL ENDPOINTS WORKING - NO BROKEN ENDPOINTS FOUND!")
+        print("\n🎉 ALL ENDPOINTS WORKING - NO BROKEN ENDPOINTS FOUND!")
     else:
-        print("
-⚠️ BROKEN ENDPOINTS IDENTIFIED - REVIEW RESULTS ABOVE")
+        print("\n⚠️ BROKEN ENDPOINTS IDENTIFIED - REVIEW RESULTS ABOVE")
     
-    print("
-" + "=" * 80)
+    print("\n" + "=" * 80)
     print("🏁 Endpoint Testing Complete")
