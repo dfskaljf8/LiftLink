@@ -716,6 +716,88 @@ def test_security_system_100(user_id, user_jwt):
         results["tests"]["email_validation"] = {"passed": False, "error": str(e)}
         print(f"❌ Email validation: FAIL - {e}")
     
+    # Test 7: Input length validation
+    print("\n7️⃣ Testing input length validation")
+    try:
+        long_name = "A" * 150  # Exceeds max_length=100
+        user_data = {
+            "email": f"length_test_{uuid.uuid4()}@example.com",
+            "name": long_name,
+            "role": "fitness_enthusiast",
+            "fitness_goals": ["weight_loss"],
+            "experience_level": "beginner"
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/create-test-user", json=user_data)
+        
+        if response.status_code == 422:
+            results["tests"]["length_validation"] = {"passed": True, "error": None}
+            results["passed"] += 1
+            print("✅ Input length validation: PASS")
+        else:
+            results["tests"]["length_validation"] = {"passed": False, "error": f"Expected 422, got {response.status_code}"}
+            print(f"❌ Input length validation: FAIL - Expected 422, got {response.status_code}")
+    except Exception as e:
+        results["tests"]["length_validation"] = {"passed": False, "error": str(e)}
+        print(f"❌ Input length validation: FAIL - {e}")
+    
+    # Test 8: SQL injection prevention
+    print("\n8️⃣ Testing SQL injection prevention")
+    try:
+        sql_payload = "'; DROP TABLE users; --"
+        user_data = {
+            "email": f"sql_test_{uuid.uuid4()}@example.com",
+            "name": sql_payload,
+            "role": "fitness_enthusiast",
+            "fitness_goals": ["weight_loss"],
+            "experience_level": "beginner"
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/create-test-user", json=user_data)
+        
+        if response.status_code == 200:
+            user_response = response.json()
+            sanitized_name = user_response["user"].get("name", "")
+            
+            # Check if SQL injection patterns are sanitized
+            if sql_payload not in sanitized_name:
+                results["tests"]["sql_injection"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ SQL injection prevention: PASS")
+            else:
+                results["tests"]["sql_injection"] = {"passed": False, "error": f"SQL injection not sanitized: {sanitized_name}"}
+                print("❌ SQL injection prevention: FAIL - Payload not sanitized")
+        else:
+            results["tests"]["sql_injection"] = {"passed": False, "error": f"User creation failed: {response.status_code}"}
+            print(f"❌ SQL injection prevention: FAIL - User creation failed")
+    except Exception as e:
+        results["tests"]["sql_injection"] = {"passed": False, "error": str(e)}
+        print(f"❌ SQL injection prevention: FAIL - {e}")
+    
+    # Test 9: Required field validation
+    print("\n9️⃣ Testing required field validation")
+    try:
+        incomplete_data = {
+            "name": "Test User",
+            # Missing required email field
+            "role": "fitness_enthusiast",
+            "fitness_goals": ["weight_loss"],
+            "experience_level": "beginner"
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/create-test-user", json=incomplete_data)
+        
+        if response.status_code == 422:
+            results["tests"]["required_fields"] = {"passed": True, "error": None}
+            results["passed"] += 1
+            print("✅ Required field validation: PASS")
+        else:
+            results["tests"]["required_fields"] = {"passed": False, "error": f"Expected 422, got {response.status_code}"}
+            print(f"❌ Required field validation: FAIL - Expected 422, got {response.status_code}")
+    except Exception as e:
+        results["tests"]["required_fields"] = {"passed": False, "error": str(e)}
+        print(f"❌ Required field validation: FAIL - {e}")
+    
     return results
 
 def test_live_notifications_100(user_id, trainer_id, user_jwt, trainer_jwt):
