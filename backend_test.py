@@ -310,7 +310,7 @@ def test_payment_system_100(trainer_id, user_jwt):
                 results["passed"] += 1
                 print("✅ Session cost - personal_training: PASS ($75.00)")
             else:
-                results["tests"]["session_cost_personal"] = {"passed": False, "error": f"Expected 7500 cents, got {cost_data.get('amount_cents')}"}
+                results["tests"]["session_cost_personal"] = {"passed": False, "error": f"Expected 7500 cents, got {cost_data.get('amount')}"}
                 print(f"❌ Session cost - personal_training: FAIL - Wrong amount: {cost_data.get('amount_cents')}")
         else:
             results["tests"]["session_cost_personal"] = {"passed": False, "error": f"Status: {response.status_code}"}
@@ -1269,7 +1269,7 @@ def test_payment_system_individual(trainer_id, user_jwt):
                 results["session_cost_personal"] = {"passed": True, "error": None}
                 print("✅ Session cost endpoint - personal_training: PASS")
             else:
-                results["session_cost_personal"] = {"passed": False, "error": f"Expected 7500 cents, got {cost_data.get('amount_cents')}"}
+                results["session_cost_personal"] = {"passed": False, "error": f"Expected 7500 cents, got {cost_data.get('amount')}"}
                 print(f"❌ Session cost endpoint - personal_training: FAIL - Wrong amount: {cost_data.get('amount_cents')}")
         else:
             results["session_cost_personal"] = {"passed": False, "error": f"Status: {response.status_code}"}
