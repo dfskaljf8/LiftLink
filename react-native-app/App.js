@@ -69,6 +69,20 @@ const Stack = createStackNavigator();
 
 // Main App Component
 const App = () => {
+  // Create navigation ref for gesture manager
+  const navigationRef = React.useRef();
+  
+  // Initialize gesture manager
+  React.useEffect(() => {
+    if (navigationRef.current) {
+      gestureManager.initialize(navigationRef);
+    }
+    
+    return () => {
+      gestureManager.cleanup();
+    };
+  }, []);
+
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(true);
