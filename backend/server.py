@@ -1307,9 +1307,9 @@ async def update_user(user_id: str, user_update: User, current_user: dict = Depe
     validate_user_access(user_id, current_user)
     
     update_data = {
-        "role": user_update.role.value,
-        "fitness_goals": [goal.value for goal in user_update.fitness_goals],
-        "experience_level": user_update.experience_level.value
+        "role": user_update.role.value if hasattr(user_update.role, 'value') else user_update.role,
+        "fitness_goals": [goal.value if hasattr(goal, 'value') else goal for goal in user_update.fitness_goals],
+        "experience_level": user_update.experience_level.value if hasattr(user_update.experience_level, 'value') else user_update.experience_level
     }
     
     # Add name if provided
