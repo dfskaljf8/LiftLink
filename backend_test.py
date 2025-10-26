@@ -376,12 +376,12 @@ def test_payment_system_100(trainer_id, user_jwt):
         
         if response.status_code == 200:
             checkout_response = response.json()
-            if "session_id" in checkout_response and "checkout_url" in checkout_response:
+            if "checkout_session_id" in checkout_response and "checkout_url" in checkout_response:
                 results["tests"]["stripe_checkout"] = {"passed": True, "error": None}
                 results["passed"] += 1
                 print("✅ Stripe checkout creation: PASS")
             else:
-                results["tests"]["stripe_checkout"] = {"passed": False, "error": "Missing session_id or checkout_url"}
+                results["tests"]["stripe_checkout"] = {"passed": False, "error": "Missing checkout_session_id or checkout_url"}
                 print("❌ Stripe checkout creation: FAIL - Missing required fields")
         else:
             results["tests"]["stripe_checkout"] = {"passed": False, "error": f"Status: {response.status_code}"}
