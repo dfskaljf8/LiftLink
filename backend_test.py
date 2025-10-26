@@ -67,16 +67,38 @@ def run_granular_failing_tests():
     print(f"✅ Created trainer: {trainer['name']} - {trainer_id}")
     
     # Verify users (simulate age verification)
-    verify_data = {
-        "document_type": "government_id",
-        "document_number": "TEST123456789",
-        "date_of_birth": "1990-01-01",
-        "full_name": "Test User"
+    verify_data_user = {
+        "user_id": user_id,
+        "user_email": user_email,
+        "image_data": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A"
     }
     
-    response = requests.post(f"{BACKEND_URL}/verify-government-id", json=verify_data)
+    response = requests.post(f"{BACKEND_URL}/verify-government-id", json=verify_data_user)
     if response.status_code == 200:
-        print("✅ Age verification completed")
+        print("✅ User age verification completed")
+    
+    # Verify trainer
+    verify_data_trainer = {
+        "user_id": trainer_id,
+        "user_email": trainer_email,
+        "image_data": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/verify-government-id", json=verify_data_trainer)
+    if response.status_code == 200:
+        print("✅ Trainer age verification completed")
+    
+    # Verify trainer certification
+    cert_data = {
+        "user_id": trainer_id,
+        "user_email": trainer_email,
+        "cert_type": "NASM",
+        "image_data": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8A"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/verify-fitness-certification", json=cert_data)
+    if response.status_code == 200:
+        print("✅ Trainer certification verification completed")
     
     # Get JWT tokens
     user_jwt = None
