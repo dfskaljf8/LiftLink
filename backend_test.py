@@ -7952,46 +7952,37 @@ def test_notification_system_fixes():
         return False
 
 if __name__ == "__main__":
-    print("🎯 STARTING FINAL VERIFICATION TESTING - PRODUCTION READINESS CHECK")
+    print("🎯 GRANULAR TESTING TO IDENTIFY EXACT FAILING TESTS")
     print("="*80)
-    print("Focus: FINAL VERIFICATION after all fixes")
-    print("Target: Payment System + Authorization System + Production Readiness")
-    print("Scope: Session Cost Endpoint, Stripe Checkout, JWT Auth, Cross-User Protection")
+    print("OBJECTIVE: Run individual test cases to identify the exact 3 failing tests")
+    print("Current Status:")
+    print("- Authentication: 87.5% (7/8) - Need to identify which 1 test failed")
+    print("- Payment: 80% (4/5) - Need to identify which 1 test failed")
+    print("- Core APIs: 87.5% (7/8) - Need to identify which 1 test failed")
     print("="*80)
     
-    # Run the final verification test as requested in the review
-    final_verification_passed = test_final_verification_payment_and_authorization()
+    # Run the granular failing tests as requested in the review
+    all_tests_passed = run_granular_failing_tests()
     
     # Print final results
     print_separator()
-    print("📊 FINAL VERIFICATION RESULTS SUMMARY")
+    print("📊 GRANULAR TEST RESULTS SUMMARY")
     print_separator()
     
-    if final_verification_passed:
-        print("🎉 FINAL VERIFICATION: PASSED")
-        print("✅ LiftLink is PRODUCTION READY!")
-        print("\n🚀 All critical systems verified:")
-        print("   ✅ Payment System: Session cost endpoint + Stripe checkout working")
-        print("   ✅ Authorization System: JWT tokens required for all protected endpoints")
-        print("   ✅ Cross-User Protection: 401/403 responses working correctly")
-        print("   ✅ Live Notifications: WebSocket system operational with security")
-        print("   ✅ Input Security: XSS protection and validation working")
+    if all_tests_passed:
+        print("🎉 ALL TESTS PASSED: 100% SUCCESS RATE ACHIEVED!")
+        print("✅ No failing tests identified - system is at 100% pass rate")
     else:
-        print("❌ FINAL VERIFICATION: FAILED")
-        print("❌ LiftLink is NOT READY for production deployment")
-        print("\n🔧 Critical issues need to be resolved:")
-        
-        # Show specific failures
-        final_result = test_results.get("final_verification_payment_and_authorization", {})
-        if final_result.get("details"):
-            print(f"   Details: {final_result['details']}")
+        print("❌ FAILING TESTS IDENTIFIED")
+        print("🔧 The exact failing tests have been identified above")
+        print("📋 Use this detailed breakdown to fix the specific issues")
     
     print("\n" + "="*80)
-    print("END OF FINAL VERIFICATION TESTING")
+    print("END OF GRANULAR TESTING")
     print("="*80)
     
     # Return success status
-    exit(0 if final_verification_passed else 1)
+    exit(0 if all_tests_passed else 1)
 
 def test_notification_system_fixes():
     """Test the minor issue fixes for the notification system"""
