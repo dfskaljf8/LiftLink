@@ -100,7 +100,7 @@ def run_100_percent_validation():
     print("\n" + "="*80)
     print("🔧 CORE API ENDPOINTS TESTING (Target: 8/8 = 100%)")
     print("="*80)
-    results["core_api"] = test_core_api_endpoints_100(user_id, trainer_id, user_jwt, trainer_jwt)
+    results["core_api"] = test_core_api_endpoints_100(user_id, trainer_id, user_jwt, trainer_jwt, user_email)
     
     print("\n" + "="*80)
     print("🛡️ SECURITY TESTING (Target: 9/9 = 100%)")
