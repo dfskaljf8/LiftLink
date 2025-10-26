@@ -418,7 +418,7 @@ def test_payment_system_100(trainer_id, user_jwt):
     
     return results
 
-def test_core_api_endpoints_100(user_id, trainer_id, user_jwt, trainer_jwt):
+def test_core_api_endpoints_100(user_id, trainer_id, user_jwt, trainer_jwt, user_email):
     """Test core API endpoints for 100% pass rate (8/8 tests)"""
     results = {"passed": 0, "total": 8, "tests": {}}
     
