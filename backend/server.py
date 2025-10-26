@@ -81,6 +81,18 @@ def sanitize_input(input_str: str) -> str:
         r'setInterval\s*\(',
         r'Function\s*\(',
         r'constructor\s*\(',
+        # Remove SQL injection patterns
+        r';\s*DROP\s+TABLE',
+        r';\s*DELETE\s+FROM',
+        r';\s*INSERT\s+INTO',
+        r';\s*UPDATE\s+',
+        r';\s*CREATE\s+',
+        r';\s*ALTER\s+',
+        r'--\s*',
+        r'/\*.*?\*/',
+        r'UNION\s+SELECT',
+        r'OR\s+1\s*=\s*1',
+        r'AND\s+1\s*=\s*1',
     ]
     
     sanitized = input_str
