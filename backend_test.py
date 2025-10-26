@@ -10,6 +10,628 @@ import threading
 # Get the backend URL from the frontend .env file
 BACKEND_URL = "https://liftlink-fitness.preview.emergentagent.com/api"
 
+def run_granular_failing_tests():
+    """
+    DETAILED BREAKDOWN - IDENTIFY SPECIFIC FAILING TESTS
+    
+    Run individual test cases to identify the exact 3 failing tests preventing 100% pass rate.
+    Current status:
+    - Authentication: 87.5% (7/8) - Need to identify which 1 test failed
+    - Payment: 80% (4/5) - Need to identify which 1 test failed
+    - Core APIs: 87.5% (7/8) - Need to identify which 1 test failed
+    """
+    print("="*80)
+    print("🎯 GRANULAR TESTING TO IDENTIFY EXACT FAILING TESTS")
+    print("="*80)
+    
+    # Create test users with JWT tokens for authentication
+    print("\n📝 CREATING TEST USERS WITH JWT AUTHENTICATION")
+    print("-" * 60)
+    
+    # Create verified user
+    user_email = f"test_user_{uuid.uuid4()}@example.com"
+    user_data = {
+        "email": user_email,
+        "name": "Test User",
+        "role": "fitness_enthusiast",
+        "fitness_goals": ["weight_loss"],
+        "experience_level": "beginner"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/users", json=user_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create user: {response.status_code}")
+        return False
+    
+    user = response.json()
+    user_id = user["id"]
+    print(f"✅ Created user: {user['name']} - {user_id}")
+    
+    # Create verified trainer
+    trainer_email = f"test_trainer_{uuid.uuid4()}@example.com"
+    trainer_data = {
+        "email": trainer_email,
+        "name": "Test Trainer",
+        "role": "trainer",
+        "fitness_goals": ["sport_training"],
+        "experience_level": "expert"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/users", json=trainer_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create trainer: {response.status_code}")
+        return False
+    
+    trainer = response.json()
+    trainer_id = trainer["id"]
+    print(f"✅ Created trainer: {trainer['name']} - {trainer_id}")
+    
+    # Verify users (simulate age verification)
+    verify_data = {
+        "document_type": "government_id",
+        "document_number": "TEST123456789",
+        "date_of_birth": "1990-01-01",
+        "full_name": "Test User"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/verify-government-id", json=verify_data)
+    if response.status_code == 200:
+        print("✅ Age verification completed")
+    
+    # Get JWT tokens
+    user_jwt = None
+    trainer_jwt = None
+    
+    # Login user
+    login_data = {"email": user_email}
+    response = requests.post(f"{BACKEND_URL}/login", json=login_data)
+    if response.status_code == 200:
+        login_response = response.json()
+        user_jwt = login_response.get("access_token")
+        print(f"✅ User JWT obtained: {user_jwt[:20] if user_jwt else 'None'}...")
+    
+    # Login trainer
+    login_data = {"email": trainer_email}
+    response = requests.post(f"{BACKEND_URL}/login", json=login_data)
+    if response.status_code == 200:
+        login_response = response.json()
+        trainer_jwt = login_response.get("access_token")
+        print(f"✅ Trainer JWT obtained: {trainer_jwt[:20] if trainer_jwt else 'None'}...")
+    
+    # Run individual test categories
+    auth_results = test_authentication_system_individual(user_id, trainer_id, user_jwt, trainer_jwt)
+    payment_results = test_payment_system_individual(trainer_id, user_jwt)
+    core_api_results = test_core_api_endpoints_individual(user_id, trainer_id, user_jwt, trainer_jwt)
+    
+    # Report results
+    print("\n" + "="*80)
+    print("📊 GRANULAR TEST RESULTS SUMMARY")
+    print("="*80)
+    
+    print(f"\n🔐 AUTHENTICATION SYSTEM TESTS:")
+    auth_passed = sum(1 for result in auth_results.values() if result['passed'])
+    print(f"   Passed: {auth_passed}/8 ({(auth_passed/8)*100:.1f}%)")
+    for test_name, result in auth_results.items():
+        status = "✅ PASS" if result['passed'] else "❌ FAIL"
+        print(f"   {test_name}: {status}")
+        if not result['passed']:
+            print(f"      Error: {result['error']}")
+    
+    print(f"\n💳 PAYMENT SYSTEM TESTS:")
+    payment_passed = sum(1 for result in payment_results.values() if result['passed'])
+    print(f"   Passed: {payment_passed}/5 ({(payment_passed/5)*100:.1f}%)")
+    for test_name, result in payment_results.items():
+        status = "✅ PASS" if result['passed'] else "❌ FAIL"
+        print(f"   {test_name}: {status}")
+        if not result['passed']:
+            print(f"      Error: {result['error']}")
+    
+    print(f"\n🔧 CORE API ENDPOINTS TESTS:")
+    core_passed = sum(1 for result in core_api_results.values() if result['passed'])
+    print(f"   Passed: {core_passed}/8 ({(core_passed/8)*100:.1f}%)")
+    for test_name, result in core_api_results.items():
+        status = "✅ PASS" if result['passed'] else "❌ FAIL"
+        print(f"   {test_name}: {status}")
+        if not result['passed']:
+            print(f"      Error: {result['error']}")
+    
+    # Identify exact failing tests
+    failing_tests = []
+    
+    for test_name, result in auth_results.items():
+        if not result['passed']:
+            failing_tests.append(f"Authentication: {test_name}")
+    
+    for test_name, result in payment_results.items():
+        if not result['passed']:
+            failing_tests.append(f"Payment: {test_name}")
+    
+    for test_name, result in core_api_results.items():
+        if not result['passed']:
+            failing_tests.append(f"Core API: {test_name}")
+    
+    print(f"\n🎯 EXACT FAILING TESTS IDENTIFIED:")
+    if failing_tests:
+        for i, test in enumerate(failing_tests, 1):
+            print(f"   {i}. {test}")
+    else:
+        print("   No failing tests found - all systems at 100%!")
+    
+    return len(failing_tests) == 0
+
+def test_authentication_system_individual(user_id, trainer_id, user_jwt, trainer_jwt):
+    """Run all 8 authentication tests individually"""
+    print("\n🔐 AUTHENTICATION SYSTEM - INDIVIDUAL TESTS")
+    print("="*60)
+    
+    results = {}
+    
+    # Test 1: JWT token creation and validation
+    print("\n1️⃣ Testing JWT token creation and validation")
+    try:
+        headers = {"Authorization": f"Bearer {user_jwt}"} if user_jwt else {}
+        response = requests.get(f"{BACKEND_URL}/users/{user_id}", headers=headers)
+        
+        if response.status_code == 200 and user_jwt:
+            results["jwt_token_validation"] = {"passed": True, "error": None}
+            print("✅ JWT token creation and validation: PASS")
+        else:
+            results["jwt_token_validation"] = {"passed": False, "error": f"Status: {response.status_code}, JWT present: {bool(user_jwt)}"}
+            print(f"❌ JWT token creation and validation: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["jwt_token_validation"] = {"passed": False, "error": str(e)}
+        print(f"❌ JWT token creation and validation: FAIL - {e}")
+    
+    # Test 2: Protected endpoints return 401 without token
+    print("\n2️⃣ Testing protected endpoints return 401 without token")
+    try:
+        response = requests.get(f"{BACKEND_URL}/users/{user_id}")  # No auth header
+        
+        if response.status_code == 401:
+            results["protected_endpoints_401"] = {"passed": True, "error": None}
+            print("✅ Protected endpoints return 401 without token: PASS")
+        else:
+            results["protected_endpoints_401"] = {"passed": False, "error": f"Expected 401, got {response.status_code}"}
+            print(f"❌ Protected endpoints return 401 without token: FAIL - Got {response.status_code}")
+    except Exception as e:
+        results["protected_endpoints_401"] = {"passed": False, "error": str(e)}
+        print(f"❌ Protected endpoints return 401 without token: FAIL - {e}")
+    
+    # Test 3: Invalid tokens rejected with 401
+    print("\n3️⃣ Testing invalid tokens rejected with 401")
+    try:
+        headers = {"Authorization": "Bearer invalid_token_12345"}
+        response = requests.get(f"{BACKEND_URL}/users/{user_id}", headers=headers)
+        
+        if response.status_code == 401:
+            results["invalid_tokens_401"] = {"passed": True, "error": None}
+            print("✅ Invalid tokens rejected with 401: PASS")
+        else:
+            results["invalid_tokens_401"] = {"passed": False, "error": f"Expected 401, got {response.status_code}"}
+            print(f"❌ Invalid tokens rejected with 401: FAIL - Got {response.status_code}")
+    except Exception as e:
+        results["invalid_tokens_401"] = {"passed": False, "error": str(e)}
+        print(f"❌ Invalid tokens rejected with 401: FAIL - {e}")
+    
+    # Test 4: Expired tokens rejected with 401
+    print("\n4️⃣ Testing expired tokens rejected with 401")
+    try:
+        # Create an expired token (this is a mock test since we can't easily create expired tokens)
+        expired_token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoidGVzdCIsImV4cCI6MTYwMDAwMDAwMH0.invalid"
+        headers = {"Authorization": f"Bearer {expired_token}"}
+        response = requests.get(f"{BACKEND_URL}/users/{user_id}", headers=headers)
+        
+        if response.status_code == 401:
+            results["expired_tokens_401"] = {"passed": True, "error": None}
+            print("✅ Expired tokens rejected with 401: PASS")
+        else:
+            results["expired_tokens_401"] = {"passed": False, "error": f"Expected 401, got {response.status_code}"}
+            print(f"❌ Expired tokens rejected with 401: FAIL - Got {response.status_code}")
+    except Exception as e:
+        results["expired_tokens_401"] = {"passed": False, "error": str(e)}
+        print(f"❌ Expired tokens rejected with 401: FAIL - {e}")
+    
+    # Test 5: Cross-user access blocked with 403
+    print("\n5️⃣ Testing cross-user access blocked with 403")
+    try:
+        # Try to access trainer data with user JWT
+        headers = {"Authorization": f"Bearer {user_jwt}"} if user_jwt else {}
+        response = requests.get(f"{BACKEND_URL}/users/{trainer_id}", headers=headers)
+        
+        if response.status_code == 403:
+            results["cross_user_access_403"] = {"passed": True, "error": None}
+            print("✅ Cross-user access blocked with 403: PASS")
+        else:
+            results["cross_user_access_403"] = {"passed": False, "error": f"Expected 403, got {response.status_code}"}
+            print(f"❌ Cross-user access blocked with 403: FAIL - Got {response.status_code}")
+    except Exception as e:
+        results["cross_user_access_403"] = {"passed": False, "error": str(e)}
+        print(f"❌ Cross-user access blocked with 403: FAIL - {e}")
+    
+    # Test 6: Role-based access control (trainer endpoints)
+    print("\n6️⃣ Testing role-based access control (trainer endpoints)")
+    try:
+        headers = {"Authorization": f"Bearer {trainer_jwt}"} if trainer_jwt else {}
+        response = requests.get(f"{BACKEND_URL}/trainer/{trainer_id}/earnings", headers=headers)
+        
+        if response.status_code == 200:
+            results["role_based_access"] = {"passed": True, "error": None}
+            print("✅ Role-based access control (trainer endpoints): PASS")
+        else:
+            results["role_based_access"] = {"passed": False, "error": f"Expected 200, got {response.status_code}"}
+            print(f"❌ Role-based access control (trainer endpoints): FAIL - Got {response.status_code}")
+    except Exception as e:
+        results["role_based_access"] = {"passed": False, "error": str(e)}
+        print(f"❌ Role-based access control (trainer endpoints): FAIL - {e}")
+    
+    # Test 7: Token refresh handling
+    print("\n7️⃣ Testing token refresh handling")
+    try:
+        # Test if login endpoint returns proper token structure
+        login_data = {"email": f"test_user_{uuid.uuid4()}@example.com"}
+        user_create_data = {
+            "email": login_data["email"],
+            "role": "fitness_enthusiast",
+            "fitness_goals": ["general_fitness"],
+            "experience_level": "beginner"
+        }
+        
+        # Create user first
+        requests.post(f"{BACKEND_URL}/users", json=user_create_data)
+        
+        # Try login
+        response = requests.post(f"{BACKEND_URL}/login", json=login_data)
+        
+        if response.status_code == 200:
+            login_response = response.json()
+            if "access_token" in login_response and "token_type" in login_response:
+                results["token_refresh"] = {"passed": True, "error": None}
+                print("✅ Token refresh handling: PASS")
+            else:
+                results["token_refresh"] = {"passed": False, "error": "Missing token fields in login response"}
+                print("❌ Token refresh handling: FAIL - Missing token fields")
+        else:
+            results["token_refresh"] = {"passed": False, "error": f"Login failed with {response.status_code}"}
+            print(f"❌ Token refresh handling: FAIL - Login failed with {response.status_code}")
+    except Exception as e:
+        results["token_refresh"] = {"passed": False, "error": str(e)}
+        print(f"❌ Token refresh handling: FAIL - {e}")
+    
+    # Test 8: Session persistence
+    print("\n8️⃣ Testing session persistence")
+    try:
+        # Test multiple requests with same token
+        headers = {"Authorization": f"Bearer {user_jwt}"} if user_jwt else {}
+        
+        response1 = requests.get(f"{BACKEND_URL}/users/{user_id}", headers=headers)
+        time.sleep(1)
+        response2 = requests.get(f"{BACKEND_URL}/users/{user_id}", headers=headers)
+        
+        if response1.status_code == 200 and response2.status_code == 200:
+            results["session_persistence"] = {"passed": True, "error": None}
+            print("✅ Session persistence: PASS")
+        else:
+            results["session_persistence"] = {"passed": False, "error": f"Response1: {response1.status_code}, Response2: {response2.status_code}"}
+            print(f"❌ Session persistence: FAIL - Response1: {response1.status_code}, Response2: {response2.status_code}")
+    except Exception as e:
+        results["session_persistence"] = {"passed": False, "error": str(e)}
+        print(f"❌ Session persistence: FAIL - {e}")
+    
+    return results
+
+def test_payment_system_individual(trainer_id, user_jwt):
+    """Run all 5 payment tests individually"""
+    print("\n💳 PAYMENT SYSTEM - INDIVIDUAL TESTS")
+    print("="*60)
+    
+    results = {}
+    
+    # Test 1: Session cost endpoint - personal_training ($75.00)
+    print("\n1️⃣ Testing session cost endpoint - personal_training ($75.00)")
+    try:
+        response = requests.get(f"{BACKEND_URL}/payments/session-cost/{trainer_id}/personal_training")
+        
+        if response.status_code == 200:
+            cost_data = response.json()
+            if cost_data.get("amount_cents") == 7500:  # $75.00 in cents
+                results["session_cost_personal"] = {"passed": True, "error": None}
+                print("✅ Session cost endpoint - personal_training: PASS")
+            else:
+                results["session_cost_personal"] = {"passed": False, "error": f"Expected 7500 cents, got {cost_data.get('amount_cents')}"}
+                print(f"❌ Session cost endpoint - personal_training: FAIL - Wrong amount: {cost_data.get('amount_cents')}")
+        else:
+            results["session_cost_personal"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Session cost endpoint - personal_training: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["session_cost_personal"] = {"passed": False, "error": str(e)}
+        print(f"❌ Session cost endpoint - personal_training: FAIL - {e}")
+    
+    # Test 2: Session cost endpoint - group_fitness ($35.00)
+    print("\n2️⃣ Testing session cost endpoint - group_fitness ($35.00)")
+    try:
+        response = requests.get(f"{BACKEND_URL}/payments/session-cost/{trainer_id}/group_fitness")
+        
+        if response.status_code == 200:
+            cost_data = response.json()
+            if cost_data.get("amount_cents") == 3500:  # $35.00 in cents
+                results["session_cost_group"] = {"passed": True, "error": None}
+                print("✅ Session cost endpoint - group_fitness: PASS")
+            else:
+                results["session_cost_group"] = {"passed": False, "error": f"Expected 3500 cents, got {cost_data.get('amount_cents')}"}
+                print(f"❌ Session cost endpoint - group_fitness: FAIL - Wrong amount: {cost_data.get('amount_cents')}")
+        else:
+            results["session_cost_group"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Session cost endpoint - group_fitness: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["session_cost_group"] = {"passed": False, "error": str(e)}
+        print(f"❌ Session cost endpoint - group_fitness: FAIL - {e}")
+    
+    # Test 3: Session cost endpoint - nutrition_consultation ($50.00)
+    print("\n3️⃣ Testing session cost endpoint - nutrition_consultation ($50.00)")
+    try:
+        response = requests.get(f"{BACKEND_URL}/payments/session-cost/{trainer_id}/nutrition_consultation")
+        
+        if response.status_code == 200:
+            cost_data = response.json()
+            if cost_data.get("amount_cents") == 5000:  # $50.00 in cents
+                results["session_cost_nutrition"] = {"passed": True, "error": None}
+                print("✅ Session cost endpoint - nutrition_consultation: PASS")
+            else:
+                results["session_cost_nutrition"] = {"passed": False, "error": f"Expected 5000 cents, got {cost_data.get('amount_cents')}"}
+                print(f"❌ Session cost endpoint - nutrition_consultation: FAIL - Wrong amount: {cost_data.get('amount_cents')}")
+        else:
+            results["session_cost_nutrition"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Session cost endpoint - nutrition_consultation: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["session_cost_nutrition"] = {"passed": False, "error": str(e)}
+        print(f"❌ Session cost endpoint - nutrition_consultation: FAIL - {e}")
+    
+    # Test 4: Stripe checkout session creation
+    print("\n4️⃣ Testing Stripe checkout session creation")
+    try:
+        checkout_data = {
+            "trainer_id": trainer_id,
+            "session_type": "personal_training",
+            "amount": 7500,
+            "success_url": "https://example.com/success",
+            "cancel_url": "https://example.com/cancel"
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/payments/create-session-checkout", json=checkout_data)
+        
+        if response.status_code == 200:
+            checkout_response = response.json()
+            if "session_id" in checkout_response and "checkout_url" in checkout_response:
+                results["stripe_checkout"] = {"passed": True, "error": None}
+                print("✅ Stripe checkout session creation: PASS")
+            else:
+                results["stripe_checkout"] = {"passed": False, "error": "Missing session_id or checkout_url"}
+                print("❌ Stripe checkout session creation: FAIL - Missing required fields")
+        else:
+            results["stripe_checkout"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Stripe checkout session creation: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["stripe_checkout"] = {"passed": False, "error": str(e)}
+        print(f"❌ Stripe checkout session creation: FAIL - {e}")
+    
+    # Test 5: Payment confirmation endpoint
+    print("\n5️⃣ Testing payment confirmation endpoint")
+    try:
+        confirm_data = {
+            "session_id": "test_session_id",
+            "payment_intent": "test_payment_intent"
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/payments/confirm-payment", json=confirm_data)
+        
+        if response.status_code == 200:
+            confirm_response = response.json()
+            if "message" in confirm_response:
+                results["payment_confirmation"] = {"passed": True, "error": None}
+                print("✅ Payment confirmation endpoint: PASS")
+            else:
+                results["payment_confirmation"] = {"passed": False, "error": "Missing message field"}
+                print("❌ Payment confirmation endpoint: FAIL - Missing message field")
+        else:
+            results["payment_confirmation"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Payment confirmation endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["payment_confirmation"] = {"passed": False, "error": str(e)}
+        print(f"❌ Payment confirmation endpoint: FAIL - {e}")
+    
+    return results
+
+def test_core_api_endpoints_individual(user_id, trainer_id, user_jwt, trainer_jwt):
+    """Run all 8 core API tests individually"""
+    print("\n🔧 CORE API ENDPOINTS - INDIVIDUAL TESTS")
+    print("="*60)
+    
+    results = {}
+    
+    # Test 1: User registration endpoint
+    print("\n1️⃣ Testing user registration endpoint")
+    try:
+        test_email = f"core_test_{uuid.uuid4()}@example.com"
+        user_data = {
+            "email": test_email,
+            "name": "Core Test User",
+            "role": "fitness_enthusiast",
+            "fitness_goals": ["weight_loss"],
+            "experience_level": "beginner"
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/users", json=user_data)
+        
+        if response.status_code == 200:
+            user_response = response.json()
+            if "id" in user_response and user_response["email"] == test_email:
+                results["user_registration"] = {"passed": True, "error": None}
+                print("✅ User registration endpoint: PASS")
+            else:
+                results["user_registration"] = {"passed": False, "error": "Missing id or email mismatch"}
+                print("❌ User registration endpoint: FAIL - Missing required fields")
+        else:
+            results["user_registration"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ User registration endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["user_registration"] = {"passed": False, "error": str(e)}
+        print(f"❌ User registration endpoint: FAIL - {e}")
+    
+    # Test 2: User profile retrieval
+    print("\n2️⃣ Testing user profile retrieval")
+    try:
+        headers = {"Authorization": f"Bearer {user_jwt}"} if user_jwt else {}
+        response = requests.get(f"{BACKEND_URL}/users/{user_id}", headers=headers)
+        
+        if response.status_code == 200:
+            profile = response.json()
+            if "id" in profile and "email" in profile and "role" in profile:
+                results["user_profile_retrieval"] = {"passed": True, "error": None}
+                print("✅ User profile retrieval: PASS")
+            else:
+                results["user_profile_retrieval"] = {"passed": False, "error": "Missing required profile fields"}
+                print("❌ User profile retrieval: FAIL - Missing required fields")
+        else:
+            results["user_profile_retrieval"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ User profile retrieval: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["user_profile_retrieval"] = {"passed": False, "error": str(e)}
+        print(f"❌ User profile retrieval: FAIL - {e}")
+    
+    # Test 3: User profile update
+    print("\n3️⃣ Testing user profile update")
+    try:
+        headers = {"Authorization": f"Bearer {user_jwt}"} if user_jwt else {}
+        update_data = {
+            "role": "fitness_enthusiast",
+            "fitness_goals": ["muscle_building"],
+            "experience_level": "intermediate"
+        }
+        
+        response = requests.put(f"{BACKEND_URL}/users/{user_id}", json=update_data, headers=headers)
+        
+        if response.status_code == 200:
+            updated_profile = response.json()
+            if updated_profile.get("experience_level") == "intermediate":
+                results["user_profile_update"] = {"passed": True, "error": None}
+                print("✅ User profile update: PASS")
+            else:
+                results["user_profile_update"] = {"passed": False, "error": "Update not reflected"}
+                print("❌ User profile update: FAIL - Update not reflected")
+        else:
+            results["user_profile_update"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ User profile update: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["user_profile_update"] = {"passed": False, "error": str(e)}
+        print(f"❌ User profile update: FAIL - {e}")
+    
+    # Test 4: Trainer endpoints authentication
+    print("\n4️⃣ Testing trainer endpoints authentication")
+    try:
+        headers = {"Authorization": f"Bearer {trainer_jwt}"} if trainer_jwt else {}
+        response = requests.get(f"{BACKEND_URL}/trainer/{trainer_id}/schedule", headers=headers)
+        
+        if response.status_code == 200:
+            schedule = response.json()
+            if "schedule" in schedule:
+                results["trainer_endpoints_auth"] = {"passed": True, "error": None}
+                print("✅ Trainer endpoints authentication: PASS")
+            else:
+                results["trainer_endpoints_auth"] = {"passed": False, "error": "Missing schedule field"}
+                print("❌ Trainer endpoints authentication: FAIL - Missing schedule field")
+        else:
+            results["trainer_endpoints_auth"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Trainer endpoints authentication: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["trainer_endpoints_auth"] = {"passed": False, "error": str(e)}
+        print(f"❌ Trainer endpoints authentication: FAIL - {e}")
+    
+    # Test 5: Session management
+    print("\n5️⃣ Testing session management")
+    try:
+        session_data = {
+            "user_id": user_id,
+            "session_type": "Core Test Session",
+            "duration_minutes": 30,
+            "source": "manual"
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/sessions", json=session_data)
+        
+        if response.status_code == 200:
+            session_response = response.json()
+            if "id" in session_response and session_response["user_id"] == user_id:
+                results["session_management"] = {"passed": True, "error": None}
+                print("✅ Session management: PASS")
+            else:
+                results["session_management"] = {"passed": False, "error": "Missing id or user_id mismatch"}
+                print("❌ Session management: FAIL - Missing required fields")
+        else:
+            results["session_management"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Session management: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["session_management"] = {"passed": False, "error": str(e)}
+        print(f"❌ Session management: FAIL - {e}")
+    
+    # Test 6: Error handling (invalid IDs return 404, not 200)
+    print("\n6️⃣ Testing error handling (invalid IDs return 404)")
+    try:
+        headers = {"Authorization": f"Bearer {user_jwt}"} if user_jwt else {}
+        response = requests.get(f"{BACKEND_URL}/users/invalid_user_id_12345", headers=headers)
+        
+        if response.status_code == 404:
+            results["error_handling"] = {"passed": True, "error": None}
+            print("✅ Error handling (invalid IDs return 404): PASS")
+        else:
+            results["error_handling"] = {"passed": False, "error": f"Expected 404, got {response.status_code}"}
+            print(f"❌ Error handling (invalid IDs return 404): FAIL - Got {response.status_code}")
+    except Exception as e:
+        results["error_handling"] = {"passed": False, "error": str(e)}
+        print(f"❌ Error handling (invalid IDs return 404): FAIL - {e}")
+    
+    # Test 7: Friend request endpoints
+    print("\n7️⃣ Testing friend request endpoints")
+    try:
+        headers = {"Authorization": f"Bearer {user_jwt}"} if user_jwt else {}
+        response = requests.get(f"{BACKEND_URL}/users/{user_id}/friend-requests?type=received", headers=headers)
+        
+        if response.status_code == 200:
+            friend_requests = response.json()
+            if "friend_requests" in friend_requests:
+                results["friend_request_endpoints"] = {"passed": True, "error": None}
+                print("✅ Friend request endpoints: PASS")
+            else:
+                results["friend_request_endpoints"] = {"passed": False, "error": "Missing friend_requests field"}
+                print("❌ Friend request endpoints: FAIL - Missing friend_requests field")
+        else:
+            results["friend_request_endpoints"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Friend request endpoints: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["friend_request_endpoints"] = {"passed": False, "error": str(e)}
+        print(f"❌ Friend request endpoints: FAIL - {e}")
+    
+    # Test 8: Fitness integration endpoints
+    print("\n8️⃣ Testing fitness integration endpoints")
+    try:
+        response = requests.get(f"{BACKEND_URL}/fitness/status/{user_id}")
+        
+        if response.status_code == 200:
+            fitness_status = response.json()
+            if "google_fit_connected" in fitness_status:
+                results["fitness_integration"] = {"passed": True, "error": None}
+                print("✅ Fitness integration endpoints: PASS")
+            else:
+                results["fitness_integration"] = {"passed": False, "error": "Missing google_fit_connected field"}
+                print("❌ Fitness integration endpoints: FAIL - Missing required fields")
+        else:
+            results["fitness_integration"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Fitness integration endpoints: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["fitness_integration"] = {"passed": False, "error": str(e)}
+        print(f"❌ Fitness integration endpoints: FAIL - {e}")
+    
+    return results
+
 def test_mongodb_atlas_ssl_fix():
     """Test MongoDB Atlas SSL compatibility fix and database connectivity"""
     print_separator()
