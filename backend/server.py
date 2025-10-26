@@ -71,7 +71,16 @@ def sanitize_input(input_str: str) -> str:
         r'expression\s*\(',
         r'@import',
         r'<svg.*?onload',
-        r'<img.*?onerror'
+        r'<img.*?onerror',
+        # Remove JavaScript function calls
+        r'alert\s*\(',
+        r'confirm\s*\(',
+        r'prompt\s*\(',
+        r'eval\s*\(',
+        r'setTimeout\s*\(',
+        r'setInterval\s*\(',
+        r'Function\s*\(',
+        r'constructor\s*\(',
     ]
     
     sanitized = input_str
