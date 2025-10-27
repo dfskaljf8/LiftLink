@@ -76,27 +76,23 @@ def enableProguardInReleaseBuilds = true
 def jscFlavor = 'org.webkit:android-jsc:+'
 
 android {
-    ndkVersion rootProject.ext.ndkVersion
-    compileSdkVersion rootProject.ext.compileSdkVersion
-
     namespace "com.liftlink"
+    compileSdkVersion 34
+    
     defaultConfig {
         applicationId "com.liftlink"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        minSdkVersion 21
+        targetSdkVersion 34
         versionCode 1
         versionName "1.0.0"
+        
+        // Enable multidex support
         multiDexEnabled true
         
-        // Enable vector drawables
+        // Vector drawable support
         vectorDrawables.useSupportLibrary = true
-        
-        // App bundle optimization
-        ndk {
-            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
-        }
     }
-
+    
     signingConfigs {
         debug {
             storeFile file('debug.keystore')
@@ -105,55 +101,50 @@ android {
             keyPassword 'android'
         }
         release {
-            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
-                storeFile file(MYAPP_UPLOAD_STORE_FILE)
-                storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+            if (project.hasProperty('LIFTLINK_UPLOAD_STORE_FILE')) {
+                storeFile file(LIFTLINK_UPLOAD_STORE_FILE)
+                storePassword LIFTLINK_UPLOAD_STORE_PASSWORD
+                keyAlias LIFTLINK_UPLOAD_KEY_ALIAS
+                keyPassword LIFTLINK_UPLOAD_KEY_PASSWORD
             }
         }
     }
-
+    
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
             applicationIdSuffix ".debug"
             debuggable true
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.release
-            minifyEnabled enableProguardInReleaseBuilds
+            minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            
-            // Optimization for release builds
-            zipAlignEnabled true
-            crunchPngs true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            debuggable false
         }
     }
-
-    // Split builds for different architectures
+    
+    // Split APKs per ABI for smaller downloads
     splits {
         abi {
             reset()
-            enable enableSeparateBuildPerCPUArchitecture
-            universalApk false  // If true, also generate a universal APK
+            enable true
+            universalApk true
             include "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
         }
     }
-
+    
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
-
+    
     packagingOptions {
-        pickFirst '**/libc++_shared.so'
-        pickFirst '**/libjsc.so'
+        pickFirst 'lib/x86/libc++_shared.so'
+        pickFirst 'lib/x86_64/libc++_shared.so'
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
     }
 }
 
