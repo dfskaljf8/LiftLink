@@ -27,6 +27,7 @@ import axios from 'axios';
 import DocumentVerification from './src/components/DocumentVerification';
 import PaymentScreen from './src/components/PaymentScreen';
 import TrainerDashboard from './src/components/TrainerDashboard';
+import TraineeDashboard from './src/components/TraineeDashboard';
 import GoogleFitIntegration from './src/components/GoogleFitIntegration';
 import TrainerMapView from './src/components/TrainerMapView';
 import CalendarScheduling from './src/components/CalendarScheduling';
