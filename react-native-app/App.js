@@ -1522,6 +1522,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  quickActionsContainer: {
+    flexDirection: 'row',
+    gap: 12,
+  },
   screenTitle: {
     fontSize: 28,
     fontWeight: 'bold',
