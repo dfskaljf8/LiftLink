@@ -820,138 +820,16 @@ const LiftLinkLogo = ({ size = 60, showTagline = true }) => {
   );
 };
 
-// Dashboard Screen
+// Dashboard Screen - Role-based
 const DashboardScreen = () => {
   const { user, colors, treeProgress, sessions } = useContext(AppContext);
   
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.content}>
-        {/* Centered LiftLink Logo */}
-        <View style={styles.logoSection}>
-          <LiftLinkLogo size={120} showTagline={true} />
-        </View>
-
-        <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            Welcome back, {user.name}!
-          </Text>
-          <Text style={[styles.headerSubtitle, { color: colors.textSecondary }]}>
-            {user.role === 'trainer' ? 'Trainer Dashboard' : 'Your Fitness Journey'}
-          </Text>
-        </View>
-
-        {/* Tree Progress Card */}
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Tree Progress</Text>
-          <View style={styles.treeProgressContainer}>
-            <TreeSVG level={treeProgress?.current_level || 'seed'} size={100} />
-            <View style={styles.progressInfo}>
-              <Text style={[styles.progressLevel, { color: colors.secondary }]}>
-                Level: {treeProgress?.current_level?.replace('_', ' ') || 'Seed'}
-              </Text>
-              <Text style={[styles.progressSessions, { color: colors.text }]}>
-                {treeProgress?.total_sessions || 0} sessions completed
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Quick Stats */}
-        <View style={styles.statsContainer}>
-          <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.statValue, { color: colors.secondary }]}>
-              {sessions.length}
-            </Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
-              Recent Sessions
-            </Text>
-          </View>
-          
-          <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.statValue, { color: colors.warning }]}>
-              {treeProgress?.consistency_streak || 0}
-            </Text>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
-              Day Streak
-            </Text>
-          </View>
-          
-          <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
-            <LiftCoin count={treeProgress?.lift_coins || 0} size="sm" />
-          </View>
-        </View>
-
-        {/* Quick Actions */}
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Quick Actions</Text>
-          
-          {user.role === 'trainer' ? (
-            <View style={styles.quickActionsContainer}>
-              <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.primary }]}>
-                <Icon name="people" size={20} color={colors.text} />
-                <Text style={[styles.actionButtonText, { color: colors.text }]}>
-                  View Clients
-                </Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.secondary }]}>
-                <Icon name="schedule" size={20} color={colors.text} />
-                <Text style={[styles.actionButtonText, { color: colors.text }]}>
-                  Schedule
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={styles.quickActionsContainer}>
-              <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.primary }]}>
-                <Icon name="search" size={20} color={colors.text} />
-                <Text style={[styles.actionButtonText, { color: colors.text }]}>
-                  Find Trainers
-                </Text>
-              </TouchableOpacity>
-              
-              <TouchableOpacity style={[styles.actionButton, { backgroundColor: colors.secondary }]}>
-                <Icon name="fitness-center" size={20} color={colors.text} />
-                <Text style={[styles.actionButtonText, { color: colors.text }]}>
-                  Start Workout
-                </Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
-        {/* Recent Activity */}
-        <View style={[styles.card, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Recent Activity</Text>
-          
-          {sessions.length > 0 ? (
-            sessions.slice(0, 3).map((session, index) => (
-              <View key={index} style={styles.activityItem}>
-                <View style={styles.activityIcon}>
-                  <Icon name="fitness-center" size={20} color={colors.primary} />
-                </View>
-                <View style={styles.activityContent}>
-                  <Text style={[styles.activityTitle, { color: colors.text }]}>
-                    {session.type || 'Workout Session'}
-                  </Text>
-                  <Text style={[styles.activitySubtitle, { color: colors.textSecondary }]}>
-                    {session.duration || '45 minutes'} • {session.date || 'Today'}
-                  </Text>
-                </View>
-              </View>
-            ))
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
-                No recent sessions. Start your fitness journey today!
-              </Text>
-            </View>
-          )}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+  // Render role-specific dashboard
+  if (user.role === 'trainer') {
+    return <TrainerDashboard user={user} />;
+  } else {
+    return <TraineeDashboard user={user} />;
+  }
 };
 
 // Fitness Screen
