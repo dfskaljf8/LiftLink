@@ -1492,6 +1492,23 @@ const styles = StyleSheet.create({
   cardDescription: {
     fontSize: 14,
   },
+  treeProgressContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  progressInfo: {
+    flex: 1,
+    marginLeft: 16,
+  },
+  progressLevel: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  progressSessions: {
+    fontSize: 14,
+  },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
