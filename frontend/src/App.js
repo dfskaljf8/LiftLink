@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 // Backend URL from environment
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-fitness.preview.emergentagent.com';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://fitness-platform-10.preview.emergentagent.com';
 const API = `${BACKEND_URL}/api`;
 
 function App() {

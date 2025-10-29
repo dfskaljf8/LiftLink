@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime, timedelta
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://liftlink-fitness.preview.emergentagent.com/api"
+BACKEND_URL = "https://fitness-platform-10.preview.emergentagent.com/api"
 
 # Test results
 test_results = {
