@@ -505,7 +505,10 @@ const AuthScreen = ({ navigation, route }) => {
         }]}
         onPress={() => setRole('trainee')}
       >
-        <Text style={[styles.roleButtonText, { color: colors.text }]}>Fitness Enthusiast</Text>
+        <Text style={[styles.roleButtonText, { color: colors.text }]}>💪 Fitness Enthusiast (Trainee)</Text>
+        <Text style={[styles.roleDescription, { color: colors.textSecondary }]}>
+          Find trainers, track progress, grow your tree
+        </Text>
       </TouchableOpacity>
       
       <TouchableOpacity
@@ -515,17 +518,254 @@ const AuthScreen = ({ navigation, route }) => {
         }]}
         onPress={() => setRole('trainer')}
       >
-        <Text style={[styles.roleButtonText, { color: colors.text }]}>Fitness Trainer</Text>
+        <Text style={[styles.roleButtonText, { color: colors.text }]}>🏋️ Fitness Trainer</Text>
+        <Text style={[styles.roleDescription, { color: colors.textSecondary }]}>
+          Manage clients, schedule sessions, earn money
+        </Text>
       </TouchableOpacity>
       
       <TouchableOpacity
         style={[styles.button, { backgroundColor: colors.primary }]}
-        onPress={() => setMode('goals')}
+        onPress={() => {
+          if (role === 'trainee') {
+            setMode('goals');
+          } else {
+            setMode('certifications');
+          }
+        }}
       >
         <Text style={[styles.buttonText, { color: colors.text }]}>Continue</Text>
       </TouchableOpacity>
     </View>
   );
+
+  const renderGoalsStep = () => {
+    const goalOptions = [
+      { id: 'weight_loss', label: '🏃 Weight Loss', icon: '🏃' },
+      { id: 'muscle_building', label: '💪 Muscle Building', icon: '💪' },
+      { id: 'cardio', label: '❤️ Cardio Fitness', icon: '❤️' },
+      { id: 'strength', label: '🏋️ Strength Training', icon: '🏋️' },
+      { id: 'flexibility', label: '🧘 Flexibility', icon: '🧘' },
+      { id: 'general_fitness', label: '⚡ General Fitness', icon: '⚡' },
+      { id: 'sports', label: '⚽ Sports Performance', icon: '⚽' },
+      { id: 'rehabilitation', label: '🩹 Rehabilitation', icon: '🩹' }
+    ];
+
+    const toggleGoal = (goalId) => {
+      if (fitnessGoals.includes(goalId)) {
+        setFitnessGoals(fitnessGoals.filter(g => g !== goalId));
+      } else {
+        setFitnessGoals([...fitnessGoals, goalId]);
+      }
+    };
+
+    return (
+      <ScrollView style={styles.authContainer}>
+        <Text style={[styles.title, { color: colors.text }]}>What are your fitness goals?</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          Select all that apply
+        </Text>
+        
+        <View style={styles.goalsGrid}>
+          {goalOptions.map((goal) => (
+            <TouchableOpacity
+              key={goal.id}
+              style={[styles.goalOption, {
+                backgroundColor: fitnessGoals.includes(goal.id) ? colors.primary : colors.surface,
+                borderColor: fitnessGoals.includes(goal.id) ? colors.primary : colors.textSecondary
+              }]}
+              onPress={() => toggleGoal(goal.id)}
+            >
+              <Text style={styles.goalIcon}>{goal.icon}</Text>
+              <Text style={[styles.goalLabel, { color: colors.text }]}>
+                {goal.label.replace(goal.icon + ' ', '')}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        
+        <TouchableOpacity
+          style={[styles.button, { 
+            backgroundColor: colors.primary,
+            opacity: fitnessGoals.length > 0 ? 1 : 0.5
+          }]}
+          onPress={() => setMode('experience')}
+          disabled={fitnessGoals.length === 0}
+        >
+          <Text style={[styles.buttonText, { color: colors.text }]}>Continue</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  };
+
+  const renderExperienceStep = () => {
+    const experienceOptions = [
+      { 
+        value: 'beginner', 
+        label: '🌱 Beginner',
+        description: 'Just starting my fitness journey'
+      },
+      { 
+        value: 'intermediate', 
+        label: '💪 Intermediate',
+        description: 'Been working out for a while'
+      },
+      { 
+        value: 'advanced', 
+        label: '🏆 Advanced',
+        description: 'Experienced fitness enthusiast'
+      }
+    ];
+
+    return (
+      <View style={styles.authContainer}>
+        <Text style={[styles.title, { color: colors.text }]}>What's your experience level?</Text>
+        
+        {experienceOptions.map((option) => (
+          <TouchableOpacity
+            key={option.value}
+            style={[styles.experienceOption, {
+              backgroundColor: experienceLevel === option.value ? colors.primary : colors.surface,
+              borderColor: experienceLevel === option.value ? colors.primary : colors.textSecondary
+            }]}
+            onPress={() => setExperienceLevel(option.value)}
+          >
+            <Text style={[styles.experienceLabel, { color: colors.text }]}>
+              {option.label}
+            </Text>
+            <Text style={[styles.experienceDescription, { color: colors.textSecondary }]}>
+              {option.description}
+            </Text>
+          </TouchableOpacity>
+        ))}
+        
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: colors.primary }]}
+          onPress={handleRegistration}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color={colors.text} />
+          ) : (
+            <Text style={[styles.buttonText, { color: colors.text }]}>Complete Signup</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+  const renderCertificationsStep = () => {
+    const [certType, setCertType] = useState('');
+    const [certNumber, setCertNumber] = useState('');
+    const [specialties, setSpecialties] = useState([]);
+
+    const certificationTypes = [
+      'NASM - National Academy of Sports Medicine',
+      'ACE - American Council on Exercise',
+      'ACSM - American College of Sports Medicine',
+      'NSCA - National Strength & Conditioning Association',
+      'ISSA - International Sports Sciences Association',
+      'NCSF - National Council on Strength & Fitness',
+      'Other Certification'
+    ];
+
+    const specialtyOptions = [
+      'Personal Training',
+      'Group Fitness',
+      'Strength & Conditioning',
+      'Nutrition Coaching',
+      'Yoga Instruction',
+      'Pilates',
+      'CrossFit',
+      'Rehabilitation',
+      'Sports Performance',
+      'Senior Fitness'
+    ];
+
+    const toggleSpecialty = (specialty) => {
+      if (specialties.includes(specialty)) {
+        setSpecialties(specialties.filter(s => s !== specialty));
+      } else {
+        setSpecialties([...specialties, specialty]);
+      }
+    };
+
+    return (
+      <ScrollView style={styles.authContainer}>
+        <Text style={[styles.title, { color: colors.text }]}>Trainer Certification</Text>
+        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+          Tell us about your qualifications
+        </Text>
+        
+        <Text style={[styles.inputLabel, { color: colors.text }]}>Certification Type</Text>
+        <View style={styles.pickerContainer}>
+          {certificationTypes.map((cert) => (
+            <TouchableOpacity
+              key={cert}
+              style={[styles.certOption, {
+                backgroundColor: certType === cert ? colors.primary : colors.surface,
+                borderColor: colors.textSecondary
+              }]}
+              onPress={() => setCertType(cert)}
+            >
+              <Text style={[styles.certText, { color: colors.text }]}>{cert}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <Text style={[styles.inputLabel, { color: colors.text, marginTop: 16 }]}>
+          Certification Number (Optional)
+        </Text>
+        <TextInput
+          style={[styles.input, { color: colors.text, borderColor: colors.textSecondary }]}
+          placeholder="Enter certification number"
+          placeholderTextColor={colors.textSecondary}
+          value={certNumber}
+          onChangeText={setCertNumber}
+        />
+
+        <Text style={[styles.inputLabel, { color: colors.text, marginTop: 16 }]}>
+          Specialties (Select all that apply)
+        </Text>
+        <View style={styles.specialtiesGrid}>
+          {specialtyOptions.map((specialty) => (
+            <TouchableOpacity
+              key={specialty}
+              style={[styles.specialtyChip, {
+                backgroundColor: specialties.includes(specialty) ? colors.secondary : colors.surface,
+                borderColor: colors.textSecondary
+              }]}
+              onPress={() => toggleSpecialty(specialty)}
+            >
+              <Text style={[styles.specialtyText, { color: colors.text }]}>
+                {specialty}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <TouchableOpacity
+          style={[styles.button, { 
+            backgroundColor: colors.primary,
+            marginTop: 24,
+            opacity: certType && specialties.length > 0 ? 1 : 0.5
+          }]}
+          onPress={() => {
+            // Store certification info temporarily
+            setFitnessGoals(specialties); // Reuse fitnessGoals field for specialties
+            handleRegistration();
+          }}
+          disabled={!certType || specialties.length === 0 || loading}
+        >
+          {loading ? (
+            <ActivityIndicator color={colors.text} />
+          ) : (
+            <Text style={[styles.buttonText, { color: colors.text }]}>Complete Signup</Text>
+          )}
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  };
 
   // Render appropriate step
   switch (mode) {
@@ -535,6 +775,12 @@ const AuthScreen = ({ navigation, route }) => {
       return renderNameStep();
     case 'role':
       return renderRoleStep();
+    case 'goals':
+      return renderGoalsStep();
+    case 'experience':
+      return renderExperienceStep();
+    case 'certifications':
+      return renderCertificationsStep();
     default:
       return renderEmailStep();
   }
