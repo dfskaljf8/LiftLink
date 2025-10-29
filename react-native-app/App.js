@@ -266,7 +266,7 @@ const MainNavigator = () => {
           if (route.name === 'Dashboard') {
             iconName = 'dashboard';
           } else if (route.name === 'Trainers') {
-            iconName = 'fitness-center';
+            iconName = 'search';
           } else if (route.name === 'Clients') {
             iconName = 'people';
           } else if (route.name === 'Fitness') {
@@ -300,12 +300,18 @@ const MainNavigator = () => {
         headerShown: false
       })}
     >
-      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Dashboard">
+        {(props) => <DashboardScreen {...props} />}
+      </Tab.Screen>
+      
       {user.role === 'trainer' ? (
-        <Tab.Screen name="Clients" component={TrainerDashboard} />
+        <Tab.Screen name="Clients">
+          {(props) => <TrainerDashboard {...props} user={user} />}
+        </Tab.Screen>
       ) : (
         <Tab.Screen name="Trainers" component={TrainersScreen} />
       )}
+      
       <Tab.Screen name="Fitness" component={FitnessScreen} />
       <Tab.Screen name="Tree" component={TreeScreen} />
       <Tab.Screen name="Sessions" component={SessionsScreen} />
