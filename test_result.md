@@ -664,7 +664,21 @@ test_plan:
   test_all: false
   test_priority: "critical_first"
 
+  - task: "Pre-Feature Implementation Backend Validation"
+    implemented: false
+    working: "NA"
+    file: "/app/backend/server.py"
+    stuck_count: 0
+    priority: "critical"
+    needs_retesting: true
+    status_history:
+      - working: "NA"
+        agent: "main"
+        comment: "Starting comprehensive backend testing to validate current state before implementing Trainer/Trainee app features and Android APK fixes. Need to ensure all existing features (authentication, payments, notifications, Google integrations) are working correctly before adding role-based signup flow and separate app sections."
+
 agent_communication:
+  - agent: "main"
+    message: "PRE-FEATURE IMPLEMENTATION VALIDATION: Before proceeding with Android APK build fix and role-based Trainer/Trainee features, conducting comprehensive backend testing to ensure existing system is stable. PLAN: 1) Run deep_testing_backend_v2 to validate all current endpoints, 2) Check authentication, payment, notification systems, 3) Verify Google Fit/Calendar integrations, 4) Confirm database operations, 5) Then proceed with Android build fix and new features. This ensures we don't break existing functionality when adding new features."
   - agent: "main"
     message: "NOTIFICATION SYSTEM INTEGRATION STARTED: Starting implementation of comprehensive notification system integration into payment, booking, and cancellation events. ANALYSIS: Found existing notification infrastructure (send_trainer_notification, send_user_notification functions) and notification helper functions (notify_payment_received, notify_session_booked, notify_session_cancelled) but they need to be integrated into the actual API endpoints. PLAN: 1) Integrate notifications into Stripe payment webhook, 2) Integrate notifications into appointment booking endpoint, 3) Add cancellation endpoint with notifications, 4) Add user notification API endpoints (GET/PUT), 5) Test all notification flows. The goal is to ensure both parties (trainer and user) receive immediate notifications for all key events: payment, booking, cancellation."
   - agent: "testing"
