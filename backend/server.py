@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends, Request, Header, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordBearer
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, validator
 from typing import List, Optional, Dict
@@ -19,20 +20,67 @@ from functools import wraps
 import json
 import asyncio
 import html
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 # Load environment variables from .env file
 load_dotenv()
 
-app = FastAPI()
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
+
+app = FastAPI(
+    title="LiftLink API",
+    description="Secure fitness platform API with OAuth 2.0, RBAC, and rate limiting",
+    version="2.0.0",
+    docs_url="/api/docs",
+    redoc_url="/api/redoc"
+)
+
+# Add rate limit exceeded handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+# HTTPS Enforcement Middleware
+@app.middleware("http")
+async def enforce_https(request: Request, call_next):
+    """Enforce HTTPS in production"""
+    # Allow HTTP in development/testing
+    if os.environ.get('ENVIRONMENT', 'production') == 'production':
+        if request.url.scheme != "https" and request.headers.get("x-forwarded-proto") != "https":
+            # Redirect to HTTPS
+            url = request.url.replace(scheme="https")
+            return HTTPException(
+                status_code=403,
+                detail="HTTPS required. Please use https:// instead of http://"
+            )
+    
+    response = await call_next(request)
+    
+    # Add security headers
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Content-Security-Policy"] = "default-src 'self'"
+    
+    return response
 
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # In production, restrict to specific origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Trusted Host Middleware (optional - uncomment in production)
+# app.add_middleware(
+#     TrustedHostMiddleware,
+#     allowed_hosts=["liftlink-ra6t.onrender.com", "localhost", "127.0.0.1"]
+# )
 
 import re
 
