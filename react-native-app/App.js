@@ -46,7 +46,12 @@ import NativeAppStyles, { colors, deviceSize } from './src/styles/AppStyles';
 
 // Constants
 const { width, height } = Dimensions.get('window');
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-ra6t.onrender.com';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+if (!BACKEND_URL) {
+  console.error('❌ REACT_APP_BACKEND_URL is not set! Please configure environment variables.');
+  Alert.alert('Configuration Error', 'Backend URL is not configured. Please contact support.');
+}
 const API = `${BACKEND_URL}/api`;
 const STRIPE_PUBLISHABLE_KEY = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'YOUR_STRIPE_PUBLISHABLE_KEY_HERE';
 
