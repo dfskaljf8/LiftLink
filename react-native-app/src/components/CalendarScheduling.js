@@ -13,7 +13,11 @@ import {
 } from 'react-native';
 import axios from 'axios';
 
-const API = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-ra6t.onrender.com';
+const API = process.env.REACT_APP_BACKEND_URL;
+
+if (!API) {
+  console.error('❌ REACT_APP_BACKEND_URL is not set!');
+}
 
 const CalendarScheduling = ({ user, visible, onClose, trainer }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
