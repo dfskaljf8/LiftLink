@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 // Backend URL from environment
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://fitness-platform-10.preview.emergentagent.com';
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
+
+if (!BACKEND_URL) {
+  console.error('❌ REACT_APP_BACKEND_URL is not set! Please configure environment variables.');
+}
 const API = `${BACKEND_URL}/api`;
 
 function App() {
