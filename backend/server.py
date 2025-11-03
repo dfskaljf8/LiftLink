@@ -977,8 +977,9 @@ def calculate_consistency_streak(recent_sessions: list) -> int:
 
 # User authentication and management
 @api_router.post("/check-user", response_model=CheckUserResponse)
-async def check_user_exists(request: CheckUserRequest):
-    """Check if a user exists by email for smart authentication routing"""
+@limiter.limit(RATE_LIMIT_AUTH)
+async def check_user_exists(request: CheckUserRequest, http_request: Request):
+    """Check if a user exists by email for smart authentication routing - Rate limited"""
     # Validate email format
     if not validate_email(request.email):
         raise HTTPException(status_code=422, detail="Invalid email format")
@@ -990,8 +991,9 @@ async def check_user_exists(request: CheckUserRequest):
     return CheckUserResponse(exists=False)
 
 @api_router.post("/login", response_model=LoginResponse)
-async def login_user(request: LoginRequest):
-    """Sign in existing user with verification check"""
+@limiter.limit(RATE_LIMIT_AUTH)
+async def login_user(request: LoginRequest, http_request: Request):
+    """Sign in existing user with verification check - Rate limited to prevent brute force"""
     # Validate email format
     if not validate_email(request.email):
         raise HTTPException(status_code=422, detail="Invalid email format")
