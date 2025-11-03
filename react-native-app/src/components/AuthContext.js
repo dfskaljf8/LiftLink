@@ -17,7 +17,11 @@ export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-ra6t.onrender.com';
+  const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
+
+if (!API_BASE_URL) {
+  console.error('❌ REACT_APP_BACKEND_URL is not set!');
+}
 
   // Configure axios interceptor to add JWT token
   useEffect(() => {
