@@ -175,6 +175,14 @@ JWT_SECRET = os.environ.get('JWT_SECRET', 'liftlink_secret_key_change_in_product
 JWT_ALGORITHM = 'HS256'
 JWT_EXPIRATION_HOURS = 24
 
+# OAuth2 scheme for Swagger UI
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login", auto_error=False)
+
+# Rate limiting configuration
+RATE_LIMIT_PER_MINUTE = "60/minute"  # 60 requests per minute
+RATE_LIMIT_AUTH = "10/minute"  # 10 auth attempts per minute
+RATE_LIMIT_STRICT = "5/minute"  # 5 requests per minute for sensitive endpoints
+
 # Security utility functions
 def create_access_token(user_id: str, email: str, role: str) -> str:
     """Create JWT access token for user"""
@@ -201,7 +209,7 @@ def verify_token(token: str) -> dict:
 security = HTTPBearer(auto_error=False)  # Don't auto-raise errors
 
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)) -> dict:
-    """Get current authenticated user from token"""
+    """Get current authenticated user from token - RBAC implementation"""
     if not credentials:
         raise HTTPException(status_code=401, detail="Authentication required")
     
@@ -225,9 +233,15 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
         raise HTTPException(status_code=401, detail="Invalid token")
 
 async def get_current_trainer(current_user: dict = Depends(get_current_user)) -> dict:
-    """Get current authenticated trainer"""
+    """Get current authenticated trainer - RBAC for trainer role"""
     if current_user["role"] != "trainer":
         raise HTTPException(status_code=403, detail="Trainer access required")
+    return current_user
+
+async def get_current_trainee(current_user: dict = Depends(get_current_user)) -> dict:
+    """Get current authenticated trainee - RBAC for trainee role"""
+    if current_user["role"] != "trainee":
+        raise HTTPException(status_code=403, detail="Trainee access required")
     return current_user
 
 def require_auth(f):
