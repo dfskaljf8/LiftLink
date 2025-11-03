@@ -19,7 +19,11 @@ import TreeSVG from './TreeSVG';
 import LiftCoin from './LiftCoin';
 
 const { width, height } = Dimensions.get('window');
-const API = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-ra6t.onrender.com';
+const API = process.env.REACT_APP_BACKEND_URL;
+
+if (!API) {
+  console.error('❌ REACT_APP_BACKEND_URL is not set!');
+}
 
 const TraineeDashboard = ({ user, navigation }) => {
   const [activeTab, setActiveTab] = useState('overview');
