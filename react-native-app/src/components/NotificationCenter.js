@@ -32,7 +32,11 @@ const NotificationCenter = ({ visible, onClose }) => {
   const slideAnim = useRef(new Animated.Value(height)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-ra6t.onrender.com';
+  const API_BASE_URL = process.env.REACT_APP_BACKEND_URL;
+
+if (!API_BASE_URL) {
+  console.error('❌ REACT_APP_BACKEND_URL is not set!');
+}
 
   // Animation effects
   useEffect(() => {
