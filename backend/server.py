@@ -1059,8 +1059,9 @@ async def login_user(request: LoginRequest, http_request: Request):
     )
 
 @api_router.post("/users", response_model=UserResponse)
-async def create_user(user: User):
-    """Create new user account with verification requirement"""
+@limiter.limit(RATE_LIMIT_AUTH)
+async def create_user(user: User, http_request: Request):
+    """Create a new user account - Rate limited to prevent spam"""
     # Validate email format
     if not validate_email(user.email):
         raise HTTPException(status_code=422, detail="Invalid email format")
