@@ -2999,8 +2999,9 @@ async def create_session_checkout(request: dict, http_request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/payments/confirm-payment")
-async def confirm_payment(request: dict):
-    """Confirm payment and update session status"""
+@limiter.limit(RATE_LIMIT_PER_MINUTE)
+async def confirm_payment(request: dict, http_request: Request):
+    """Confirm payment and update session status - Rate limited"""
     try:
         payment_intent_id = request.get("payment_intent_id")
         session_id = request.get("session_id")
