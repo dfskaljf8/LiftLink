@@ -15,7 +15,11 @@ import axios from 'axios';
 import { colors, spacing, typography, borderRadius, shadows, scale, moderateScale } from '../styles/AppStyles';
 
 const { width, height } = Dimensions.get('window');
-const API = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-ra6t.onrender.com';
+const API = process.env.REACT_APP_BACKEND_URL;
+
+if (!API) {
+  console.error('❌ REACT_APP_BACKEND_URL is not set!');
+}
 
 const TrainerDashboard = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('clients');
