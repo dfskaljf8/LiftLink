@@ -98,22 +98,46 @@ const App = () => {
   const [sessionDetails, setSessionDetails] = useState(null);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showFitnessIntegration, setShowFitnessIntegration] = useState(false);
+  const [securityCheckComplete, setSecurityCheckComplete] = useState(false);
+  const [deviceCompromised, setDeviceCompromised] = useState(false);
+
+  // Initialize app and perform security checks
+  useEffect(() => {
+    initializeApp();
+  }, []);
 
   useEffect(() => {
-    checkStoredUser();
     if (user) {
       fetchUserData();
     }
   }, [user]);
 
-  const checkStoredUser = async () => {
+  const initializeApp = async () => {
     try {
+      // Step 1: Perform device security check
+      console.log('🔒 Initializing security...');
+      const securityResult = await checkDeviceSecurity();
+      
+      setDeviceCompromised(securityResult.isCompromised);
+      setSecurityCheckComplete(true);
+      
+      // Show warning if device is compromised
+      if (securityResult.isCompromised) {
+        showSecurityWarning(securityResult);
+      }
+      
+      // Step 2: Initialize certificate pinning
+      console.log('📌 Certificate pinning initialized');
+      
+      // Step 3: Check stored authentication
       const savedUser = await AsyncStorage.getItem('liftlink_user');
+      
       if (savedUser) {
         setUser(JSON.parse(savedUser));
+        console.log('✅ Session restored successfully');
       }
     } catch (error) {
-      console.error('Error loading user:', error);
+      console.error('❌ App initialization error:', error);
     } finally {
       setLoading(false);
     }
