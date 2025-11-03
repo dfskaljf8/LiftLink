@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- 
+        Network Security Configuration for LiftLink
+        Implements certificate pinning and HTTPS enforcement
+    -->
+    
+    <!-- Base configuration for all domains -->
+    <base-config cleartextTrafficPermitted="false">
+        <!-- Only allow HTTPS traffic -->
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    
+    <!-- LiftLink API Server - Certificate Pinning -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">liftlink-ra6t.onrender.com</domain>
+        <pin-set expiration="2026-12-31">
+            <!-- 
+                Primary certificate SHA-256 fingerprint
+                Get fingerprint with:
+                openssl s_client -connect liftlink-ra6t.onrender.com:443 | openssl x509 -pubkey -noout | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | openssl enc -base64
+            -->
+            <pin digest="SHA-256">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</pin>
+            
+            <!-- Backup certificate (for certificate rotation) -->
+            <pin digest="SHA-256">BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=</pin>
+        </pin-set>
+    </domain-config>
+    
+    <!-- Stripe API - Certificate Pinning -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">api.stripe.com</domain>
+        <domain includeSubdomains="true">checkout.stripe.com</domain>
+        <pin-set expiration="2026-12-31">
+            <!-- Stripe production certificates -->
+            <!-- Get actual pins from Stripe documentation -->
+            <pin digest="SHA-256">STRIPE_PRIMARY_CERT_PIN=</pin>
+            <pin digest="SHA-256">STRIPE_BACKUP_CERT_PIN=</pin>
+        </pin-set>
+    </domain-config>
+    
+    <!-- Google APIs - Certificate Pinning -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">googleapis.com</domain>
+        <domain includeSubdomains="true">google.com</domain>
+        <domain includeSubdomains="true">gstatic.com</domain>
+        <pin-set expiration="2026-12-31">
+            <!-- Google production certificates -->
+            <!-- Get actual pins from Google documentation -->
+            <pin digest="SHA-256">GOOGLE_PRIMARY_CERT_PIN=</pin>
+            <pin digest="SHA-256">GOOGLE_BACKUP_CERT_PIN=</pin>
+        </pin-set>
+    </domain-config>
+    
+    <!-- Debug configuration (only for development) -->
+    <debug-overrides>
+        <!-- Allow localhost for development -->
+        <domain-config cleartextTrafficPermitted="true">
+            <domain includeSubdomains="true">localhost</domain>
+            <domain includeSubdomains="true">127.0.0.1</domain>
+            <domain includeSubdomains="true">10.0.2.2</domain>
+            <domain includeSubdomains="true">192.168.1.0/24</domain>
+        </domain-config>
+    </debug-overrides>
+</network-security-config>
