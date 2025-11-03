@@ -67,10 +67,19 @@ async def enforce_https(request: Request, call_next):
     
     return response
 
-# CORS middleware
+# CORS middleware with environment-based origins
+allowed_origins = os.environ.get('CORS_ORIGINS', '*').split(',')
+
+# If CORS_ORIGINS is set to specific domains, use them; otherwise allow all for development
+if allowed_origins == ['*']:
+    print("⚠️  CORS: Allowing all origins (development mode)")
+    print("   Set CORS_ORIGINS environment variable for production (comma-separated)")
+else:
+    print(f"✅ CORS: Restricting to origins: {allowed_origins}")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, restrict to specific origins
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
