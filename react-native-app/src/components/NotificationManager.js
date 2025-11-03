@@ -21,7 +21,11 @@ export const NotificationProvider = ({ children }) => {
   const reconnectTimeoutRef = useRef(null);
   const pingIntervalRef = useRef(null);
 
-  const WS_BASE_URL = process.env.REACT_APP_BACKEND_URL?.replace('https://', 'wss://') || 'wss://liftlink-ra6t.onrender.com';
+  const WS_BASE_URL = process.env.REACT_APP_BACKEND_URL?.replace('https://', 'wss://');
+
+if (!WS_BASE_URL) {
+  console.error('❌ REACT_APP_BACKEND_URL is not set for WebSocket connection!');
+}
 
   // Connect to WebSocket for live notifications
   const connectWebSocket = () => {
