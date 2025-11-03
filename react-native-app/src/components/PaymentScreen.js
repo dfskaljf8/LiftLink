@@ -19,7 +19,11 @@ const { width, height } = Dimensions.get('window');
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
 
 const STRIPE_PUBLISHABLE_KEY = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'YOUR_STRIPE_PUBLISHABLE_KEY_HERE';
-const API = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-ra6t.onrender.com';
+const API = process.env.REACT_APP_BACKEND_URL;
+
+if (!API) {
+  console.error('❌ REACT_APP_BACKEND_URL is not set!');
+}
 
 const PaymentScreen = ({ trainer, sessionDetails, onPaymentSuccess, onCancel }) => {
   return (
