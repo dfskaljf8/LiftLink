@@ -2961,8 +2961,9 @@ async def request_payout(trainer_id: str, request: dict):
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/payments/create-session-checkout")
-async def create_session_checkout(request: dict):
-    """Create Stripe checkout session for trainee to pay for session with Connect"""
+@limiter.limit(RATE_LIMIT_PER_MINUTE)
+async def create_session_checkout(request: dict, http_request: Request):
+    """Create Stripe checkout session for trainee to pay for session with Connect - Rate limited"""
     try:
         # Get and validate amount (ensure it's in cents as integer)
         raw_amount = request.get("amount", 7500)
