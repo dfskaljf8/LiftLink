@@ -2007,8 +2007,9 @@ async def verify_government_id(request: GovernmentIdRequest, http_request: Reque
         raise HTTPException(status_code=500, detail=str(e))
 
 @api_router.post("/verify-fitness-certification", response_model=VerificationResponse)
-async def verify_fitness_certification(request: CertificationRequest):
-    """Verify fitness certification for trainers"""
+@limiter.limit(RATE_LIMIT_STRICT)
+async def verify_fitness_certification(request: CertificationRequest, http_request: Request):
+    """Verify fitness certification for trainers - Strictly rate limited"""
     try:
         result = verification_service.process_fitness_certification(
             request.image_data,
