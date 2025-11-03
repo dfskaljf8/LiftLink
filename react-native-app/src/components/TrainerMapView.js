@@ -39,7 +39,11 @@ const TrainerMapView = ({ trainers, onTrainerSelect }) => {
 
   const fetchNearbyTrainers = async () => {
     try {
-      const backendUrl = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-ra6t.onrender.com';
+      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+if (!backendUrl) {
+  console.error('❌ REACT_APP_BACKEND_URL is not set!');
+}
       const response = await fetch(`${backendUrl}/api/trainers/nearby`, {
         method: 'POST',
         headers: {
