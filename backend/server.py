@@ -1967,8 +1967,9 @@ class ReviewData(BaseModel):
 
 # Document Verification Endpoints
 @api_router.post("/verify-government-id", response_model=VerificationResponse)
-async def verify_government_id(request: GovernmentIdRequest):
-    """Verify government ID for age verification"""
+@limiter.limit(RATE_LIMIT_STRICT)
+async def verify_government_id(request: GovernmentIdRequest, http_request: Request):
+    """Verify government ID for age verification - Strictly rate limited"""
     try:
         result = verification_service.process_government_id(
             request.image_data, 
