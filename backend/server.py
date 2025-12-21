@@ -2027,24 +2027,24 @@ async def verify_government_id(id_request: GovernmentIdRequest, request: Request
 
 @api_router.post("/verify-fitness-certification", response_model=VerificationResponse)
 @limiter.limit(RATE_LIMIT_STRICT)
-async def verify_fitness_certification(request: CertificationRequest, http_request: Request):
+async def verify_fitness_certification(cert_request: CertificationRequest, request: Request):
     """Verify fitness certification for trainers using OCR - Strictly rate limited"""
     try:
         # Use async OCR-based verification
         result = await verification_service.process_fitness_certification_async(
-            request.image_data,
-            request.cert_type,
-            request.user_id,
-            request.user_email
+            cert_request.image_data,
+            cert_request.cert_type,
+            cert_request.user_id,
+            cert_request.user_email
         )
         
         # Update user verification status in database
         if result["cert_verified"]:
             await db.users.update_one(
-                {"id": request.user_id},
+                {"id": cert_request.user_id},
                 {"$set": {
                     "cert_verified": True,
-                    "certification_type": result.get("cert_type") or request.cert_type,
+                    "certification_type": result.get("cert_type") or cert_request.cert_type,
                     "certification_number": result.get("certification_number"),
                     "verification_status": "fully_verified",
                     "cert_verification_date": datetime.now().isoformat(),
@@ -2054,7 +2054,7 @@ async def verify_fitness_certification(request: CertificationRequest, http_reque
             )
         else:
             await db.users.update_one(
-                {"id": request.user_id},
+                {"id": cert_request.user_id},
                 {"$set": {
                     "verification_status": "rejected",
                     "rejection_reason": result.get("rejection_reason"),
