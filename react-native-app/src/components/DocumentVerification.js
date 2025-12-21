@@ -111,14 +111,15 @@ const DocumentVerification = ({ route, navigation }) => {
       });
 
       if (response.data.age_verified) {
-        setSuccess('Age verification successful! You are confirmed to be 18 or older.');
+        setSuccessMessage('Age verification successful! You are confirmed to be 18 or older.');
+        setShowSuccessModal(true);
         setVerificationResults(prev => ({ ...prev, id: response.data }));
         
         if (user.role === 'trainer') {
           setTimeout(() => {
             setCurrentStep('certification');
-            setSuccess('');
-          }, 2000);
+            setShowSuccessModal(false);
+          }, 2500);
         } else {
           setTimeout(async () => {
             const updatedUser = {
@@ -127,6 +128,7 @@ const DocumentVerification = ({ route, navigation }) => {
               verification_status: 'age_verified'
             };
             await AsyncStorage.setItem('liftlink_user', JSON.stringify(updatedUser));
+            setShowSuccessModal(false);
             navigation.replace('Main');
           }, 3000);
         }
