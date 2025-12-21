@@ -316,6 +316,17 @@ const DocumentVerification = ({ route, navigation }) => {
         {currentStep === 'id' && renderIdVerificationStep()}
         {currentStep === 'certification' && renderCertificationStep()}
       </ScrollView>
+
+      {/* Success Modal with Animation */}
+      <SuccessModal
+        visible={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Verification Complete!"
+        message={successMessage}
+        autoClose={true}
+        autoCloseDelay={2500}
+        colors={colors}
+      />
     </SafeAreaView>
   );
 };
