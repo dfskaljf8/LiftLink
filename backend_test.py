@@ -10835,18 +10835,66 @@ def test_notification_system_fixes():
         return False
 
 
+def run_ocr_and_trainer_discovery_tests():
+    """
+    Run the newly implemented OCR document verification and swipe trainer discovery tests
+    """
+    print("🚀 Starting OCR Document Verification & Trainer Discovery Testing")
+    print("=" * 80)
+    
+    # Test OCR Document Verification System
+    print("\n🆔 TESTING OCR DOCUMENT VERIFICATION SYSTEM")
+    ocr_results = test_ocr_document_verification()
+    
+    # Test Swipe Trainer Discovery Feature  
+    print("\n🏋️ TESTING SWIPE TRAINER DISCOVERY FEATURE")
+    trainer_results = test_swipe_trainer_discovery()
+    
+    # Overall Results
+    print("\n" + "="*80)
+    print("📊 OVERALL TEST RESULTS SUMMARY")
+    print("="*80)
+    
+    total_passed = ocr_results["passed"] + trainer_results["passed"]
+    total_tests = ocr_results["total"] + trainer_results["total"]
+    overall_percentage = (total_passed / total_tests * 100) if total_tests > 0 else 0
+    overall_status = "✅ PASS" if total_passed == total_tests else "❌ FAIL"
+    
+    print(f"OCR VERIFICATION: {ocr_results['passed']}/{ocr_results['total']} ({(ocr_results['passed']/ocr_results['total']*100):.1f}%)")
+    print(f"TRAINER DISCOVERY: {trainer_results['passed']}/{trainer_results['total']} ({(trainer_results['passed']/trainer_results['total']*100):.1f}%)")
+    print(f"OVERALL: {total_passed}/{total_tests} ({overall_percentage:.1f}%) {overall_status}")
+    
+    # Detailed failure analysis
+    all_failures = []
+    for test_name, test_result in ocr_results["tests"].items():
+        if not test_result["passed"]:
+            all_failures.append(f"OCR - {test_name}: {test_result['error']}")
+    
+    for test_name, test_result in trainer_results["tests"].items():
+        if not test_result["passed"]:
+            all_failures.append(f"TRAINER - {test_name}: {test_result['error']}")
+    
+    if all_failures:
+        print(f"\n❌ FAILED TESTS ({len(all_failures)}):")
+        for failure in all_failures:
+            print(f"   - {failure}")
+    else:
+        print(f"\n🎉 ALL TESTS PASSED!")
+    
+    return total_passed == total_tests
+
 if __name__ == "__main__":
     print("🚀 Starting LiftLink Backend Testing Suite")
     print("=" * 80)
     
-    # Run comprehensive endpoint testing to identify all broken endpoints
-    print("\n🔍 RUNNING COMPREHENSIVE ENDPOINT TESTING")
-    success = identify_all_broken_endpoints()
+    # Run the new OCR and Trainer Discovery tests as requested
+    print("\n🎯 RUNNING OCR DOCUMENT VERIFICATION & TRAINER DISCOVERY TESTS")
+    success = run_ocr_and_trainer_discovery_tests()
     
     if success:
-        print("\n🎉 ALL ENDPOINTS WORKING - NO BROKEN ENDPOINTS FOUND!")
+        print("\n🎉 ALL NEW FEATURE TESTS PASSED!")
     else:
-        print("\n⚠️ BROKEN ENDPOINTS IDENTIFIED - REVIEW RESULTS ABOVE")
+        print("\n⚠️ SOME TESTS FAILED - REVIEW RESULTS ABOVE")
     
     print("\n" + "=" * 80)
-    print("🏁 Endpoint Testing Complete")
+    print("🏁 Testing Complete")
