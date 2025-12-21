@@ -46,14 +46,15 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 @app.middleware("http")
 async def enforce_https(request: Request, call_next):
     """Enforce HTTPS in production"""
+    from starlette.responses import JSONResponse
+    
     # Allow HTTP in development/testing
     if os.environ.get('ENVIRONMENT', 'production') == 'production':
         if request.url.scheme != "https" and request.headers.get("x-forwarded-proto") != "https":
-            # Redirect to HTTPS
-            url = request.url.replace(scheme="https")
-            return HTTPException(
+            # Return proper JSON response for non-HTTPS requests
+            return JSONResponse(
                 status_code=403,
-                detail="HTTPS required. Please use https:// instead of http://"
+                content={"detail": "HTTPS required. Please use https:// instead of http://"}
             )
     
     response = await call_next(request)
