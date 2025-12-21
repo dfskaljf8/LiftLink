@@ -1985,6 +1985,29 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
+  // Divider styles for auth screen
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+    paddingHorizontal: 10,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#374151',
+  },
+  dividerText: {
+    color: '#9ca3af',
+    fontSize: 14,
+    marginHorizontal: 16,
+    fontWeight: '500',
+  },
+  // Google Sign-In button override styles
+  googleButton: {
+    marginTop: 4,
+    marginBottom: 16,
+  },
   // Empty state styles
   emptyState: {
     flex: 1,
