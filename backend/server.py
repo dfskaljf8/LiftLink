@@ -1177,7 +1177,7 @@ async def create_test_user(user: User):
 
 @api_router.get("/trainers/all")
 async def get_all_trainers():
-    """Get all available trainers"""
+    """Get all available trainers with full profile data for swipe discovery"""
     try:
         # Query all users with trainer role from database
         trainers_cursor = db.users.find({
@@ -1186,19 +1186,25 @@ async def get_all_trainers():
         
         trainers = []
         async for trainer in trainers_cursor:
+            # Build comprehensive trainer data for swipe cards
             trainer_data = {
                 "id": trainer["id"],
                 "name": trainer.get("name", "Professional Trainer"),
                 "display_name": trainer.get("display_name", trainer.get("name", "Professional Trainer")),
-                "specialties": trainer.get("specialties", ["Personal Training"]),
+                "age": trainer.get("age", 28),  # Default age for display
+                "photo_url": trainer.get("profile_image") or trainer.get("photo_url"),
+                "cert_verified": trainer.get("cert_verified", False),
+                "rating": trainer.get("rating", 4.8),
+                "reviews": trainer.get("reviews", 0),
+                "specialties": trainer.get("specialties") or trainer.get("fitness_goals", ["Personal Training"]),
+                "certifications": trainer.get("certifications", ["Certified Personal Trainer"]),
+                "virtual_rate": trainer.get("virtual_rate", 50),
+                "in_person_rate": trainer.get("in_person_rate") or trainer.get("hourly_rate", 75),
                 "hourly_rate": trainer.get("hourly_rate", 75),
-                "rating": trainer.get("rating", 5.0),
-                "location": trainer.get("location", {}).get("address", "Available for training"),
-                "bio": trainer.get("bio", "Professional fitness trainer"),
-                "availability": trainer.get("availability", "Available by appointment"),
-                "image": trainer.get("profile_image", None),
-                "experience_years": trainer.get("experience_years", 1),
-                "certifications": trainer.get("certifications", []),
+                "availability": trainer.get("availability", "Mon-Fri, 6am-8pm"),
+                "location": trainer.get("location", {}).get("address") if isinstance(trainer.get("location"), dict) else trainer.get("location", "Available for training"),
+                "bio": trainer.get("bio", "Passionate about helping you achieve your fitness goals!"),
+                "experience_years": trainer.get("experience_years", 3),
                 "price": f"${trainer.get('hourly_rate', 75)}/session"
             }
             trainers.append(trainer_data)
