@@ -40,6 +40,7 @@ import gestureManager from './src/components/MobileGestureManager';
 // Import security services
 import deviceSecurity, { checkDeviceSecurity, showSecurityWarning } from './src/services/DeviceSecurityManager';
 import certificatePinning from './src/services/CertificatePinningService';
+import { LoadingAnimation } from './src/components/Animations';
 
 // Import React Native styles (converted from CSS)
 import NativeAppStyles, { colors, deviceSize } from './src/styles/AppStyles';
