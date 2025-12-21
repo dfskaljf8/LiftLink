@@ -2028,9 +2028,10 @@ async def verify_government_id(request: GovernmentIdRequest, http_request: Reque
 @api_router.post("/verify-fitness-certification", response_model=VerificationResponse)
 @limiter.limit(RATE_LIMIT_STRICT)
 async def verify_fitness_certification(request: CertificationRequest, http_request: Request):
-    """Verify fitness certification for trainers - Strictly rate limited"""
+    """Verify fitness certification for trainers using OCR - Strictly rate limited"""
     try:
-        result = verification_service.process_fitness_certification(
+        # Use async OCR-based verification
+        result = await verification_service.process_fitness_certification_async(
             request.image_data,
             request.cert_type,
             request.user_id,
@@ -2043,10 +2044,12 @@ async def verify_fitness_certification(request: CertificationRequest, http_reque
                 {"id": request.user_id},
                 {"$set": {
                     "cert_verified": True,
-                    "certification_type": request.cert_type,
+                    "certification_type": result.get("cert_type") or request.cert_type,
+                    "certification_number": result.get("certification_number"),
                     "verification_status": "fully_verified",
                     "cert_verification_date": datetime.now().isoformat(),
-                    "cert_expiry_date": result.get("expiry_date")
+                    "cert_expiry_date": result.get("expiry_date"),
+                    "cert_issue_date": result.get("issue_date")
                 }}
             )
         else:
