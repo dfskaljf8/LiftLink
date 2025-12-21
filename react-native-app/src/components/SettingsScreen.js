@@ -12,6 +12,7 @@ import {
 import { useTheme } from '../context/ThemeContext';
 import { scale } from '../styles/EnhancedStyles';
 import encryptionService from '../services/EncryptionService';
+import { ThemeToggleAnimation } from './Animations';
 
 /**
  * Settings Screen
