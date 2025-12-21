@@ -170,6 +170,71 @@ export const ErrorAnimation = ({
 };
 
 /**
+ * Driver Location Animation
+ * Use for: Real-time location tracking, trainer arriving, navigation
+ * Similar to Snapchat maps - shows person driving/moving
+ */
+export const DriverLocationAnimation = ({ 
+  size = 80, 
+  autoPlay = true, 
+  loop = true,
+  style 
+}) => {
+  const animationRef = useRef(null);
+
+  useEffect(() => {
+    if (autoPlay && animationRef.current) {
+      animationRef.current.play();
+    }
+  }, [autoPlay]);
+
+  return (
+    <View style={[styles.animationContainer, { width: size, height: size }, style]}>
+      <LottieView
+        ref={animationRef}
+        source={animations.driverLocation}
+        autoPlay={autoPlay}
+        loop={loop}
+        style={styles.lottie}
+      />
+    </View>
+  );
+};
+
+/**
+ * Success Animation
+ * Use for: General success states, completed actions, achievements
+ * NOT for payments (use PaymentProcessingAnimation instead)
+ */
+export const SuccessAnimation = ({ 
+  size = 100, 
+  autoPlay = true, 
+  onAnimationFinish,
+  style 
+}) => {
+  const animationRef = useRef(null);
+
+  useEffect(() => {
+    if (autoPlay && animationRef.current) {
+      animationRef.current.play();
+    }
+  }, [autoPlay]);
+
+  return (
+    <View style={[styles.animationContainer, { width: size, height: size }, style]}>
+      <LottieView
+        ref={animationRef}
+        source={animations.success}
+        autoPlay={autoPlay}
+        loop={false}
+        onAnimationFinish={onAnimationFinish}
+        style={styles.lottie}
+      />
+    </View>
+  );
+};
+
+/**
  * Generic Lottie Animation Component
  * Use for: Custom animations with full control
  */
