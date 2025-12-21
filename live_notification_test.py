@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://fitness-platform-10.preview.emergentagent.com/api"
+BACKEND_URL = "https://trainer-match-14.preview.emergentagent.com/api"
 WEBSOCKET_URL = "wss://fitness-hub-29.preview.emergentagent.com/ws"
 
 class LiveNotificationTester:
