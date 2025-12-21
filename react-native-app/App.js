@@ -955,10 +955,21 @@ const TrainersScreen = () => {
     <View style={styles.viewModeSelector}>
       <TouchableOpacity
         style={[styles.viewModeButton, {
+          backgroundColor: viewMode === 'swipe' ? colors.primary : colors.surface
+        }]}
+        onPress={() => setViewMode('swipe')}
+      >
+        <Icon name="swipe" size={18} color={colors.text} />
+        <Text style={[styles.viewModeText, { color: colors.text }]}>Swipe</Text>
+      </TouchableOpacity>
+      
+      <TouchableOpacity
+        style={[styles.viewModeButton, {
           backgroundColor: viewMode === 'list' ? colors.primary : colors.surface
         }]}
         onPress={() => setViewMode('list')}
       >
+        <Icon name="list" size={18} color={colors.text} />
         <Text style={[styles.viewModeText, { color: colors.text }]}>List</Text>
       </TouchableOpacity>
       
@@ -968,16 +979,40 @@ const TrainersScreen = () => {
         }]}
         onPress={() => setViewMode('map')}
       >
+        <Icon name="map" size={18} color={colors.text} />
         <Text style={[styles.viewModeText, { color: colors.text }]}>Map</Text>
       </TouchableOpacity>
     </View>
   );
+
+  const handleTrainerLiked = (trainer) => {
+    console.log('Liked trainer:', trainer.name);
+    setLikedTrainers([...likedTrainers, trainer]);
+    // Could save to backend or local storage
+  };
+
+  const handleTrainerPassed = (trainer) => {
+    console.log('Passed trainer:', trainer.name);
+  };
 
   if (loading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <ActivityIndicator size="large" color={colors.primary} />
       </SafeAreaView>
+    );
+  }
+
+  // Swipe Mode - Full Screen
+  if (viewMode === 'swipe') {
+    return (
+      <SwipeTrainerDiscovery
+        trainers={trainers}
+        onTrainerLiked={handleTrainerLiked}
+        onTrainerPassed={handleTrainerPassed}
+        onExit={() => setViewMode('list')}
+        onBookSession={handleBookTrainer}
+      />
     );
   }
 
