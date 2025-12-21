@@ -425,6 +425,10 @@ const styles = StyleSheet.create({
   liftCoinContainer: {
     alignItems: 'center',
   },
+  streakContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   treeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
