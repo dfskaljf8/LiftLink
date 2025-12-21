@@ -463,6 +463,27 @@ const AuthScreen = ({ navigation, route }) => {
     }
   };
 
+  const handleGoogleSignInSuccess = async ({ user, token, isNewUser }) => {
+    console.log('Google Sign-In Success:', user.email, 'New user:', isNewUser);
+    
+    // User is already stored by GoogleSignInButton
+    setUser(user);
+    
+    if (isNewUser) {
+      // New user - optionally navigate to profile completion
+      Alert.alert(
+        'Welcome to LiftLink! 🎉',
+        `Hi ${user.name}! Your account has been created with Google.`,
+        [{ text: 'Get Started', style: 'default' }]
+      );
+    }
+  };
+
+  const handleGoogleSignInError = (errorMessage) => {
+    console.error('Google Sign-In Error:', errorMessage);
+    setError(errorMessage || 'Google Sign-In failed. Please try again.');
+  };
+
   const renderEmailStep = () => (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.authContainer}>
       <View style={styles.logoSection}>
@@ -506,9 +527,23 @@ const AuthScreen = ({ navigation, route }) => {
           {loading ? (
             <ActivityIndicator color={colors.text} />
           ) : (
-            <Text style={styles.primaryButtonText}>Continue</Text>
+            <Text style={styles.primaryButtonText}>Continue with Email</Text>
           )}
         </TouchableOpacity>
+
+        {/* Divider */}
+        <View style={styles.dividerContainer}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>or</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        {/* Google Sign-In Button */}
+        <GoogleSignInButton
+          onSignInSuccess={handleGoogleSignInSuccess}
+          onSignInError={handleGoogleSignInError}
+          style={styles.googleButton}
+        />
       </View>
 
       {/* Apple Review Access */}
