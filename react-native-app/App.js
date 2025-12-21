@@ -36,6 +36,7 @@ import LiftCoin from './src/components/LiftCoin';
 import AppleReviewLogin from './src/components/AppleReviewLogin';
 import { DynamicIslandStatusBar, DynamicIslandSafeWrapper } from './src/components/DynamicIslandUtils';
 import gestureManager from './src/components/MobileGestureManager';
+import SwipeTrainerDiscovery from './src/components/SwipeTrainerDiscovery';
 
 // Import security services
 import deviceSecurity, { checkDeviceSecurity, showSecurityWarning } from './src/services/DeviceSecurityManager';
