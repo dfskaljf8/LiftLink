@@ -17,6 +17,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { colors, spacing, typography, borderRadius, shadows } from '../styles/AppStyles';
 import TreeSVG from './TreeSVG';
 import LiftCoin from './LiftCoin';
+import { CheckInStreakAnimation } from './Animations';
 
 const { width, height } = Dimensions.get('window');
 const API = process.env.REACT_APP_BACKEND_URL;
