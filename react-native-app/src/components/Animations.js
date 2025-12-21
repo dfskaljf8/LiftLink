@@ -286,6 +286,8 @@ export default {
   PaymentProcessingAnimation,
   LoadingAnimation,
   ErrorAnimation,
+  DriverLocationAnimation,
+  SuccessAnimation,
   LiftLinkAnimation,
 };
 
