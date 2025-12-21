@@ -14,6 +14,7 @@ import {
   Modal
 } from 'react-native';
 import { colors, spacing, typography, borderRadius, shadows, scale, moderateScale, deviceSize } from '../styles/AppStyles';
+import { PaymentProcessingAnimation, ErrorAnimation } from './Animations';
 
 const { width, height } = Dimensions.get('window');
 import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
