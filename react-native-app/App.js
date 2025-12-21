@@ -1632,14 +1632,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#374151',
     borderRadius: 8,
     padding: 2,
+    gap: 4,
   },
   viewModeButton: {
-    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 6,
   },
   viewModeText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
   },
   trainerCard: {
