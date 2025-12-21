@@ -14,7 +14,8 @@ import {
   Dimensions,
   Modal,
   Image,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
+  Linking
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
@@ -34,6 +35,7 @@ import CalendarScheduling from './src/components/CalendarScheduling';
 import TreeSVG from './src/components/TreeSVG';
 import LiftCoin from './src/components/LiftCoin';
 import AppleReviewLogin from './src/components/AppleReviewLogin';
+import GoogleSignInButton from './src/components/GoogleSignInButton';
 import { DynamicIslandStatusBar, DynamicIslandSafeWrapper } from './src/components/DynamicIslandUtils';
 import gestureManager from './src/components/MobileGestureManager';
 import SwipeTrainerDiscovery from './src/components/SwipeTrainerDiscovery';
