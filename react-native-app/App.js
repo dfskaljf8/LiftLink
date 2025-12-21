@@ -888,7 +888,8 @@ const TrainersScreen = () => {
   const { colors, handleBookTrainer } = useContext(AppContext);
   const [trainers, setTrainers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
+  const [viewMode, setViewMode] = useState('list'); // 'list', 'map', or 'swipe'
+  const [likedTrainers, setLikedTrainers] = useState([]);
 
   useEffect(() => {
     fetchTrainers();
