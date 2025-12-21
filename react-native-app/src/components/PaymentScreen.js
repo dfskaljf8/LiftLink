@@ -43,6 +43,8 @@ const PaymentContent = ({ trainer, sessionDetails, onPaymentSuccess, onCancel })
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState(null); // 'processing', 'success', 'error'
 
   const colors = {
     primary: '#4f46e5',
