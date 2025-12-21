@@ -113,9 +113,12 @@ const TraineeDashboard = ({ user, navigation }) => {
           </View>
 
           <View style={[styles.statCard, { backgroundColor: colors.background }]}>
-            <Text style={[styles.statValue, { color: colors.warning }]}>
-              {stats?.weekStreak || 0} 🔥
-            </Text>
+            <View style={styles.streakContainer}>
+              <CheckInStreakAnimation size={40} />
+              <Text style={[styles.statValue, { color: colors.warning, marginTop: 4 }]}>
+                {stats?.weekStreak || 0}
+              </Text>
+            </View>
             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
               Day Streak
             </Text>
