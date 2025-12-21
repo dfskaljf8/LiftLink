@@ -232,6 +232,51 @@ const PaymentContent = ({ trainer, sessionDetails, onPaymentSuccess, onCancel })
             </Text>
           </View>
         </ScrollView>
+
+        {/* Payment Status Modal */}
+        <Modal
+          visible={showPaymentModal}
+          transparent={true}
+          animationType="fade"
+        >
+          <View style={styles.paymentModalOverlay}>
+            <View style={[styles.paymentModalContent, { backgroundColor: colors.surface }]}>
+              {paymentStatus === 'processing' && (
+                <>
+                  <PaymentProcessingAnimation size={120} />
+                  <Text style={[styles.paymentModalTitle, { color: colors.text }]}>
+                    Processing Payment
+                  </Text>
+                  <Text style={[styles.paymentModalSubtitle, { color: colors.textSecondary }]}>
+                    Please wait while we securely process your payment...
+                  </Text>
+                </>
+              )}
+              {paymentStatus === 'success' && (
+                <>
+                  <PaymentProcessingAnimation size={120} autoPlay={true} loop={false} />
+                  <Text style={[styles.paymentModalTitle, { color: colors.success }]}>
+                    Payment Successful! ✓
+                  </Text>
+                  <Text style={[styles.paymentModalSubtitle, { color: colors.textSecondary }]}>
+                    Your session has been booked
+                  </Text>
+                </>
+              )}
+              {paymentStatus === 'error' && (
+                <>
+                  <ErrorAnimation size={120} />
+                  <Text style={[styles.paymentModalTitle, { color: colors.error }]}>
+                    Payment Failed
+                  </Text>
+                  <Text style={[styles.paymentModalSubtitle, { color: colors.textSecondary }]}>
+                    {error || 'Please try again or contact support'}
+                  </Text>
+                </>
+              )}
+            </View>
+          </View>
+        </Modal>
       </SafeAreaView>
     </Modal>
   );
