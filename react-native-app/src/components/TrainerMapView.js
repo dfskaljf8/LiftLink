@@ -231,6 +231,11 @@ const styles = StyleSheet.create({
   markerContainer: {
     alignItems: 'center',
   },
+  driverAnimationWrapper: {
+    position: 'absolute',
+    top: -30,
+    zIndex: 10,
+  },
   markerBubble: {
     backgroundColor: colors.primary,
     padding: scale(8),
