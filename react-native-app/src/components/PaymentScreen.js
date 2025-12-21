@@ -400,6 +400,35 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
+  paymentModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  paymentModalContent: {
+    width: '85%',
+    padding: 32,
+    borderRadius: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  paymentModalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginTop: 16,
+    textAlign: 'center',
+  },
+  paymentModalSubtitle: {
+    fontSize: 16,
+    marginTop: 8,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
 });
 
 export default PaymentScreen;
