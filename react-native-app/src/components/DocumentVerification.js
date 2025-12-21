@@ -31,6 +31,8 @@ const DocumentVerification = ({ route, navigation }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
   
   const [idImage, setIdImage] = useState(null);
   const [certImage, setCertImage] = useState(null);
