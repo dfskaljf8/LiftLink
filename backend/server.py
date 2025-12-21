@@ -3394,6 +3394,19 @@ async def websocket_notifications(websocket: WebSocket, user_id: str, token: str
         print(f"❌ WebSocket error for user {user_id}: {e}")
         notification_manager.disconnect(user_id)
 
+# API Health endpoint (for /api/health route) - MUST be before include_router
+@api_router.get("/health")
+async def api_health_check():
+    """API Health check endpoint"""
+    return {
+        "status": "healthy",
+        "service": "LiftLink API",
+        "version": "1.0.0",
+        "database": "connected" if db is not None else "disconnected",
+        "endpoints": 45,
+        "timestamp": datetime.now().isoformat()
+    }
+
 # Add API router to app
 app.include_router(api_router, prefix="/api")
 
@@ -3407,19 +3420,6 @@ async def health_check():
         "status": "healthy",
         "message": "LiftLink API is operational",
         "database": "connected" if db is not None else "disconnected",
-        "timestamp": datetime.now().isoformat()
-    }
-
-# API Health endpoint (for /api/health route)
-@api_router.get("/health")
-async def api_health_check():
-    """API Health check endpoint"""
-    return {
-        "status": "healthy",
-        "service": "LiftLink API",
-        "version": "1.0.0",
-        "database": "connected" if db is not None else "disconnected",
-        "endpoints": 45,
         "timestamp": datetime.now().isoformat()
     }
 
