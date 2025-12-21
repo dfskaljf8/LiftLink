@@ -14,6 +14,8 @@ const animations = {
   paymentProcessing: require('../animations/payment-processing.json'),
   loading: require('../animations/loading.json'),
   error: require('../animations/error.json'),
+  driverLocation: require('../animations/driver-location.json'),
+  success: require('../animations/success.json'),
 };
 
 /**
