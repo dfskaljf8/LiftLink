@@ -13,6 +13,7 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { colors, spacing, typography, borderRadius, shadows, scale, moderateScale, deviceSize } from '../styles/AppStyles';
+import { DriverLocationAnimation } from './Animations';
 
 const { width, height } = Dimensions.get('window');
 
