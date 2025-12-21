@@ -1068,6 +1068,188 @@ async def login_user(login_request: LoginRequest, request: Request):
         user=user_response
     )
 
+# ==================== GOOGLE OAUTH ENDPOINTS ====================
+
+class GoogleAuthRequest(BaseModel):
+    email: str
+    name: str
+    picture: Optional[str] = None
+    google_id: str
+    session_token: str
+
+class GoogleAuthResponse(BaseModel):
+    success: bool
+    user: Optional[UserResponse] = None
+    access_token: Optional[str] = None
+    is_new_user: bool = False
+    message: Optional[str] = None
+
+@api_router.post("/auth/google", response_model=GoogleAuthResponse)
+async def google_auth(auth_request: GoogleAuthRequest):
+    """Handle Google OAuth sign-in - Creates or updates user"""
+    try:
+        print(f"🔐 Google Auth Request: {auth_request.email}")
+        
+        # Check if user exists by email
+        existing_user = await get_user_by_email(auth_request.email)
+        
+        if existing_user:
+            # User exists - update Google info and return
+            await db.users.update_one(
+                {"email": auth_request.email},
+                {"$set": {
+                    "google_id": auth_request.google_id,
+                    "profile_image": auth_request.picture,
+                    "google_session_token": auth_request.session_token,
+                    "last_login": datetime.now(timezone.utc).isoformat(),
+                    # Google users are auto-verified for age (Google requires 13+)
+                    "age_verified": True,
+                    "verification_status": "age_verified"
+                }}
+            )
+            
+            user = existing_user
+            is_new_user = False
+            print(f"✅ Existing user logged in: {auth_request.email}")
+        else:
+            # Create new user
+            user_id = generate_id()
+            new_user = {
+                "id": user_id,
+                "email": auth_request.email,
+                "name": auth_request.name,
+                "role": "fitness_enthusiast",  # Default role for Google sign-in
+                "fitness_goals": ["general_fitness"],
+                "experience_level": "beginner",
+                "google_id": auth_request.google_id,
+                "profile_image": auth_request.picture,
+                "google_session_token": auth_request.session_token,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+                "last_login": datetime.now(timezone.utc).isoformat(),
+                # Google users are auto-verified for age
+                "age_verified": True,
+                "verification_status": "age_verified",
+                "auth_provider": "google"
+            }
+            
+            await db.users.insert_one(new_user)
+            user = new_user
+            is_new_user = True
+            print(f"✅ New Google user created: {auth_request.email}")
+        
+        # Create JWT token
+        user_role = user.get("role", "fitness_enthusiast")
+        if hasattr(user_role, 'value'):
+            user_role = user_role.value
+            
+        access_token = create_access_token(user["id"], user["email"], user_role)
+        
+        # Build response
+        fitness_goals = user.get("fitness_goals", ["general_fitness"])
+        if fitness_goals and hasattr(fitness_goals[0], 'value'):
+            fitness_goals = [g.value for g in fitness_goals]
+            
+        exp_level = user.get("experience_level", "beginner")
+        if hasattr(exp_level, 'value'):
+            exp_level = exp_level.value
+            
+        created_at = user.get("created_at", datetime.now(timezone.utc).isoformat())
+        if isinstance(created_at, datetime):
+            created_at = created_at.isoformat()
+        
+        user_response = UserResponse(
+            id=user["id"],
+            email=user["email"],
+            name=user.get("name"),
+            role=user_role,
+            fitness_goals=fitness_goals,
+            experience_level=exp_level,
+            created_at=created_at
+        )
+        
+        return GoogleAuthResponse(
+            success=True,
+            user=user_response,
+            access_token=access_token,
+            is_new_user=is_new_user,
+            message="Google sign-in successful"
+        )
+        
+    except Exception as e:
+        print(f"❌ Google Auth Error: {e}")
+        return GoogleAuthResponse(
+            success=False,
+            is_new_user=False,
+            message=str(e)
+        )
+
+@api_router.get("/auth/me")
+async def get_current_user(authorization: str = Header(None)):
+    """Get current authenticated user from session token"""
+    try:
+        if not authorization:
+            raise HTTPException(status_code=401, detail="Authorization header required")
+        
+        # Extract token from "Bearer <token>"
+        token = authorization.replace("Bearer ", "")
+        
+        # Verify JWT token
+        try:
+            payload = verify_token(token)
+            user_id = payload.get("user_id")
+            
+            if not user_id:
+                raise HTTPException(status_code=401, detail="Invalid token")
+            
+            # Get user from database
+            user = await db.users.find_one({"id": user_id}, {"_id": 0})
+            
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+            
+            return {
+                "id": user["id"],
+                "email": user["email"],
+                "name": user.get("name"),
+                "role": user.get("role"),
+                "profile_image": user.get("profile_image"),
+                "age_verified": user.get("age_verified", False),
+                "cert_verified": user.get("cert_verified", False)
+            }
+            
+        except Exception as e:
+            raise HTTPException(status_code=401, detail="Invalid or expired token")
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/auth/logout")
+async def logout_user(authorization: str = Header(None)):
+    """Logout user and invalidate session"""
+    try:
+        if authorization:
+            token = authorization.replace("Bearer ", "")
+            try:
+                payload = verify_token(token)
+                user_id = payload.get("user_id")
+                
+                # Clear Google session token
+                await db.users.update_one(
+                    {"id": user_id},
+                    {"$unset": {"google_session_token": ""}}
+                )
+            except:
+                pass  # Ignore token errors during logout
+        
+        return {"success": True, "message": "Logged out successfully"}
+        
+    except Exception as e:
+        return {"success": True, "message": "Logged out"}
+
+# ==================== END GOOGLE OAUTH ====================
+
 @api_router.post("/users", response_model=UserResponse)
 @limiter.limit(RATE_LIMIT_AUTH)
 async def create_user(user: User, request: Request):
