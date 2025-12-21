@@ -3410,6 +3410,19 @@ async def health_check():
         "timestamp": datetime.now().isoformat()
     }
 
+# API Health endpoint (for /api/health route)
+@api_router.get("/health")
+async def api_health_check():
+    """API Health check endpoint"""
+    return {
+        "status": "healthy",
+        "service": "LiftLink API",
+        "version": "1.0.0",
+        "database": "connected" if db is not None else "disconnected",
+        "endpoints": 45,
+        "timestamp": datetime.now().isoformat()
+    }
+
 if __name__ == "__main__":
     import uvicorn
     import os
