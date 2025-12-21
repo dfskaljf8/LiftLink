@@ -1005,10 +1005,10 @@ async def check_user_exists(check_request: CheckUserRequest, request: Request):
 async def login_user(login_request: LoginRequest, request: Request):
     """Sign in existing user with verification check - Rate limited to prevent brute force"""
     # Validate email format
-    if not validate_email(login_check_request.email):
+    if not validate_email(login_request.email):
         raise HTTPException(status_code=422, detail="Invalid email format")
     
-    user = await get_user_by_email(login_check_request.email)
+    user = await get_user_by_email(login_request.email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
