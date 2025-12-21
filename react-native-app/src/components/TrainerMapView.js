@@ -134,6 +134,10 @@ if (!backendUrl) {
 
   const renderCustomMarker = (trainer) => (
     <View style={styles.markerContainer}>
+      {/* Driver Location Animation - shows trainer is active/available */}
+      <View style={styles.driverAnimationWrapper}>
+        <DriverLocationAnimation size={60} loop={true} />
+      </View>
       <View style={[styles.markerBubble, { backgroundColor: colors.primary }]}>
         <Text style={[styles.markerText, { color: colors.text }]}>
           {(trainer.name || trainer.display_name || 'T').split(' ')[0]}
