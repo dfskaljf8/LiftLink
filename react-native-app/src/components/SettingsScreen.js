@@ -124,17 +124,13 @@ const SettingsScreen = ({ user, onLogout }) => {
       {/* Appearance Section */}
       <SettingSection title="⚡ Appearance">
         <SettingRow
-          icon="🌓"
+          icon={null}
           title="Dark Mode"
           subtitle={isDarkMode ? 'Currently enabled' : 'Currently disabled'}
           rightComponent={
-            <Switch
-              value={isDarkMode}
-              onValueChange={toggleTheme}
-              trackColor={{ false: theme.border, true: theme.primary }}
-              thumbColor={isDarkMode ? theme.primary : '#f4f3f4'}
-              ios_backgroundColor={theme.border}
-            />
+            <TouchableOpacity onPress={toggleTheme}>
+              <ThemeToggleAnimation size={50} isDark={isDarkMode} />
+            </TouchableOpacity>
           }
         />
         <View style={styles.themePreview}>
