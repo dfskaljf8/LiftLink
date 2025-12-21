@@ -91,6 +91,8 @@ const PaymentContent = ({ trainer, sessionDetails, onPaymentSuccess, onCancel })
 
       if (initError) {
         setError(initError.message);
+        setPaymentStatus('error');
+        setTimeout(() => setShowPaymentModal(false), 2000);
         return;
       }
 
@@ -99,12 +101,20 @@ const PaymentContent = ({ trainer, sessionDetails, onPaymentSuccess, onCancel })
 
       if (presentError) {
         setError(presentError.message);
+        setPaymentStatus('error');
+        setTimeout(() => setShowPaymentModal(false), 2000);
       } else {
-        onPaymentSuccess({ paymentMethod: 'stripe', sessionId: checkout_session_id });
+        setPaymentStatus('success');
+        setTimeout(() => {
+          setShowPaymentModal(false);
+          onPaymentSuccess({ paymentMethod: 'stripe', sessionId: checkout_session_id });
+        }, 2000);
       }
     } catch (error) {
       console.error('Stripe payment failed:', error);
       setError('Payment failed. Please try again.');
+      setPaymentStatus('error');
+      setTimeout(() => setShowPaymentModal(false), 2000);
     } finally {
       setLoading(false);
     }
