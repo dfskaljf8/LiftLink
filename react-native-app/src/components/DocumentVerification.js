@@ -16,6 +16,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { colors, spacing, typography, borderRadius, shadows, scale, moderateScale, deviceSize } from '../styles/AppStyles';
+import SuccessModal from './SuccessModal';
 
 const { width, height } = Dimensions.get('window');
 const API = process.env.REACT_APP_BACKEND_URL;
