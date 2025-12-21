@@ -213,7 +213,7 @@ const App = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.primary} />
+        <LoadingAnimation size={100} />
         <Text style={styles.loadingText}>Loading LiftLink...</Text>
       </SafeAreaView>
     );
