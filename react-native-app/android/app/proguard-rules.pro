@@ -125,6 +125,14 @@
 -dontwarn retrofit2.**
 -keep class retrofit2.** { *; }
 
+# JailMonkey - Root/Jailbreak Detection
+-keep class com.gantix.JailMonkey.** { *; }
+-dontwarn com.gantix.JailMonkey.**
+
+# SSL Pinning
+-keep class com.toybeth.sslpinning.** { *; }
+-dontwarn com.toybeth.sslpinning.**
+
 # ==================== ANNOTATIONS ====================
 
 -keepattributes *Annotation*
