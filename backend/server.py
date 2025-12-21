@@ -1984,20 +1984,20 @@ class ReviewData(BaseModel):
 # Document Verification Endpoints with OCR
 @api_router.post("/verify-government-id", response_model=VerificationResponse)
 @limiter.limit(RATE_LIMIT_STRICT)
-async def verify_government_id(request: GovernmentIdRequest, http_request: Request):
+async def verify_government_id(id_request: GovernmentIdRequest, request: Request):
     """Verify government ID for age verification using OCR - Strictly rate limited"""
     try:
         # Use async OCR-based verification
         result = await verification_service.process_government_id_async(
-            request.image_data, 
-            request.user_id, 
-            request.user_email
+            id_request.image_data, 
+            id_request.user_id, 
+            id_request.user_email
         )
         
         # Update user verification status in database
         if result["age_verified"]:
             await db.users.update_one(
-                {"id": request.user_id},
+                {"id": id_request.user_id},
                 {"$set": {
                     "age_verified": True,
                     "verification_status": "age_verified",
@@ -2008,7 +2008,7 @@ async def verify_government_id(request: GovernmentIdRequest, http_request: Reque
             )
         else:
             await db.users.update_one(
-                {"id": request.user_id},
+                {"id": id_request.user_id},
                 {"$set": {
                     "verification_status": "rejected",
                     "rejection_reason": result.get("rejection_reason"),
