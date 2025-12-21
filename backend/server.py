@@ -1981,13 +1981,14 @@ class ReviewData(BaseModel):
     date: str
     session_type: str
 
-# Document Verification Endpoints
+# Document Verification Endpoints with OCR
 @api_router.post("/verify-government-id", response_model=VerificationResponse)
 @limiter.limit(RATE_LIMIT_STRICT)
 async def verify_government_id(request: GovernmentIdRequest, http_request: Request):
-    """Verify government ID for age verification - Strictly rate limited"""
+    """Verify government ID for age verification using OCR - Strictly rate limited"""
     try:
-        result = verification_service.process_government_id(
+        # Use async OCR-based verification
+        result = await verification_service.process_government_id_async(
             request.image_data, 
             request.user_id, 
             request.user_email
@@ -2000,7 +2001,9 @@ async def verify_government_id(request: GovernmentIdRequest, http_request: Reque
                 {"$set": {
                     "age_verified": True,
                     "verification_status": "age_verified",
-                    "id_verification_date": datetime.now().isoformat()
+                    "id_verification_date": datetime.now().isoformat(),
+                    "extracted_dob": result.get("extracted_dob"),
+                    "verified_age": result.get("age")
                 }}
             )
         else:
