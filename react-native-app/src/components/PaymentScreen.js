@@ -61,6 +61,8 @@ const PaymentContent = ({ trainer, sessionDetails, onPaymentSuccess, onCancel })
   const handleStripePayment = async () => {
     setLoading(true);
     setError('');
+    setPaymentStatus('processing');
+    setShowPaymentModal(true);
 
     try {
       // Create checkout session
