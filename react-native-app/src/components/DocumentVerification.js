@@ -162,7 +162,8 @@ const DocumentVerification = ({ route, navigation }) => {
       });
 
       if (response.data.cert_verified) {
-        setSuccess('Certification verification successful! You are now verified as a qualified trainer.');
+        setSuccessMessage('Certification verification successful! You are now verified as a qualified trainer.');
+        setShowSuccessModal(true);
         setVerificationResults(prev => ({ ...prev, cert: response.data }));
         
         setTimeout(async () => {
@@ -173,6 +174,7 @@ const DocumentVerification = ({ route, navigation }) => {
             verification_status: 'fully_verified'
           };
           await AsyncStorage.setItem('liftlink_user', JSON.stringify(updatedUser));
+          setShowSuccessModal(false);
           navigation.replace('Main');
         }, 3000);
       } else {
