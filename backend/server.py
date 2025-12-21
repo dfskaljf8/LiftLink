@@ -988,13 +988,13 @@ def calculate_consistency_streak(recent_sessions: list) -> int:
 # User authentication and management
 @api_router.post("/check-user", response_model=CheckUserResponse)
 @limiter.limit(RATE_LIMIT_AUTH)
-async def check_user_exists(request: CheckUserRequest, http_request: Request):
+async def check_user_exists(check_request: CheckUserRequest, request: Request):
     """Check if a user exists by email for smart authentication routing - Rate limited"""
     # Validate email format
-    if not validate_email(request.email):
+    if not validate_email(check_request.email):
         raise HTTPException(status_code=422, detail="Invalid email format")
     
-    user = await get_user_by_email(request.email)
+    user = await get_user_by_email(check_request.email)
     if user:
         user_role = user["role"].value if hasattr(user["role"], 'value') else user["role"]
         return CheckUserResponse(exists=True, user_id=user["id"], role=user_role)
@@ -1005,10 +1005,10 @@ async def check_user_exists(request: CheckUserRequest, http_request: Request):
 async def login_user(login_request: LoginRequest, request: Request):
     """Sign in existing user with verification check - Rate limited to prevent brute force"""
     # Validate email format
-    if not validate_email(login_request.email):
+    if not validate_email(login_check_request.email):
         raise HTTPException(status_code=422, detail="Invalid email format")
     
-    user = await get_user_by_email(login_request.email)
+    user = await get_user_by_email(login_check_request.email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
@@ -2984,7 +2984,7 @@ async def request_payout(trainer_id: str, request: dict):
 
 @api_router.post("/payments/create-session-checkout")
 @limiter.limit(RATE_LIMIT_PER_MINUTE)
-async def create_session_checkout(request: dict, http_request: Request):
+async def create_session_checkout(payment_request: dict, request: Request):
     """Create Stripe checkout session for trainee to pay for session with Connect - Rate limited"""
     try:
         # Get and validate amount (ensure it's in cents as integer)
@@ -3022,7 +3022,7 @@ async def create_session_checkout(request: dict, http_request: Request):
 
 @api_router.post("/payments/confirm-payment")
 @limiter.limit(RATE_LIMIT_PER_MINUTE)
-async def confirm_payment(request: dict, http_request: Request):
+async def confirm_payment(payment_request: dict, request: Request):
     """Confirm payment and update session status - Rate limited"""
     try:
         payment_intent_id = request.get("payment_intent_id")
