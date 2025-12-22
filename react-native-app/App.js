@@ -1457,12 +1457,87 @@ const SettingsScreen = ({ navigation }) => {
     </View>
   );
 
+  const renderFeaturesSection = () => (
+    <View style={[styles.settingsCard, { backgroundColor: colors.surface }]}>
+      <Text style={[styles.settingsCardTitle, { color: colors.text }]}>LiftLink 2.0 Features</Text>
+      
+      {user.role !== 'trainer' && (
+        <>
+          <TouchableOpacity
+            style={[styles.featureRow, { borderBottomColor: colors.textSecondary + '30' }]}
+            onPress={() => navigation?.navigate('VibeOnboarding')}
+          >
+            <View style={styles.featureIcon}>
+              <Icon name="mood" size={24} color={colors.primary} />
+            </View>
+            <View style={styles.featureInfo}>
+              <Text style={[styles.featureName, { color: colors.text }]}>Change Your Vibe</Text>
+              <Text style={[styles.featureDesc, { color: colors.textSecondary }]}>
+                Update your coaching style preference
+              </Text>
+            </View>
+            <Icon name="chevron-right" size={24} color={colors.textSecondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.featureRow, { borderBottomColor: colors.textSecondary + '30' }]}
+            onPress={() => navigation?.navigate('SwipeDiscovery')}
+          >
+            <View style={styles.featureIcon}>
+              <Icon name="swipe" size={24} color="#ec4899" />
+            </View>
+            <View style={styles.featureInfo}>
+              <Text style={[styles.featureName, { color: colors.text }]}>Discover Trainers</Text>
+              <Text style={[styles.featureDesc, { color: colors.textSecondary }]}>
+                Swipe to find your perfect coach
+              </Text>
+            </View>
+            <Icon name="chevron-right" size={24} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </>
+      )}
+
+      <TouchableOpacity
+        style={[styles.featureRow, { borderBottomColor: colors.textSecondary + '30' }]}
+        onPress={() => navigation?.navigate('Calendar')}
+      >
+        <View style={styles.featureIcon}>
+          <Icon name="event" size={24} color="#3b82f6" />
+        </View>
+        <View style={styles.featureInfo}>
+          <Text style={[styles.featureName, { color: colors.text }]}>Calendar Scheduling</Text>
+          <Text style={[styles.featureDesc, { color: colors.textSecondary }]}>
+            Schedule and manage your sessions
+          </Text>
+        </View>
+        <Icon name="chevron-right" size={24} color={colors.textSecondary} />
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.featureRow, { borderBottomWidth: 0 }]}
+        onPress={() => navigation?.navigate('Payment')}
+      >
+        <View style={styles.featureIcon}>
+          <Icon name="payment" size={24} color="#10b981" />
+        </View>
+        <View style={styles.featureInfo}>
+          <Text style={[styles.featureName, { color: colors.text }]}>Payment Methods</Text>
+          <Text style={[styles.featureDesc, { color: colors.textSecondary }]}>
+            Manage your payment options
+          </Text>
+        </View>
+        <Icon name="chevron-right" size={24} color={colors.textSecondary} />
+      </TouchableOpacity>
+    </View>
+  );
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.content}>
         <Text style={[styles.screenTitle, { color: colors.text }]}>Settings</Text>
         
         {renderProfileSection()}
+        {renderFeaturesSection()}
         {renderAppearanceSection()}
         {renderAccountSection()}
       </ScrollView>
