@@ -3412,9 +3412,11 @@ async def websocket_notifications(websocket: WebSocket, user_id: str, token: str
 # Initialize automation engine after db is available
 @app.on_event("startup")
 async def init_automation_engine():
-    global automation_engine
+    global automation_engine, push_service
     automation_engine = create_automation_engine(db)
+    push_service = create_push_service(db)
     print("✅ Automation Engine initialized")
+    print("✅ Push Notification Service initialized")
 
 # ----- VIBE ONBOARDING -----
 
