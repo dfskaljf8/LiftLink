@@ -1201,7 +1201,7 @@ const SessionsScreen = () => {
 };
 
 // Settings Screen
-const SettingsScreen = () => {
+const SettingsScreen = ({ navigation }) => {
   const { colors, user, setUser, handleLogout } = useContext(AppContext);
   const [editing, setEditing] = useState(false);
   const [editedName, setEditedName] = useState(user.name || '');
