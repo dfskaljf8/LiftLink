@@ -1,0 +1,24 @@
+default_platform(:android)
+
+# Root Fastfile - redirects to react-native-app
+platform :android do
+  desc "Build Debug APK"
+  lane :build_debug do
+    Dir.chdir("../react-native-app/android") do
+      gradle(
+        task: "assembleDebug",
+        project_dir: "./"
+      )
+    end
+  end
+
+  desc "Build Release APK"
+  lane :build_release do
+    Dir.chdir("../react-native-app/android") do
+      gradle(
+        task: "assembleRelease",
+        project_dir: "./"
+      )
+    end
+  end
+end
