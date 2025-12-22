@@ -4814,14 +4814,19 @@ async def schedule_content_delivery(request: ScheduleContentRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+class EnhanceContentRequest(BaseModel):
+    trainer_notes: str
+    content_type: str = "tip"
+
+
 @api_router.post("/ai/enhance-content")
-async def ai_enhance_content(trainer_notes: str, content_type: str = "tip"):
+async def ai_enhance_content(request: EnhanceContentRequest):
     """Use AI to enhance/polish trainer's content"""
     try:
         # Generate enhanced content with AI
         result = await liftlink_ai.generate_content(
-            trainer_notes=trainer_notes,
-            content_type=content_type
+            trainer_notes=request.trainer_notes,
+            content_type=request.content_type
         )
         
         if result.get("success"):
