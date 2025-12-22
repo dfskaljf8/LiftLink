@@ -799,10 +799,6 @@ const AuthScreen = ({ navigation, route }) => {
   };
 
   const renderCertificationsStep = () => {
-    const [certType, setCertType] = useState('');
-    const [certNumber, setCertNumber] = useState('');
-    const [specialties, setSpecialties] = useState([]);
-
     const certificationTypes = [
       'NASM - National Academy of Sports Medicine',
       'ACE - American Council on Exercise',
