@@ -6,10 +6,10 @@
     "slug": "liftlink",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./react-native-app/assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./react-native-app/assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#111827"
     },
@@ -23,14 +23,14 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./react-native-app/assets/adaptive-icon.png",
         "backgroundColor": "#111827"
       },
       "package": "com.liftlinkapp",
       "versionCode": 1
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./react-native-app/assets/favicon.png"
     }
   }
 }
