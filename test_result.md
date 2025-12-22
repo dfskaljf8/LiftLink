@@ -166,8 +166,7 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus:
-    - "LiftLink 2.0 AI Features - Vibe Onboarding and Trainer Dashboard"
+  current_focus: []
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
