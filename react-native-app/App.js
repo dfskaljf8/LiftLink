@@ -361,12 +361,18 @@ const MainTabNavigator = () => {
           <Tab.Screen name="Content">
             {(props) => <ContentLocker {...props} trainerId={user.id} />}
           </Tab.Screen>
+          <Tab.Screen name="Coaching">
+            {(props) => <CoachingHubScreen {...props} trainerId={user.id} isTrainer={true} />}
+          </Tab.Screen>
         </>
       ) : (
         <>
           <Tab.Screen name="Trainers" component={TrainersScreen} />
           <Tab.Screen name="Discover">
             {(props) => <SwipeTrainerDiscovery {...props} />}
+          </Tab.Screen>
+          <Tab.Screen name="Coaching">
+            {(props) => <CoachingHubScreen {...props} trainerId={user.trainer_id} clientId={user.id} isTrainer={false} />}
           </Tab.Screen>
         </>
       )}
