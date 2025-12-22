@@ -1668,7 +1668,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textAlign: 'center',
   },
-  inputLabel: {
+  inputLabelSmall: {
     fontSize: 16,
     fontWeight: '600',
     marginBottom: 8,
