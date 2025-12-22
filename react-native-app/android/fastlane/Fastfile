@@ -1,0 +1,27 @@
+default_platform(:android)
+
+platform :android do
+  desc "Build Debug APK"
+  lane :build_debug do
+    gradle(
+      task: "assembleDebug",
+      project_dir: "./"
+    )
+  end
+
+  desc "Build Release APK"
+  lane :build_release do
+    gradle(
+      task: "assembleRelease",
+      project_dir: "./"
+    )
+  end
+
+  desc "Build Release Bundle (AAB) for Play Store"
+  lane :build_bundle do
+    gradle(
+      task: "bundleRelease",
+      project_dir: "./"
+    )
+  end
+end

@@ -1,0 +1,5 @@
+# App Identifier
+package_name("com.liftlinkapp")
+
+# For Play Store deployment (optional)
+# json_key_file("path/to/play-store-credentials.json")
