@@ -1,0 +1,129 @@
+# GitLab CI/CD Configuration for LiftLink Android Build
+
+stages:
+  - install
+  - build
+  - deploy
+
+variables:
+  NODE_VERSION: "18"
+  JAVA_VERSION: "17"
+
+# Cache configuration
+.cache_config: &cache_config
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - react-native-app/node_modules/
+      - .gradle/
+
+# Install dependencies
+install_dependencies:
+  stage: install
+  image: node:18
+  <<: *cache_config
+  script:
+    - cd react-native-app
+    - yarn install --frozen-lockfile
+  artifacts:
+    paths:
+      - react-native-app/node_modules/
+    expire_in: 1 hour
+
+# Build Debug APK
+build_debug:
+  stage: build
+  image: reactnativecommunity/react-native-android:latest
+  <<: *cache_config
+  dependencies:
+    - install_dependencies
+  script:
+    - cd react-native-app/android
+    - chmod +x gradlew
+    - ./gradlew assembleDebug
+  artifacts:
+    paths:
+      - react-native-app/android/app/build/outputs/apk/debug/app-debug.apk
+    expire_in: 2 weeks
+  only:
+    - main
+    - develop
+    - merge_requests
+
+# Build Release APK (manual trigger)
+build_release:
+  stage: build
+  image: reactnativecommunity/react-native-android:latest
+  <<: *cache_config
+  dependencies:
+    - install_dependencies
+  script:
+    - cd react-native-app/android
+    - chmod +x gradlew
+    - ./gradlew assembleRelease
+  artifacts:
+    paths:
+      - react-native-app/android/app/build/outputs/apk/release/app-release.apk
+    expire_in: 30 days
+  when: manual
+  only:
+    - main
+    - tags
+
+# Build Signed Release APK (requires secrets)
+build_signed_release:
+  stage: build
+  image: reactnativecommunity/react-native-android:latest
+  <<: *cache_config
+  dependencies:
+    - install_dependencies
+  before_script:
+    - echo $KEYSTORE_BASE64 | base64 -d > react-native-app/android/app/release.keystore
+  script:
+    - cd react-native-app/android
+    - chmod +x gradlew
+    - |
+      ./gradlew assembleRelease \
+        -Pandroid.injected.signing.store.file=app/release.keystore \
+        -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
+        -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+        -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+  artifacts:
+    paths:
+      - react-native-app/android/app/build/outputs/apk/release/app-release.apk
+    expire_in: 30 days
+  when: manual
+  only:
+    - main
+    - tags
+  rules:
+    - if: $KEYSTORE_BASE64
+
+# Build App Bundle for Play Store
+build_bundle:
+  stage: build
+  image: reactnativecommunity/react-native-android:latest
+  <<: *cache_config
+  dependencies:
+    - install_dependencies
+  before_script:
+    - echo $KEYSTORE_BASE64 | base64 -d > react-native-app/android/app/release.keystore
+  script:
+    - cd react-native-app/android
+    - chmod +x gradlew
+    - |
+      ./gradlew bundleRelease \
+        -Pandroid.injected.signing.store.file=app/release.keystore \
+        -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
+        -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+        -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+  artifacts:
+    paths:
+      - react-native-app/android/app/build/outputs/bundle/release/app-release.aab
+    expire_in: 30 days
+  when: manual
+  only:
+    - main
+    - tags
+  rules:
+    - if: $KEYSTORE_BASE64
