@@ -39,6 +39,8 @@ import GoogleSignInButton from './src/components/GoogleSignInButton';
 import { DynamicIslandStatusBar, DynamicIslandSafeWrapper } from './src/components/DynamicIslandUtils';
 import gestureManager from './src/components/MobileGestureManager';
 import SwipeTrainerDiscovery from './src/components/SwipeTrainerDiscovery';
+import VibeOnboarding from './src/components/VibeOnboarding';
+import ContentLocker from './src/components/ContentLocker';
 
 // Import security services
 import deviceSecurity, { checkDeviceSecurity, showSecurityWarning } from './src/services/DeviceSecurityManager';
