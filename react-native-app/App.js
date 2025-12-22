@@ -299,6 +299,24 @@ const AuthNavigator = ({ setUser }) => {
   );
 };
 
+// Tab icon mapping
+const TAB_ICONS = {
+  Dashboard: 'dashboard',
+  Trainers: 'search',
+  Discover: 'explore',
+  Clients: 'people',
+  Content: 'folder',
+  Fitness: 'directions-run',
+  Tree: 'nature',
+  Sessions: 'event',
+  Settings: 'settings',
+};
+
+// Tab Icon Component - defined outside to avoid recreation
+const TabIcon = ({ routeName, color, size }) => (
+  <Icon name={TAB_ICONS[routeName] || 'help'} size={size} color={color} />
+);
+
 // Main Tab Navigator (wrapped in Stack for modals)
 const MainTabNavigator = () => {
   const { user, colors } = useContext(AppContext);
@@ -306,31 +324,10 @@ const MainTabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-          
-          if (route.name === 'Dashboard') {
-            iconName = 'dashboard';
-          } else if (route.name === 'Trainers') {
-            iconName = 'search';
-          } else if (route.name === 'Discover') {
-            iconName = 'explore';
-          } else if (route.name === 'Clients') {
-            iconName = 'people';
-          } else if (route.name === 'Content') {
-            iconName = 'folder';
-          } else if (route.name === 'Fitness') {
-            iconName = 'directions-run';
-          } else if (route.name === 'Tree') {
-            iconName = 'nature';
-          } else if (route.name === 'Sessions') {
-            iconName = 'event';
-          } else if (route.name === 'Settings') {
-            iconName = 'settings';
-          }
-          
-          return <Icon name={iconName} size={size} color={color} />;
-        },
+        // eslint-disable-next-line react/no-unstable-nested-components
+        tabBarIcon: ({ color, size }) => (
+          <TabIcon routeName={route.name} color={color} size={size} />
+        ),
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
