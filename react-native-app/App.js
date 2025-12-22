@@ -431,6 +431,10 @@ const AuthScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [emailError, setEmailError] = useState('');
+  // Certification states (for trainer registration)
+  const [certType, setCertType] = useState('');
+  const [certNumber, setCertNumber] = useState('');
+  const [specialties, setSpecialties] = useState([]);
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
