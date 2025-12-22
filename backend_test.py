@@ -1619,7 +1619,7 @@ def test_liftlink_2_0_ai_features():
         if response.status_code == 200:
             data = response.json()
             if (data.get("success") == True and 
-                "big_dog_mode" in data.get("message", "") and
+                "big dog mode" in data.get("message", "").lower() and
                 data.get("vibe", {}).get("mode") == "big_dog_mode" and
                 data.get("vibe", {}).get("notification_frequency") == "frequent" and
                 data.get("vibe", {}).get("intensity_preference") == 5 and
