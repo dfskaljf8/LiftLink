@@ -182,7 +182,7 @@ metadata:
 
 test_plan:
   current_focus:
-    - "LiftLink 2.0 Full Integration - Firebase Push, Navigation, All Components"
+    - "LiftLink 2.0 React Native Frontend Components Testing"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
