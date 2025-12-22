@@ -41,6 +41,7 @@ import gestureManager from './src/components/MobileGestureManager';
 import SwipeTrainerDiscovery from './src/components/SwipeTrainerDiscovery';
 import VibeOnboarding from './src/components/VibeOnboarding';
 import ContentLocker from './src/components/ContentLocker';
+import CoachingHubScreen from './src/screens/CoachingAutomation/CoachingHubScreen';
 
 // Import security services
 import deviceSecurity, { checkDeviceSecurity, showSecurityWarning } from './src/services/DeviceSecurityManager';
