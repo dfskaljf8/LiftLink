@@ -108,12 +108,12 @@ def test_coaching_automation_endpoints():
         
         if response.status_code == 200:
             data = response.json()
-            if "program_templates" in data or isinstance(data, list):
+            if "templates" in data and isinstance(data["templates"], list):
                 results["tests"]["program_template_get"] = {"passed": True, "error": None}
                 results["passed"] += 1
                 print("✅ Get program templates: PASS")
-                templates = data.get("program_templates", data) if isinstance(data, dict) else data
-                print(f"   Found {len(templates) if isinstance(templates, list) else 1} program templates")
+                templates = data["templates"]
+                print(f"   Found {len(templates)} program templates")
             else:
                 results["tests"]["program_template_get"] = {"passed": False, "error": "Invalid response structure"}
                 print(f"❌ Get program templates: FAIL - Invalid response structure")
