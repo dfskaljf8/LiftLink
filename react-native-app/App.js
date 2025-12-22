@@ -288,6 +288,12 @@ const AuthNavigator = ({ setUser }) => {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Auth" component={AuthScreen} initialParams={{ setUser }} />
       <Stack.Screen name="DocumentVerification" component={DocumentVerification} />
+      <Stack.Screen name="VibeOnboarding">
+        {(props) => <VibeOnboarding {...props} onComplete={(vibeData) => {
+          // After vibe onboarding, user is set with their vibe preferences
+          console.log('Vibe onboarding completed:', vibeData);
+        }} />}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 };
