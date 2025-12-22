@@ -140,3 +140,4 @@ backend/firebase-service-account.json
 # Environment files
 *.env
 *.env.*
+backend/firebase-service-account.json
