@@ -11200,14 +11200,32 @@ if __name__ == "__main__":
     print("🚀 Starting LiftLink Backend Testing Suite")
     print("=" * 80)
     
-    # Run the new OCR and Trainer Discovery tests as requested
-    print("\n🎯 RUNNING OCR DOCUMENT VERIFICATION & TRAINER DISCOVERY TESTS")
-    success = run_ocr_and_trainer_discovery_tests()
+    # Run the LiftLink 2.0 AI Features tests as requested
+    print("\n🎯 RUNNING LIFTLINK 2.0 AI FEATURES TESTS")
+    ai_results = test_liftlink_2_0_ai_features()
     
-    if success:
-        print("\n🎉 ALL NEW FEATURE TESTS PASSED!")
+    # Run the OCR and Trainer Discovery tests
+    print("\n🎯 RUNNING OCR DOCUMENT VERIFICATION & TRAINER DISCOVERY TESTS")
+    ocr_trainer_success = run_ocr_and_trainer_discovery_tests()
+    
+    # Calculate overall success
+    ai_percentage = (ai_results["passed"] / ai_results["total"] * 100) if ai_results["total"] > 0 else 0
+    ai_success = ai_percentage == 100
+    
+    print("\n" + "=" * 80)
+    print("📋 FINAL TEST SUMMARY")
+    print("=" * 80)
+    
+    print(f"🤖 AI FEATURES: {ai_results['passed']}/{ai_results['total']} ({ai_percentage:.1f}%)")
+    
+    if ai_success and ocr_trainer_success:
+        print("\n🎉 ALL TESTS PASSED!")
     else:
         print("\n⚠️ SOME TESTS FAILED - REVIEW RESULTS ABOVE")
+        if not ai_success:
+            print("   - AI Features tests failed")
+        if not ocr_trainer_success:
+            print("   - OCR/Trainer Discovery tests failed")
     
     print("\n" + "=" * 80)
     print("🏁 Testing Complete")
