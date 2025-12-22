@@ -307,6 +307,7 @@ const TAB_ICONS = {
   Discover: 'explore',
   Clients: 'people',
   Content: 'folder',
+  Coaching: 'auto-awesome',
   Fitness: 'directions-run',
   Tree: 'nature',
   Sessions: 'event',
