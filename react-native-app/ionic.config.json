@@ -1,0 +1,7 @@
+{
+  "name": "LiftLink",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
