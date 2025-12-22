@@ -1,6 +1,10 @@
 package com.liftlinkapp;
 
 import android.os.Bundle;
+import android.view.Display;
+import android.view.Window;
+import android.view.WindowManager;
+import android.os.Build;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
@@ -10,7 +14,7 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate;
  * MainActivity for LiftLink Android App
  * 
  * This is the main activity that hosts the React Native application.
- * It includes support for deep linking and the new React Native architecture.
+ * It includes support for deep linking, 120fps display, and the new React Native architecture.
  */
 public class MainActivity extends ReactActivity {
 
@@ -45,8 +49,59 @@ public class MainActivity extends ReactActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        // Enable 120fps/high refresh rate support
+        enableHighRefreshRate();
+        
         // Handle deep linking
         handleDeepLink();
+    }
+
+    /**
+     * Enable high refresh rate (120fps) on supported devices
+     * Works on Android 11+ devices with high refresh rate displays
+     */
+    private void enableHighRefreshRate() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            // Android 11+ (API 30+) - Use Display.Mode for precise control
+            try {
+                Window window = getWindow();
+                WindowManager.LayoutParams params = window.getAttributes();
+                
+                // Set the preferred refresh rate to maximum available
+                Display display = getDisplay();
+                if (display != null) {
+                    Display.Mode[] modes = display.getSupportedModes();
+                    float maxRefreshRate = 60f;
+                    Display.Mode bestMode = null;
+                    
+                    for (Display.Mode mode : modes) {
+                        if (mode.getRefreshRate() > maxRefreshRate) {
+                            maxRefreshRate = mode.getRefreshRate();
+                            bestMode = mode;
+                        }
+                    }
+                    
+                    if (bestMode != null && maxRefreshRate >= 90f) {
+                        params.preferredDisplayModeId = bestMode.getModeId();
+                        window.setAttributes(params);
+                        android.util.Log.d("LiftLink", "120fps mode enabled: " + maxRefreshRate + "Hz");
+                    }
+                }
+            } catch (Exception e) {
+                android.util.Log.e("LiftLink", "Failed to enable high refresh rate: " + e.getMessage());
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Android 6-10 - Use preferredRefreshRate
+            try {
+                Window window = getWindow();
+                WindowManager.LayoutParams params = window.getAttributes();
+                params.preferredRefreshRate = 120f;
+                window.setAttributes(params);
+                android.util.Log.d("LiftLink", "Preferred refresh rate set to 120Hz");
+            } catch (Exception e) {
+                android.util.Log.e("LiftLink", "Failed to set preferred refresh rate: " + e.getMessage());
+            }
+        }
     }
 
     /**
