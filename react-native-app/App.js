@@ -121,6 +121,7 @@ const App = () => {
     if (user) {
       fetchUserData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const initializeApp = async () => {
