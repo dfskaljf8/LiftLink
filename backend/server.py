@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, Request, Header, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Depends, Request, Header, WebSocket, WebSocketDisconnect, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials, OAuth2PasswordBearer
