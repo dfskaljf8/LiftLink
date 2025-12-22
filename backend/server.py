@@ -386,10 +386,19 @@ from backend.models import (
     VibeOnboardingRequest, GenerateProgramRequest, CheckinRequest, AdaptWorkoutRequest
 )
 from backend.push_notification_service import create_push_service, NOTIFICATION_TEMPLATES
+from backend.coaching_service import create_coaching_service
+from backend.coaching_models import (
+    TaskType, TaskFrequency, MessageTrigger, ChallengeMetric,
+    CreateProgramTemplateRequest, ScheduleWorkoutRequest,
+    CreateMessageTemplateRequest, ScheduleMessageRequest,
+    CreateTaskTemplateRequest, CreateChallengeRequest,
+    CreateOnboardingSequenceRequest, CreatePaymentSequenceRequest
+)
 
-# Initialize automation engine and push service (will be set after db is ready)
+# Initialize automation engine, push service, and coaching service (will be set after db is ready)
 automation_engine = None
 push_service = None
+coaching_service = None
 
 # Fitness API credentials
 GOOGLE_FIT_CLIENT_ID = os.environ.get('GOOGLE_FIT_CLIENT_ID', 'your_google_fit_client_id_here')
