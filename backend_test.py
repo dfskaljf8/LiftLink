@@ -675,6 +675,149 @@ def test_swipe_trainer_discovery():
     
     return results
 
+def test_liftlink_2_0_firebase_integration():
+    """
+    TEST LIFTLINK 2.0 FIREBASE INTEGRATION - REVIEW REQUEST
+    
+    Tests the complete LiftLink 2.0 integration with Firebase push notifications configured:
+    1. Firebase Push Notifications (LIVE - Not Simulated)
+    2. Gamification System 
+    3. Content Locker
+    4. Vibe Onboarding
+    5. Trainer Dashboard
+    """
+    print("="*80)
+    print("🚀 TESTING LIFTLINK 2.0 FIREBASE INTEGRATION - REVIEW REQUEST")
+    print("="*80)
+    
+    results = {"passed": 0, "total": 0, "tests": {}}
+    
+    # Setup: Create test users
+    print("\n📝 SETUP: Creating test users for LiftLink 2.0 Firebase testing")
+    print("-" * 60)
+    
+    # Create test trainee
+    trainee_email = f"firebase_trainee_{uuid.uuid4()}@example.com"
+    trainee_data = {
+        "email": trainee_email,
+        "name": "Firebase Test Trainee",
+        "role": "fitness_enthusiast",
+        "fitness_goals": ["weight_loss", "muscle_building"],
+        "experience_level": "intermediate"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/create-test-user", json=trainee_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create test trainee: {response.status_code}")
+        return {"passed": 0, "total": 1, "tests": {"setup": {"passed": False, "error": "Failed to create trainee"}}}
+    
+    trainee_login = response.json()
+    trainee_id = trainee_login["user"]["id"]
+    trainee_jwt = trainee_login["access_token"]
+    print(f"✅ Created test trainee: {trainee_login['user']['name']} - {trainee_id}")
+    
+    # Create test trainer
+    trainer_email = f"firebase_trainer_{uuid.uuid4()}@example.com"
+    trainer_data = {
+        "email": trainer_email,
+        "name": "Firebase Test Trainer",
+        "role": "trainer",
+        "fitness_goals": ["sport_training"],
+        "experience_level": "expert"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/create-test-user", json=trainer_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create test trainer: {response.status_code}")
+        return {"passed": 0, "total": 1, "tests": {"setup": {"passed": False, "error": "Failed to create trainer"}}}
+    
+    trainer_login = response.json()
+    trainer_id = trainer_login["user"]["id"]
+    trainer_jwt = trainer_login["access_token"]
+    print(f"✅ Created test trainer: {trainer_login['user']['name']} - {trainer_id}")
+    
+    # Test 1: FIREBASE PUSH NOTIFICATIONS (LIVE)
+    print("\n" + "="*80)
+    print("📱 TESTING FIREBASE PUSH NOTIFICATIONS (LIVE - NOT SIMULATED)")
+    print("="*80)
+    firebase_results = test_firebase_push_notifications_live(trainee_id, trainer_id)
+    results["passed"] += firebase_results["passed"]
+    results["total"] += firebase_results["total"]
+    results["tests"].update(firebase_results["tests"])
+    
+    # Test 2: GAMIFICATION SYSTEM
+    print("\n" + "="*80)
+    print("🎮 TESTING GAMIFICATION SYSTEM")
+    print("="*80)
+    gamification_results = test_gamification_system_review(trainee_id, trainer_id, trainee_jwt)
+    results["passed"] += gamification_results["passed"]
+    results["total"] += gamification_results["total"]
+    results["tests"].update(gamification_results["tests"])
+    
+    # Test 3: CONTENT LOCKER
+    print("\n" + "="*80)
+    print("📚 TESTING CONTENT LOCKER")
+    print("="*80)
+    content_results = test_content_locker_review(trainer_id, trainee_id)
+    results["passed"] += content_results["passed"]
+    results["total"] += content_results["total"]
+    results["tests"].update(content_results["tests"])
+    
+    # Test 4: VIBE ONBOARDING
+    print("\n" + "="*80)
+    print("🎯 TESTING VIBE ONBOARDING")
+    print("="*80)
+    vibe_results = test_vibe_onboarding_review(trainee_id)
+    results["passed"] += vibe_results["passed"]
+    results["total"] += vibe_results["total"]
+    results["tests"].update(vibe_results["tests"])
+    
+    # Test 5: TRAINER DASHBOARD
+    print("\n" + "="*80)
+    print("📊 TESTING TRAINER DASHBOARD")
+    print("="*80)
+    dashboard_results = test_trainer_dashboard_review(trainer_id)
+    results["passed"] += dashboard_results["passed"]
+    results["total"] += dashboard_results["total"]
+    results["tests"].update(dashboard_results["tests"])
+    
+    # Summary
+    print("\n" + "="*80)
+    print("📊 LIFTLINK 2.0 FIREBASE INTEGRATION TEST RESULTS")
+    print("="*80)
+    
+    percentage = (results["passed"] / results["total"] * 100) if results["total"] > 0 else 0
+    status = "✅ PASS" if results["passed"] == results["total"] else "❌ FAIL"
+    
+    print(f"LIFTLINK 2.0 FIREBASE INTEGRATION: {results['passed']}/{results['total']} ({percentage:.1f}%) {status}")
+    
+    # Show detailed results by category
+    categories = {
+        "firebase": "📱 FIREBASE PUSH NOTIFICATIONS",
+        "gamification": "🎮 GAMIFICATION SYSTEM",
+        "content": "📚 CONTENT LOCKER",
+        "vibe": "🎯 VIBE ONBOARDING",
+        "dashboard": "📊 TRAINER DASHBOARD"
+    }
+    
+    for category, label in categories.items():
+        category_tests = {k: v for k, v in results["tests"].items() if k.startswith(category)}
+        if category_tests:
+            category_passed = sum(1 for test in category_tests.values() if test["passed"])
+            category_total = len(category_tests)
+            category_pct = (category_passed / category_total * 100) if category_total > 0 else 0
+            category_status = "✅" if category_passed == category_total else "❌"
+            print(f"   {label}: {category_passed}/{category_total} ({category_pct:.1f}%) {category_status}")
+    
+    # Show failing tests
+    failing_tests = {k: v for k, v in results["tests"].items() if not v["passed"]}
+    if failing_tests:
+        print(f"\n❌ FAILING TESTS ({len(failing_tests)}):")
+        for test_name, test_result in failing_tests.items():
+            print(f"   • {test_name}: {test_result['error']}")
+    
+    return results
+
 def test_liftlink_2_0_features():
     """
     TEST LIFTLINK 2.0 COMPLETE FEATURE SET
