@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 // API base URL - get from environment
-const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'https://vibe-workout.preview.emergentagent.com';
+const API_BASE_URL = process.env.REACT_APP_BACKEND_URL || 'https://coach-assist-10.preview.emergentagent.com';
 
 // Emergent Auth URL
 const EMERGENT_AUTH_URL = 'https://auth.emergentagent.com';

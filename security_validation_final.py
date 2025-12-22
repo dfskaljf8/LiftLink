@@ -10,7 +10,7 @@ import uuid
 import time
 from datetime import datetime, timedelta
 
-BACKEND_URL = "https://vibe-workout.preview.emergentagent.com/api"
+BACKEND_URL = "https://coach-assist-10.preview.emergentagent.com/api"
 
 def print_section(title):
     print(f"\n{'='*80}")

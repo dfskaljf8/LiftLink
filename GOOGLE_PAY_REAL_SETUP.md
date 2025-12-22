@@ -28,10 +28,10 @@
 2. Application type: "Web application"
 3. Name: "LiftLink Google Pay Client"
 4. Authorized JavaScript origins:
-   - `https://vibe-workout.preview.emergentagent.com`
+   - `https://coach-assist-10.preview.emergentagent.com`
    - `https://yourdomain.com` (your production domain)
 5. Authorized redirect URIs:
-   - `https://vibe-workout.preview.emergentagent.com/api/google-pay/callback`
+   - `https://coach-assist-10.preview.emergentagent.com/api/google-pay/callback`
 
 ### 2. **Google Pay Business Console Setup**
 

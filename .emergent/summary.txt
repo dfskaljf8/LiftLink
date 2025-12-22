@@ -1,63 +1,43 @@
-<analysis>An analysis of the user's request and the agent's work has been done. Here is the summary:
+<analysis>**original_problem_statement:**
+The user's initial goal was to add features to a LiftLink app, including role-based UIs, security hardening, and OCR verification. The project's direction then pivoted dramatically to compete with the Everfit app, transforming LiftLink into an AI autopilot for modern coaches.
 
-**original_problem_statement:** The user initially requested features for the LiftLink app, including role-based experiences, security hardening, UI/UX enhancements with Lottie animations, a swipe-based discovery feature, and OCR for document verification.
-
-After completing these, the user provided a new, major strategic direction: to evolve LiftLink into a competitor for the Everfit app. The new vision is to make LiftLink an AI autopilot for modern coaches and The only coaching app that actually listens to your life, not just your reps.
-
-**PRODUCT REQUIREMENTS (New Vision):**
-- **Core Principle:** Usefulness first (clear goals, fast flows, good data, honest progress tracking), then layer gamification (streaks, XP, quests) on top.
-- **For Trainers:**
-    - AI that auto-builds 4-week training blocks based on a coach's style.
-    - Behavior-based automations (e.g., send a message if a client misses 2 workouts).
-    - A Content locker to recycle and structure a coach's content automatically.
-- **For Trainees:**
-    - Vibe-based onboarding (e.g., soft grind, dog mode) that adjusts coaching intensity and tone.
-    - Check-ins that track stress, creativity, and energy to adapt training.
-    - AI-adapted workouts based on mood, sleep, schedule, and adherence. If a user skips leg day, the plan should adapt instead of just logging a failure.
-- **Positioning:** An AI automation engine that handles reminders, check-ins, plan adjustments, and content delivery, moving beyond a manual dashboard.
+The latest and most detailed request is to implement a comprehensive suite of coaching automation features:
+- **Workout/Program Delivery:** Schedule workouts, use templates for automated program assignment, and include an Automated workout builder that converts uploaded PDF workouts into trackable programs.
+- **Auto Messages & Check-ins:** Pre-schedule personalized direct messages for reminders, encouragement, and announcements.
+- **Tasks, Habits, and Reminders:** Automate the delivery of daily tasks like weigh-ins and progress photos to the client's Today screen.
+- **Group Training & Challenges:** Run fitness challenges with automated leaderboards and scheduled content delivery.
+- **Client Activity & Progress Tracking:** Automatically monitor client progress (workout completion, PRs, etc.) with real-time dashboards for early intervention.
+- **Onboarding and Payments:** Implement automated onboarding sequences and payment follow-ups.
 
 **User's preferred language**: English
 
 **what currently exists?**
-The project is a full-stack application with a FastAPI backend and a React Native mobile front-end, connected to MongoDB. The application now has a significant amount of new functionality and foundational work completed in this session:
-- **OCR Verification:** A fully functional OCR system using the Google Cloud Vision API for user age and trainer certification verification is implemented, with a fallback to a simulated service.
-- **Native Security:** The placeholder security modules have been replaced with actual native libraries (, ) for root/jailbreak detection and certificate pinning. ProGuard/R8 obfuscation is enabled.
-- **Build Environment:** The development environment now includes the Java JDK and Android SDK, making it capable of building an APK (though it was resource-constrained). The project is configured for both Android and iOS builds and is ready for cloud build services like Ionic Appflow.
-- **Authentication:** Google Sign-In has been fully integrated, including a new frontend button on the login screen, backend endpoints for handling the token, and deep-linking configuration for both Android and iOS. Numerous bugs in the existing JWT authentication flow related to rate limiting were also fixed.
-- **LiftLink 2.0 AI Backend:** A comprehensive backend has been scaffolded to support the new AI-driven vision. This includes a new  using Claude Sonnet 3.5 via the Emergent LLM Key, new data models in  for programs, client stats, and goals, and an  for behavior-based triggers. All corresponding API endpoints have been created.
+The project is a full-stack application with a FastAPI backend, a React Native mobile front-end, and a MongoDB database. Key existing features include:
+- A foundational LiftLink 2.0 AI backend (, ) using Claude Sonnet 3.5.
+- Functional OCR for user verification and Google Sign-In authentication.
+- Enhanced frontend components for Trainer and Trainee dashboards, vibe-based onboarding, and a content locker.
+- A complete gamification system with XP, levels, quests, and achievements.
+- A fully integrated Firebase push notification system.
+- 120fps (ProMotion) support for a smoother UI on compatible iOS and Android devices.
+- A newly scaffolded backend for comprehensive coaching automation, including new data models (), a service layer (), and numerous API endpoints in .
 
 **Last working item**:
-- **Last item agent was working:** The agent was scaffolding the new React Native frontend components for the LiftLink 2.0 features, having just created  and . The next step was to build out the UI for these components to connect to the new backend endpoints.
+- **Last item agent was working:** The agent was implementing the comprehensive coaching automation features requested by the user. It had just finished scaffolding the entire backend infrastructure, which involved creating , , and adding over a dozen new API endpoints to . The agent was about to restart the backend to test these additions.
 - **Status:** IN PROGRESS
 - **Agent Testing Done:** N
-- **Which testing method agent to use?** Frontend testing agent. Once the UI components are built, the frontend testing agent should be used to verify the new screens (Trainer Dashboard, Vibe Onboarding) and their interactions with the backend.
+- **Which testing method agent to use?** backend testing agent. Given the extensive backend changes, a full run with the backend testing agent is required to validate all new coaching automation endpoints.
 - **User Testing Done:** N
 
 **All Pending/In progress Issue list**:
-- **Issue 1:** AI workout generation endpoint () timed out during testing.
-    - **Attempted fixes:** None. The agent observed the timeout but moved on to scaffolding other features.
-    - **Next debug checklist:**
-        - Check backend logs (==> /var/log/supervisor/backend.err.log <==
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/.venv/lib/python3.11/site-packages/uvicorn/main.py", line 416, in main
-    run(
-  File "/root/.venv/lib/python3.11/site-packages/uvicorn/main.py", line 582, in run
-    ChangeReload(config, target=server.run, sockets=[sock]).run()
-  File "/root/.venv/lib/python3.11/site-packages/uvicorn/supervisors/basereload.py", line 50, in run
-    for changes in self:
-  File "/root/.venv/lib/python3.11/site-packages/uvicorn/supervisors/basereload.py", line 69, in __next__
-    return self.should_restart()
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/root/.venv/lib/python3.11/site-packages/uvicorn/supervisors/watchfilesreload.py", line 90, in should_restart
-    changes = next(self.watcher)
-              ^^^^^^^^^^^^^^^^^^
-  File "/root/.venv/lib/python3.11/site-packages/watchfiles/main.py", line 126, in watch
-    with RustNotify(
-         ^^^^^^^^^^^
-OSError: OS file watch limit reached. about ["/app/react-native-app/node_modules/react-native-reanimated/android/src/reactNativeVersionPatch/BorderRadiiDrawableUtils/75/com"] (Error { kind: MaxFilesWatch, paths: ["/app/react-native-app/node_modules/react-native-reanimated/android/src/reactNativeVersionPatch/BorderRadiiDrawableUtils/75/com"] })
-INFO:     Will watch for changes in these directories: ['/app']
-INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
-INFO:     Started reloader process [1204] using WatchFiles
+- **Issue 1:** The newly created backend for the comprehensive coaching automation features is completely untested. (P0)
+
+  **Issues Detail:**
+  - **Issue 1:** The newly created backend for the comprehensive coaching automation features is completely untested.
+     - **Attempted fixes:** None. The agent was just about to restart the server before the session ended.
+     - **Next debug checklist:**
+        1. Restart the backend server: backend: stopped
+backend: started.
+        2. Check supervisor logs for startup errors: ==> /var/log/supervisor/backend.err.log <==
 Traceback (most recent call last):
   File "/root/.venv/bin/uvicorn", line 8, in <module>
     sys.exit(main())
@@ -89,205 +69,51 @@ Traceback (most recent call last):
   File "/root/.venv/lib/python3.11/site-packages/watchfiles/main.py", line 126, in watch
     with RustNotify(
          ^^^^^^^^^^^
-OSError: OS file watch limit reached. about ["/app/react-native-app/node_modules/react-native-reanimated/android/src/reactNativeVersionPatch/BorderRadiiDrawableUtils/75/com"] (Error { kind: MaxFilesWatch, paths: ["/app/react-native-app/node_modules/react-native-reanimated/android/src/reactNativeVersionPatch/BorderRadiiDrawableUtils/75/com"] })
-INFO:     Started server process [1206]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Shutting down
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
-INFO:     Finished server process [1206]
+OSError: OS file watch limit reached. about ["/app/react-native-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/sensor"] (Error { kind: MaxFilesWatch, paths: ["/app/react-native-app/node_modules/react-native-reanimated/android/src/main/java/com/swmansion/reanimated/sensor"] })
 INFO:     Will watch for changes in these directories: ['/app']
 INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
-INFO:     Started reloader process [1515] using WatchFiles
-Traceback (most recent call last):
-  File "/root/.venv/bin/uvicorn", line 8, in <module>
-    sys.exit(main())
-             ^^^^^^
-  File "/root/.venv/lib/python3.11/site-packages/click/core.py", line 1442, in __call__
-    return self.main(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/.venv/lib/python3.11/site-packages/click/core.py", line 1363, in main
-    rv = self.invoke(ctx)
-         ^^^^^^^^^^^^^^^^
-  File "/root/.venv/lib/python3.11/site-packages/click/core.py", line 1226, in invoke
-    return ctx.invoke(self.callback, **ctx.params)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/.venv/lib/python3.11/site-packages/click/core.py", line 794, in invoke
-    return callback(*args, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/root/.venv/lib/python3.11/site-packages/uvicorn/main.py", line 416, in main
-    run(
-  File "/root/.venv/lib/python3.11/site-packages/uvicorn/main.py", line 582, in run
-    ChangeReload(config, target=server.run, sockets=[sock]).run()
-  File "/root/.venv/lib/python3.11/site-packages/uvicorn/supervisors/basereload.py", line 50, in run
-    for changes in self:
-  File "/root/.venv/lib/python3.11/site-packages/uvicorn/supervisors/basereload.py", line 69, in __next__
-    return self.should_restart()
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/root/.venv/lib/python3.11/site-packages/uvicorn/supervisors/watchfilesreload.py", line 90, in should_restart
-    changes = next(self.watcher)
-              ^^^^^^^^^^^^^^^^^^
-  File "/root/.venv/lib/python3.11/site-packages/watchfiles/main.py", line 126, in watch
-    with RustNotify(
-         ^^^^^^^^^^^
-OSError: OS file watch limit reached. about ["/app/react-native-app/node_modules/react-native-reanimated/android/src/paper/java"] (Error { kind: MaxFilesWatch, paths: ["/app/react-native-app/node_modules/react-native-reanimated/android/src/paper/java"] })
-INFO:     Started server process [1517]
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-INFO:     Will watch for changes in these directories: ['/app']
-INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
-INFO:     Started reloader process [33] using WatchFiles
+INFO:     Started reloader process [220] using WatchFiles
 
-==> /var/log/supervisor/backend.out.log <==
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-✅ OCR Service: Google Cloud Vision API enabled for document verification
-🔑 Stripe API key configured: sk_test_51RQ...
-✅ OCR Service: Google Cloud Vision API enabled for document verification
-✅ Attempting MongoDB Atlas connection...
-Atlas connection failed, falling back to local: The DNS query name does not exist: _mongodb._tcp.16.jif94qx.mongodb.net.
-⚡ Connecting to local MongoDB...
-❌ Failed to connect to both Atlas and local MongoDB: localhost:27017: [Errno 111] Connection refused, Timeout: 30s, Topology Description: <TopologyDescription id: 69489ebce91630a32d3c8d57, topology_type: Unknown, servers: [<ServerDescription ('localhost', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('localhost:27017: [Errno 111] Connection refused')>]>
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-✅ OCR Service: Google Cloud Vision API enabled for document verification
-🔑 Stripe API key configured: sk_test_51RQ...
-✅ OCR Service: Google Cloud Vision API enabled for document verification
-✅ Attempting MongoDB Atlas connection...
-Atlas connection failed, falling back to local: The DNS query name does not exist: _mongodb._tcp.16.jif94qx.mongodb.net.
-⚡ Connecting to local MongoDB...
-❌ Failed to connect to both Atlas and local MongoDB: localhost:27017: [Errno 111] Connection refused, Timeout: 30s, Topology Description: <TopologyDescription id: 69489ee16762b43f64fbfc30, topology_type: Unknown, servers: [<ServerDescription ('localhost', 27017) server_type: Unknown, rtt: None, error=AutoReconnect('localhost:27017: [Errno 111] Connection refused')>]>
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-✅ OCR Service: Google Cloud Vision API enabled for document verification
-🔑 Stripe API key configured: sk_test_51RQ...
-✅ OCR Service: Google Cloud Vision API enabled for document verification
-✅ Attempting MongoDB Atlas connection...
-Atlas connection failed, falling back to local: The DNS query name does not exist: _mongodb._tcp.16.jif94qx.mongodb.net.
-⚡ Connecting to local MongoDB...
-✅ Connected to local MongoDB
-✅ Automation Engine initialized
-INFO:     10.64.131.9:33316 - "GET /api/health HTTP/1.1" 200 OK
-INFO:     10.64.133.12:34598 - "POST /api/users HTTP/1.1" 422 Unprocessable Entity
-INFO:     10.64.132.138:44318 - "POST /api/onboarding/vibe HTTP/1.1" 404 Not Found
-INFO:     10.64.133.11:37500 - "POST /api/users HTTP/1.1" 422 Unprocessable Entity
-INFO:     10.64.132.139:45422 - "POST /api/users HTTP/1.1" 200 OK
-INFO:     10.64.132.139:45422 - "POST /api/users HTTP/1.1" 200 OK
-INFO:     10.64.128.52:35098 - "POST /api/onboarding/vibe HTTP/1.1" 200 OK
-INFO:     10.64.132.140:33584 - "POST /api/trainer/style?trainer_id=vibe-workout&approach=strength_focused&communication_tone=dog_mode HTTP/1.1" 200 OK
-INFO:     10.64.132.139:38722 - "POST /api/clients/assign HTTP/1.1" 404 Not Found
-
-[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
-LiteLLM.Info: If you need to debug this error, use `litellm._turn_on_debug()'.
-
-❌ Workout generation error: Failed to generate chat completion: litellm.BadGatewayError: BadGatewayError: OpenAIException - Error code: 502
-INFO:     10.64.131.6:57782 - "POST /api/checkin/daily HTTP/1.1" 200 OK
-INFO:     10.64.128.48:51300 - "GET /api/client/stats/7eda8bc5-c7a3-4b65-9bd8-afcd6f801434 HTTP/1.1" 200 OK
-⚠️  CORS: Allowing all origins (development mode)
-   Set CORS_ORIGINS environment variable for production (comma-separated)
-✅ OCR Service: Google Cloud Vision API enabled for document verification
-🔑 Stripe API key configured: sk_test_51RQ...
-✅ OCR Service: Google Cloud Vision API enabled for document verification
-✅ Attempting MongoDB Atlas connection...
-Atlas connection failed, falling back to local: The DNS query name does not exist: _mongodb._tcp.16.jif94qx.mongodb.net.
-⚡ Connecting to local MongoDB...
-✅ Connected to local MongoDB
-✅ Automation Engine initialized
-INFO:     10.64.131.9:49930 - "POST /api/checkin/daily HTTP/1.1" 200 OK
-INFO:     10.64.132.140:39758 - "POST /api/auth/google HTTP/1.1" 422 Unprocessable Entity
-INFO:     10.64.128.52:53910 - "GET /api/trainer/dashboard/cfbc1370-8c60-4d24-9ab1-dc040d39bb2b HTTP/1.1" 200 OK) immediately after sending a request to the endpoint to see if the AI service is being called and if there are any specific errors.
-        - The request to the LLM might be too slow. Investigate if the prompt can be simplified or if the request can be handled asynchronously (e.g., with a background task) so the client gets an immediate response and can poll for the result.
-        - Test the   function in isolation with a simple script to rule out issues with the FastAPI request/response cycle.
-    - **Why fix this issue and what will be achieved with the fix?** This is a core feature of the new LiftLink 2.0 vision for trainers. Fixing it will enable AI-powered program creation.
-    - **Status:** NOT STARTED
-    - **Is recurring issue?** N
-    - **Should Test frontend/backend/both after fix?** backend
-    - **Blocked on other issue:** None
+==> /var/log/supervisor/backend.out.log <==.
+        3. Manually test each new endpoint using  to ensure basic functionality before running the testing agent. Key endpoints to check include:
+            - 
+            - 
+            - 
+            - 
+            - 
+            - 
+            - 
+     - **Why fix this issue and what will be achieved with the fix?** This is the core of the user's latest and most critical feature request. Validating the backend is the mandatory first step before any corresponding frontend work can begin.
+     - **Status:** NOT STARTED
+     - **Is recurring issue?** N
+     - **Should Test frontend/backend/both after fix?** backend
+     - **Blocked on other issue:** None
 
 **In progress Task List**:
-- **Task 1:** Build the LiftLink 2.0 Frontend UI (Phase 1)
-    - **Where to resume:** Flesh out the newly created React Native components:  and .
-    - **What will be achieved with this?** This will create the user-facing interface for the new AI-powered trainer and trainee features, making the new backend functionality usable.
-    - **Status:** IN PROGRESS
-    - **Should Test frontend/backend/both after fix?** both
-    - **Blocked on something:** None
+- **Task 1:** Complete and Verify Coaching Automation Backend (P0)
+     - **Where to resume:** Restart the backend server and begin testing all the new API endpoints added in  for coaching automation.
+     - **What will be achieved with this?** A robust and tested backend foundation for all the new coaching automation features, ready for frontend integration.
+     - **Status:** IN PROGRESS
+     - **Should Test frontend/backend/both after fix?** backend
+     - **Blocked on something:** None
 
 **Upcoming and Future Tasks**
 - **Upcoming Tasks:**
-    - **P0: Complete Trainer Dashboard UI:** Implement the full UI for the  component, connecting it to endpoints like  to display client status, recent activity, and AI-powered insights.
-    - **P1: Complete Vibe Onboarding UI:** Implement the UI for  allowing new trainees to select their vibe and have it saved via the  endpoint.
-    - **P2: Implement Push Notifications:** Integrate a push notification service (e.g., Firebase Cloud Messaging) to enable the behavior-based automations defined in .
+    - **P0: Build Frontend for Coaching Automation:** Once the backend is verified, create the React Native components for all new coaching features (program scheduling, PDF upload, message automation, challenge leaderboards, etc.).
+    - **P1: Integrate New Coaching Components into App Navigation:** Add the newly built screens to the main navigation structure in .
 - **Future Tasks:**
-    - **Rebuild Trainee Dashboard:** Overhaul the existing  to incorporate gamification elements (streaks, XP, quests) and data from the new  endpoint.
-    - **AI Content Locker UI:** Build the UI for trainers to manage their content and interact with the AI content structuring features.
-    - **Finalize Android APK build process:** The local build was constrained by memory. The user intends to use Ionic Appflow. No further local build work is required unless requested.
+    - ** Decomposition:** The main  file is still very large. A key refactoring task is to break it down by extracting individual screens and complex components into their own files (e.g., within a  directory) to improve maintainability.
+    - **Finalize Android APK build process:** The environment is build-ready, but the user intends to use a cloud service (Ionic Appflow). No local build work is required unless explicitly requested.
 
 **Completed work in this session**
-- **Swipe-based Trainer Discovery:** Investigated and confirmed the feature was already fully implemented. (DONE)
-- **Backend Bug Fixes:**
-    - Resolved  rate limiter crashes by renaming conflicting  parameters across multiple endpoints (, , ). (DONE)
-    - Fixed an  not being callable in the HTTPS enforcement middleware. (DONE)
-    - Addressed MongoDB connection failures by debugging the malformed Atlas URL and starting the local instance as a fallback. (DONE)
-- **OCR Document Verification:** Successfully integrated Google Cloud Vision API for real OCR on ID and certification documents. Implemented a fallback to a simulated service in case of API key failure. (DONE)
-- **Native Security Module Integration:** Replaced JS placeholders with  and  for robust device security. (DONE)
-- **Android & iOS Build Preparation:**
-    - Installed Java and the Android SDK. (DONE)
-    - Configured , , and a . (DONE)
-    - Created the full iOS project structure, including the  and . (DONE)
-    - Prepared the app for upload to cloud build services like Ionic Appflow. (DONE)
-- **Google Sign-In Integration:** Implemented Google Sign-In end-to-end, including a new backend endpoint (), a frontend service, and UI button integration into the main login screen. (DONE)
-- **LiftLink 2.0 Backend Foundation:**
-    - Scaffolding of all necessary backend services (, ) and data models (). (DONE)
-    - Created ~15 new API endpoints to support AI workout generation, trainer dashboards, client stats, and vibe-based onboarding. (DONE)
-- **Comprehensive Testing:**
-    - Used the backend testing agent to validate OCR and Swipe features. (DONE)
-    - Used the frontend testing agent to confirm UI rendering. (DONE)
-    - Manually tested all authentication flows (JWT, Google Auth) and new AI backend endpoints. (DONE)
-    - Added a new  endpoint for monitoring. (DONE)
+- **Coaching Automation Backend Scaffolding:** Created , , and added a full suite of API endpoints to .
+- **120fps Support:** Added configuration for high refresh rate (ProMotion) support on both iOS and Android for a smoother user experience.
+- **Frontend Linting:** Fixed all pre-existing lint errors and warnings in , including dependency issues, duplicate style keys, and unstable nested components.
+- **Navigation Integration:** Fully integrated the  and  components into the main app navigation stack in .
+- **Firebase Push Notifications:** Successfully configured and implemented a push notification service using Firebase Admin SDK, including fixing an SDK version incompatibility ( was updated to ).
+- **Gamification & Content Locker Features:** Implemented backend endpoints and frontend components for gamification (XP, quests), and an AI-powered content management system.
+- **AI Timeout Fix:** Resolved the AI workout generation timeout by implementing an asynchronous background task.
+- **UI/UX Enhancements:** Updated the  flow with user-requested text changes and implemented a card-based layout for the .
 
 **Earlier issues found/mentioned but not fixed**
 - None.
@@ -301,76 +127,63 @@ INFO:     10.64.128.52:53910 - "GET /api/trainer/dashboard/cfbc1370-8c60-4d24-9a
 
 
 **Key Technical Concepts**
-- **Frontend**: React Native, React Navigation, Axios, .
-- **Backend**: FastAPI, MongoDB (Motor), Pydantic, PyJWT, .
-- **AI**:  library to interact with Claude Sonnet 3.5 via Emergent LLM Key.
-- **Security**: JWT, Google Sign-In, RBAC, Rate Limiting, HTTPS, native Root/Jailbreak Detection, native SSL Pinning, ProGuard/R8 Obfuscation.
-- **Integrations**: Google Cloud Vision API, Stripe, Google Fit, Google Calendar, Google Maps.
+- **Frontend**: React Native, React Navigation, Axios.
+- **Backend**: FastAPI, MongoDB (Motor), Pydantic, PyJWT.
+- **AI**:  library for Claude Sonnet 3.5.
+- **Asynchronous Tasks**: FastAPI  for long-running AI jobs.
+- **Push Notifications**:  SDK for server-side push notifications.
+- **Performance**: React Native 120fps (ProMotion) support on iOS & Android.
+- **Security**: JWT, Google Sign-In, RBAC, native Root/Jailbreak Detection, native SSL Pinning.
+- **Integrations**: Google Cloud Vision, Stripe, Google Auth, Firebase.
 
 **key DB schema**
-- The original  and  collections are still in use.
-- New Pydantic models defined in  imply new data structures/collections for:
-    - , , 
-    - , , 
-    - 
-    - 
-    - 
+- In addition to  and , new models in  imply collections for:
+  - , , , , , .
 
 **changes in tech stack**
-- ****: Added for OCR functionality.
-- ****: Added to use the Emergent LLM Key for AI features.
-- ****: Added for native security.
-- ****: Added for native security.
+- ****: Added for backend push notification capabilities.
 
 **All files of reference**
 - **Created:**
-    - : Handles all interactions with the AI model.
-    - : Defines all new Pydantic models for the AI features.
-    - : Contains the logic for triggering automated actions.
-    - : Wraps the Google Cloud Vision API calls.
-    - : Frontend logic for Google Sign-In.
-    - : Reusable Google Sign-In button component.
-    - : Placeholder for the new trainee onboarding screen.
-    - : Placeholder for the new trainer dashboard.
-    - : Entire iOS project directory.
-    - : Android SDK path configuration.
-    - : Network rules for SSL pinning.
-    - : Instructions for building the Android app.
-    - : Documentation for testing auth flows.
+    - 
+    - 
+    - 
+    - 
+    - 
+    - 
 - **Modified:**
-    - : Major changes. Added ~15 new AI/automation endpoints, fixed rate limiting bugs, added Google Auth endpoint, and added health check.
-    - : Updated to use the new .
-    - : Added  and .
-    - : Integrated the Google Sign-In button and logic into the .
-    - : Updated to use the native root detection library.
-    - : Updated to use the native SSL pinning library.
-    - : Added network security config reference and deep link intent filter.
-    - : Added deep link URL scheme.
+    -  (Major updates for coaching automation, push notifications, gamification, and async AI).
+    -  (Major updates for navigation integration and comprehensive lint fixes).
+    -  (120fps support).
+    -  (120fps support).
+    -  (120fps support).
+    -  (Added Firebase path).
+    -  (Overwritten).
+    -  (Overwritten).
 
 **Areas that need refactoring**:
-- ** Decomposition:** This file is still very large and contains screen definitions, navigation, state management, and auth logic. Extracting screens (like ) into their own files in a  directory remains a high-priority refactoring task.
+- ** Decomposition:** This file remains a monolith containing screen definitions, navigation, state, and logic. Extracting screens (like , , ) into their own files under a  directory is a high-priority task for improving code maintainability and scalability.
 
 **key api endpoints**
-- : (NEW) Handles Google Sign-In.
-- : (MODIFIED) Now uses real OCR.
-- : (MODIFIED) Now uses real OCR.
-- : (NEW) System health check.
-- : (NEW) Data for the trainer dashboard.
-- : (NEW) Get stats for a specific client.
-- : (NEW) Creates a workout plan from a trainer's style.
-- : (NEW) Sets a trainee's vibe.
-- : (NEW) Handles a trainee's daily check-in.
+- **(NEW) Coaching Automation:**
+  - , , , , , 
+- **(NEW) Push Notifications:**
+  - , 
+- **(NEW) Gamification:**
+  - , , 
+- **(NEW) Content Management:**
+  - , , 
+- **(MODIFIED) AI:**
+  -  (Now asynchronous).
 
 **Critical Info for New Agent**
-- **Project Direction has Pivoted:** The primary goal is now to build out the Everfit competitor features as outlined by the user. The existing codebase is the foundation, but all new development should align with this AI-driven vision.
-- **Phased Rollout:** The user has approved a phased approach. The immediate priority is **building the frontend UI** for the Phase 1 features already implemented in the backend (Trainer Dashboard, Vibe Onboarding).
-- **AI Integration:** The backend uses the  library and the  to interact with Claude Sonnet 3.5. Do not change this unless requested.
-- **Environment is Build-Ready:** The container has the Android SDK and Java installed, and the iOS project is scaffolded. However, local builds may be slow or fail due to resource limits. The user intends to use a cloud service (Ionic Appflow), so the focus should be on code readiness, not local compilation.
-- **Authentication is Complex:** The app now supports both JWT (email/password) and Google Sign-In. Be mindful of both flows when working on authentication or user-specific features.
+- **Primary Goal:** The user's current and primary focus is the suite of comprehensive coaching automation features. The immediate task is to test the newly scaffolded backend for these features.
+- **Firebase Notifications:** The system is configured to send push notifications via Firebase. Failures on test device tokens are expected; this does not indicate a bug in the service itself.
+- ** Monolith:** Be aware that most frontend logic, navigation, and screen definitions reside in the very large  file. While it is now lint-free, it is a candidate for significant refactoring.
+- **120fps Support:** The app is configured to leverage high refresh rates on compatible mobile devices.
 
 **documents and test_reports created in this job**
-- 
-- 
+-  was updated multiple times for backend and frontend testing.
 
 **Last 10 User Messages and any pending HUMAN messages**
 1. 
@@ -385,12 +198,9 @@ INFO:     10.64.128.52:53910 - "GET /api/trainer/dashboard/cfbc1370-8c60-4d24-9a
 10. 
 
 **Project Health Check:**
-- **Broken:**
-    - None.
-- **Mocked:**
-    - None. The previous mocked security services have been replaced with real native integrations. The OCR service has a simulation fallback, but the primary path is real.
-- **Untested:**
-    - **Local Android APK Build:** The environment is configured, but a full build timed out due to resource constraints. The project is considered ready for a cloud build service.
+- **Broken:** None.
+- **Mocked:** The push notification service has a simulation path if Firebase is not configured, but the primary path is now real and functional.
+- **Untested:** The entire new coaching automation backend infrastructure ( and all related endpoints in ) is brand new and has not been tested.
 
 **3rd Party Integrations**
 - **Stripe** (Payments) — requires User API Key
@@ -400,17 +210,18 @@ INFO:     10.64.128.52:53910 - "GET /api/trainer/dashboard/cfbc1370-8c60-4d24-9a
 - **Google Cloud Vision** (OCR) — requires User API Key (is configured)
 - **Emergent-managed Google Auth** (Social Login) — Integrated
 - **Claude Sonnet 3.5** (AI Features) — uses Emergent LLM Key
+- **Firebase** (Push Notifications) — Integrated, requires service account JSON
 
 **Testing status**
-- **Testing agent used after significant changes:** YES (Both backend and frontend agents were used successfully after major implementations).
+- **Testing agent used after significant changes:** YES (Backend and frontend agents were used multiple times to test features and fixes).
 - **Troubleshoot agent used after agent stuck in loop:** NO
-- **Test files created:**
-    -  was updated for multiple test runs.
-- **Known regressions:** None
+- **Test files created:**  was consistently updated.
+- **Known regressions:** None.
 
 **Credentials to test flow:**
-- **Google Vision API Key:** Stored in  under .
-- **Emergent LLM Key:** Stored in  under .
+- **Google Vision API Key:** In .
+- **Emergent LLM Key:** In .
+- **Firebase Service Account:** JSON file located at  and referenced in .
 
 **What agent forgot to execute**
-- The agent did not resolve the timeout issue with the AI workout generation endpoint (). While the backend infrastructure was created and tested for most parts, this core AI function remains unverified and likely needs optimization or an asynchronous implementation.</analysis>
+- The agent did not get a chance to restart the backend server or run any tests on the comprehensive coaching automation backend it had just finished creating. This is the most critical pending action.</analysis>

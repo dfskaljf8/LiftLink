@@ -29,7 +29,7 @@ from datetime import datetime, timedelta
 import base64
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://vibe-workout.preview.emergentagent.com/api"
+BACKEND_URL = "https://coach-assist-10.preview.emergentagent.com/api"
 
 class LiftLinkAuthTester:
     def __init__(self):

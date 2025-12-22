@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime, timedelta
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://vibe-workout.preview.emergentagent.com/api"
+BACKEND_URL = "https://coach-assist-10.preview.emergentagent.com/api"
 
 def test_liftlink_2_0_firebase_integration():
     """
