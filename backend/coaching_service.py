@@ -591,7 +591,7 @@ class CoachingAutomationService:
             "id": str(uuid4()),
             "challenge_id": challenge_id,
             "client_id": client_id,
-            "client_name": client.get("name", "Unknown"),
+            "client_name": client.get("name", "Unknown") if client else "Unknown",
             "joined_at": datetime.now(timezone.utc).isoformat(),
             "current_value": 0.0,
             "rank": len(challenge.get("participant_ids", [])) + 1,
