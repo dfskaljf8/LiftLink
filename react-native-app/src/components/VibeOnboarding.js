@@ -19,13 +19,13 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
-const API_URL = 'https://vibe-workout.preview.emergentagent.com';
+const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
 const VIBE_OPTIONS = [
   {
-    id: 'dog_mode',
-    name: 'Dog Mode',
-    emoji: '🔥',
+    id: 'big_dog_mode',
+    name: 'Big Dog Mode',
+    emoji: '🐕‍🦺',
     tagline: 'No excuses. Maximum intensity.',
     description: 'For those who want to be pushed hard. Frequent check-ins, high expectations, and zero fluff.',
     traits: ['Intense coaching', 'Daily accountability', 'No-nonsense feedback'],
