@@ -8,7 +8,14 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "test": "jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build:android": "cd android && ./gradlew assembleRelease",
+    "build:android:debug": "cd android && ./gradlew assembleDebug",
+    "build:ios": "cd ios && xcodebuild -workspace LiftLink.xcworkspace -scheme LiftLink -configuration Release",
+    "bundle:android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
+    "bundle:ios": "react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ios/main.jsbundle --assets-dest ios",
+    "clean": "cd android && ./gradlew clean && cd ../ios && xcodebuild clean",
+    "prebuild": "yarn bundle:android"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^1.19.5",
