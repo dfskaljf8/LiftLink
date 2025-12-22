@@ -179,11 +179,35 @@ metadata:
 
 test_plan:
   current_focus:
-    - "LiftLink 2.0 Complete Feature Test - Gamification System Fixes Required"
-  stuck_tasks:
-    - "LiftLink 2.0 Complete Feature Test - Gamification, Push Notifications, Content Locker, AI Program Generation"
-  test_all: false
+    - "LiftLink 2.0 Full Integration - Firebase Push, Navigation, All Components"
+  stuck_tasks: []
+  test_all: true
   test_priority: "high_first"
+
+agent_communication:
+  - agent: "main"
+    message: "Test the complete LiftLink 2.0 integration with Firebase push notifications enabled:
+    
+    1. FIREBASE PUSH NOTIFICATIONS (Live):
+       - Register device with FCM token
+       - Send notification to user
+       - Verify Firebase is initialized (not simulated)
+       
+    2. GAMIFICATION SYSTEM:
+       - Award XP and verify level up
+       - Accept quest and update progress
+       - Check achievements
+       
+    3. CONTENT LOCKER:
+       - Create content
+       - Schedule delivery to client
+       - AI enhance content
+       
+    4. VIBE ONBOARDING:
+       - Test all 3 vibe modes (big_dog_mode, soft_grind, easy_restart)
+       
+    5. TRAINER DASHBOARD:
+       - Get trainer dashboard data"
 
 agent_communication:
   - agent: "main"
