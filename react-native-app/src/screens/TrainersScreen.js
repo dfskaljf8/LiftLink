@@ -139,7 +139,7 @@ const TrainersScreen = () => {
             <View style={styles.emptyState}>
               <Text style={[styles.emptyStateTitle, { color: colors.text }]}>No Trainers Available</Text>
               <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
-                We're working on connecting you with amazing trainers in your area. Check back soon!
+                We&apos;re working on connecting you with amazing trainers in your area. Check back soon!
               </Text>
             </View>
           )}

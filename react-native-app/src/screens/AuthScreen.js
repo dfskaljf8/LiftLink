@@ -174,7 +174,7 @@ const AuthScreen = ({ navigation, route }) => {
 
   const renderNameStep = () => (
     <View style={styles.authContainer}>
-      <Text style={styles.title}>What's your name?</Text>
+      <Text style={styles.title}>What&apos;s your name?</Text>
       <TextInput style={styles.input} placeholder="Enter your name" placeholderTextColor="#9ca3af" value={name} onChangeText={setName} />
       <TouchableOpacity style={[styles.button, { opacity: name.trim() ? 1 : 0.5 }]} onPress={() => setMode('role')} disabled={!name.trim()}>
         <Text style={styles.buttonText}>Continue</Text>
@@ -242,7 +242,7 @@ const AuthScreen = ({ navigation, route }) => {
     ];
     return (
       <View style={styles.authContainer}>
-        <Text style={styles.title}>What's your experience level?</Text>
+        <Text style={styles.title}>What&apos;s your experience level?</Text>
         {experienceOptions.map((option) => (
           <TouchableOpacity key={option.value} style={[styles.experienceOption, { backgroundColor: experienceLevel === option.value ? '#4f46e5' : '#1f2937' }]} onPress={() => setExperienceLevel(option.value)}>
             <Text style={styles.experienceLabel}>{option.label}</Text>
