@@ -3405,6 +3405,588 @@ async def websocket_notifications(websocket: WebSocket, user_id: str, token: str
         print(f"❌ WebSocket error for user {user_id}: {e}")
         notification_manager.disconnect(user_id)
 
+# ==================== LIFTLINK 2.0 AI-POWERED ENDPOINTS ====================
+
+# Initialize automation engine after db is available
+@app.on_event("startup")
+async def init_automation_engine():
+    global automation_engine
+    automation_engine = create_automation_engine(db)
+    print("✅ Automation Engine initialized")
+
+# ----- VIBE ONBOARDING -----
+
+@api_router.post("/onboarding/vibe")
+async def vibe_onboarding(request: VibeOnboardingRequest):
+    """
+    Vibe-based onboarding - sets user's coaching style and preferences
+    Vibes: dog_mode (intense), soft_grind (balanced), easy_restart (gentle)
+    """
+    try:
+        user = await db.users.find_one({"id": request.user_id}, {"_id": 0})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Build vibe profile
+        vibe_profile = {
+            "mode": request.vibe_mode.value,
+            "notification_frequency": {
+                "dog_mode": "frequent",
+                "soft_grind": "moderate", 
+                "easy_restart": "minimal"
+            }.get(request.vibe_mode.value, "moderate"),
+            "intensity_preference": {
+                "dog_mode": 5,
+                "soft_grind": 3,
+                "easy_restart": 2
+            }.get(request.vibe_mode.value, 3)
+        }
+        
+        # Build goals profile
+        goals_profile = {
+            "primary_goal": request.primary_goal,
+            "secondary_goals": [],
+            "target_date": None
+        }
+        
+        # Update user profile
+        await db.users.update_one(
+            {"id": request.user_id},
+            {"$set": {
+                "vibe": vibe_profile,
+                "goals": goals_profile,
+                "experience_level": request.experience_level,
+                "available_days": request.available_days,
+                "session_duration_preference": request.session_duration,
+                "available_equipment": request.equipment,
+                "onboarding_obstacles": request.obstacles,
+                "onboarding_completed": True,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        # Award onboarding XP
+        await db.users.update_one(
+            {"id": request.user_id},
+            {"$inc": {"total_xp": 50}}
+        )
+        
+        return {
+            "success": True,
+            "message": f"Welcome to LiftLink! Your {request.vibe_mode.value.replace('_', ' ')} journey begins now.",
+            "vibe": vibe_profile,
+            "goals": goals_profile,
+            "xp_earned": 50
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Onboarding error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ----- AI WORKOUT GENERATION -----
+
+@api_router.post("/ai/generate-program")
+async def generate_ai_program(request: GenerateProgramRequest):
+    """
+    Generate AI-powered workout program based on trainer style and client profile
+    """
+    try:
+        # Get trainer style
+        trainer = await db.users.find_one({"id": request.trainer_id, "role": "trainer"}, {"_id": 0})
+        if not trainer:
+            raise HTTPException(status_code=404, detail="Trainer not found")
+        
+        # Get client profile
+        client = await db.users.find_one({"id": request.client_id}, {"_id": 0})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        # Build trainer style dict
+        trainer_style = {
+            "approach": trainer.get("style", {}).get("approach", "hybrid"),
+            "methods": trainer.get("style", {}).get("methods", ["strength", "conditioning"]),
+            "session_structure": trainer.get("style", {}).get("session_structure", "warm-up, main work, cool-down"),
+            "sample_exercises": trainer.get("style", {}).get("sample_exercises", [])
+        }
+        
+        # Build client profile dict
+        client_profile = {
+            "goal": client.get("goals", {}).get("primary_goal", "general fitness"),
+            "experience": client.get("experience_level", "beginner"),
+            "days_per_week": len(client.get("available_days", ["mon", "wed", "fri"])),
+            "session_duration": client.get("session_duration_preference", 45),
+            "equipment": client.get("available_equipment", ["bodyweight"]),
+            "limitations": ", ".join(client.get("injuries_limitations", [])) or "none",
+            "vibe": client.get("vibe", {}).get("mode", "soft_grind")
+        }
+        
+        # Generate program with AI
+        result = await liftlink_ai.generate_workout_program(
+            trainer_style=trainer_style,
+            client_profile=client_profile,
+            duration_weeks=request.duration_weeks
+        )
+        
+        if result.get("success"):
+            program = result.get("program")
+            program["id"] = str(uuid4())
+            program["trainer_id"] = request.trainer_id
+            program["client_id"] = request.client_id
+            program["created_at"] = datetime.now(timezone.utc).isoformat()
+            
+            # Save program to database
+            await db.workout_programs.insert_one(program)
+            
+            # Assign to client
+            await db.users.update_one(
+                {"id": request.client_id},
+                {"$set": {"program_id": program["id"]}}
+            )
+            
+            return {
+                "success": True,
+                "program": program
+            }
+        else:
+            raise HTTPException(status_code=500, detail=result.get("error", "Program generation failed"))
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Program generation error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ----- DAILY CHECK-IN -----
+
+@api_router.post("/checkin/daily")
+async def daily_checkin(request: CheckinRequest):
+    """
+    Submit daily check-in - energy, stress, sleep
+    AI will adapt today's workout based on responses
+    """
+    try:
+        if not automation_engine:
+            raise HTTPException(status_code=503, detail="Automation engine not initialized")
+        
+        result = await automation_engine.process_checkin(
+            client_id=request.client_id,
+            checkin_data={
+                "energy_level": request.energy_level,
+                "stress_level": request.stress_level,
+                "sleep_quality": request.sleep_quality,
+                "sleep_hours": request.sleep_hours,
+                "mood": request.mood,
+                "notes": request.notes,
+                "pain_areas": request.pain_areas
+            }
+        )
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Check-in error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ----- WORKOUT ADAPTATION -----
+
+@api_router.post("/ai/adapt-workout")
+async def adapt_workout(request: AdaptWorkoutRequest):
+    """
+    Adapt a scheduled workout based on current client state
+    Reasons: low_energy, time_crunch, injury, mood, skip_pattern
+    """
+    try:
+        # Get the original workout
+        workout = await db.scheduled_workouts.find_one({"id": request.workout_id}, {"_id": 0})
+        if not workout:
+            raise HTTPException(status_code=404, detail="Workout not found")
+        
+        # Get client's latest check-in
+        client = await db.users.find_one({"id": request.client_id}, {"_id": 0})
+        last_checkin = client.get("last_checkin", {}) if client else {}
+        
+        # Build client state
+        client_state = {
+            "energy": request.current_energy or last_checkin.get("energy_level", 3),
+            "available_time": request.available_time or workout.get("estimated_duration", 45),
+            "mood": last_checkin.get("mood", "neutral"),
+            "sleep_hours": last_checkin.get("sleep_hours", 7),
+            "stress": last_checkin.get("stress_level", 3),
+            "pain_areas": last_checkin.get("pain_areas", [])
+        }
+        
+        # Adapt with AI
+        result = await liftlink_ai.adapt_workout(
+            original_workout=workout,
+            adaptation_reason=request.reason,
+            client_state=client_state
+        )
+        
+        if result.get("success"):
+            # Save adapted workout
+            await db.scheduled_workouts.update_one(
+                {"id": request.workout_id},
+                {"$set": {
+                    "adapted": True,
+                    "adapted_workout": result.get("adapted_workout"),
+                    "adaptation_reason": request.reason,
+                    "adapted_at": datetime.now(timezone.utc).isoformat()
+                }}
+            )
+            
+            return result
+        else:
+            raise HTTPException(status_code=500, detail=result.get("error", "Adaptation failed"))
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Workout adaptation error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ----- COACHING MESSAGES -----
+
+@api_router.post("/ai/coaching-message")
+async def get_coaching_message(
+    trigger: str,
+    client_id: str,
+    custom_data: Optional[Dict] = None
+):
+    """
+    Generate AI coaching message for specific triggers
+    Triggers: missed_workout, streak_achieved, low_energy, pr_achieved, weekly_checkin, motivation_needed
+    """
+    try:
+        client = await db.users.find_one({"id": client_id}, {"_id": 0})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        # Build client data
+        client_data = {
+            "name": client.get("name", "there"),
+            "vibe": client.get("vibe", {}).get("mode", "soft_grind"),
+            "goal": client.get("goals", {}).get("primary_goal", "stay consistent"),
+            **(custom_data or {})
+        }
+        
+        vibe = client.get("vibe", {}).get("mode", "soft_grind")
+        
+        result = await liftlink_ai.generate_coaching_message(
+            trigger=trigger,
+            client_data=client_data,
+            trainer_tone=vibe
+        )
+        
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Coaching message error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ----- PATTERN ANALYSIS -----
+
+@api_router.get("/ai/analyze-patterns/{client_id}")
+async def analyze_patterns(client_id: str):
+    """
+    Analyze client behavior patterns and get AI recommendations
+    """
+    try:
+        if not automation_engine:
+            raise HTTPException(status_code=503, detail="Automation engine not initialized")
+        
+        result = await automation_engine.analyze_skip_patterns(client_id)
+        return result
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Pattern analysis error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ----- TRAINER STYLE SETUP -----
+
+@api_router.post("/trainer/style")
+async def set_trainer_style(
+    trainer_id: str,
+    approach: str = "hybrid",
+    methods: List[str] = ["strength", "conditioning"],
+    sample_exercises: List[str] = [],
+    communication_tone: str = "soft_grind"
+):
+    """
+    Set trainer's coaching style for AI program generation
+    """
+    try:
+        trainer = await db.users.find_one({"id": trainer_id, "role": "trainer"}, {"_id": 0})
+        if not trainer:
+            raise HTTPException(status_code=404, detail="Trainer not found")
+        
+        style = {
+            "approach": approach,
+            "methods": methods,
+            "sample_exercises": sample_exercises,
+            "communication_tone": communication_tone,
+            "session_structure": "warm-up, main work, cool-down"
+        }
+        
+        await db.users.update_one(
+            {"id": trainer_id},
+            {"$set": {
+                "style": style,
+                "updated_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        
+        return {
+            "success": True,
+            "message": "Trainer style saved",
+            "style": style
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Trainer style error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ----- CONTENT LOCKER -----
+
+@api_router.post("/trainer/content")
+async def add_content_item(
+    trainer_id: str,
+    content_type: str,
+    title: str,
+    content: str,
+    tags: List[str] = [],
+    unlock_requirement: Optional[str] = None
+):
+    """
+    Add content to trainer's content locker
+    Can be set to unlock at specific milestones (e.g., "7_day_streak")
+    """
+    try:
+        trainer = await db.users.find_one({"id": trainer_id, "role": "trainer"}, {"_id": 0})
+        if not trainer:
+            raise HTTPException(status_code=404, detail="Trainer not found")
+        
+        content_item = {
+            "id": str(uuid4()),
+            "trainer_id": trainer_id,
+            "type": content_type,
+            "title": title,
+            "content": content,
+            "tags": tags,
+            "unlock_requirement": unlock_requirement,
+            "is_premium": unlock_requirement is not None,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        await db.content_items.insert_one(content_item)
+        
+        return {
+            "success": True,
+            "content_item": content_item
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Content item error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.get("/trainer/content/{trainer_id}")
+async def get_trainer_content(trainer_id: str):
+    """Get all content items from trainer's locker"""
+    try:
+        content = await db.content_items.find({"trainer_id": trainer_id}, {"_id": 0}).to_list(100)
+        return {"content_items": content}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ----- GAMIFICATION -----
+
+@api_router.get("/client/stats/{client_id}")
+async def get_client_stats(client_id: str):
+    """Get client's gamification stats - XP, level, streak, achievements"""
+    try:
+        client = await db.users.find_one({"id": client_id}, {"_id": 0})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        total_xp = client.get("total_xp", 0)
+        
+        # Calculate level (100 XP per level, increasing)
+        level = 1
+        xp_for_next = 100
+        remaining_xp = total_xp
+        while remaining_xp >= xp_for_next:
+            remaining_xp -= xp_for_next
+            level += 1
+            xp_for_next = int(xp_for_next * 1.2)
+        
+        # Get recent XP events
+        xp_events = await db.xp_events.find(
+            {"client_id": client_id}
+        ).sort("created_at", -1).limit(10).to_list(10)
+        
+        # Remove _id from events
+        for event in xp_events:
+            event.pop("_id", None)
+        
+        # Get achievements
+        achievements = await db.client_achievements.find(
+            {"client_id": client_id},
+            {"_id": 0}
+        ).to_list(50)
+        
+        return {
+            "total_xp": total_xp,
+            "level": level,
+            "xp_to_next_level": xp_for_next - remaining_xp,
+            "current_streak": client.get("current_streak", 0),
+            "longest_streak": client.get("longest_streak", 0),
+            "total_workouts": client.get("total_workouts_completed", 0),
+            "recent_xp_events": xp_events,
+            "achievements": achievements
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Stats error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ----- NOTIFICATIONS -----
+
+@api_router.get("/notifications/{user_id}")
+async def get_notifications(user_id: str, limit: int = 20, unread_only: bool = False):
+    """Get user's notifications"""
+    try:
+        query = {"user_id": user_id}
+        if unread_only:
+            query["opened"] = False
+        
+        notifications = await db.notifications.find(
+            query, {"_id": 0}
+        ).sort("created_at", -1).limit(limit).to_list(limit)
+        
+        return {"notifications": notifications}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@api_router.post("/notifications/{notification_id}/read")
+async def mark_notification_read(notification_id: str):
+    """Mark notification as read"""
+    try:
+        await db.notifications.update_one(
+            {"id": notification_id},
+            {"$set": {
+                "opened": True,
+                "opened_at": datetime.now(timezone.utc).isoformat()
+            }}
+        )
+        return {"success": True}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ----- TRAINER DASHBOARD DATA -----
+
+@api_router.get("/trainer/dashboard/{trainer_id}")
+async def get_trainer_dashboard(trainer_id: str):
+    """
+    Get comprehensive trainer dashboard data
+    Includes: clients overview, alerts, stats, recent activity
+    """
+    try:
+        trainer = await db.users.find_one({"id": trainer_id, "role": "trainer"}, {"_id": 0})
+        if not trainer:
+            raise HTTPException(status_code=404, detail="Trainer not found")
+        
+        # Get all clients
+        clients = await db.users.find({"trainer_id": trainer_id}, {"_id": 0}).to_list(100)
+        
+        # Calculate stats
+        total_clients = len(clients)
+        active_clients = len([c for c in clients if c.get("last_checkin")])
+        
+        # Get clients needing attention (missed 2+ workouts)
+        needs_attention = []
+        for client in clients:
+            streak = client.get("current_streak", 0)
+            last_checkin = client.get("last_checkin", {})
+            if streak == 0 or last_checkin.get("energy_level", 3) <= 2:
+                needs_attention.append({
+                    "id": client["id"],
+                    "name": client.get("name"),
+                    "reason": "low_energy" if last_checkin.get("energy_level", 3) <= 2 else "no_streak",
+                    "streak": streak
+                })
+        
+        # Get clients on fire (7+ day streaks)
+        on_fire = [
+            {"id": c["id"], "name": c.get("name"), "streak": c.get("current_streak", 0)}
+            for c in clients if c.get("current_streak", 0) >= 7
+        ]
+        
+        # Get recent activity
+        recent_checkins = await db.checkins.find({
+            "client_id": {"$in": [c["id"] for c in clients]}
+        }).sort("created_at", -1).limit(10).to_list(10)
+        
+        for checkin in recent_checkins:
+            checkin.pop("_id", None)
+            # Add client name
+            client = next((c for c in clients if c["id"] == checkin["client_id"]), None)
+            checkin["client_name"] = client.get("name") if client else "Unknown"
+        
+        # Get content stats
+        content_count = await db.content_items.count_documents({"trainer_id": trainer_id})
+        
+        return {
+            "trainer": {
+                "id": trainer["id"],
+                "name": trainer.get("name"),
+                "style": trainer.get("style", {})
+            },
+            "stats": {
+                "total_clients": total_clients,
+                "active_clients": active_clients,
+                "content_items": content_count
+            },
+            "alerts": {
+                "needs_attention": needs_attention[:5],
+                "on_fire": on_fire[:5]
+            },
+            "recent_activity": recent_checkins,
+            "clients": [
+                {
+                    "id": c["id"],
+                    "name": c.get("name"),
+                    "profile_image": c.get("profile_image"),
+                    "current_streak": c.get("current_streak", 0),
+                    "vibe": c.get("vibe", {}).get("mode", "soft_grind"),
+                    "last_checkin": c.get("last_checkin"),
+                    "total_xp": c.get("total_xp", 0)
+                }
+                for c in clients
+            ]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Dashboard error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ==================== END LIFTLINK 2.0 ENDPOINTS ====================
+
 # API Health endpoint (for /api/health route) - MUST be before include_router
 @api_router.get("/health")
 async def api_health_check():
@@ -3412,9 +3994,10 @@ async def api_health_check():
     return {
         "status": "healthy",
         "service": "LiftLink API",
-        "version": "1.0.0",
+        "version": "2.0.0",
+        "features": ["AI Workout Generation", "Behavior Automations", "Gamification"],
         "database": "connected" if db is not None else "disconnected",
-        "endpoints": 45,
+        "endpoints": 60,
         "timestamp": datetime.now().isoformat()
     }
 
