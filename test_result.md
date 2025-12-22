@@ -166,14 +166,46 @@ metadata:
   run_ui: false
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "LiftLink 2.0 Complete Feature Test - AI, Gamification, Push Notifications, Content Locker"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
-    message: "Please test the new LiftLink 2.0 features: 1) Vibe Onboarding endpoint (/api/onboarding/vibe) with the new 'big_dog_mode' vibe option, 2) Trainer Dashboard endpoint (/api/trainer/dashboard/{trainer_id}). Test that big_dog_mode, soft_grind, and easy_restart vibes all work. Verify the trainer dashboard returns proper stats, alerts, and client information."
+    message: "Please test all the new LiftLink 2.0 features comprehensively:
+    
+    1. AI WORKOUT GENERATION (Fixed timeout with async):
+       - POST /api/ai/generate-program (async with task_id)
+       - GET /api/ai/program-status/{task_id}
+       - POST /api/ai/generate-program-sync (sync with 60s timeout)
+       
+    2. PUSH NOTIFICATIONS:
+       - POST /api/push/register-device
+       - POST /api/push/send
+       - GET /api/push/notifications/{user_id}
+       - POST /api/push/mark-read/{notification_id}
+       - POST /api/push/mark-all-read/{user_id}
+       
+    3. GAMIFICATION (XP, Quests, Achievements):
+       - GET /api/gamification/stats/{user_id}
+       - POST /api/gamification/award-xp
+       - GET /api/gamification/quests/{user_id}
+       - POST /api/gamification/accept-quest
+       - POST /api/gamification/update-quest-progress
+       - GET /api/gamification/achievements
+       - POST /api/gamification/check-achievements/{user_id}
+       
+    4. CONTENT LOCKER:
+       - POST /api/content (create)
+       - GET /api/content/trainer/{trainer_id}
+       - PUT /api/content/{content_id}
+       - DELETE /api/content/{content_id}
+       - POST /api/content/schedule
+       - POST /api/ai/enhance-content
+       
+    Test edge cases and error handling as well."
   - agent: "testing"
     message: "✅ COMPREHENSIVE BACKEND TESTING COMPLETED SUCCESSFULLY! All 29 tests passed (100% success rate). 
 
