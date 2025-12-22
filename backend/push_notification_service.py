@@ -28,9 +28,21 @@ def init_firebase():
         import firebase_admin
         from firebase_admin import credentials, messaging
         
+        # Check if already initialized (from another import)
+        try:
+            existing_app = firebase_admin.get_app()
+            firebase_initialized = True
+            fcm = messaging
+            print("✅ Firebase already initialized")
+            return True
+        except ValueError:
+            pass  # Not initialized, continue with initialization
+        
         # Check for service account credentials
         service_account_path = os.environ.get('FIREBASE_SERVICE_ACCOUNT_PATH', '/app/backend/firebase-service-account.json')
         project_id = os.environ.get('FIREBASE_PROJECT_ID', 'liftlink-fitness')
+        
+        print(f"🔍 Looking for Firebase credentials at: {service_account_path}")
         
         # Try to initialize with credentials file
         if os.path.exists(service_account_path):
@@ -38,7 +50,7 @@ def init_firebase():
             firebase_admin.initialize_app(cred)
             firebase_initialized = True
             fcm = messaging
-            print("✅ Firebase initialized with service account")
+            print(f"✅ Firebase initialized with service account (Project: {project_id})")
             return True
         
         # Try to initialize with environment variable (JSON string)
