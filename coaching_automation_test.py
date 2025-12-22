@@ -346,7 +346,7 @@ def test_coaching_automation_endpoints():
         if response.status_code == 200:
             data = response.json()
             if "endpoints" in data:
-                endpoint_count = data.get("endpoint_count", len(data.get("endpoints", [])))
+                endpoint_count = data.get("endpoints")
                 results["tests"]["health_check"] = {"passed": True, "error": None}
                 results["passed"] += 1
                 print("✅ Health check: PASS")
