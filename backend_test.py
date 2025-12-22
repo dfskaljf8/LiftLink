@@ -675,6 +675,733 @@ def test_swipe_trainer_discovery():
     
     return results
 
+def test_liftlink_2_0_features():
+    """
+    TEST LIFTLINK 2.0 COMPLETE FEATURE SET
+    
+    Tests all new LiftLink 2.0 features:
+    1. GAMIFICATION SYSTEM - XP, levels, quests, achievements
+    2. PUSH NOTIFICATIONS - Device registration, sending, management
+    3. CONTENT LOCKER - Create, manage, schedule content
+    4. AI ASYNC PROGRAM GENERATION - Async program creation with status polling
+    """
+    print("="*80)
+    print("🚀 TESTING LIFTLINK 2.0 COMPLETE FEATURE SET")
+    print("="*80)
+    
+    results = {"passed": 0, "total": 0, "tests": {}}
+    
+    # Setup: Create test users
+    print("\n📝 SETUP: Creating test users for LiftLink 2.0 testing")
+    print("-" * 60)
+    
+    # Create test trainee
+    trainee_email = f"liftlink2_trainee_{uuid.uuid4()}@example.com"
+    trainee_data = {
+        "email": trainee_email,
+        "name": "LiftLink 2.0 Trainee",
+        "role": "fitness_enthusiast",
+        "fitness_goals": ["weight_loss", "muscle_building"],
+        "experience_level": "intermediate"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/create-test-user", json=trainee_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create test trainee: {response.status_code}")
+        return {"passed": 0, "total": 1, "tests": {"setup": {"passed": False, "error": "Failed to create trainee"}}}
+    
+    trainee_login = response.json()
+    trainee_id = trainee_login["user"]["id"]
+    trainee_jwt = trainee_login["access_token"]
+    print(f"✅ Created test trainee: {trainee_login['user']['name']} - {trainee_id}")
+    
+    # Create test trainer
+    trainer_email = f"liftlink2_trainer_{uuid.uuid4()}@example.com"
+    trainer_data = {
+        "email": trainer_email,
+        "name": "LiftLink 2.0 Trainer",
+        "role": "trainer",
+        "fitness_goals": ["sport_training"],
+        "experience_level": "expert"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/create-test-user", json=trainer_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create test trainer: {response.status_code}")
+        return {"passed": 0, "total": 1, "tests": {"setup": {"passed": False, "error": "Failed to create trainer"}}}
+    
+    trainer_login = response.json()
+    trainer_id = trainer_login["user"]["id"]
+    trainer_jwt = trainer_login["access_token"]
+    print(f"✅ Created test trainer: {trainer_login['user']['name']} - {trainer_id}")
+    
+    # Test 1: GAMIFICATION SYSTEM
+    print("\n" + "="*80)
+    print("🎮 TESTING GAMIFICATION SYSTEM")
+    print("="*80)
+    gamification_results = test_gamification_system(trainee_id, trainer_id, trainee_jwt)
+    results["passed"] += gamification_results["passed"]
+    results["total"] += gamification_results["total"]
+    results["tests"].update(gamification_results["tests"])
+    
+    # Test 2: PUSH NOTIFICATIONS
+    print("\n" + "="*80)
+    print("📱 TESTING PUSH NOTIFICATIONS")
+    print("="*80)
+    push_results = test_push_notifications(trainee_id, trainer_id)
+    results["passed"] += push_results["passed"]
+    results["total"] += push_results["total"]
+    results["tests"].update(push_results["tests"])
+    
+    # Test 3: CONTENT LOCKER
+    print("\n" + "="*80)
+    print("📚 TESTING CONTENT LOCKER")
+    print("="*80)
+    content_results = test_content_locker(trainer_id, trainee_id)
+    results["passed"] += content_results["passed"]
+    results["total"] += content_results["total"]
+    results["tests"].update(content_results["tests"])
+    
+    # Test 4: AI ASYNC PROGRAM GENERATION
+    print("\n" + "="*80)
+    print("🤖 TESTING AI ASYNC PROGRAM GENERATION")
+    print("="*80)
+    ai_results = test_ai_async_program_generation(trainer_id, trainee_id)
+    results["passed"] += ai_results["passed"]
+    results["total"] += ai_results["total"]
+    results["tests"].update(ai_results["tests"])
+    
+    # Summary
+    print("\n" + "="*80)
+    print("📊 LIFTLINK 2.0 FEATURES TEST RESULTS")
+    print("="*80)
+    
+    percentage = (results["passed"] / results["total"] * 100) if results["total"] > 0 else 0
+    status = "✅ PASS" if results["passed"] == results["total"] else "❌ FAIL"
+    
+    print(f"LIFTLINK 2.0 FEATURES: {results['passed']}/{results['total']} ({percentage:.1f}%) {status}")
+    
+    # Show detailed results by category
+    categories = {
+        "gamification": "🎮 GAMIFICATION",
+        "push": "📱 PUSH NOTIFICATIONS", 
+        "content": "📚 CONTENT LOCKER",
+        "ai": "🤖 AI PROGRAM GENERATION"
+    }
+    
+    for category, label in categories.items():
+        category_tests = {k: v for k, v in results["tests"].items() if k.startswith(category)}
+        if category_tests:
+            category_passed = sum(1 for test in category_tests.values() if test["passed"])
+            category_total = len(category_tests)
+            category_pct = (category_passed / category_total * 100) if category_total > 0 else 0
+            category_status = "✅" if category_passed == category_total else "❌"
+            print(f"   {label}: {category_passed}/{category_total} ({category_pct:.1f}%) {category_status}")
+    
+    # Show failing tests
+    failing_tests = {k: v for k, v in results["tests"].items() if not v["passed"]}
+    if failing_tests:
+        print(f"\n❌ FAILING TESTS ({len(failing_tests)}):")
+        for test_name, test_result in failing_tests.items():
+            print(f"   • {test_name}: {test_result['error']}")
+    
+    return results
+
+def test_gamification_system(trainee_id, trainer_id, trainee_jwt):
+    """Test all gamification endpoints"""
+    results = {"passed": 0, "total": 0, "tests": {}}
+    headers = {"Authorization": f"Bearer {trainee_jwt}"}
+    
+    # Test 1: GET /api/gamification/stats/{user_id}
+    print("\n1️⃣ Testing GET /api/gamification/stats/{user_id}")
+    results["total"] += 1
+    try:
+        response = requests.get(f"{BACKEND_URL}/gamification/stats/{trainee_id}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            required_fields = ["xp", "level", "streak", "achievements", "quests"]
+            if all(field in data for field in required_fields):
+                results["tests"]["gamification_stats"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Gamification stats endpoint: PASS")
+                print(f"   XP: {data.get('xp')}, Level: {data.get('level')}, Streak: {data.get('streak')}")
+            else:
+                missing = [f for f in required_fields if f not in data]
+                results["tests"]["gamification_stats"] = {"passed": False, "error": f"Missing fields: {missing}"}
+                print(f"❌ Gamification stats endpoint: FAIL - Missing fields: {missing}")
+        else:
+            results["tests"]["gamification_stats"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Gamification stats endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["gamification_stats"] = {"passed": False, "error": str(e)}
+        print(f"❌ Gamification stats endpoint: FAIL - {e}")
+    
+    # Test 2: POST /api/gamification/award-xp
+    print("\n2️⃣ Testing POST /api/gamification/award-xp")
+    results["total"] += 1
+    try:
+        award_data = {
+            "user_id": trainee_id,
+            "amount": 100,
+            "event_type": "workout_completed",
+            "description": "Completed strength training session"
+        }
+        response = requests.post(f"{BACKEND_URL}/gamification/award-xp", params=award_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "xp_awarded" in data and "new_total_xp" in data:
+                results["tests"]["gamification_award_xp"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Award XP endpoint: PASS")
+                print(f"   Awarded: {data.get('xp_awarded')} XP, New Total: {data.get('new_total_xp')}")
+            else:
+                results["tests"]["gamification_award_xp"] = {"passed": False, "error": "Missing XP fields in response"}
+                print(f"❌ Award XP endpoint: FAIL - Missing XP fields")
+        else:
+            results["tests"]["gamification_award_xp"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Award XP endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["gamification_award_xp"] = {"passed": False, "error": str(e)}
+        print(f"❌ Award XP endpoint: FAIL - {e}")
+    
+    # Test 3: GET /api/gamification/achievements
+    print("\n3️⃣ Testing GET /api/gamification/achievements")
+    results["total"] += 1
+    try:
+        response = requests.get(f"{BACKEND_URL}/gamification/achievements")
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "achievements" in data and isinstance(data["achievements"], list):
+                results["tests"]["gamification_achievements"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Achievements list endpoint: PASS")
+                print(f"   Found {len(data['achievements'])} achievements")
+            else:
+                results["tests"]["gamification_achievements"] = {"passed": False, "error": "Invalid achievements response"}
+                print(f"❌ Achievements list endpoint: FAIL - Invalid response format")
+        else:
+            results["tests"]["gamification_achievements"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Achievements list endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["gamification_achievements"] = {"passed": False, "error": str(e)}
+        print(f"❌ Achievements list endpoint: FAIL - {e}")
+    
+    # Test 4: POST /api/gamification/check-achievements/{user_id}
+    print("\n4️⃣ Testing POST /api/gamification/check-achievements/{user_id}")
+    results["total"] += 1
+    try:
+        response = requests.post(f"{BACKEND_URL}/gamification/check-achievements/{trainee_id}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "achievements_earned" in data:
+                results["tests"]["gamification_check_achievements"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Check achievements endpoint: PASS")
+                print(f"   Achievements earned: {len(data.get('achievements_earned', []))}")
+            else:
+                results["tests"]["gamification_check_achievements"] = {"passed": False, "error": "Missing achievements_earned field"}
+                print(f"❌ Check achievements endpoint: FAIL - Missing achievements_earned")
+        else:
+            results["tests"]["gamification_check_achievements"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Check achievements endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["gamification_check_achievements"] = {"passed": False, "error": str(e)}
+        print(f"❌ Check achievements endpoint: FAIL - {e}")
+    
+    # Test 5: GET /api/gamification/quests/{user_id}
+    print("\n5️⃣ Testing GET /api/gamification/quests/{user_id}")
+    results["total"] += 1
+    try:
+        response = requests.get(f"{BACKEND_URL}/gamification/quests/{trainee_id}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "active_quests" in data and "available_quests" in data:
+                results["tests"]["gamification_quests"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Quests endpoint: PASS")
+                print(f"   Active: {len(data.get('active_quests', []))}, Available: {len(data.get('available_quests', []))}")
+            else:
+                results["tests"]["gamification_quests"] = {"passed": False, "error": "Missing quest fields"}
+                print(f"❌ Quests endpoint: FAIL - Missing quest fields")
+        else:
+            results["tests"]["gamification_quests"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Quests endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["gamification_quests"] = {"passed": False, "error": str(e)}
+        print(f"❌ Quests endpoint: FAIL - {e}")
+    
+    # Test 6: POST /api/gamification/accept-quest
+    print("\n6️⃣ Testing POST /api/gamification/accept-quest")
+    results["total"] += 1
+    try:
+        quest_data = {
+            "user_id": trainee_id,
+            "quest_id": "weekly_warrior"
+        }
+        response = requests.post(f"{BACKEND_URL}/gamification/accept-quest", params=quest_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "quest_accepted" in data:
+                results["tests"]["gamification_accept_quest"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Accept quest endpoint: PASS")
+                print(f"   Quest accepted: {data.get('quest_accepted')}")
+            else:
+                results["tests"]["gamification_accept_quest"] = {"passed": False, "error": "Missing quest_accepted field"}
+                print(f"❌ Accept quest endpoint: FAIL - Missing quest_accepted")
+        else:
+            results["tests"]["gamification_accept_quest"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Accept quest endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["gamification_accept_quest"] = {"passed": False, "error": str(e)}
+        print(f"❌ Accept quest endpoint: FAIL - {e}")
+    
+    # Test 7: POST /api/gamification/update-quest-progress
+    print("\n7️⃣ Testing POST /api/gamification/update-quest-progress")
+    results["total"] += 1
+    try:
+        progress_data = {
+            "user_id": trainee_id,
+            "quest_type": "weekly_warrior",
+            "increment": 1
+        }
+        response = requests.post(f"{BACKEND_URL}/gamification/update-quest-progress", params=progress_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "progress_updated" in data:
+                results["tests"]["gamification_update_quest"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Update quest progress endpoint: PASS")
+                print(f"   Progress updated: {data.get('progress_updated')}")
+            else:
+                results["tests"]["gamification_update_quest"] = {"passed": False, "error": "Missing progress_updated field"}
+                print(f"❌ Update quest progress endpoint: FAIL - Missing progress_updated")
+        else:
+            results["tests"]["gamification_update_quest"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Update quest progress endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["gamification_update_quest"] = {"passed": False, "error": str(e)}
+        print(f"❌ Update quest progress endpoint: FAIL - {e}")
+    
+    return results
+
+def test_push_notifications(trainee_id, trainer_id):
+    """Test all push notification endpoints"""
+    results = {"passed": 0, "total": 0, "tests": {}}
+    
+    # Test 1: POST /api/push/register-device
+    print("\n1️⃣ Testing POST /api/push/register-device")
+    results["total"] += 1
+    try:
+        device_data = {
+            "user_id": trainee_id,
+            "fcm_token": f"test_fcm_token_{uuid.uuid4()}",
+            "device_type": "android",
+            "device_id": f"test_device_{uuid.uuid4()}"
+        }
+        response = requests.post(f"{BACKEND_URL}/push/register-device", json=device_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "success" in data and data.get("success"):
+                results["tests"]["push_register_device"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Register device endpoint: PASS")
+                print(f"   Device registered for user: {trainee_id}")
+            else:
+                results["tests"]["push_register_device"] = {"passed": False, "error": "Registration not successful"}
+                print(f"❌ Register device endpoint: FAIL - Registration not successful")
+        else:
+            results["tests"]["push_register_device"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Register device endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["push_register_device"] = {"passed": False, "error": str(e)}
+        print(f"❌ Register device endpoint: FAIL - {e}")
+    
+    # Test 2: POST /api/push/send
+    print("\n2️⃣ Testing POST /api/push/send")
+    results["total"] += 1
+    try:
+        notification_data = {
+            "user_id": trainee_id,
+            "title": "Test Notification",
+            "body": "This is a test push notification from LiftLink 2.0",
+            "data": {"type": "test", "test_id": "123"},
+            "notification_type": "general"
+        }
+        response = requests.post(f"{BACKEND_URL}/push/send", json=notification_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "success" in data and data.get("success"):
+                results["tests"]["push_send"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Send notification endpoint: PASS")
+                print(f"   Notification sent to user: {trainee_id}")
+            else:
+                results["tests"]["push_send"] = {"passed": False, "error": "Send not successful"}
+                print(f"❌ Send notification endpoint: FAIL - Send not successful")
+        else:
+            results["tests"]["push_send"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Send notification endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["push_send"] = {"passed": False, "error": str(e)}
+        print(f"❌ Send notification endpoint: FAIL - {e}")
+    
+    # Test 3: GET /api/push/notifications/{user_id}
+    print("\n3️⃣ Testing GET /api/push/notifications/{user_id}")
+    results["total"] += 1
+    try:
+        response = requests.get(f"{BACKEND_URL}/push/notifications/{trainee_id}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "notifications" in data and isinstance(data["notifications"], list):
+                results["tests"]["push_get_notifications"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Get notifications endpoint: PASS")
+                print(f"   Found {len(data['notifications'])} notifications")
+            else:
+                results["tests"]["push_get_notifications"] = {"passed": False, "error": "Invalid notifications response"}
+                print(f"❌ Get notifications endpoint: FAIL - Invalid response format")
+        else:
+            results["tests"]["push_get_notifications"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Get notifications endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["push_get_notifications"] = {"passed": False, "error": str(e)}
+        print(f"❌ Get notifications endpoint: FAIL - {e}")
+    
+    # Test 4: POST /api/push/mark-read/{notification_id}
+    print("\n4️⃣ Testing POST /api/push/mark-read/{notification_id}")
+    results["total"] += 1
+    try:
+        test_notification_id = f"test_notification_{uuid.uuid4()}"
+        response = requests.post(f"{BACKEND_URL}/push/mark-read/{test_notification_id}")
+        
+        if response.status_code in [200, 404]:  # 404 is acceptable if notification doesn't exist
+            results["tests"]["push_mark_read"] = {"passed": True, "error": None}
+            results["passed"] += 1
+            print("✅ Mark read endpoint: PASS")
+            print(f"   Response status: {response.status_code}")
+        else:
+            results["tests"]["push_mark_read"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Mark read endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["push_mark_read"] = {"passed": False, "error": str(e)}
+        print(f"❌ Mark read endpoint: FAIL - {e}")
+    
+    # Test 5: POST /api/push/mark-all-read/{user_id}
+    print("\n5️⃣ Testing POST /api/push/mark-all-read/{user_id}")
+    results["total"] += 1
+    try:
+        response = requests.post(f"{BACKEND_URL}/push/mark-all-read/{trainee_id}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "success" in data:
+                results["tests"]["push_mark_all_read"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Mark all read endpoint: PASS")
+                print(f"   All notifications marked as read for user: {trainee_id}")
+            else:
+                results["tests"]["push_mark_all_read"] = {"passed": False, "error": "Missing success field"}
+                print(f"❌ Mark all read endpoint: FAIL - Missing success field")
+        else:
+            results["tests"]["push_mark_all_read"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Mark all read endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["push_mark_all_read"] = {"passed": False, "error": str(e)}
+        print(f"❌ Mark all read endpoint: FAIL - {e}")
+    
+    return results
+
+def test_content_locker(trainer_id, trainee_id):
+    """Test all content locker endpoints"""
+    results = {"passed": 0, "total": 0, "tests": {}}
+    content_id = None
+    
+    # Test 1: POST /api/content
+    print("\n1️⃣ Testing POST /api/content")
+    results["total"] += 1
+    try:
+        content_data = {
+            "trainer_id": trainer_id,
+            "title": "Advanced Squat Technique",
+            "content": "Master the perfect squat form with these key tips: 1) Keep your chest up, 2) Drive through your heels, 3) Maintain proper knee alignment...",
+            "type": "tip",
+            "tags": ["squats", "form", "technique"]
+        }
+        response = requests.post(f"{BACKEND_URL}/content", json=content_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "content_item" in data and "id" in data["content_item"]:
+                content_id = data["content_item"]["id"]
+                results["tests"]["content_create"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Create content endpoint: PASS")
+                print(f"   Created content ID: {content_id}")
+            else:
+                results["tests"]["content_create"] = {"passed": False, "error": "Missing content_item or id"}
+                print(f"❌ Create content endpoint: FAIL - Missing content_item or id")
+        else:
+            results["tests"]["content_create"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Create content endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["content_create"] = {"passed": False, "error": str(e)}
+        print(f"❌ Create content endpoint: FAIL - {e}")
+    
+    # Test 2: GET /api/content/trainer/{trainer_id}
+    print("\n2️⃣ Testing GET /api/content/trainer/{trainer_id}")
+    results["total"] += 1
+    try:
+        response = requests.get(f"{BACKEND_URL}/content/trainer/{trainer_id}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "content_items" in data and isinstance(data["content_items"], list):
+                results["tests"]["content_get_trainer"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Get trainer content endpoint: PASS")
+                print(f"   Found {len(data['content_items'])} content items")
+            else:
+                results["tests"]["content_get_trainer"] = {"passed": False, "error": "Invalid content_items response"}
+                print(f"❌ Get trainer content endpoint: FAIL - Invalid response format")
+        else:
+            results["tests"]["content_get_trainer"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ Get trainer content endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["content_get_trainer"] = {"passed": False, "error": str(e)}
+        print(f"❌ Get trainer content endpoint: FAIL - {e}")
+    
+    # Test 3: GET /api/content/{content_id}
+    if content_id:
+        print("\n3️⃣ Testing GET /api/content/{content_id}")
+        results["total"] += 1
+        try:
+            response = requests.get(f"{BACKEND_URL}/content/{content_id}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "content_item" in data:
+                    results["tests"]["content_get_specific"] = {"passed": True, "error": None}
+                    results["passed"] += 1
+                    print("✅ Get specific content endpoint: PASS")
+                    print(f"   Retrieved content: {data['content_item'].get('title', 'No title')}")
+                else:
+                    results["tests"]["content_get_specific"] = {"passed": False, "error": "Missing content_item"}
+                    print(f"❌ Get specific content endpoint: FAIL - Missing content_item")
+            else:
+                results["tests"]["content_get_specific"] = {"passed": False, "error": f"Status: {response.status_code}"}
+                print(f"❌ Get specific content endpoint: FAIL - Status: {response.status_code}")
+        except Exception as e:
+            results["tests"]["content_get_specific"] = {"passed": False, "error": str(e)}
+            print(f"❌ Get specific content endpoint: FAIL - {e}")
+    else:
+        print("\n3️⃣ Skipping GET /api/content/{content_id} - no content_id available")
+    
+    # Test 4: PUT /api/content/{content_id}
+    if content_id:
+        print("\n4️⃣ Testing PUT /api/content/{content_id}")
+        results["total"] += 1
+        try:
+            update_data = {
+                "trainer_id": trainer_id,
+                "title": "Advanced Squat Technique - Updated",
+                "content": "Master the perfect squat form with these updated key tips: 1) Keep your chest up and core engaged, 2) Drive through your heels, 3) Maintain proper knee alignment and depth...",
+                "type": "tip",
+                "tags": ["squats", "form", "technique", "updated"]
+            }
+            response = requests.put(f"{BACKEND_URL}/content/{content_id}", json=update_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "success" in data and data.get("success"):
+                    results["tests"]["content_update"] = {"passed": True, "error": None}
+                    results["passed"] += 1
+                    print("✅ Update content endpoint: PASS")
+                    print(f"   Updated content ID: {content_id}")
+                else:
+                    results["tests"]["content_update"] = {"passed": False, "error": "Update not successful"}
+                    print(f"❌ Update content endpoint: FAIL - Update not successful")
+            else:
+                results["tests"]["content_update"] = {"passed": False, "error": f"Status: {response.status_code}"}
+                print(f"❌ Update content endpoint: FAIL - Status: {response.status_code}")
+        except Exception as e:
+            results["tests"]["content_update"] = {"passed": False, "error": str(e)}
+            print(f"❌ Update content endpoint: FAIL - {e}")
+    else:
+        print("\n4️⃣ Skipping PUT /api/content/{content_id} - no content_id available")
+    
+    # Test 5: POST /api/content/schedule
+    if content_id:
+        print("\n5️⃣ Testing POST /api/content/schedule")
+        results["total"] += 1
+        try:
+            schedule_data = {
+                "content_id": content_id,
+                "client_ids": [trainee_id],
+                "delivery_time": "now"
+            }
+            response = requests.post(f"{BACKEND_URL}/content/schedule", json=schedule_data)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "success" in data and data.get("success"):
+                    results["tests"]["content_schedule"] = {"passed": True, "error": None}
+                    results["passed"] += 1
+                    print("✅ Schedule content endpoint: PASS")
+                    print(f"   Scheduled content delivery to {len(schedule_data['client_ids'])} clients")
+                else:
+                    results["tests"]["content_schedule"] = {"passed": False, "error": "Schedule not successful"}
+                    print(f"❌ Schedule content endpoint: FAIL - Schedule not successful")
+            else:
+                results["tests"]["content_schedule"] = {"passed": False, "error": f"Status: {response.status_code}"}
+                print(f"❌ Schedule content endpoint: FAIL - Status: {response.status_code}")
+        except Exception as e:
+            results["tests"]["content_schedule"] = {"passed": False, "error": str(e)}
+            print(f"❌ Schedule content endpoint: FAIL - {e}")
+    else:
+        print("\n5️⃣ Skipping POST /api/content/schedule - no content_id available")
+    
+    # Test 6: POST /api/ai/enhance-content
+    print("\n6️⃣ Testing POST /api/ai/enhance-content")
+    results["total"] += 1
+    try:
+        enhance_data = {
+            "trainer_notes": "Basic squat form tips",
+            "content_type": "tip"
+        }
+        response = requests.post(f"{BACKEND_URL}/ai/enhance-content", json=enhance_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "generated_content" in data:
+                results["tests"]["content_ai_enhance"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ AI enhance content endpoint: PASS")
+                print(f"   Enhanced content generated successfully")
+            else:
+                results["tests"]["content_ai_enhance"] = {"passed": False, "error": "Missing generated_content"}
+                print(f"❌ AI enhance content endpoint: FAIL - Missing generated_content")
+        else:
+            results["tests"]["content_ai_enhance"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ AI enhance content endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["content_ai_enhance"] = {"passed": False, "error": str(e)}
+        print(f"❌ AI enhance content endpoint: FAIL - {e}")
+    
+    # Test 7: DELETE /api/content/{content_id} (cleanup)
+    if content_id:
+        print("\n7️⃣ Testing DELETE /api/content/{content_id}")
+        results["total"] += 1
+        try:
+            response = requests.delete(f"{BACKEND_URL}/content/{content_id}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "success" in data and data.get("success"):
+                    results["tests"]["content_delete"] = {"passed": True, "error": None}
+                    results["passed"] += 1
+                    print("✅ Delete content endpoint: PASS")
+                    print(f"   Deleted content ID: {content_id}")
+                else:
+                    results["tests"]["content_delete"] = {"passed": False, "error": "Delete not successful"}
+                    print(f"❌ Delete content endpoint: FAIL - Delete not successful")
+            else:
+                results["tests"]["content_delete"] = {"passed": False, "error": f"Status: {response.status_code}"}
+                print(f"❌ Delete content endpoint: FAIL - Status: {response.status_code}")
+        except Exception as e:
+            results["tests"]["content_delete"] = {"passed": False, "error": str(e)}
+            print(f"❌ Delete content endpoint: FAIL - {e}")
+    else:
+        print("\n7️⃣ Skipping DELETE /api/content/{content_id} - no content_id available")
+    
+    return results
+
+def test_ai_async_program_generation(trainer_id, trainee_id):
+    """Test AI async program generation endpoints"""
+    results = {"passed": 0, "total": 0, "tests": {}}
+    task_id = None
+    
+    # Test 1: POST /api/ai/generate-program (async)
+    print("\n1️⃣ Testing POST /api/ai/generate-program (async)")
+    results["total"] += 1
+    try:
+        program_data = {
+            "trainer_id": trainer_id,
+            "client_id": trainee_id,
+            "program_type": "strength_building",
+            "duration_weeks": 4,
+            "sessions_per_week": 3,
+            "client_goals": ["muscle_building", "strength"],
+            "available_equipment": ["dumbbells", "barbell", "bench"],
+            "experience_level": "intermediate"
+        }
+        response = requests.post(f"{BACKEND_URL}/ai/generate-program", json=program_data)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if "task_id" in data and "status" in data:
+                task_id = data["task_id"]
+                results["tests"]["ai_generate_program"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ AI generate program endpoint: PASS")
+                print(f"   Task ID: {task_id}, Status: {data.get('status')}")
+            else:
+                results["tests"]["ai_generate_program"] = {"passed": False, "error": "Missing task_id or status"}
+                print(f"❌ AI generate program endpoint: FAIL - Missing task_id or status")
+        else:
+            results["tests"]["ai_generate_program"] = {"passed": False, "error": f"Status: {response.status_code}"}
+            print(f"❌ AI generate program endpoint: FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["ai_generate_program"] = {"passed": False, "error": str(e)}
+        print(f"❌ AI generate program endpoint: FAIL - {e}")
+    
+    # Test 2: GET /api/ai/program-status/{task_id}
+    if task_id:
+        print("\n2️⃣ Testing GET /api/ai/program-status/{task_id}")
+        results["total"] += 1
+        try:
+            # Wait a moment for processing to start
+            time.sleep(2)
+            
+            response = requests.get(f"{BACKEND_URL}/ai/program-status/{task_id}")
+            
+            if response.status_code == 200:
+                data = response.json()
+                if "status" in data:
+                    results["tests"]["ai_program_status"] = {"passed": True, "error": None}
+                    results["passed"] += 1
+                    print("✅ AI program status endpoint: PASS")
+                    print(f"   Task status: {data.get('status')}")
+                    
+                    # If completed, show program details
+                    if data.get("status") == "completed" and "program" in data:
+                        program = data["program"]
+                        print(f"   Program generated: {program.get('name', 'Unnamed Program')}")
+                        print(f"   Weeks: {program.get('duration_weeks')}, Sessions: {len(program.get('sessions', []))}")
+                else:
+                    results["tests"]["ai_program_status"] = {"passed": False, "error": "Missing status field"}
+                    print(f"❌ AI program status endpoint: FAIL - Missing status field")
+            else:
+                results["tests"]["ai_program_status"] = {"passed": False, "error": f"Status: {response.status_code}"}
+                print(f"❌ AI program status endpoint: FAIL - Status: {response.status_code}")
+        except Exception as e:
+            results["tests"]["ai_program_status"] = {"passed": False, "error": str(e)}
+            print(f"❌ AI program status endpoint: FAIL - {e}")
+    else:
+        print("\n2️⃣ Skipping GET /api/ai/program-status/{task_id} - no task_id available")
+    
+    return results
+
 def identify_all_broken_endpoints():
     """
     IDENTIFY ALL BROKEN BACKEND ENDPOINTS
