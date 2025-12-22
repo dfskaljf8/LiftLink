@@ -1,7 +1,4 @@
 {
   "name": "LiftLink",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "react"
+  "type": "react-native"
 }
