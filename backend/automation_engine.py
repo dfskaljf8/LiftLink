@@ -9,7 +9,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional, Any
 from uuid import uuid4
 
-from ai_service import liftlink_ai
+from backend.ai_service import liftlink_ai
 
 class AutomationEngine:
     """
