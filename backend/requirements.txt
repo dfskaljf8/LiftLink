@@ -26,3 +26,4 @@ typer>=0.9.0
 httpx>=0.25.0
 stripe>=7.0.0
 slowapi>=0.1.9
+firebase_admin==7.1.0
