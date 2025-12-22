@@ -11,7 +11,7 @@ from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Any
 from uuid import uuid4
 
-from coaching_models import (
+from backend.coaching_models import (
     ProgramTemplate, ScheduledWorkout, PDFWorkoutUpload,
     MessageTemplate, ScheduledMessage, AutoCheckIn,
     TaskTemplate, ClientTask, HabitTracker,
