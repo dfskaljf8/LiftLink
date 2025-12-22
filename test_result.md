@@ -143,6 +143,18 @@ backend:
         agent: "testing"
         comment: "✅ LiftLink 2.0 AI Features PASS - All 7 tests passed (100% success rate). Vibe onboarding endpoint works with all three modes: big_dog_mode (intense, frequent notifications, intensity 5), soft_grind (balanced, moderate notifications, intensity 3), easy_restart (gentle, minimal notifications, intensity 2). All modes correctly set vibe preferences, award 50 XP, and update user profiles. Trainer dashboard endpoint returns comprehensive data: trainer info, client stats, alerts (needs_attention, on_fire), recent activity, and client list. Error handling works correctly: 404 for non-existent users/trainers, 422 for invalid vibe_mode values. Backend AI features fully functional and ready for production."
 
+  - task: "LiftLink 2.0 Complete Feature Test - Gamification, Push Notifications, Content Locker, AI Program Generation"
+    implemented: true
+    working: false
+    file: "server.py"
+    stuck_count: 1
+    priority: "high"
+    needs_retesting: false
+    status_history:
+      - working: false
+        agent: "testing"
+        comment: "❌ LiftLink 2.0 Complete Features PARTIAL PASS - 14/21 tests passed (66.7%). WORKING: Push Notifications (5/5, 100%) - all endpoints functional, AI Async Program Generation (2/2, 100%) - core functionality working. FAILING: Gamification System (2/7, 28.6%) - major issues with stats endpoint missing fields ['xp', 'streak', 'quests'], award-xp missing response fields, check-achievements missing achievements_earned, accept-quest returns 404, update-quest-progress missing progress_updated field. Content Locker (5/7, 71.4%) - basic CRUD works but content scheduling returns 422 validation error, AI enhance-content returns 422 validation error. CRITICAL: Gamification system needs major fixes - most endpoints not returning expected data structures."
+
 frontend:
   - task: "Frontend Integration"
     implemented: true
