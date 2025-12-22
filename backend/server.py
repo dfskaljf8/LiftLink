@@ -4891,6 +4891,596 @@ async def get_trainer_clients(trainer_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# ==================== COACHING AUTOMATION ENDPOINTS ====================
+
+# ----- PROGRAM DELIVERY -----
+
+@api_router.post("/coaching/program-templates")
+async def create_program_template(trainer_id: str, request: CreateProgramTemplateRequest):
+    """Create a reusable program template"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.create_program_template(
+        trainer_id=trainer_id,
+        name=request.name,
+        description=request.description,
+        duration_weeks=request.duration_weeks,
+        workouts_per_week=request.workouts_per_week,
+        workouts=request.workouts,
+        delivery_type=request.delivery_type.value if hasattr(request.delivery_type, 'value') else request.delivery_type,
+        auto_assign_on=request.auto_assign_on,
+        package_ids=request.package_ids
+    )
+    return result
+
+
+@api_router.get("/coaching/program-templates/{trainer_id}")
+async def get_program_templates(trainer_id: str):
+    """Get all program templates for a trainer"""
+    templates = await db.program_templates.find(
+        {"trainer_id": trainer_id},
+        {"_id": 0}
+    ).to_list(100)
+    return {"templates": templates}
+
+
+@api_router.post("/coaching/schedule-workout")
+async def schedule_workout_endpoint(trainer_id: str, request: ScheduleWorkoutRequest):
+    """Schedule a workout for individuals or groups"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.schedule_workout(
+        trainer_id=trainer_id,
+        workout_id=request.workout_id,
+        workout_name=request.workout_name,
+        scheduled_date=request.scheduled_date,
+        client_ids=request.client_ids,
+        group_id=request.group_id,
+        scheduled_time=request.scheduled_time,
+        is_recurring=request.is_recurring,
+        recurrence_pattern=request.recurrence_pattern,
+        notification_enabled=request.notification_enabled
+    )
+    return result
+
+
+@api_router.get("/coaching/scheduled-workouts/{trainer_id}")
+async def get_scheduled_workouts(trainer_id: str, start_date: str = None, end_date: str = None):
+    """Get scheduled workouts for a trainer"""
+    query = {"trainer_id": trainer_id}
+    if start_date:
+        query["scheduled_date"] = {"$gte": start_date}
+    if end_date:
+        if "scheduled_date" in query:
+            query["scheduled_date"]["$lte"] = end_date
+        else:
+            query["scheduled_date"] = {"$lte": end_date}
+    
+    workouts = await db.scheduled_workouts.find(query, {"_id": 0}).sort("scheduled_date", 1).to_list(200)
+    return {"scheduled_workouts": workouts}
+
+
+@api_router.post("/coaching/assign-program")
+async def assign_program_to_client(trainer_id: str, client_id: str, template_id: str, start_date: str = None):
+    """Assign a program template to a client"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.assign_program_to_client(
+        trainer_id=trainer_id,
+        client_id=client_id,
+        template_id=template_id,
+        start_date=start_date
+    )
+    return result
+
+
+@api_router.post("/coaching/upload-pdf-workout")
+async def upload_pdf_workout(trainer_id: str, file_url: str, filename: str):
+    """Upload PDF workout for AI conversion"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.process_pdf_workout(trainer_id, file_url, filename)
+    return result
+
+
+# ----- AUTO MESSAGES & CHECK-INS -----
+
+@api_router.post("/coaching/message-templates")
+async def create_message_template_endpoint(trainer_id: str, request: CreateMessageTemplateRequest):
+    """Create a reusable message template with trigger"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.create_message_template(
+        trainer_id=trainer_id,
+        name=request.name,
+        body=request.body,
+        trigger=request.trigger.value if hasattr(request.trigger, 'value') else request.trigger,
+        subject=request.subject,
+        trigger_config=request.trigger_config,
+        send_as=request.send_as
+    )
+    return result
+
+
+@api_router.get("/coaching/message-templates/{trainer_id}")
+async def get_message_templates(trainer_id: str):
+    """Get all message templates for a trainer"""
+    templates = await db.message_templates.find(
+        {"trainer_id": trainer_id},
+        {"_id": 0}
+    ).to_list(100)
+    return {"templates": templates}
+
+
+@api_router.post("/coaching/schedule-message")
+async def schedule_message_endpoint(trainer_id: str, request: ScheduleMessageRequest):
+    """Schedule a message for future delivery"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.schedule_message(
+        trainer_id=trainer_id,
+        body=request.body,
+        scheduled_datetime=request.scheduled_datetime,
+        recipient_ids=request.recipient_ids,
+        group_id=request.group_id,
+        template_id=request.template_id,
+        subject=request.subject
+    )
+    return result
+
+
+@api_router.get("/coaching/scheduled-messages/{trainer_id}")
+async def get_scheduled_messages(trainer_id: str, status: str = "scheduled"):
+    """Get scheduled messages for a trainer"""
+    messages = await db.scheduled_messages.find(
+        {"trainer_id": trainer_id, "status": status},
+        {"_id": 0}
+    ).sort("scheduled_datetime", 1).to_list(100)
+    return {"messages": messages}
+
+
+@api_router.post("/coaching/trigger-messages/{client_id}")
+async def trigger_auto_messages(client_id: str, trigger: str):
+    """Trigger auto messages for a specific event"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.send_triggered_messages(trigger, client_id)
+    return result
+
+
+# ----- TASKS, HABITS & REMINDERS -----
+
+@api_router.post("/coaching/task-templates")
+async def create_task_template_endpoint(trainer_id: str, request: CreateTaskTemplateRequest):
+    """Create a reusable task template"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.create_task_template(
+        trainer_id=trainer_id,
+        name=request.name,
+        task_type=request.task_type.value if hasattr(request.task_type, 'value') else request.task_type,
+        frequency=request.frequency.value if hasattr(request.frequency, 'value') else request.frequency,
+        description=request.description,
+        preferred_time=request.preferred_time,
+        form_fields=request.form_fields,
+        requires_photo=request.requires_photo,
+        requires_measurement=request.requires_measurement,
+        xp_reward=request.xp_reward
+    )
+    return result
+
+
+@api_router.get("/coaching/task-templates/{trainer_id}")
+async def get_task_templates(trainer_id: str):
+    """Get all task templates for a trainer"""
+    templates = await db.task_templates.find(
+        {"trainer_id": trainer_id},
+        {"_id": 0}
+    ).to_list(100)
+    return {"templates": templates}
+
+
+@api_router.post("/coaching/assign-task")
+async def assign_task_endpoint(trainer_id: str, client_id: str, task_template_id: str, due_date: str, due_time: str = None):
+    """Assign a task to a client"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.assign_task_to_client(
+        trainer_id=trainer_id,
+        client_id=client_id,
+        task_template_id=task_template_id,
+        due_date=due_date,
+        due_time=due_time
+    )
+    return result
+
+
+@api_router.get("/coaching/today-tasks/{client_id}")
+async def get_today_tasks(client_id: str):
+    """Get all tasks due today for a client's 'Today' screen"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    tasks = await coaching_service.get_client_today_tasks(client_id)
+    return {"tasks": tasks}
+
+
+@api_router.post("/coaching/complete-task/{task_id}")
+async def complete_task_endpoint(task_id: str, client_id: str, response_data: Dict = None):
+    """Complete a task and award XP"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.complete_task(task_id, client_id, response_data)
+    return result
+
+
+@api_router.post("/coaching/habits")
+async def create_habit_endpoint(trainer_id: str, client_id: str, habit_name: str, description: str = None, target_frequency: int = 7, xp_per_completion: int = 5):
+    """Create a habit tracker for a client"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.create_habit(
+        trainer_id=trainer_id,
+        client_id=client_id,
+        habit_name=habit_name,
+        description=description,
+        target_frequency=target_frequency,
+        xp_per_completion=xp_per_completion
+    )
+    return result
+
+
+@api_router.get("/coaching/habits/{client_id}")
+async def get_client_habits(client_id: str):
+    """Get all habits for a client"""
+    habits = await db.habits.find(
+        {"client_id": client_id, "is_active": True},
+        {"_id": 0}
+    ).to_list(50)
+    return {"habits": habits}
+
+
+@api_router.post("/coaching/habits/{habit_id}/complete")
+async def complete_habit(habit_id: str, client_id: str):
+    """Log a habit completion"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.log_habit_completion(habit_id, client_id)
+    return result
+
+
+# ----- GROUP TRAINING & CHALLENGES -----
+
+@api_router.post("/coaching/challenges")
+async def create_challenge_endpoint(trainer_id: str, request: CreateChallengeRequest):
+    """Create a fitness challenge with leaderboard"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.create_challenge(
+        trainer_id=trainer_id,
+        name=request.name,
+        start_date=request.start_date,
+        end_date=request.end_date,
+        metric=request.metric.value if hasattr(request.metric, 'value') else request.metric,
+        description=request.description,
+        target_value=request.target_value,
+        entry_fee=request.entry_fee,
+        prize_description=request.prize_description,
+        is_public=request.is_public,
+        max_participants=request.max_participants
+    )
+    return result
+
+
+@api_router.get("/coaching/challenges/{trainer_id}")
+async def get_trainer_challenges(trainer_id: str, status: str = None):
+    """Get all challenges for a trainer"""
+    query = {"trainer_id": trainer_id}
+    if status:
+        query["status"] = status
+    
+    challenges = await db.challenges.find(query, {"_id": 0}).to_list(50)
+    return {"challenges": challenges}
+
+
+@api_router.get("/coaching/challenge/{challenge_id}")
+async def get_challenge_details(challenge_id: str):
+    """Get challenge details with leaderboard"""
+    challenge = await db.challenges.find_one({"id": challenge_id}, {"_id": 0})
+    if not challenge:
+        raise HTTPException(status_code=404, detail="Challenge not found")
+    return {"challenge": challenge}
+
+
+@api_router.post("/coaching/challenges/{challenge_id}/join")
+async def join_challenge_endpoint(challenge_id: str, client_id: str):
+    """Join a challenge"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.join_challenge(challenge_id, client_id)
+    return result
+
+
+@api_router.post("/coaching/challenges/{challenge_id}/progress")
+async def update_challenge_progress_endpoint(challenge_id: str, client_id: str, value: float):
+    """Update challenge progress"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.update_challenge_progress(challenge_id, client_id, value)
+    return result
+
+
+@api_router.get("/coaching/challenges/{challenge_id}/leaderboard")
+async def get_challenge_leaderboard(challenge_id: str):
+    """Get challenge leaderboard"""
+    challenge = await db.challenges.find_one({"id": challenge_id}, {"_id": 0})
+    if not challenge:
+        raise HTTPException(status_code=404, detail="Challenge not found")
+    return {"leaderboard": challenge.get("leaderboard", [])}
+
+
+@api_router.post("/coaching/challenges/{challenge_id}/schedule-post")
+async def schedule_challenge_post_endpoint(challenge_id: str, trainer_id: str, title: str, content: str, scheduled_datetime: str, post_type: str = "announcement"):
+    """Schedule a post for a challenge"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.schedule_challenge_post(
+        challenge_id=challenge_id,
+        trainer_id=trainer_id,
+        title=title,
+        content=content,
+        scheduled_datetime=scheduled_datetime,
+        post_type=post_type
+    )
+    return result
+
+
+@api_router.post("/coaching/groups")
+async def create_group_endpoint(trainer_id: str, name: str, description: str = None, max_members: int = None):
+    """Create a group class"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.create_group(
+        trainer_id=trainer_id,
+        name=name,
+        description=description,
+        max_members=max_members
+    )
+    return result
+
+
+@api_router.get("/coaching/groups/{trainer_id}")
+async def get_trainer_groups(trainer_id: str):
+    """Get all groups for a trainer"""
+    groups = await db.groups.find(
+        {"trainer_id": trainer_id},
+        {"_id": 0}
+    ).to_list(50)
+    return {"groups": groups}
+
+
+# ----- CLIENT TRACKING & ANALYTICS -----
+
+@api_router.post("/coaching/log-activity")
+async def log_activity_endpoint(client_id: str, trainer_id: str, activity_type: str, activity_data: Dict = None):
+    """Log a client activity"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.log_activity(client_id, trainer_id, activity_type, activity_data)
+    return result
+
+
+@api_router.get("/coaching/activity-log/{client_id}")
+async def get_client_activity_log(client_id: str, limit: int = 50):
+    """Get activity log for a client"""
+    activities = await db.activity_logs.find(
+        {"client_id": client_id},
+        {"_id": 0}
+    ).sort("timestamp", -1).limit(limit).to_list(limit)
+    return {"activities": activities}
+
+
+@api_router.post("/coaching/personal-records")
+async def record_pr_endpoint(client_id: str, exercise_name: str, pr_type: str, value: float, unit: str, workout_id: str = None):
+    """Record a personal record"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.record_personal_record(
+        client_id=client_id,
+        exercise_name=exercise_name,
+        pr_type=pr_type,
+        value=value,
+        unit=unit,
+        workout_id=workout_id
+    )
+    return result
+
+
+@api_router.get("/coaching/personal-records/{client_id}")
+async def get_client_prs(client_id: str):
+    """Get all personal records for a client"""
+    prs = await db.personal_records.find(
+        {"client_id": client_id},
+        {"_id": 0}
+    ).sort("achieved_at", -1).to_list(100)
+    return {"personal_records": prs}
+
+
+@api_router.post("/coaching/generate-report/{client_id}")
+async def generate_client_report_endpoint(client_id: str, trainer_id: str, period: str = "weekly"):
+    """Generate a progress report for a client"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.generate_client_report(client_id, trainer_id, period)
+    return result
+
+
+@api_router.get("/coaching/reports/{trainer_id}")
+async def get_trainer_reports(trainer_id: str, client_id: str = None):
+    """Get progress reports for a trainer"""
+    query = {"trainer_id": trainer_id}
+    if client_id:
+        query["client_id"] = client_id
+    
+    reports = await db.progress_reports.find(query, {"_id": 0}).sort("generated_at", -1).to_list(100)
+    return {"reports": reports}
+
+
+@api_router.get("/coaching/at-risk-alerts/{trainer_id}")
+async def get_at_risk_alerts(trainer_id: str, acknowledged: bool = False):
+    """Get at-risk client alerts"""
+    alerts = await db.at_risk_alerts.find(
+        {"trainer_id": trainer_id, "is_acknowledged": acknowledged},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    return {"alerts": alerts}
+
+
+@api_router.post("/coaching/at-risk-alerts/{alert_id}/acknowledge")
+async def acknowledge_alert(alert_id: str):
+    """Acknowledge an at-risk alert"""
+    result = await db.at_risk_alerts.update_one(
+        {"id": alert_id},
+        {"$set": {"is_acknowledged": True, "acknowledged_at": datetime.now(timezone.utc).isoformat()}}
+    )
+    if result.modified_count == 0:
+        raise HTTPException(status_code=404, detail="Alert not found")
+    return {"success": True}
+
+
+@api_router.get("/coaching/dashboard-analytics/{trainer_id}")
+async def get_dashboard_analytics(trainer_id: str):
+    """Get comprehensive analytics for trainer dashboard"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    analytics = await coaching_service.get_trainer_dashboard_analytics(trainer_id)
+    return {"analytics": analytics}
+
+
+# ----- ONBOARDING & PAYMENTS -----
+
+@api_router.post("/coaching/onboarding-sequences")
+async def create_onboarding_sequence_endpoint(trainer_id: str, request: CreateOnboardingSequenceRequest):
+    """Create an automated onboarding sequence"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.create_onboarding_sequence(
+        trainer_id=trainer_id,
+        name=request.name,
+        steps=request.steps,
+        description=request.description,
+        trigger=request.trigger,
+        trigger_package_ids=request.trigger_package_ids
+    )
+    return result
+
+
+@api_router.get("/coaching/onboarding-sequences/{trainer_id}")
+async def get_onboarding_sequences(trainer_id: str):
+    """Get all onboarding sequences for a trainer"""
+    sequences = await db.onboarding_sequences.find(
+        {"trainer_id": trainer_id},
+        {"_id": 0}
+    ).to_list(50)
+    return {"sequences": sequences}
+
+
+@api_router.post("/coaching/start-onboarding")
+async def start_onboarding_endpoint(client_id: str, sequence_id: str):
+    """Start a client through an onboarding sequence"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.start_client_onboarding(client_id, sequence_id)
+    return result
+
+
+@api_router.get("/coaching/onboarding-progress/{client_id}")
+async def get_onboarding_progress(client_id: str):
+    """Get onboarding progress for a client"""
+    progress = await db.onboarding_progress.find_one(
+        {"client_id": client_id},
+        {"_id": 0}
+    )
+    return {"progress": progress}
+
+
+@api_router.post("/coaching/payment-sequences")
+async def create_payment_sequence_endpoint(trainer_id: str, request: CreatePaymentSequenceRequest):
+    """Create an automated payment follow-up sequence"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.create_payment_sequence(
+        trainer_id=trainer_id,
+        name=request.name,
+        package_id=request.package_id,
+        package_name=request.package_name,
+        package_price=request.package_price,
+        follow_up_schedule=request.follow_up_schedule
+    )
+    return result
+
+
+@api_router.get("/coaching/payment-sequences/{trainer_id}")
+async def get_payment_sequences(trainer_id: str):
+    """Get all payment sequences for a trainer"""
+    sequences = await db.payment_sequences.find(
+        {"trainer_id": trainer_id},
+        {"_id": 0}
+    ).to_list(50)
+    return {"sequences": sequences}
+
+
+@api_router.post("/coaching/start-payment-followup")
+async def start_payment_followup_endpoint(sequence_id: str, client_id: str, client_name: str, client_email: str):
+    """Start a payment follow-up sequence"""
+    if not coaching_service:
+        raise HTTPException(status_code=503, detail="Coaching service not available")
+    
+    result = await coaching_service.start_payment_follow_up(
+        sequence_id=sequence_id,
+        client_id=client_id,
+        client_name=client_name,
+        client_email=client_email
+    )
+    return result
+
+
+@api_router.get("/coaching/payment-followups/{trainer_id}")
+async def get_payment_followups(trainer_id: str, status: str = "active"):
+    """Get payment follow-ups for a trainer"""
+    sequences = await db.payment_sequences.find({"trainer_id": trainer_id}, {"_id": 0}).to_list(50)
+    sequence_ids = [s["id"] for s in sequences]
+    
+    followups = await db.payment_follow_ups.find(
+        {"sequence_id": {"$in": sequence_ids}, "status": status},
+        {"_id": 0}
+    ).to_list(100)
+    return {"followups": followups}
+
 # ==================== END LIFTLINK 2.0 ENDPOINTS ====================
 
 # API Health endpoint (for /api/health route) - MUST be before include_router
