@@ -298,8 +298,8 @@ const AuthNavigator = ({ setUser }) => {
   );
 };
 
-// Main Navigator
-const MainNavigator = () => {
+// Main Tab Navigator (wrapped in Stack for modals)
+const MainTabNavigator = () => {
   const { user, colors } = useContext(AppContext);
   
   return (
@@ -312,6 +312,8 @@ const MainNavigator = () => {
             iconName = 'dashboard';
           } else if (route.name === 'Trainers') {
             iconName = 'search';
+          } else if (route.name === 'Discover') {
+            iconName = 'explore';
           } else if (route.name === 'Clients') {
             iconName = 'people';
           } else if (route.name === 'Content') {
@@ -361,7 +363,12 @@ const MainNavigator = () => {
           </Tab.Screen>
         </>
       ) : (
-        <Tab.Screen name="Trainers" component={TrainersScreen} />
+        <>
+          <Tab.Screen name="Trainers" component={TrainersScreen} />
+          <Tab.Screen name="Discover">
+            {(props) => <SwipeTrainerDiscovery {...props} />}
+          </Tab.Screen>
+        </>
       )}
       
       <Tab.Screen name="Fitness" component={FitnessScreen} />
@@ -369,6 +376,44 @@ const MainNavigator = () => {
       <Tab.Screen name="Sessions" component={SessionsScreen} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
+  );
+};
+
+// Main Navigator with Stack for modal screens
+const MainNavigator = () => {
+  const { user, colors } = useContext(AppContext);
+  
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainTabs" component={MainTabNavigator} />
+      <Stack.Screen 
+        name="VibeOnboarding" 
+        options={{ presentation: 'modal' }}
+      >
+        {(props) => <VibeOnboarding {...props} userId={user?.id} onComplete={(vibeData) => {
+          console.log('Vibe updated:', vibeData);
+          props.navigation.goBack();
+        }} />}
+      </Stack.Screen>
+      <Stack.Screen 
+        name="SwipeDiscovery" 
+        options={{ presentation: 'modal' }}
+      >
+        {(props) => <SwipeTrainerDiscovery {...props} />}
+      </Stack.Screen>
+      <Stack.Screen 
+        name="Payment" 
+        options={{ presentation: 'modal' }}
+      >
+        {(props) => <PaymentScreen {...props} />}
+      </Stack.Screen>
+      <Stack.Screen 
+        name="Calendar" 
+        options={{ presentation: 'modal' }}
+      >
+        {(props) => <CalendarScheduling {...props} />}
+      </Stack.Screen>
+    </Stack.Navigator>
   );
 };
 
