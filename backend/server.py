@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field, validator
 from typing import List, Optional, Dict
 from enum import Enum
 import uuid
+from uuid import uuid4
 import os
 from datetime import datetime, timedelta, timezone
 import httpx
