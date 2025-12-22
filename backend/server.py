@@ -4757,27 +4757,29 @@ async def delete_content(content_id: str):
     return {"success": True, "message": "Content deleted"}
 
 
-@api_router.post("/content/schedule")
-async def schedule_content_delivery(
-    content_id: str,
-    client_ids: List[str],
+class ScheduleContentRequest(BaseModel):
+    content_id: str
+    client_ids: List[str]
     delivery_time: str = "now"
-):
+
+
+@api_router.post("/content/schedule")
+async def schedule_content_delivery(request: ScheduleContentRequest):
     """Schedule content delivery to clients"""
     try:
-        content = await db.content_items.find_one({"id": content_id}, {"_id": 0})
+        content = await db.content_items.find_one({"id": request.content_id}, {"_id": 0})
         if not content:
             raise HTTPException(status_code=404, detail="Content not found")
         
         scheduled_deliveries = []
         
-        for client_id in client_ids:
+        for client_id in request.client_ids:
             delivery = {
                 "id": str(uuid4()),
-                "content_id": content_id,
+                "content_id": request.content_id,
                 "client_id": client_id,
-                "scheduled_for": delivery_time,
-                "status": "pending" if delivery_time != "now" else "sent",
+                "scheduled_for": request.delivery_time,
+                "status": "pending" if request.delivery_time != "now" else "sent",
                 "created_at": datetime.now(timezone.utc).isoformat()
             }
             
