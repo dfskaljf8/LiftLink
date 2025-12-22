@@ -1704,7 +1704,7 @@ def test_liftlink_2_0_ai_features():
         if response.status_code == 200:
             data = response.json()
             if (data.get("success") == True and 
-                "easy_restart" in data.get("message", "") and
+                "easy restart" in data.get("message", "").lower() and
                 data.get("vibe", {}).get("mode") == "easy_restart" and
                 data.get("vibe", {}).get("notification_frequency") == "minimal" and
                 data.get("vibe", {}).get("intensity_preference") == 2 and
