@@ -28,7 +28,7 @@ class AutomationEngine:
         Check if client has missed workouts and trigger appropriate action
         Trigger: 2+ missed workouts
         """
-        client = await self.db.clients.find_one({"id": client_id}, {"_id": 0})
+        client = await self.db.users.find_one({"id": client_id}, {"_id": 0})
         if not client:
             return None
         
@@ -103,7 +103,7 @@ class AutomationEngine:
         Check if client hit a streak milestone and celebrate
         Milestones: 7, 14, 21, 30, 60, 90, 180, 365 days
         """
-        client = await self.db.clients.find_one({"id": client_id}, {"_id": 0})
+        client = await self.db.users.find_one({"id": client_id}, {"_id": 0})
         if not client:
             return None
         
@@ -140,7 +140,7 @@ class AutomationEngine:
             xp_earned = xp_rewards.get(current_streak, 50)
             
             # Update client XP
-            await self.db.clients.update_one(
+            await self.db.users.update_one(
                 {"id": client_id},
                 {"$inc": {"total_xp": xp_earned}}
             )
@@ -199,7 +199,7 @@ class AutomationEngine:
     
     async def _check_streak_rewards(self, client_id: str, streak_days: int) -> Optional[Dict]:
         """Check if there's reward content to unlock for this streak"""
-        client = await self.db.clients.find_one({"id": client_id}, {"_id": 0})
+        client = await self.db.users.find_one({"id": client_id}, {"_id": 0})
         trainer_id = client.get("trainer_id")
         
         if not trainer_id:
@@ -279,7 +279,7 @@ class AutomationEngine:
         await self.db.checkins.insert_one(checkin)
         
         # Update client's rolling averages
-        await self.db.clients.update_one(
+        await self.db.users.update_one(
             {"id": client_id},
             {
                 "$set": {
@@ -291,7 +291,7 @@ class AutomationEngine:
         
         # Award XP for check-in
         xp_earned = 10
-        await self.db.clients.update_one(
+        await self.db.users.update_one(
             {"id": client_id},
             {"$inc": {"total_xp": xp_earned}}
         )
@@ -401,7 +401,7 @@ class AutomationEngine:
             high_priority = [r for r in recommendations if r.get("priority") == "high"]
             
             if high_priority:
-                client = await self.db.clients.find_one({"id": client_id}, {"_id": 0})
+                client = await self.db.users.find_one({"id": client_id}, {"_id": 0})
                 notification = {
                     "id": str(uuid4()),
                     "user_id": client_id,
@@ -433,7 +433,7 @@ class AutomationEngine:
         }
         
         # Get all active clients with trainers
-        clients = await self.db.clients.find({
+        clients = await self.db.users.find({
             "trainer_id": {"$ne": None}
         }).to_list(1000)
         
@@ -478,7 +478,7 @@ class AutomationEngine:
         
         for workout in upcoming_workouts:
             client_id = workout.get("client_id")
-            client = await self.db.clients.find_one({"id": client_id}, {"_id": 0})
+            client = await self.db.users.find_one({"id": client_id}, {"_id": 0})
             
             if not client:
                 continue
