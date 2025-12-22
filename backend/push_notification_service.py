@@ -230,7 +230,7 @@ class PushNotificationService:
         image_url: Optional[str] = None,
         badge_count: Optional[int] = None
     ) -> Dict:
-        """Send FCM multicast message"""
+        """Send FCM multicast message using Firebase Admin SDK v7+"""
         try:
             from firebase_admin import messaging
             
@@ -262,22 +262,40 @@ class PushNotificationService:
                 )
             )
             
-            # Build message
-            message = messaging.MulticastMessage(
-                tokens=tokens,
-                notification=notification,
-                data={k: str(v) for k, v in (data or {}).items()},  # FCM requires string values
-                android=android_config,
-                apns=apns_config
-            )
+            # Build messages for each token (Firebase Admin SDK v7+ approach)
+            messages = []
+            for token in tokens:
+                message = messaging.Message(
+                    token=token,
+                    notification=notification,
+                    data={k: str(v) for k, v in (data or {}).items()},  # FCM requires string values
+                    android=android_config,
+                    apns=apns_config
+                )
+                messages.append(message)
             
-            # Send
-            response = messaging.send_multicast(message)
-            
-            return {
-                "success_count": response.success_count,
-                "failure_count": response.failure_count
-            }
+            # Send using send_each_for_multicast (Firebase Admin SDK v7+)
+            # First, try the new API
+            try:
+                response = messaging.send_each(messages)
+                return {
+                    "success_count": response.success_count,
+                    "failure_count": response.failure_count
+                }
+            except AttributeError:
+                # Fallback: send individually
+                success_count = 0
+                failure_count = 0
+                for message in messages:
+                    try:
+                        messaging.send(message)
+                        success_count += 1
+                    except Exception:
+                        failure_count += 1
+                return {
+                    "success_count": success_count,
+                    "failure_count": failure_count
+                }
             
         except Exception as e:
             print(f"❌ FCM send error: {e}")
