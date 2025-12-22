@@ -614,7 +614,7 @@ const AuthScreen = ({ navigation, route }) => {
 
   const renderNameStep = () => (
     <View style={styles.authContainer}>
-      <Text style={[styles.title, { color: colors.text }]}>What's your name?</Text>
+      <Text style={[styles.title, { color: colors.text }]}>What&apos;s your name?</Text>
       
       <TextInput
         style={[styles.input, { color: colors.text, borderColor: colors.textSecondary }]}
