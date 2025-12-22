@@ -3,7 +3,7 @@
 ## Step 1: Create Test User & Session via API
 
 ```bash
-API_URL="https://trainer-match-14.preview.emergentagent.com"
+API_URL="https://vibe-workout.preview.emergentagent.com"
 
 # Create user via Google Auth endpoint
 curl -X POST "$API_URL/api/auth/google" \

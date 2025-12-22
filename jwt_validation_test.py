@@ -9,7 +9,7 @@ import json
 import uuid
 
 # Backend URL
-BACKEND_URL = "https://trainer-match-14.preview.emergentagent.com/api"
+BACKEND_URL = "https://vibe-workout.preview.emergentagent.com/api"
 
 def test_jwt_token_delivery():
     """Test JWT token delivery from login endpoint"""

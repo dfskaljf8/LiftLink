@@ -9,7 +9,7 @@ import threading
 import base64
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://trainer-match-14.preview.emergentagent.com/api"
+BACKEND_URL = "https://vibe-workout.preview.emergentagent.com/api"
 
 def test_ocr_document_verification():
     """

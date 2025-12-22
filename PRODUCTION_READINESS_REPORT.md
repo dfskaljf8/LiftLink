@@ -328,7 +328,7 @@ cd /app/react-native-app
 ## 🚀 Deployment Readiness
 
 ### Backend Deployment ✅
-- **URL**: https://trainer-match-14.preview.emergentagent.com/api
+- **URL**: https://vibe-workout.preview.emergentagent.com/api
 - **Status**: Running on Render
 - **Database**: MongoDB Atlas connected
 - **APIs**: All endpoints operational

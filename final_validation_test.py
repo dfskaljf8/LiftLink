@@ -17,7 +17,7 @@ import uuid
 from datetime import datetime
 
 # Backend URL from review request
-BACKEND_URL = "https://trainer-match-14.preview.emergentagent.com/api"
+BACKEND_URL = "https://vibe-workout.preview.emergentagent.com/api"
 
 def print_separator():
     print("\n" + "="*80 + "\n")

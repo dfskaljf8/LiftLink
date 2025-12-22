@@ -10,7 +10,7 @@ import uuid
 import time
 
 # Backend URL
-BACKEND_URL = "https://trainer-match-14.preview.emergentagent.com/api"
+BACKEND_URL = "https://vibe-workout.preview.emergentagent.com/api"
 
 def print_section(title):
     print(f"\n🎯 {title}")

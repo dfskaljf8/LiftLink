@@ -19,7 +19,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
-const API_URL = 'https://trainer-match-14.preview.emergentagent.com';
+const API_URL = 'https://vibe-workout.preview.emergentagent.com';
 
 const VIBE_OPTIONS = [
   {
