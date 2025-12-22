@@ -377,6 +377,17 @@ async def startup_event():
 from fastapi import APIRouter
 api_router = APIRouter()
 
+# Import AI and Automation services
+from ai_service import liftlink_ai
+from automation_engine import create_automation_engine
+from models import (
+    VibeMode, CoachingApproach, AutomationTrigger,
+    VibeOnboardingRequest, GenerateProgramRequest, CheckinRequest, AdaptWorkoutRequest
+)
+
+# Initialize automation engine (will be set after db is ready)
+automation_engine = None
+
 # Fitness API credentials
 GOOGLE_FIT_CLIENT_ID = os.environ.get('GOOGLE_FIT_CLIENT_ID', 'your_google_fit_client_id_here')
 GOOGLE_FIT_CLIENT_SECRET = os.environ.get('GOOGLE_FIT_CLIENT_SECRET', 'your_google_fit_client_secret_here')
