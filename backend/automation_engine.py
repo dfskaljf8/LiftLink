@@ -233,7 +233,7 @@ class AutomationEngine:
         """
         Process daily check-in and adapt today's workout if needed
         """
-        client = await self.db.clients.find_one({"id": client_id}, {"_id": 0})
+        client = await self.db.users.find_one({"id": client_id}, {"_id": 0})
         if not client:
             return {"success": False, "error": "Client not found"}
         
