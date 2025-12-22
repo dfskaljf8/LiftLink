@@ -442,6 +442,16 @@ Provide content in this format:
                 'success': False,
                 'error': str(e)
             }
+    
+    async def generate_content(
+        self,
+        trainer_notes: str,
+        content_type: str = "tip"
+    ) -> Dict:
+        """
+        Wrapper for content generation from trainer notes
+        """
+        return await self.generate_content_from_notes(trainer_notes, content_type)
 
 
 # Singleton instance
