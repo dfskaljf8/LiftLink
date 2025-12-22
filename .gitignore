@@ -131,3 +131,8 @@ android-sdk/ -e
 # Environment files
 *.env
 *.env.*
+-e 
+# Environment files
+*.env
+*.env.*
+backend/firebase-service-account.json
