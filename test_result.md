@@ -349,3 +349,78 @@ CRITICAL: Gamification system needs major fixes - most endpoints not returning e
 🎯 Navigation Structure: Components support role-based navigation as specified - Trainers (Dashboard, Clients, Content, Fitness, Tree, Sessions, Settings) and Trainees (Dashboard, Trainers, Fitness, Tree, Sessions, Settings).
 
 All React Native components are production-ready and match the specifications in the review request. Frontend testing completed successfully with no major issues found."
+  
+  - task: "Coaching Automation Backend"
+    implemented: true
+    working: pending_full_test
+    file: "server.py, coaching_service.py, coaching_models.py"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+      - working: partial
+        agent: "main"
+        comment: "Initial manual curl tests passed for: program templates (create/get), message templates, task templates, challenges, onboarding sequences, habits, payment sequences, scheduled workouts, scheduled messages, dashboard analytics. Total 37+ new coaching endpoints added. Requires comprehensive testing with testing agent."
+
+pending_test_requests:
+  - request: |
+    Test all new Coaching Automation API endpoints:
+    
+    1. PROGRAM DELIVERY:
+       - POST /api/coaching/program-templates (create template)
+       - GET /api/coaching/program-templates/{trainer_id}
+       - POST /api/coaching/schedule-workout
+       - GET /api/coaching/scheduled-workouts/{trainer_id}
+       - POST /api/coaching/assign-program
+       - POST /api/coaching/upload-pdf-workout
+       
+    2. AUTO MESSAGES:
+       - POST /api/coaching/message-templates
+       - GET /api/coaching/message-templates/{trainer_id}
+       - POST /api/coaching/schedule-message
+       - GET /api/coaching/scheduled-messages/{trainer_id}
+       - POST /api/coaching/trigger-messages/{client_id}
+       
+    3. TASKS & HABITS:
+       - POST /api/coaching/task-templates
+       - GET /api/coaching/task-templates/{trainer_id}
+       - POST /api/coaching/assign-task
+       - GET /api/coaching/today-tasks/{client_id}
+       - POST /api/coaching/complete-task/{task_id}
+       - POST /api/coaching/habits (query params: trainer_id, client_id, habit_name)
+       - GET /api/coaching/habits/{client_id}
+       - POST /api/coaching/habits/{habit_id}/complete
+       
+    4. CHALLENGES & LEADERBOARDS:
+       - POST /api/coaching/challenges
+       - GET /api/coaching/challenges/{trainer_id}
+       - GET /api/coaching/challenge/{challenge_id}
+       - POST /api/coaching/challenges/{challenge_id}/join
+       - POST /api/coaching/challenges/{challenge_id}/progress
+       - GET /api/coaching/challenges/{challenge_id}/leaderboard
+       - POST /api/coaching/challenges/{challenge_id}/schedule-post
+       
+    5. CLIENT TRACKING:
+       - POST /api/coaching/groups
+       - GET /api/coaching/groups/{trainer_id}
+       - POST /api/coaching/log-activity
+       - GET /api/coaching/activity-log/{client_id}
+       - POST /api/coaching/personal-records
+       - GET /api/coaching/personal-records/{client_id}
+       - POST /api/coaching/generate-report/{client_id}
+       - GET /api/coaching/reports/{trainer_id}
+       - GET /api/coaching/at-risk-alerts/{trainer_id}
+       - POST /api/coaching/at-risk-alerts/{alert_id}/acknowledge
+       - GET /api/coaching/dashboard-analytics/{trainer_id}
+       
+    6. ONBOARDING & PAYMENTS:
+       - POST /api/coaching/onboarding-sequences
+       - GET /api/coaching/onboarding-sequences/{trainer_id}
+       - POST /api/coaching/start-onboarding
+       - GET /api/coaching/onboarding-progress/{client_id}
+       - POST /api/coaching/payment-sequences
+       - GET /api/coaching/payment-sequences/{trainer_id}
+       - POST /api/coaching/start-payment-followup
+       - GET /api/coaching/payment-followups/{trainer_id}
+       
+    Test CRUD operations, edge cases, and error handling for all endpoints.
