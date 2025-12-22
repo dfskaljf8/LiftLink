@@ -3491,10 +3491,183 @@ async def vibe_onboarding(request: VibeOnboardingRequest):
 
 # ----- AI WORKOUT GENERATION -----
 
+# Background task storage for async program generation
+program_generation_tasks = {}
+
 @api_router.post("/ai/generate-program")
-async def generate_ai_program(request: GenerateProgramRequest):
+async def generate_ai_program(request: GenerateProgramRequest, background_tasks: BackgroundTasks):
     """
     Generate AI-powered workout program based on trainer style and client profile
+    Returns immediately with a task_id. Poll /ai/program-status/{task_id} to check completion.
+    """
+    try:
+        # Get trainer style
+        trainer = await db.users.find_one({"id": request.trainer_id, "role": "trainer"}, {"_id": 0})
+        if not trainer:
+            raise HTTPException(status_code=404, detail="Trainer not found")
+        
+        # Get client profile
+        client = await db.users.find_one({"id": request.client_id}, {"_id": 0})
+        if not client:
+            raise HTTPException(status_code=404, detail="Client not found")
+        
+        # Create task ID
+        task_id = str(uuid4())
+        
+        # Store task status
+        program_generation_tasks[task_id] = {
+            "status": "processing",
+            "trainer_id": request.trainer_id,
+            "client_id": request.client_id,
+            "started_at": datetime.now(timezone.utc).isoformat(),
+            "program": None,
+            "error": None
+        }
+        
+        # Build context for background task
+        trainer_style = {
+            "approach": trainer.get("style", {}).get("approach", "hybrid"),
+            "methods": trainer.get("style", {}).get("methods", ["strength", "conditioning"]),
+            "session_structure": trainer.get("style", {}).get("session_structure", "warm-up, main work, cool-down"),
+            "sample_exercises": trainer.get("style", {}).get("sample_exercises", [])
+        }
+        
+        client_profile = {
+            "goal": client.get("goals", {}).get("primary_goal", "general fitness"),
+            "experience": client.get("experience_level", "beginner"),
+            "days_per_week": len(client.get("available_days", ["mon", "wed", "fri"])),
+            "session_duration": client.get("session_duration_preference", 45),
+            "equipment": client.get("available_equipment", ["bodyweight"]),
+            "limitations": ", ".join(client.get("injuries_limitations", [])) or "none",
+            "vibe": client.get("vibe", {}).get("mode", "soft_grind")
+        }
+        
+        # Add background task
+        background_tasks.add_task(
+            generate_program_background,
+            task_id,
+            request.trainer_id,
+            request.client_id,
+            trainer_style,
+            client_profile,
+            request.duration_weeks
+        )
+        
+        return {
+            "success": True,
+            "task_id": task_id,
+            "status": "processing",
+            "message": "Program generation started. Poll /api/ai/program-status/{task_id} to check completion."
+        }
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Program generation start error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def generate_program_background(
+    task_id: str,
+    trainer_id: str,
+    client_id: str,
+    trainer_style: Dict,
+    client_profile: Dict,
+    duration_weeks: int
+):
+    """Background task for AI program generation"""
+    try:
+        # Generate program with AI
+        result = await liftlink_ai.generate_workout_program(
+            trainer_style=trainer_style,
+            client_profile=client_profile,
+            duration_weeks=duration_weeks
+        )
+        
+        if result.get("success"):
+            program = result.get("program")
+            program["id"] = str(uuid4())
+            program["trainer_id"] = trainer_id
+            program["client_id"] = client_id
+            program["created_at"] = datetime.now(timezone.utc).isoformat()
+            
+            # Save program to database
+            await db.workout_programs.insert_one(program)
+            
+            # Assign to client
+            await db.users.update_one(
+                {"id": client_id},
+                {"$set": {"program_id": program["id"]}}
+            )
+            
+            # Update task status
+            program_generation_tasks[task_id] = {
+                "status": "completed",
+                "trainer_id": trainer_id,
+                "client_id": client_id,
+                "completed_at": datetime.now(timezone.utc).isoformat(),
+                "program": program,
+                "error": None
+            }
+            
+            # Send push notification
+            if push_service:
+                await push_service.send_to_user(
+                    user_id=client_id,
+                    title="New Program Ready! 📋",
+                    body=f"Your personalized {duration_weeks}-week program is ready!",
+                    data={"type": "program_assigned", "program_id": program["id"]},
+                    notification_type="program_assigned"
+                )
+        else:
+            program_generation_tasks[task_id] = {
+                "status": "failed",
+                "trainer_id": trainer_id,
+                "client_id": client_id,
+                "completed_at": datetime.now(timezone.utc).isoformat(),
+                "program": None,
+                "error": result.get("error", "Generation failed")
+            }
+            
+    except Exception as e:
+        print(f"❌ Background program generation error: {e}")
+        program_generation_tasks[task_id] = {
+            "status": "failed",
+            "trainer_id": trainer_id,
+            "client_id": client_id,
+            "completed_at": datetime.now(timezone.utc).isoformat(),
+            "program": None,
+            "error": str(e)
+        }
+
+
+@api_router.get("/ai/program-status/{task_id}")
+async def get_program_generation_status(task_id: str):
+    """Check status of AI program generation task"""
+    if task_id not in program_generation_tasks:
+        raise HTTPException(status_code=404, detail="Task not found")
+    
+    task = program_generation_tasks[task_id]
+    
+    # Clean up completed/failed tasks after retrieval (keep for 1 hour)
+    if task["status"] in ["completed", "failed"]:
+        # Schedule cleanup (in production, use Redis with TTL)
+        pass
+    
+    return {
+        "task_id": task_id,
+        "status": task["status"],
+        "program": task.get("program"),
+        "error": task.get("error"),
+        "completed_at": task.get("completed_at")
+    }
+
+
+@api_router.post("/ai/generate-program-sync")
+async def generate_ai_program_sync(request: GenerateProgramRequest):
+    """
+    Synchronous AI workout program generation (may timeout for complex programs)
+    Use /ai/generate-program for async generation instead.
     """
     try:
         # Get trainer style
@@ -3526,12 +3699,21 @@ async def generate_ai_program(request: GenerateProgramRequest):
             "vibe": client.get("vibe", {}).get("mode", "soft_grind")
         }
         
-        # Generate program with AI
-        result = await liftlink_ai.generate_workout_program(
-            trainer_style=trainer_style,
-            client_profile=client_profile,
-            duration_weeks=request.duration_weeks
-        )
+        # Generate program with AI (with timeout)
+        try:
+            result = await asyncio.wait_for(
+                liftlink_ai.generate_workout_program(
+                    trainer_style=trainer_style,
+                    client_profile=client_profile,
+                    duration_weeks=request.duration_weeks
+                ),
+                timeout=60.0  # 60 second timeout
+            )
+        except asyncio.TimeoutError:
+            raise HTTPException(
+                status_code=408, 
+                detail="Program generation timed out. Use /api/ai/generate-program for async generation."
+            )
         
         if result.get("success"):
             program = result.get("program")
