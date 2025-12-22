@@ -5491,9 +5491,21 @@ async def api_health_check():
         "status": "healthy",
         "service": "LiftLink API",
         "version": "2.0.0",
-        "features": ["AI Workout Generation", "Behavior Automations", "Gamification"],
+        "features": [
+            "AI Workout Generation",
+            "Behavior Automations", 
+            "Gamification",
+            "Coaching Automation",
+            "Program Delivery",
+            "Auto Messages",
+            "Tasks & Habits",
+            "Challenges & Leaderboards",
+            "Client Tracking",
+            "Onboarding Sequences",
+            "Payment Automation"
+        ],
         "database": "connected" if db is not None else "disconnected",
-        "endpoints": 60,
+        "endpoints": 110,
         "timestamp": datetime.now().isoformat()
     }
 
