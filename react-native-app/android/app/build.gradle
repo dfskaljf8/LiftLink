@@ -76,11 +76,11 @@ def enableProguardInReleaseBuilds = true
 def jscFlavor = 'org.webkit:android-jsc:+'
 
 android {
-    namespace "com.liftlink"
+    namespace "com.liftlinkapp"
     compileSdkVersion 34
     
     defaultConfig {
-        applicationId "com.liftlink"
+        applicationId "com.liftlinkapp"
         minSdkVersion 21
         targetSdkVersion 34
         versionCode 1
