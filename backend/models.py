@@ -11,7 +11,7 @@ from datetime import datetime
 # ==================== ENUMS ====================
 
 class VibeMode(str, Enum):
-    DOG_MODE = "dog_mode"  # Intense, no-excuses
+    BIG_DOG_MODE = "big_dog_mode"  # Intense, no-excuses
     SOFT_GRIND = "soft_grind"  # Encouraging, sustainable
     EASY_RESTART = "easy_restart"  # Gentle, compassionate
 
