@@ -4171,6 +4171,483 @@ async def get_trainer_dashboard(trainer_id: str):
         print(f"❌ Dashboard error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
+# ----- PUSH NOTIFICATION ENDPOINTS -----
+
+class RegisterDeviceRequest(BaseModel):
+    user_id: str
+    fcm_token: str
+    device_type: str  # 'ios' or 'android'
+    device_info: Optional[Dict] = None
+
+class SendNotificationRequest(BaseModel):
+    user_id: str
+    title: str
+    body: str
+    data: Optional[Dict] = None
+    notification_type: str = "general"
+
+@api_router.post("/push/register-device")
+async def register_push_device(request: RegisterDeviceRequest):
+    """Register a device for push notifications"""
+    if not push_service:
+        raise HTTPException(status_code=503, detail="Push service not available")
+    
+    result = await push_service.register_device(
+        user_id=request.user_id,
+        fcm_token=request.fcm_token,
+        device_type=request.device_type,
+        device_info=request.device_info
+    )
+    return result
+
+@api_router.post("/push/unregister-device")
+async def unregister_push_device(fcm_token: str):
+    """Unregister a device from push notifications"""
+    if not push_service:
+        raise HTTPException(status_code=503, detail="Push service not available")
+    
+    result = await push_service.unregister_device(fcm_token)
+    return result
+
+@api_router.post("/push/send")
+async def send_push_notification(request: SendNotificationRequest):
+    """Send push notification to a user"""
+    if not push_service:
+        raise HTTPException(status_code=503, detail="Push service not available")
+    
+    result = await push_service.send_to_user(
+        user_id=request.user_id,
+        title=request.title,
+        body=request.body,
+        data=request.data,
+        notification_type=request.notification_type
+    )
+    return result
+
+@api_router.get("/push/notifications/{user_id}")
+async def get_user_notifications(user_id: str, limit: int = 20, unread_only: bool = False):
+    """Get notifications for a user"""
+    if not push_service:
+        raise HTTPException(status_code=503, detail="Push service not available")
+    
+    notifications = await push_service.get_user_notifications(
+        user_id=user_id,
+        limit=limit,
+        unread_only=unread_only
+    )
+    return {"notifications": notifications}
+
+@api_router.post("/push/mark-read/{notification_id}")
+async def mark_notification_read(notification_id: str):
+    """Mark a notification as read"""
+    if not push_service:
+        raise HTTPException(status_code=503, detail="Push service not available")
+    
+    result = await push_service.mark_as_read(notification_id)
+    return result
+
+@api_router.post("/push/mark-all-read/{user_id}")
+async def mark_all_notifications_read(user_id: str):
+    """Mark all user notifications as read"""
+    if not push_service:
+        raise HTTPException(status_code=503, detail="Push service not available")
+    
+    result = await push_service.mark_all_read(user_id)
+    return result
+
+# ----- GAMIFICATION ENDPOINTS (XP, Quests, Achievements) -----
+
+ACHIEVEMENT_DEFINITIONS = [
+    {"id": "first_workout", "name": "First Steps", "description": "Complete your first workout", "icon": "🎯", "xp_reward": 50, "requirement_type": "total_workouts", "requirement_value": 1},
+    {"id": "week_warrior", "name": "Week Warrior", "description": "7-day streak achieved", "icon": "🔥", "xp_reward": 100, "requirement_type": "streak", "requirement_value": 7},
+    {"id": "consistent_10", "name": "Ten Timer", "description": "Complete 10 workouts", "icon": "💪", "xp_reward": 150, "requirement_type": "total_workouts", "requirement_value": 10},
+    {"id": "streak_master", "name": "Streak Master", "description": "30-day streak achieved", "icon": "⚡", "xp_reward": 500, "requirement_type": "streak", "requirement_value": 30},
+    {"id": "centurion", "name": "Centurion", "description": "Complete 100 workouts", "icon": "🏆", "xp_reward": 1000, "requirement_type": "total_workouts", "requirement_value": 100},
+    {"id": "early_bird", "name": "Early Bird", "description": "Complete 5 morning workouts", "icon": "🌅", "xp_reward": 75, "requirement_type": "morning_workouts", "requirement_value": 5},
+    {"id": "checkin_champ", "name": "Check-in Champ", "description": "Complete 14 daily check-ins", "icon": "✅", "xp_reward": 100, "requirement_type": "checkins", "requirement_value": 14},
+]
+
+QUEST_TEMPLATES = [
+    {"id": "weekly_3", "name": "Three's Company", "description": "Complete 3 workouts this week", "xp_reward": 75, "target": 3, "type": "weekly_workouts"},
+    {"id": "weekly_5", "name": "High Five", "description": "Complete 5 workouts this week", "xp_reward": 150, "target": 5, "type": "weekly_workouts"},
+    {"id": "daily_checkin_streak", "name": "Daily Dedication", "description": "Check in for 5 consecutive days", "xp_reward": 100, "target": 5, "type": "checkin_streak"},
+    {"id": "intensity_week", "name": "Intensity Week", "description": "Complete 3 high-intensity workouts", "xp_reward": 125, "target": 3, "type": "high_intensity"},
+    {"id": "social_butterfly", "name": "Social Butterfly", "description": "Add 3 friends this week", "xp_reward": 50, "target": 3, "type": "add_friends"},
+]
+
+@api_router.get("/gamification/stats/{user_id}")
+async def get_gamification_stats(user_id: str):
+    """Get comprehensive gamification stats for a user"""
+    try:
+        user = await db.users.find_one({"id": user_id}, {"_id": 0})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get XP events
+        xp_events = await db.xp_events.find(
+            {"client_id": user_id},
+            {"_id": 0}
+        ).sort("created_at", -1).limit(20).to_list(20)
+        
+        # Get unlocked achievements
+        unlocked_achievements = await db.client_achievements.find(
+            {"client_id": user_id},
+            {"_id": 0}
+        ).to_list(50)
+        
+        unlocked_ids = [a["achievement_id"] for a in unlocked_achievements]
+        
+        # Get active quests
+        active_quests = await db.user_quests.find(
+            {"user_id": user_id, "status": "active"},
+            {"_id": 0}
+        ).to_list(10)
+        
+        # Calculate level from XP
+        total_xp = user.get("total_xp", 0)
+        level = calculate_level_from_xp(total_xp)
+        xp_for_next_level = get_xp_for_level(level + 1)
+        xp_in_current_level = total_xp - get_xp_for_level(level)
+        xp_needed = xp_for_next_level - get_xp_for_level(level)
+        
+        return {
+            "user_id": user_id,
+            "total_xp": total_xp,
+            "level": level,
+            "level_progress": {
+                "current_xp": xp_in_current_level,
+                "needed_xp": xp_needed,
+                "percentage": round((xp_in_current_level / xp_needed) * 100, 1) if xp_needed > 0 else 100
+            },
+            "current_streak": user.get("current_streak", 0),
+            "longest_streak": user.get("longest_streak", 0),
+            "total_workouts": user.get("total_workouts_completed", 0),
+            "recent_xp_events": xp_events[:10],
+            "achievements": {
+                "unlocked": unlocked_achievements,
+                "available": [a for a in ACHIEVEMENT_DEFINITIONS if a["id"] not in unlocked_ids]
+            },
+            "active_quests": active_quests
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"❌ Gamification stats error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+def calculate_level_from_xp(xp: int) -> int:
+    """Calculate level from total XP (exponential curve)"""
+    level = 1
+    while get_xp_for_level(level + 1) <= xp:
+        level += 1
+    return level
+
+
+def get_xp_for_level(level: int) -> int:
+    """Get total XP required for a level"""
+    # Levels 1-10: 100 XP each
+    # Levels 11-20: 150 XP each  
+    # Levels 21-30: 200 XP each
+    # etc.
+    total = 0
+    for l in range(1, level):
+        tier = (l - 1) // 10
+        xp_per_level = 100 + (tier * 50)
+        total += xp_per_level
+    return total
+
+
+@api_router.post("/gamification/award-xp")
+async def award_xp(user_id: str, amount: int, event_type: str, description: str):
+    """Award XP to a user"""
+    try:
+        # Update user XP
+        await db.users.update_one(
+            {"id": user_id},
+            {"$inc": {"total_xp": amount}}
+        )
+        
+        # Log XP event
+        xp_event = {
+            "id": str(uuid4()),
+            "client_id": user_id,
+            "event_type": event_type,
+            "xp_earned": amount,
+            "description": description,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        }
+        await db.xp_events.insert_one(xp_event)
+        
+        # Check for level up
+        user = await db.users.find_one({"id": user_id}, {"_id": 0})
+        new_total = user.get("total_xp", 0)
+        new_level = calculate_level_from_xp(new_total)
+        old_level = calculate_level_from_xp(new_total - amount)
+        
+        level_up = new_level > old_level
+        
+        if level_up and push_service:
+            await push_service.send_to_user(
+                user_id=user_id,
+                title=f"🎉 Level {new_level}!",
+                body=f"You've reached level {new_level}! Keep crushing it!",
+                data={"type": "level_up", "new_level": new_level},
+                notification_type="achievement"
+            )
+        
+        return {
+            "success": True,
+            "xp_awarded": amount,
+            "new_total": new_total,
+            "level": new_level,
+            "level_up": level_up
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/gamification/quests/{user_id}")
+async def get_user_quests(user_id: str):
+    """Get active and available quests for a user"""
+    try:
+        # Get active quests
+        active_quests = await db.user_quests.find(
+            {"user_id": user_id, "status": "active"},
+            {"_id": 0}
+        ).to_list(10)
+        
+        # Get completed quests this week
+        week_start = (datetime.now(timezone.utc) - timedelta(days=datetime.now().weekday())).strftime("%Y-%m-%d")
+        completed_this_week = await db.user_quests.find(
+            {"user_id": user_id, "status": "completed", "completed_at": {"$gte": week_start}},
+            {"_id": 0}
+        ).to_list(20)
+        
+        # Available quests (not currently active)
+        active_quest_ids = [q["quest_id"] for q in active_quests]
+        available = [q for q in QUEST_TEMPLATES if q["id"] not in active_quest_ids]
+        
+        return {
+            "active_quests": active_quests,
+            "completed_this_week": completed_this_week,
+            "available_quests": available
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/gamification/accept-quest")
+async def accept_quest(user_id: str, quest_id: str):
+    """Accept a quest"""
+    try:
+        # Find quest template
+        quest_template = next((q for q in QUEST_TEMPLATES if q["id"] == quest_id), None)
+        if not quest_template:
+            raise HTTPException(status_code=404, detail="Quest not found")
+        
+        # Check if already active
+        existing = await db.user_quests.find_one({
+            "user_id": user_id,
+            "quest_id": quest_id,
+            "status": "active"
+        })
+        if existing:
+            raise HTTPException(status_code=400, detail="Quest already active")
+        
+        # Create user quest
+        user_quest = {
+            "id": str(uuid4()),
+            "user_id": user_id,
+            "quest_id": quest_id,
+            "name": quest_template["name"],
+            "description": quest_template["description"],
+            "xp_reward": quest_template["xp_reward"],
+            "target": quest_template["target"],
+            "progress": 0,
+            "type": quest_template["type"],
+            "status": "active",
+            "accepted_at": datetime.now(timezone.utc).isoformat(),
+            "expires_at": (datetime.now(timezone.utc) + timedelta(days=7)).isoformat()
+        }
+        
+        await db.user_quests.insert_one(user_quest)
+        
+        return {
+            "success": True,
+            "quest": {k: v for k, v in user_quest.items() if k != "_id"}
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/gamification/update-quest-progress")
+async def update_quest_progress(user_id: str, quest_type: str, increment: int = 1):
+    """Update progress on matching quests"""
+    try:
+        # Find active quests of this type
+        active_quests = await db.user_quests.find({
+            "user_id": user_id,
+            "type": quest_type,
+            "status": "active"
+        }).to_list(10)
+        
+        completed_quests = []
+        
+        for quest in active_quests:
+            new_progress = quest["progress"] + increment
+            
+            if new_progress >= quest["target"]:
+                # Quest completed!
+                await db.user_quests.update_one(
+                    {"id": quest["id"]},
+                    {"$set": {
+                        "progress": quest["target"],
+                        "status": "completed",
+                        "completed_at": datetime.now(timezone.utc).isoformat()
+                    }}
+                )
+                
+                # Award XP
+                await db.users.update_one(
+                    {"id": user_id},
+                    {"$inc": {"total_xp": quest["xp_reward"]}}
+                )
+                
+                # Log XP event
+                await db.xp_events.insert_one({
+                    "id": str(uuid4()),
+                    "client_id": user_id,
+                    "event_type": "quest_completed",
+                    "xp_earned": quest["xp_reward"],
+                    "description": f"Completed quest: {quest['name']}",
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                })
+                
+                completed_quests.append(quest["name"])
+                
+                # Send notification
+                if push_service:
+                    await push_service.send_to_user(
+                        user_id=user_id,
+                        title="🎯 Quest Complete!",
+                        body=f"You completed '{quest['name']}'! +{quest['xp_reward']} XP",
+                        data={"type": "quest_completed", "quest_id": quest["id"], "xp": quest["xp_reward"]},
+                        notification_type="achievement"
+                    )
+            else:
+                # Update progress
+                await db.user_quests.update_one(
+                    {"id": quest["id"]},
+                    {"$set": {"progress": new_progress}}
+                )
+        
+        return {
+            "success": True,
+            "quests_updated": len(active_quests),
+            "quests_completed": completed_quests
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/gamification/achievements")
+async def get_all_achievements():
+    """Get all available achievements"""
+    return {"achievements": ACHIEVEMENT_DEFINITIONS}
+
+
+@api_router.post("/gamification/check-achievements/{user_id}")
+async def check_and_award_achievements(user_id: str):
+    """Check and award any earned achievements"""
+    try:
+        user = await db.users.find_one({"id": user_id}, {"_id": 0})
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Get already unlocked
+        unlocked = await db.client_achievements.find(
+            {"client_id": user_id},
+            {"_id": 0}
+        ).to_list(100)
+        unlocked_ids = [a["achievement_id"] for a in unlocked]
+        
+        newly_unlocked = []
+        
+        for achievement in ACHIEVEMENT_DEFINITIONS:
+            if achievement["id"] in unlocked_ids:
+                continue
+            
+            # Check requirement
+            earned = False
+            req_type = achievement["requirement_type"]
+            req_value = achievement["requirement_value"]
+            
+            if req_type == "total_workouts":
+                earned = user.get("total_workouts_completed", 0) >= req_value
+            elif req_type == "streak":
+                earned = user.get("current_streak", 0) >= req_value or user.get("longest_streak", 0) >= req_value
+            elif req_type == "checkins":
+                checkin_count = await db.checkins.count_documents({"client_id": user_id})
+                earned = checkin_count >= req_value
+            
+            if earned:
+                # Award achievement
+                achievement_record = {
+                    "id": str(uuid4()),
+                    "client_id": user_id,
+                    "achievement_id": achievement["id"],
+                    "unlocked_at": datetime.now(timezone.utc).isoformat(),
+                    "celebrated": False
+                }
+                await db.client_achievements.insert_one(achievement_record)
+                
+                # Award XP
+                await db.users.update_one(
+                    {"id": user_id},
+                    {"$inc": {"total_xp": achievement["xp_reward"]}}
+                )
+                
+                # Log XP event
+                await db.xp_events.insert_one({
+                    "id": str(uuid4()),
+                    "client_id": user_id,
+                    "event_type": "achievement_unlocked",
+                    "xp_earned": achievement["xp_reward"],
+                    "description": f"Unlocked: {achievement['name']}",
+                    "created_at": datetime.now(timezone.utc).isoformat()
+                })
+                
+                newly_unlocked.append(achievement)
+                
+                # Send notification
+                if push_service:
+                    await push_service.send_to_user(
+                        user_id=user_id,
+                        title=f"🏆 Achievement Unlocked!",
+                        body=f"You earned '{achievement['name']}'! +{achievement['xp_reward']} XP",
+                        data={"type": "achievement_unlocked", "achievement_id": achievement["id"]},
+                        notification_type="achievement"
+                    )
+        
+        return {
+            "success": True,
+            "newly_unlocked": newly_unlocked,
+            "count": len(newly_unlocked)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ==================== END LIFTLINK 2.0 ENDPOINTS ====================
 
 # API Health endpoint (for /api/health route) - MUST be before include_router
