@@ -3420,7 +3420,7 @@ async def init_automation_engine():
 async def vibe_onboarding(request: VibeOnboardingRequest):
     """
     Vibe-based onboarding - sets user's coaching style and preferences
-    Vibes: dog_mode (intense), soft_grind (balanced), easy_restart (gentle)
+    Vibes: big_dog_mode (intense), soft_grind (balanced), easy_restart (gentle)
     """
     try:
         user = await db.users.find_one({"id": request.user_id}, {"_id": 0})
@@ -3431,12 +3431,12 @@ async def vibe_onboarding(request: VibeOnboardingRequest):
         vibe_profile = {
             "mode": request.vibe_mode.value,
             "notification_frequency": {
-                "dog_mode": "frequent",
+                "big_dog_mode": "frequent",
                 "soft_grind": "moderate", 
                 "easy_restart": "minimal"
             }.get(request.vibe_mode.value, "moderate"),
             "intensity_preference": {
-                "dog_mode": 5,
+                "big_dog_mode": 5,
                 "soft_grind": 3,
                 "easy_restart": 2
             }.get(request.vibe_mode.value, 3)
