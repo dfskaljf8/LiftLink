@@ -4833,18 +4833,18 @@ async def ai_enhance_content(request: EnhanceContentRequest):
             return {
                 "success": True,
                 "generated_content": result.get("content"),
-                "original": trainer_notes
+                "original": request.trainer_notes
             }
         else:
             # Fallback: return enhanced version without AI
             return {
                 "success": True,
                 "generated_content": {
-                    "headline": trainer_notes[:50],
-                    "content": trainer_notes,
-                    "hashtags": ["fitness", "health", content_type]
+                    "headline": request.trainer_notes[:50],
+                    "content": request.trainer_notes,
+                    "hashtags": ["fitness", "health", request.content_type]
                 },
-                "original": trainer_notes,
+                "original": request.trainer_notes,
                 "note": "AI enhancement unavailable, content returned as-is"
             }
             
@@ -4854,11 +4854,11 @@ async def ai_enhance_content(request: EnhanceContentRequest):
         return {
             "success": True,
             "generated_content": {
-                "headline": trainer_notes[:50],
-                "content": trainer_notes,
+                "headline": request.trainer_notes[:50],
+                "content": request.trainer_notes,
                 "hashtags": ["fitness", "health"]
             },
-            "original": trainer_notes
+            "original": request.trainer_notes
         }
 
 
