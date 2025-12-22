@@ -155,14 +155,14 @@ metadata:
 
 test_plan:
   current_focus:
-    - "All backend authentication and authorization tests completed successfully"
+    - "LiftLink 2.0 AI Features - Vibe Onboarding and Trainer Dashboard"
   stuck_tasks: []
   test_all: true
   test_priority: "high_first"
 
 agent_communication:
   - agent: "main"
-    message: "Please perform comprehensive testing of all backend endpoints, authentication flows, and authorization. Test both success and error cases. Verify JWT tokens work correctly for protected routes."
+    message: "Please test the new LiftLink 2.0 features: 1) Vibe Onboarding endpoint (/api/onboarding/vibe) with the new 'big_dog_mode' vibe option, 2) Trainer Dashboard endpoint (/api/trainer/dashboard/{trainer_id}). Test that big_dog_mode, soft_grind, and easy_restart vibes all work. Verify the trainer dashboard returns proper stats, alerts, and client information."
   - agent: "testing"
     message: "✅ COMPREHENSIVE BACKEND TESTING COMPLETED SUCCESSFULLY! All 29 tests passed (100% success rate). 
 
