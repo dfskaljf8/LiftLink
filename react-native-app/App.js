@@ -1708,7 +1708,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     textAlign: 'center',
   },
-  header: {
+  headerSimple: {
     marginBottom: 24,
   },
   headerTitle: {
