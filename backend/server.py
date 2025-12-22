@@ -4313,7 +4313,9 @@ async def get_gamification_stats(user_id: str):
         
         return {
             "user_id": user_id,
+            # Main fields
             "total_xp": total_xp,
+            "xp": total_xp,  # Alias for compatibility
             "level": level,
             "level_progress": {
                 "current_xp": xp_in_current_level,
@@ -4321,6 +4323,7 @@ async def get_gamification_stats(user_id: str):
                 "percentage": round((xp_in_current_level / xp_needed) * 100, 1) if xp_needed > 0 else 100
             },
             "current_streak": user.get("current_streak", 0),
+            "streak": user.get("current_streak", 0),  # Alias for compatibility
             "longest_streak": user.get("longest_streak", 0),
             "total_workouts": user.get("total_workouts_completed", 0),
             "recent_xp_events": xp_events[:10],
@@ -4328,7 +4331,8 @@ async def get_gamification_stats(user_id: str):
                 "unlocked": unlocked_achievements,
                 "available": [a for a in ACHIEVEMENT_DEFINITIONS if a["id"] not in unlocked_ids]
             },
-            "active_quests": active_quests
+            "active_quests": active_quests,
+            "quests": active_quests  # Alias for compatibility
         }
         
     except HTTPException:
