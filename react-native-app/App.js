@@ -759,7 +759,7 @@ const AuthScreen = ({ navigation, route }) => {
 
     return (
       <View style={styles.authContainer}>
-        <Text style={[styles.title, { color: colors.text }]}>What's your experience level?</Text>
+        <Text style={[styles.title, { color: colors.text }]}>What&apos;s your experience level?</Text>
         
         {experienceOptions.map((option) => (
           <TouchableOpacity
