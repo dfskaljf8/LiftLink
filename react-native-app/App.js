@@ -914,14 +914,14 @@ const LiftLinkLogo = ({ size = 60, showTagline = true }) => {
 };
 
 // Dashboard Screen - Role-based
-const DashboardScreen = () => {
+const DashboardScreen = ({ navigation }) => {
   const { user, colors, treeProgress, sessions } = useContext(AppContext);
   
   // Render role-specific dashboard
   if (user.role === 'trainer') {
-    return <TrainerDashboard user={user} />;
+    return <TrainerDashboard trainerId={user.id} navigation={navigation} />;
   } else {
-    return <TraineeDashboard user={user} />;
+    return <TraineeDashboard user={user} navigation={navigation} />;
   }
 };
 
