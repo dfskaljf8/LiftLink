@@ -12503,35 +12503,34 @@ def run_ocr_and_trainer_discovery_tests():
     return total_passed == total_tests
 
 if __name__ == "__main__":
-    print("🚀 Starting LiftLink Backend Testing Suite")
+    print("🚀 LIFTLINK 2.0 FIREBASE INTEGRATION TESTING")
+    print("=" * 80)
+    print(f"Backend URL: {BACKEND_URL}")
     print("=" * 80)
     
-    # Run the LiftLink 2.0 AI Features tests as requested
-    print("\n🎯 RUNNING LIFTLINK 2.0 AI FEATURES TESTS")
-    ai_results = test_liftlink_2_0_ai_features()
-    
-    # Run the OCR and Trainer Discovery tests
-    print("\n🎯 RUNNING OCR DOCUMENT VERIFICATION & TRAINER DISCOVERY TESTS")
-    ocr_trainer_success = run_ocr_and_trainer_discovery_tests()
-    
-    # Calculate overall success
-    ai_percentage = (ai_results["passed"] / ai_results["total"] * 100) if ai_results["total"] > 0 else 0
-    ai_success = ai_percentage == 100
+    # Run the Firebase integration test as requested in the review
+    firebase_results = test_liftlink_2_0_firebase_integration()
     
     print("\n" + "=" * 80)
-    print("📋 FINAL TEST SUMMARY")
+    print("🎯 FIREBASE INTEGRATION TEST SUMMARY")
     print("=" * 80)
     
-    print(f"🤖 AI FEATURES: {ai_results['passed']}/{ai_results['total']} ({ai_percentage:.1f}%)")
+    total_percentage = (firebase_results["passed"] / firebase_results["total"] * 100) if firebase_results["total"] > 0 else 0
+    overall_status = "✅ PASS" if firebase_results["passed"] == firebase_results["total"] else "❌ FAIL"
     
-    if ai_success and ocr_trainer_success:
-        print("\n🎉 ALL TESTS PASSED!")
+    print(f"OVERALL RESULT: {firebase_results['passed']}/{firebase_results['total']} ({total_percentage:.1f}%) {overall_status}")
+    
+    # Show critical failures
+    critical_failures = []
+    for test_name, test_result in firebase_results["tests"].items():
+        if not test_result["passed"]:
+            critical_failures.append(f"{test_name}: {test_result['error']}")
+    
+    if critical_failures:
+        print(f"\n❌ CRITICAL FAILURES ({len(critical_failures)}):")
+        for failure in critical_failures:
+            print(f"   • {failure}")
     else:
-        print("\n⚠️ SOME TESTS FAILED - REVIEW RESULTS ABOVE")
-        if not ai_success:
-            print("   - AI Features tests failed")
-        if not ocr_trainer_success:
-            print("   - OCR/Trainer Discovery tests failed")
+        print("\n✅ ALL TESTS PASSED - FIREBASE INTEGRATION WORKING CORRECTLY")
     
     print("\n" + "=" * 80)
-    print("🏁 Testing Complete")
