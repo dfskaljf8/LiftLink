@@ -308,6 +308,8 @@ const MainNavigator = () => {
             iconName = 'search';
           } else if (route.name === 'Clients') {
             iconName = 'people';
+          } else if (route.name === 'Content') {
+            iconName = 'folder';
           } else if (route.name === 'Fitness') {
             iconName = 'directions-run';
           } else if (route.name === 'Tree') {
@@ -344,9 +346,14 @@ const MainNavigator = () => {
       </Tab.Screen>
       
       {user.role === 'trainer' ? (
-        <Tab.Screen name="Clients">
-          {(props) => <TrainerDashboard {...props} user={user} />}
-        </Tab.Screen>
+        <>
+          <Tab.Screen name="Clients">
+            {(props) => <TrainerDashboard {...props} trainerId={user.id} />}
+          </Tab.Screen>
+          <Tab.Screen name="Content">
+            {(props) => <ContentLocker {...props} trainerId={user.id} />}
+          </Tab.Screen>
+        </>
       ) : (
         <Tab.Screen name="Trainers" component={TrainersScreen} />
       )}
