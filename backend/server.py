@@ -4787,19 +4787,19 @@ async def schedule_content_delivery(request: ScheduleContentRequest):
             scheduled_deliveries.append(delivery["id"])
             
             # If sending now, send push notification
-            if delivery_time == "now" and push_service:
+            if request.delivery_time == "now" and push_service:
                 await push_service.send_to_user(
                     user_id=client_id,
                     title=f"📚 New Content: {content['title']}",
                     body=content['content'][:100] + "..." if len(content['content']) > 100 else content['content'],
-                    data={"type": "content_delivery", "content_id": content_id},
+                    data={"type": "content_delivery", "content_id": request.content_id},
                     notification_type="content"
                 )
         
         # Update delivery count
         await db.content_items.update_one(
-            {"id": content_id},
-            {"$inc": {"delivery_count": len(client_ids)}}
+            {"id": request.content_id},
+            {"$inc": {"delivery_count": len(request.client_ids)}}
         )
         
         return {
