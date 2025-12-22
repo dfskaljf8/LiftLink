@@ -85,13 +85,13 @@ def test_coaching_automation_endpoints():
         
         if response.status_code == 200:
             data = response.json()
-            if "program_template" in data or "id" in data:
+            if "template" in data and "id" in data["template"]:
                 results["tests"]["program_template_create"] = {"passed": True, "error": None}
                 results["passed"] += 1
                 print("✅ Create program template: PASS")
                 print(f"   Created program: {program_data['name']}")
             else:
-                results["tests"]["program_template_create"] = {"passed": False, "error": "Missing program_template or id in response"}
+                results["tests"]["program_template_create"] = {"passed": False, "error": "Missing template or id in response"}
                 print(f"❌ Create program template: FAIL - Invalid response structure")
         else:
             results["tests"]["program_template_create"] = {"passed": False, "error": f"Status: {response.status_code}"}
