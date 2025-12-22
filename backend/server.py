@@ -4648,6 +4648,226 @@ async def check_and_award_achievements(user_id: str):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+# ----- CONTENT LOCKER ENDPOINTS -----
+
+class ContentCreateRequest(BaseModel):
+    trainer_id: str
+    title: str
+    content: str
+    type: str = "tip"  # tip, workout, program, motivation, recipe, video
+    tags: List[str] = []
+    is_premium: bool = False
+    unlock_requirement: Optional[str] = None
+
+
+@api_router.post("/content")
+async def create_content(request: ContentCreateRequest):
+    """Create new content item"""
+    try:
+        content_item = {
+            "id": str(uuid4()),
+            "trainer_id": request.trainer_id,
+            "title": request.title,
+            "content": request.content,
+            "type": request.type,
+            "tags": request.tags,
+            "is_premium": request.is_premium,
+            "unlock_requirement": request.unlock_requirement,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "delivery_count": 0
+        }
+        
+        await db.content_items.insert_one(content_item)
+        
+        return {
+            "success": True,
+            "content_item": {k: v for k, v in content_item.items() if k != "_id"}
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/content/trainer/{trainer_id}")
+async def get_trainer_content(trainer_id: str, content_type: Optional[str] = None):
+    """Get all content items for a trainer"""
+    try:
+        query = {"trainer_id": trainer_id}
+        if content_type:
+            query["type"] = content_type
+        
+        content_items = await db.content_items.find(
+            query,
+            {"_id": 0}
+        ).sort("created_at", -1).to_list(100)
+        
+        return {"content_items": content_items}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.get("/content/{content_id}")
+async def get_content_item(content_id: str):
+    """Get a specific content item"""
+    content = await db.content_items.find_one({"id": content_id}, {"_id": 0})
+    if not content:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return {"content_item": content}
+
+
+@api_router.put("/content/{content_id}")
+async def update_content(content_id: str, request: ContentCreateRequest):
+    """Update a content item"""
+    try:
+        update_data = {
+            "title": request.title,
+            "content": request.content,
+            "type": request.type,
+            "tags": request.tags,
+            "is_premium": request.is_premium,
+            "unlock_requirement": request.unlock_requirement,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        }
+        
+        result = await db.content_items.update_one(
+            {"id": content_id},
+            {"$set": update_data}
+        )
+        
+        if result.matched_count == 0:
+            raise HTTPException(status_code=404, detail="Content not found")
+        
+        return {"success": True, "message": "Content updated"}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.delete("/content/{content_id}")
+async def delete_content(content_id: str):
+    """Delete a content item"""
+    result = await db.content_items.delete_one({"id": content_id})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Content not found")
+    return {"success": True, "message": "Content deleted"}
+
+
+@api_router.post("/content/schedule")
+async def schedule_content_delivery(
+    content_id: str,
+    client_ids: List[str],
+    delivery_time: str = "now"
+):
+    """Schedule content delivery to clients"""
+    try:
+        content = await db.content_items.find_one({"id": content_id}, {"_id": 0})
+        if not content:
+            raise HTTPException(status_code=404, detail="Content not found")
+        
+        scheduled_deliveries = []
+        
+        for client_id in client_ids:
+            delivery = {
+                "id": str(uuid4()),
+                "content_id": content_id,
+                "client_id": client_id,
+                "scheduled_for": delivery_time,
+                "status": "pending" if delivery_time != "now" else "sent",
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+            
+            await db.content_deliveries.insert_one(delivery)
+            scheduled_deliveries.append(delivery["id"])
+            
+            # If sending now, send push notification
+            if delivery_time == "now" and push_service:
+                await push_service.send_to_user(
+                    user_id=client_id,
+                    title=f"📚 New Content: {content['title']}",
+                    body=content['content'][:100] + "..." if len(content['content']) > 100 else content['content'],
+                    data={"type": "content_delivery", "content_id": content_id},
+                    notification_type="content"
+                )
+        
+        # Update delivery count
+        await db.content_items.update_one(
+            {"id": content_id},
+            {"$inc": {"delivery_count": len(client_ids)}}
+        )
+        
+        return {
+            "success": True,
+            "scheduled_count": len(scheduled_deliveries),
+            "delivery_ids": scheduled_deliveries
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@api_router.post("/ai/enhance-content")
+async def ai_enhance_content(trainer_notes: str, content_type: str = "tip"):
+    """Use AI to enhance/polish trainer's content"""
+    try:
+        # Generate enhanced content with AI
+        result = await liftlink_ai.generate_content(
+            trainer_notes=trainer_notes,
+            content_type=content_type
+        )
+        
+        if result.get("success"):
+            return {
+                "success": True,
+                "generated_content": result.get("content"),
+                "original": trainer_notes
+            }
+        else:
+            # Fallback: return enhanced version without AI
+            return {
+                "success": True,
+                "generated_content": {
+                    "headline": trainer_notes[:50],
+                    "content": trainer_notes,
+                    "hashtags": ["fitness", "health", content_type]
+                },
+                "original": trainer_notes,
+                "note": "AI enhancement unavailable, content returned as-is"
+            }
+            
+    except Exception as e:
+        print(f"❌ Content enhancement error: {e}")
+        # Return original content on error
+        return {
+            "success": True,
+            "generated_content": {
+                "headline": trainer_notes[:50],
+                "content": trainer_notes,
+                "hashtags": ["fitness", "health"]
+            },
+            "original": trainer_notes
+        }
+
+
+@api_router.get("/trainer/{trainer_id}/clients")
+async def get_trainer_clients(trainer_id: str):
+    """Get all clients for a trainer"""
+    try:
+        clients = await db.users.find(
+            {"trainer_id": trainer_id},
+            {"_id": 0, "id": 1, "name": 1, "email": 1, "vibe": 1, "current_streak": 1}
+        ).to_list(100)
+        
+        return {"clients": clients}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # ==================== END LIFTLINK 2.0 ENDPOINTS ====================
 
 # API Health endpoint (for /api/health route) - MUST be before include_router
