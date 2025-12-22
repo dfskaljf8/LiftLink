@@ -52,7 +52,10 @@ jobs:
 
       - name: Install dependencies
         working-directory: react-native-app
-        run: yarn install --frozen-lockfile
+        run: |
+          yarn install --frozen-lockfile --network-timeout 300000 || \
+          yarn install --frozen-lockfile --network-timeout 300000 || \
+          yarn install --frozen-lockfile --network-timeout 300000
 
       - name: Build Debug APK
         if: github.event.inputs.build_type != 'release'
@@ -108,7 +111,10 @@ jobs:
 
       - name: Install dependencies
         working-directory: react-native-app
-        run: yarn install --frozen-lockfile
+        run: |
+          yarn install --frozen-lockfile --network-timeout 300000 || \
+          yarn install --frozen-lockfile --network-timeout 300000 || \
+          yarn install --frozen-lockfile --network-timeout 300000
 
       - name: Decode Keystore
         if: env.KEYSTORE_BASE64 != ''
