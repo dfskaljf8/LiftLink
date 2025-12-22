@@ -1544,6 +1544,319 @@ def test_websocket_endpoints(user_id, user_jwt):
     
     return results
 
+def test_liftlink_2_0_ai_features():
+    """
+    TEST LIFTLINK 2.0 AI FEATURES
+    
+    Tests the new AI-powered features:
+    1. POST /api/onboarding/vibe - Vibe-based onboarding with all three modes
+    2. GET /api/trainer/dashboard/{trainer_id} - Trainer dashboard with stats and alerts
+    3. Error handling for non-existent users/trainers
+    """
+    print("="*80)
+    print("🤖 TESTING LIFTLINK 2.0 AI FEATURES")
+    print("="*80)
+    
+    results = {"passed": 0, "total": 0, "tests": {}}
+    
+    print("\n📝 SETUP: Creating test users for AI features testing")
+    print("-" * 60)
+    
+    # Create test user for vibe onboarding
+    user_email = f"ai_test_user_{uuid.uuid4()}@example.com"
+    user_data = {
+        "email": user_email,
+        "name": "AI Test User",
+        "role": "fitness_enthusiast",
+        "fitness_goals": ["weight_loss"],
+        "experience_level": "beginner"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/create-test-user", json=user_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create test user: {response.status_code}")
+        return {"passed": 0, "total": 1, "tests": {"setup": {"passed": False, "error": "Failed to create test user"}}}
+    
+    user_login = response.json()
+    user_id = user_login["user"]["id"]
+    print(f"✅ Created test user: {user_login['user']['name']} - {user_id}")
+    
+    # Create test trainer for dashboard testing
+    trainer_email = f"ai_test_trainer_{uuid.uuid4()}@example.com"
+    trainer_data = {
+        "email": trainer_email,
+        "name": "AI Test Trainer",
+        "role": "trainer",
+        "fitness_goals": ["sport_training"],
+        "experience_level": "expert"
+    }
+    
+    response = requests.post(f"{BACKEND_URL}/create-test-user", json=trainer_data)
+    if response.status_code != 200:
+        print(f"❌ Failed to create test trainer: {response.status_code}")
+        return {"passed": 0, "total": 1, "tests": {"setup": {"passed": False, "error": "Failed to create test trainer"}}}
+    
+    trainer_login = response.json()
+    trainer_id = trainer_login["user"]["id"]
+    print(f"✅ Created test trainer: {trainer_login['user']['name']} - {trainer_id}")
+    
+    # Test 1: Vibe Onboarding - big_dog_mode
+    print("\n1️⃣ Testing POST /api/onboarding/vibe - big_dog_mode (intense)")
+    results["total"] += 1
+    try:
+        vibe_request = {
+            "user_id": user_id,
+            "vibe_mode": "big_dog_mode",
+            "primary_goal": "weight_loss",
+            "experience_level": "beginner",
+            "available_days": ["monday", "wednesday", "friday"],
+            "session_duration": 45,
+            "equipment": ["bodyweight", "dumbbells"]
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/onboarding/vibe", json=vibe_request)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") == True and 
+                "big_dog_mode" in data.get("message", "") and
+                data.get("vibe", {}).get("mode") == "big_dog_mode" and
+                data.get("vibe", {}).get("notification_frequency") == "frequent" and
+                data.get("vibe", {}).get("intensity_preference") == 5 and
+                data.get("goals", {}).get("primary_goal") == "weight_loss" and
+                data.get("xp_earned") == 50):
+                results["tests"]["vibe_big_dog_mode"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Vibe onboarding (big_dog_mode): PASS")
+                print(f"   Message: {data.get('message')}")
+                print(f"   Vibe mode: {data.get('vibe', {}).get('mode')}")
+                print(f"   Notification frequency: {data.get('vibe', {}).get('notification_frequency')}")
+                print(f"   Intensity preference: {data.get('vibe', {}).get('intensity_preference')}")
+                print(f"   XP earned: {data.get('xp_earned')}")
+            else:
+                results["tests"]["vibe_big_dog_mode"] = {"passed": False, "error": f"Unexpected response structure: {data}"}
+                print(f"❌ Vibe onboarding (big_dog_mode): FAIL - Unexpected response")
+        else:
+            results["tests"]["vibe_big_dog_mode"] = {"passed": False, "error": f"Status: {response.status_code}, Response: {response.text}"}
+            print(f"❌ Vibe onboarding (big_dog_mode): FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["vibe_big_dog_mode"] = {"passed": False, "error": str(e)}
+        print(f"❌ Vibe onboarding (big_dog_mode): FAIL - {e}")
+    
+    # Test 2: Vibe Onboarding - soft_grind
+    print("\n2️⃣ Testing POST /api/onboarding/vibe - soft_grind (balanced)")
+    results["total"] += 1
+    try:
+        vibe_request = {
+            "user_id": user_id,
+            "vibe_mode": "soft_grind",
+            "primary_goal": "muscle_building",
+            "experience_level": "intermediate",
+            "available_days": ["tuesday", "thursday", "saturday"],
+            "session_duration": 60,
+            "equipment": ["dumbbells", "resistance_bands"]
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/onboarding/vibe", json=vibe_request)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") == True and 
+                "soft_grind" in data.get("message", "") and
+                data.get("vibe", {}).get("mode") == "soft_grind" and
+                data.get("vibe", {}).get("notification_frequency") == "moderate" and
+                data.get("vibe", {}).get("intensity_preference") == 3 and
+                data.get("goals", {}).get("primary_goal") == "muscle_building" and
+                data.get("xp_earned") == 50):
+                results["tests"]["vibe_soft_grind"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Vibe onboarding (soft_grind): PASS")
+                print(f"   Message: {data.get('message')}")
+                print(f"   Vibe mode: {data.get('vibe', {}).get('mode')}")
+                print(f"   Notification frequency: {data.get('vibe', {}).get('notification_frequency')}")
+                print(f"   Intensity preference: {data.get('vibe', {}).get('intensity_preference')}")
+            else:
+                results["tests"]["vibe_soft_grind"] = {"passed": False, "error": f"Unexpected response structure: {data}"}
+                print(f"❌ Vibe onboarding (soft_grind): FAIL - Unexpected response")
+        else:
+            results["tests"]["vibe_soft_grind"] = {"passed": False, "error": f"Status: {response.status_code}, Response: {response.text}"}
+            print(f"❌ Vibe onboarding (soft_grind): FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["vibe_soft_grind"] = {"passed": False, "error": str(e)}
+        print(f"❌ Vibe onboarding (soft_grind): FAIL - {e}")
+    
+    # Test 3: Vibe Onboarding - easy_restart
+    print("\n3️⃣ Testing POST /api/onboarding/vibe - easy_restart (gentle)")
+    results["total"] += 1
+    try:
+        vibe_request = {
+            "user_id": user_id,
+            "vibe_mode": "easy_restart",
+            "primary_goal": "general_fitness",
+            "experience_level": "beginner",
+            "available_days": ["monday", "wednesday"],
+            "session_duration": 30,
+            "equipment": ["bodyweight"]
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/onboarding/vibe", json=vibe_request)
+        
+        if response.status_code == 200:
+            data = response.json()
+            if (data.get("success") == True and 
+                "easy_restart" in data.get("message", "") and
+                data.get("vibe", {}).get("mode") == "easy_restart" and
+                data.get("vibe", {}).get("notification_frequency") == "minimal" and
+                data.get("vibe", {}).get("intensity_preference") == 2 and
+                data.get("goals", {}).get("primary_goal") == "general_fitness" and
+                data.get("xp_earned") == 50):
+                results["tests"]["vibe_easy_restart"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Vibe onboarding (easy_restart): PASS")
+                print(f"   Message: {data.get('message')}")
+                print(f"   Vibe mode: {data.get('vibe', {}).get('mode')}")
+                print(f"   Notification frequency: {data.get('vibe', {}).get('notification_frequency')}")
+                print(f"   Intensity preference: {data.get('vibe', {}).get('intensity_preference')}")
+            else:
+                results["tests"]["vibe_easy_restart"] = {"passed": False, "error": f"Unexpected response structure: {data}"}
+                print(f"❌ Vibe onboarding (easy_restart): FAIL - Unexpected response")
+        else:
+            results["tests"]["vibe_easy_restart"] = {"passed": False, "error": f"Status: {response.status_code}, Response: {response.text}"}
+            print(f"❌ Vibe onboarding (easy_restart): FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["vibe_easy_restart"] = {"passed": False, "error": str(e)}
+        print(f"❌ Vibe onboarding (easy_restart): FAIL - {e}")
+    
+    # Test 4: Vibe Onboarding - Non-existent user (should return 404)
+    print("\n4️⃣ Testing POST /api/onboarding/vibe - Non-existent user (error case)")
+    results["total"] += 1
+    try:
+        vibe_request = {
+            "user_id": "non_existent_user_id",
+            "vibe_mode": "soft_grind",
+            "primary_goal": "weight_loss",
+            "experience_level": "beginner",
+            "available_days": ["monday"],
+            "session_duration": 45,
+            "equipment": ["bodyweight"]
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/onboarding/vibe", json=vibe_request)
+        
+        if response.status_code == 404:
+            results["tests"]["vibe_nonexistent_user"] = {"passed": True, "error": None}
+            results["passed"] += 1
+            print("✅ Vibe onboarding (non-existent user): PASS - Correctly returns 404")
+        else:
+            results["tests"]["vibe_nonexistent_user"] = {"passed": False, "error": f"Expected 404, got {response.status_code}"}
+            print(f"❌ Vibe onboarding (non-existent user): FAIL - Expected 404, got {response.status_code}")
+    except Exception as e:
+        results["tests"]["vibe_nonexistent_user"] = {"passed": False, "error": str(e)}
+        print(f"❌ Vibe onboarding (non-existent user): FAIL - {e}")
+    
+    # Test 5: Vibe Onboarding - Invalid vibe_mode (should return validation error)
+    print("\n5️⃣ Testing POST /api/onboarding/vibe - Invalid vibe_mode (error case)")
+    results["total"] += 1
+    try:
+        vibe_request = {
+            "user_id": user_id,
+            "vibe_mode": "invalid_vibe_mode",
+            "primary_goal": "weight_loss",
+            "experience_level": "beginner",
+            "available_days": ["monday"],
+            "session_duration": 45,
+            "equipment": ["bodyweight"]
+        }
+        
+        response = requests.post(f"{BACKEND_URL}/onboarding/vibe", json=vibe_request)
+        
+        if response.status_code == 422:  # Validation error
+            results["tests"]["vibe_invalid_mode"] = {"passed": True, "error": None}
+            results["passed"] += 1
+            print("✅ Vibe onboarding (invalid vibe_mode): PASS - Correctly returns 422 validation error")
+        else:
+            results["tests"]["vibe_invalid_mode"] = {"passed": False, "error": f"Expected 422, got {response.status_code}"}
+            print(f"❌ Vibe onboarding (invalid vibe_mode): FAIL - Expected 422, got {response.status_code}")
+    except Exception as e:
+        results["tests"]["vibe_invalid_mode"] = {"passed": False, "error": str(e)}
+        print(f"❌ Vibe onboarding (invalid vibe_mode): FAIL - {e}")
+    
+    # Test 6: Trainer Dashboard - Valid trainer
+    print("\n6️⃣ Testing GET /api/trainer/dashboard/{trainer_id} - Valid trainer")
+    results["total"] += 1
+    try:
+        response = requests.get(f"{BACKEND_URL}/trainer/dashboard/{trainer_id}")
+        
+        if response.status_code == 200:
+            data = response.json()
+            required_fields = ["trainer", "stats", "alerts", "recent_activity", "clients"]
+            trainer_fields = ["id", "name", "style"]
+            stats_fields = ["total_clients", "active_clients", "content_items"]
+            alerts_fields = ["needs_attention", "on_fire"]
+            
+            if (all(field in data for field in required_fields) and
+                all(field in data.get("trainer", {}) for field in trainer_fields) and
+                all(field in data.get("stats", {}) for field in stats_fields) and
+                all(field in data.get("alerts", {}) for field in alerts_fields) and
+                isinstance(data.get("recent_activity"), list) and
+                isinstance(data.get("clients"), list)):
+                results["tests"]["trainer_dashboard_valid"] = {"passed": True, "error": None}
+                results["passed"] += 1
+                print("✅ Trainer dashboard (valid trainer): PASS")
+                print(f"   Trainer ID: {data.get('trainer', {}).get('id')}")
+                print(f"   Trainer name: {data.get('trainer', {}).get('name')}")
+                print(f"   Total clients: {data.get('stats', {}).get('total_clients')}")
+                print(f"   Active clients: {data.get('stats', {}).get('active_clients')}")
+                print(f"   Content items: {data.get('stats', {}).get('content_items')}")
+                print(f"   Needs attention: {len(data.get('alerts', {}).get('needs_attention', []))}")
+                print(f"   On fire: {len(data.get('alerts', {}).get('on_fire', []))}")
+                print(f"   Recent activity count: {len(data.get('recent_activity', []))}")
+                print(f"   Clients count: {len(data.get('clients', []))}")
+            else:
+                missing_fields = [field for field in required_fields if field not in data]
+                results["tests"]["trainer_dashboard_valid"] = {"passed": False, "error": f"Missing required fields: {missing_fields}"}
+                print(f"❌ Trainer dashboard (valid trainer): FAIL - Missing fields: {missing_fields}")
+        else:
+            results["tests"]["trainer_dashboard_valid"] = {"passed": False, "error": f"Status: {response.status_code}, Response: {response.text}"}
+            print(f"❌ Trainer dashboard (valid trainer): FAIL - Status: {response.status_code}")
+    except Exception as e:
+        results["tests"]["trainer_dashboard_valid"] = {"passed": False, "error": str(e)}
+        print(f"❌ Trainer dashboard (valid trainer): FAIL - {e}")
+    
+    # Test 7: Trainer Dashboard - Non-existent trainer (should return 404)
+    print("\n7️⃣ Testing GET /api/trainer/dashboard/{trainer_id} - Non-existent trainer (error case)")
+    results["total"] += 1
+    try:
+        response = requests.get(f"{BACKEND_URL}/trainer/dashboard/non_existent_trainer_id")
+        
+        if response.status_code == 404:
+            results["tests"]["trainer_dashboard_nonexistent"] = {"passed": True, "error": None}
+            results["passed"] += 1
+            print("✅ Trainer dashboard (non-existent trainer): PASS - Correctly returns 404")
+        else:
+            results["tests"]["trainer_dashboard_nonexistent"] = {"passed": False, "error": f"Expected 404, got {response.status_code}"}
+            print(f"❌ Trainer dashboard (non-existent trainer): FAIL - Expected 404, got {response.status_code}")
+    except Exception as e:
+        results["tests"]["trainer_dashboard_nonexistent"] = {"passed": False, "error": str(e)}
+        print(f"❌ Trainer dashboard (non-existent trainer): FAIL - {e}")
+    
+    # Summary
+    print("\n" + "="*80)
+    print("📊 LIFTLINK 2.0 AI FEATURES TEST RESULTS")
+    print("="*80)
+    
+    percentage = (results["passed"] / results["total"] * 100) if results["total"] > 0 else 0
+    status = "✅ PASS" if results["passed"] == results["total"] else "❌ FAIL"
+    
+    print(f"AI FEATURES: {results['passed']}/{results['total']} ({percentage:.1f}%) {status}")
+    
+    # Show failing tests
+    for test_name, test_result in results["tests"].items():
+        if not test_result["passed"]:
+            print(f"   ❌ {test_name}: {test_result['error']}")
+    
+    return results
+
 def run_100_percent_validation():
     """
     FINAL 100% VALIDATION - ALL SYSTEMS
