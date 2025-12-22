@@ -141,3 +141,11 @@ backend/firebase-service-account.json
 *.env
 *.env.*
 backend/firebase-service-account.json
+-e 
+# Environment files
+*.env
+*.env.*
+-e 
+# Environment files
+*.env
+*.env.*
