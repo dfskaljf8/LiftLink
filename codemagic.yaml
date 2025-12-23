@@ -23,13 +23,19 @@ workflows:
             --entry-file index.js \
             --bundle-output android/app/src/main/assets/index.android.bundle \
             --assets-dest android/app/src/main/res
+      - name: Generate Autolinking
+        script: |
+          cd react-native-app
+          mkdir -p android/build/generated/autolinking
+          npx react-native config > android/build/generated/autolinking/autolinking.json || true
+          # Alternative method if the above doesn't work
+          if [ ! -f android/build/generated/autolinking/autolinking.json ]; then
+            echo '{"project":{"android":{"sourceDir":"./android","appName":"app","packageName":"com.liftlinkapp"}},"dependencies":{}}' > android/build/generated/autolinking/autolinking.json
+          fi
+          cat android/build/generated/autolinking/autolinking.json | head -20
       - name: Setup Gradle Wrapper
         script: |
           cd react-native-app/android
-          if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
-            echo "Regenerating Gradle wrapper..."
-            gradle wrapper --gradle-version 8.7
-          fi
           chmod +x gradlew
       - name: Build Android Debug
         script: |
