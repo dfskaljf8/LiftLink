@@ -6,13 +6,11 @@ workflows:
     environment:
       java: 17
       node: 18
-      groups:
-        - keystore_credentials
     scripts:
       - name: Install dependencies
         script: |
           cd react-native-app
-          yarn install
+          npm install --legacy-peer-deps
       - name: Create assets directory
         script: |
           mkdir -p react-native-app/android/app/src/main/assets
@@ -36,7 +34,3 @@ workflows:
           ./gradlew assembleRelease
     artifacts:
       - react-native-app/android/app/build/outputs/**/*.apk
-    publishing:
-      email:
-        recipients:
-          - your-email@example.com
