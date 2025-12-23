@@ -77,7 +77,7 @@ def jscFlavor = 'org.webkit:android-jsc:+'
 
 android {
     namespace "com.liftlinkapp"
-    compileSdkVersion 34
+    compileSdkVersion 35
     
     defaultConfig {
         applicationId "com.liftlinkapp"
