@@ -1,0 +1,8 @@
+{
+  "name": "liftlink",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "cd react-native-app && yarn install"
+  }
+}
