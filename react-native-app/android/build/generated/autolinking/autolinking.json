@@ -273,7 +273,7 @@
       "platforms": {
         "ios": {
           "podspecPath": "/app/react-native-app/node_modules/react-native-reanimated/RNReanimated.podspec",
-          "version": "3.19.5",
+          "version": "3.10.1",
           "configurations": [],
           "scriptPhases": []
         },
