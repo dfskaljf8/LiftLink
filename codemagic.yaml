@@ -28,7 +28,7 @@ workflows:
           cd react-native-app/android
           if [ ! -f gradle/wrapper/gradle-wrapper.jar ]; then
             echo "Regenerating Gradle wrapper..."
-            gradle wrapper --gradle-version 8.8
+            gradle wrapper --gradle-version 8.7
           fi
           chmod +x gradlew
       - name: Build Android Debug
