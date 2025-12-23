@@ -151,7 +151,11 @@ android {
 dependencies {
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
-    implementation("com.facebook.react:flipper-integration")
+    
+    // Flipper - only for debug builds (disabled for CI)
+    if (project.hasProperty('enableFlipper') && project.enableFlipper.toBoolean()) {
+        implementation("com.facebook.react:flipper-integration")
+    }
     
     // JSC implementation
     implementation jscFlavor
