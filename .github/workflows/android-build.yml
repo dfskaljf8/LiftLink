@@ -31,8 +31,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          cache: 'yarn'
-          cache-dependency-path: react-native-app/yarn.lock
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -42,6 +40,13 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: react-native-app/node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('react-native-app/package-lock.json', 'react-native-app/package.json') }}
+          restore-keys: node-modules-${{ runner.os }}-
 
       - name: Cache Gradle
         uses: actions/cache@v4
@@ -53,7 +58,7 @@ jobs:
           restore-keys: gradle-${{ runner.os }}-
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm install --legacy-peer-deps
 
       - name: Create assets directory
         run: mkdir -p android/app/src/main/assets
