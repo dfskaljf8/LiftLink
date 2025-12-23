@@ -6,11 +6,17 @@ workflows:
     environment:
       java: 17
       node: 18
+    cache:
+      cache_paths: []
     scripts:
-      - name: Install dependencies
+      - name: Clean and Install dependencies
         script: |
           cd react-native-app
-          npm ci --legacy-peer-deps
+          rm -rf node_modules
+          npm cache clean --force
+          npm install --legacy-peer-deps
+          echo "Installed react-native-reanimated version:"
+          cat node_modules/react-native-reanimated/package.json | grep version | head -1
       - name: Create assets directory
         script: |
           mkdir -p react-native-app/android/app/src/main/assets
