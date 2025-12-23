@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "postinstall": "cd react-native-app && yarn install"
+    "postinstall": "cd react-native-app && npm install --legacy-peer-deps"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
