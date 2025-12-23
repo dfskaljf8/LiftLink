@@ -10,7 +10,7 @@ workflows:
       - name: Install dependencies
         script: |
           cd react-native-app
-          yarn install --frozen-lockfile
+          npm ci --legacy-peer-deps
       - name: Create assets directory
         script: |
           mkdir -p react-native-app/android/app/src/main/assets
