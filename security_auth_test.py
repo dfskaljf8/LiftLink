@@ -13,7 +13,7 @@ import jwt
 from datetime import datetime, timedelta
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://coach-assist-10.preview.emergentagent.com/api"
+BACKEND_URL = "https://liftlink-build.preview.emergentagent.com/api"
 
 def print_separator():
     print("\n" + "="*80 + "\n")

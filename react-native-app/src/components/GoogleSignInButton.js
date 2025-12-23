@@ -18,7 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 // API URL
-const API_BASE_URL = 'https://coach-assist-10.preview.emergentagent.com';
+const API_BASE_URL = 'https://liftlink-build.preview.emergentagent.com';
 
 // Emergent Auth URL
 const EMERGENT_AUTH_URL = 'https://auth.emergentagent.com';
