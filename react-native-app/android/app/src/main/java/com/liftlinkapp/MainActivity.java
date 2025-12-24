@@ -130,7 +130,7 @@ public class MainActivity extends ReactActivity {
      * This is important for handling deep links when the app is in the background
      */
     @Override
-    protected void onNewIntent(android.content.Intent intent) {
+    public void onNewIntent(android.content.Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
         handleDeepLink();
