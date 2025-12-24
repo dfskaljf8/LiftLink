@@ -2,28 +2,29 @@
 
 buildscript {
     ext {
-        buildToolsVersion = "33.0.0"
-        minSdkVersion = 21
-        compileSdkVersion = 33
-        targetSdkVersion = 33
-        ndkVersion = "25.1.8937393"
+        // Updated for React Native 0.76 compatibility
+        minSdkVersion = 24
+        compileSdkVersion = 35
+        targetSdkVersion = 35
+        ndkVersion = "26.1.10909125"
         
-        // Kotlin version
-        kotlinVersion = "1.8.0"
+        // Kotlin version - must be 1.9+ for RN 0.76
+        kotlinVersion = "1.9.24"
         
         // Google Play Services
-        googlePlayServicesVersion = "18.0.0"
+        googlePlayServicesVersion = "21.0.1"
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.0.1")
+        // Android Gradle Plugin 8.6+ required for compileSdk 35
+        classpath("com.android.tools.build:gradle:8.6.0")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
-        // Google Services (for Firebase, Google Maps, etc.)
-        classpath("com.google.gms:google-services:4.3.15")
+        // Google Services (for Firebase, Google Sign-In, etc.)
+        classpath("com.google.gms:google-services:4.4.0")
     }
 }
 
