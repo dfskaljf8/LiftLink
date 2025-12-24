@@ -9,7 +9,7 @@ import threading
 import base64
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://liftlink-build.preview.emergentagent.com/api"
+BACKEND_URL = "https://android-build-fix-3.preview.emergentagent.com/api"
 
 def test_ocr_document_verification():
     """

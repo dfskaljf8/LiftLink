@@ -12,7 +12,7 @@ import time
 import base64
 from datetime import datetime
 
-BACKEND_URL = "https://liftlink-build.preview.emergentagent.com/api"
+BACKEND_URL = "https://android-build-fix-3.preview.emergentagent.com/api"
 
 def create_mock_image_data():
     """Create mock base64 image data for verification"""

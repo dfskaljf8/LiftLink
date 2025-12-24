@@ -9,7 +9,7 @@ import json
 import uuid
 
 # Backend URL
-BACKEND_URL = "https://liftlink-build.preview.emergentagent.com/api"
+BACKEND_URL = "https://android-build-fix-3.preview.emergentagent.com/api"
 
 def test_jwt_token_delivery():
     """Test JWT token delivery from login endpoint"""

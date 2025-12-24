@@ -12,7 +12,7 @@ import uuid
 from datetime import datetime, timedelta
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://liftlink-build.preview.emergentagent.com/api"
+BACKEND_URL = "https://android-build-fix-3.preview.emergentagent.com/api"
 
 def print_separator(title=""):
     print("\n" + "="*80)

@@ -98,7 +98,7 @@ Removed all hardcoded fallback URLs and replaced with environment variable check
 #### Deprecated Frontend (1 file):
 
 12. **`/app/frontend/src/App.js`**
-    - **Before**: `const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://liftlink-build.preview.emergentagent.com';`
+    - **Before**: `const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://android-build-fix-3.preview.emergentagent.com';`
     - **After**: 
     ```javascript
     const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;

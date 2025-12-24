@@ -28,10 +28,10 @@
 2. Application type: "Web application"
 3. Name: "LiftLink Google Pay Client"
 4. Authorized JavaScript origins:
-   - `https://liftlink-build.preview.emergentagent.com`
+   - `https://android-build-fix-3.preview.emergentagent.com`
    - `https://yourdomain.com` (your production domain)
 5. Authorized redirect URIs:
-   - `https://liftlink-build.preview.emergentagent.com/api/google-pay/callback`
+   - `https://android-build-fix-3.preview.emergentagent.com/api/google-pay/callback`
 
 ### 2. **Google Pay Business Console Setup**
 

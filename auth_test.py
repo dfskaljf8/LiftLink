@@ -3,7 +3,7 @@ import requests
 import json
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://liftlink-build.preview.emergentagent.com/api"
+BACKEND_URL = "https://android-build-fix-3.preview.emergentagent.com/api"
 
 def test_authentication_flow():
     """Test the complete authentication flow to get real JWT tokens"""
