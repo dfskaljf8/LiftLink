@@ -885,6 +885,30 @@ If user says something unrealistic, still extract it - we'll push back in conver
             elif any(w in response_lower for w in ["evening", "night", "pm", "after work"]):
                 extracted["preferred_time"] = "evening"
             
+            # Equipment
+            if any(w in response_lower for w in ["full gym", "gym", "commercial"]):
+                extracted["equipment"] = "full_gym"
+            elif any(w in response_lower for w in ["home gym", "home setup", "garage"]):
+                extracted["equipment"] = "home_gym"
+            elif any(w in response_lower for w in ["bodyweight", "no equipment", "nothing"]):
+                extracted["equipment"] = "bodyweight"
+            
+            # Session duration
+            if any(w in response_lower for w in ["25", "20", "quick", "short"]):
+                extracted["session_duration"] = 25
+            elif any(w in response_lower for w in ["45", "40", "solid"]):
+                extracted["session_duration"] = 45
+            elif any(w in response_lower for w in ["60", "hour", "long"]):
+                extracted["session_duration"] = 60
+            
+            # Constraints (injury keywords)
+            injury_keywords = ["injury", "hurt", "pain", "bad", "knee", "back", "shoulder", "wrist", "ankle"]
+            for keyword in injury_keywords:
+                if keyword in response_lower:
+                    # Store the whole response as constraint if injury mentioned
+                    extracted["constraints"] = response[:200]
+                    break
+            
             return extracted
     
     # ==================== AI PROGRAM GENERATION ====================
