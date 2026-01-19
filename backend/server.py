@@ -6123,6 +6123,158 @@ async def get_audit_log(
     
     return {"events": events}
 
+# ==================== CASH FLOW & REVENUE TRACKING ====================
+
+# Initialize cash flow service with database on startup
+@app.on_event("startup")
+async def init_cashflow_service():
+    """Initialize cash flow service with database connection"""
+    cash_flow_service.set_db(db)
+    print("💰 Cash Flow Service initialized")
+
+@api_router.get("/cashflow/dashboard")
+async def get_cashflow_dashboard(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get comprehensive cash flow dashboard
+    Shows Stripe balance, revenue stats, and trends
+    """
+    # Admin/trainer only
+    if current_user.get("role") not in ["admin", "trainer"]:
+        raise HTTPException(status_code=403, detail="Admin or trainer access required")
+    
+    stats = await cash_flow_service.get_dashboard_stats()
+    return stats
+
+@api_router.get("/cashflow/stripe-balance")
+async def get_stripe_balance(
+    current_user: dict = Depends(get_current_user)
+):
+    """Get current Stripe account balance"""
+    if current_user.get("role") not in ["admin", "trainer"]:
+        raise HTTPException(status_code=403, detail="Admin or trainer access required")
+    
+    balance = await cash_flow_service.get_stripe_balance()
+    return balance
+
+@api_router.get("/cashflow/revenue-chart")
+async def get_revenue_chart(
+    period: str = "30d",
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get revenue chart data
+    Periods: 7d, 30d, 90d
+    """
+    if current_user.get("role") not in ["admin", "trainer"]:
+        raise HTTPException(status_code=403, detail="Admin or trainer access required")
+    
+    chart_data = await cash_flow_service.get_revenue_chart(period)
+    return chart_data
+
+@api_router.get("/cashflow/transactions")
+async def get_transactions(
+    limit: int = 50,
+    offset: int = 0,
+    transaction_type: Optional[str] = None,
+    status: Optional[str] = None,
+    from_date: Optional[str] = None,
+    to_date: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get transaction history with filters
+    """
+    # Trainers see only their transactions, admins see all
+    user_id = None if current_user.get("role") == "admin" else current_user["id"]
+    
+    transactions = await cash_flow_service.get_transactions(
+        limit=limit,
+        offset=offset,
+        transaction_type=transaction_type,
+        status=status,
+        from_date=from_date,
+        to_date=to_date,
+        user_id=user_id
+    )
+    return transactions
+
+@api_router.get("/cashflow/trainer-earnings/{trainer_id}")
+async def get_trainer_earnings(
+    trainer_id: str,
+    period: str = "all",
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get earnings for a specific trainer
+    Trainers can only see their own earnings
+    """
+    # Trainers can only see their own, admins can see all
+    if current_user.get("role") != "admin" and current_user["id"] != trainer_id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    earnings = await cash_flow_service.get_trainer_earnings(trainer_id, period)
+    return earnings
+
+@api_router.get("/cashflow/my-earnings")
+async def get_my_earnings(
+    current_user: dict = Depends(get_current_user)
+):
+    """Get current user's earnings (for trainers)"""
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Trainers only")
+    
+    earnings = await cash_flow_service.get_trainer_earnings(current_user["id"])
+    return earnings
+
+@api_router.get("/cashflow/top-trainers")
+async def get_top_trainers(
+    limit: int = 10,
+    month: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get top earning trainers"""
+    if current_user.get("role") not in ["admin", "trainer"]:
+        raise HTTPException(status_code=403, detail="Admin or trainer access required")
+    
+    top_trainers = await cash_flow_service.get_top_trainers(limit, month)
+    return {"trainers": top_trainers}
+
+@api_router.get("/cashflow/payout-summary")
+async def get_payout_summary(
+    current_user: dict = Depends(get_current_user)
+):
+    """Get payout summary"""
+    if current_user.get("role") not in ["admin", "trainer"]:
+        raise HTTPException(status_code=403, detail="Admin or trainer access required")
+    
+    summary = await cash_flow_service.get_payout_summary()
+    return summary
+
+@api_router.post("/cashflow/record-payment")
+async def record_payment(
+    amount: float,
+    from_user_id: str,
+    to_user_id: str,
+    session_id: Optional[str] = None,
+    stripe_payment_intent_id: Optional[str] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Record a payment transaction
+    Called after successful Stripe payment
+    """
+    transaction = await cash_flow_service.record_transaction(
+        transaction_type=TransactionType.PAYMENT,
+        amount=amount,
+        from_user_id=from_user_id,
+        to_user_id=to_user_id,
+        session_id=session_id,
+        stripe_payment_intent_id=stripe_payment_intent_id
+    )
+    return transaction
+
 @api_router.get("/health")
 async def api_health_check():
     """API Health check endpoint"""
