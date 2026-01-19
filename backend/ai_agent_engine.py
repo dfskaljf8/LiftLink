@@ -320,7 +320,7 @@ class AIAgentEngine:
             suggestion["ai_generated_content"] = message
         
         # Store suggestion
-        if self.db:
+        if self.db is not None:
             await self.db.ai_suggestions.insert_one({**suggestion, "_id": suggestion["id"]})
         
         return suggestion
@@ -544,7 +544,7 @@ Suggested action: {suggestion['suggested_action']}"""
                 "read": False
             }
             
-            if self.db:
+            if self.db is not None:
                 await self.db.messages.insert_one({**message, "_id": message["id"]})
             
             return {"type": "message_sent", "message_id": message["id"]}
@@ -561,7 +561,7 @@ Suggested action: {suggestion['suggested_action']}"""
                 "created_at": datetime.now(timezone.utc).isoformat()
             }
             
-            if self.db:
+            if self.db is not None:
                 await self.db.trainer_tasks.insert_one({**task, "_id": task["id"]})
             
             return {"type": "task_created", "task_id": task["id"]}
@@ -586,7 +586,7 @@ Suggested action: {suggestion['suggested_action']}"""
             "started_at": datetime.now(timezone.utc).isoformat()
         }
         
-        if self.db:
+        if self.db is not None:
             await self.db.ai_onboarding_sessions.insert_one({**session, "_id": session_id})
         
         # Generate first message
@@ -598,7 +598,7 @@ Suggested action: {suggestion['suggested_action']}"""
             "timestamp": datetime.now(timezone.utc).isoformat()
         })
         
-        if self.db:
+        if self.db is not None:
             await self.db.ai_onboarding_sessions.update_one(
                 {"id": session_id},
                 {"$set": {"conversation_history": session["conversation_history"]}}
@@ -901,7 +901,7 @@ Return JSON:
                 "ai_generated": True
             }
             
-            if self.db:
+            if self.db is not None:
                 await self.db.ai_program_drafts.insert_one({**draft, "_id": draft["id"]})
             
             return {
