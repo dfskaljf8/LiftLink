@@ -28,6 +28,12 @@ from slowapi.errors import RateLimitExceeded
 # Load environment variables from .env file
 load_dotenv()
 
+# Import AI service for chat functionality
+from backend.ai_service import liftlink_ai
+
+# Import payment service
+from backend.payment_service import PaymentService
+
 # Initialize rate limiter
 limiter = Limiter(key_func=get_remote_address)
 
