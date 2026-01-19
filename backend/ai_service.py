@@ -16,7 +16,7 @@ load_dotenv()
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 
 # Import security modules
-from backend.security_middleware import (
+from security_middleware import (
     PromptInjectionProtector,
     InputSanitizer,
     rate_limiter,
