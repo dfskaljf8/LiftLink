@@ -389,15 +389,14 @@ from fastapi import APIRouter
 api_router = APIRouter()
 
 # Import AI and Automation services
-from backend.ai_service import liftlink_ai
-from backend.automation_engine import create_automation_engine
-from backend.models import (
+from automation_engine import create_automation_engine
+from models import (
     VibeMode, CoachingApproach, AutomationTrigger,
     VibeOnboardingRequest, GenerateProgramRequest, CheckinRequest, AdaptWorkoutRequest
 )
-from backend.push_notification_service import create_push_service, NOTIFICATION_TEMPLATES
-from backend.coaching_service import create_coaching_service
-from backend.coaching_models import (
+from push_notification_service import create_push_service, NOTIFICATION_TEMPLATES
+from coaching_service import create_coaching_service
+from coaching_models import (
     TaskType, TaskFrequency, MessageTrigger, ChallengeMetric,
     CreateProgramTemplateRequest, ScheduleWorkoutRequest,
     CreateMessageTemplateRequest, ScheduleMessageRequest,
