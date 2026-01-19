@@ -1,21 +1,23 @@
 {
   "name": "LiftLinkMobile",
   "version": "1.0.0",
-  "description": "LiftLink mobile fitness application",
+  "description": "LiftLink mobile fitness application - AI-powered coaching platform",
   "main": "index.js",
   "scripts": {
-    "start": "react-native start",
-    "android": "react-native run-android",
-    "ios": "react-native run-ios",
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "test": "jest",
     "lint": "eslint .",
-    "build:android": "cd android && ./gradlew assembleRelease",
+    "build:android": "eas build --platform android",
+    "build:ios": "eas build --platform ios",
+    "build:android:local": "cd android && ./gradlew assembleRelease",
     "build:android:debug": "cd android && ./gradlew assembleDebug",
-    "build:ios": "cd ios && xcodebuild -workspace LiftLink.xcworkspace -scheme LiftLink -configuration Release",
     "bundle:android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
     "bundle:ios": "react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ios/main.jsbundle --assets-dest ios",
-    "clean": "cd android && ./gradlew clean && cd ../ios && xcodebuild clean",
-    "prebuild": "yarn bundle:android"
+    "clean": "cd android && ./gradlew clean",
+    "prebuild": "expo prebuild",
+    "doctor": "expo doctor"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -28,6 +30,19 @@
     "@stripe/stripe-react-native": "0.41.0",
     "axios": "1.7.9",
     "crypto-js": "4.2.0",
+    "expo": "~52.0.0",
+    "expo-build-properties": "~0.13.0",
+    "expo-camera": "~16.0.0",
+    "expo-constants": "~17.0.0",
+    "expo-device": "~7.0.0",
+    "expo-file-system": "~18.0.0",
+    "expo-image-picker": "~16.0.0",
+    "expo-location": "~18.0.0",
+    "expo-notifications": "~0.29.0",
+    "expo-secure-store": "~14.0.0",
+    "expo-splash-screen": "~0.29.0",
+    "expo-status-bar": "~2.0.0",
+    "expo-updates": "~0.27.0",
     "jail-monkey": "2.8.4",
     "lottie-react-native": "7.3.4",
     "react": "18.3.1",
@@ -41,6 +56,7 @@
     "react-native-safe-area-context": "5.6.2",
     "react-native-screens": "4.10.0",
     "react-native-ssl-pinning": "1.6.0",
+    "react-native-svg": "~15.9.0",
     "react-native-vector-icons": "10.3.0"
   },
   "devDependencies": {
@@ -65,5 +81,12 @@
   },
   "jest": {
     "preset": "react-native"
+  },
+  "expo": {
+    "install": {
+      "exclude": [
+        "react-native-reanimated"
+      ]
+    }
   }
 }
