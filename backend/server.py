@@ -9,6 +9,7 @@ from enum import Enum
 import uuid
 from uuid import uuid4
 import os
+import sys
 from datetime import datetime, timedelta, timezone
 import httpx
 from urllib.parse import urlencode
@@ -24,6 +25,9 @@ import html
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+
+# Add backend directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Load environment variables from .env file
 load_dotenv()
