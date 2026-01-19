@@ -99,7 +99,7 @@ class AIAgentEngine:
         Deep analysis of a single client's patterns, behaviors, and needs
         Returns insights and generates suggestions
         """
-        if not self.db:
+        if self.db is None:
             return {"error": "Database not connected"}
         
         # Gather client data
@@ -363,7 +363,7 @@ Suggested action: {suggestion['suggested_action']}"""
         Analyze all clients for a trainer and generate suggestions
         This is the main "autopilot" function
         """
-        if not self.db:
+        if self.db is None:
             return {"error": "Database not connected"}
         
         # Get all clients for trainer
@@ -414,7 +414,7 @@ Suggested action: {suggestion['suggested_action']}"""
         priority_filter: str = None
     ) -> List[Dict]:
         """Get pending AI suggestions for trainer approval"""
-        if not self.db:
+        if self.db is None:
             return []
         
         query = {
@@ -452,7 +452,7 @@ Suggested action: {suggestion['suggested_action']}"""
         modifications: Dict = None
     ) -> Dict:
         """Trainer approves an AI suggestion"""
-        if not self.db:
+        if self.db is None:
             return {"error": "Database not connected"}
         
         suggestion = await self.db.ai_suggestions.find_one(
@@ -505,7 +505,7 @@ Suggested action: {suggestion['suggested_action']}"""
         reason: str = None
     ) -> Dict:
         """Trainer rejects an AI suggestion"""
-        if not self.db:
+        if self.db is None:
             return {"error": "Database not connected"}
         
         result = await self.db.ai_suggestions.update_one(
@@ -617,7 +617,7 @@ Suggested action: {suggestion['suggested_action']}"""
         user_response: str
     ) -> Dict:
         """Continue onboarding conversation based on user response"""
-        if not self.db:
+        if self.db is None:
             return {"error": "Database not connected"}
         
         # Sanitize input
@@ -813,7 +813,7 @@ Only include fields that are clearly mentioned. Return {} if nothing relevant fo
         parameters: Dict = None
     ) -> Dict:
         """Generate a workout program draft for trainer approval"""
-        if not self.db:
+        if self.db is None:
             return {"error": "Database not connected"}
         
         # Get client data
@@ -921,7 +921,7 @@ Return JSON:
         modifications: Dict = None
     ) -> Dict:
         """Trainer approves a program draft"""
-        if not self.db:
+        if self.db is None:
             return {"error": "Database not connected"}
         
         draft = await self.db.ai_program_drafts.find_one(
@@ -977,7 +977,7 @@ Return JSON:
     
     async def get_agent_stats(self, trainer_id: str) -> Dict:
         """Get AI agent statistics for a trainer"""
-        if not self.db:
+        if self.db is None:
             return {}
         
         # Count suggestions
