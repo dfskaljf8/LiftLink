@@ -697,35 +697,108 @@ Suggested action: {suggestion['suggested_action']}"""
             "collected_data": session["collected_data"] if is_complete else None
         }
     
-    async def _generate_onboarding_message(self, session: Dict, phase: str) -> str:
-        """Generate onboarding conversation message"""
-        system_message = """You are a friendly fitness coach onboarding new clients.
-Have a natural conversation to learn about them.
-Ask ONE question at a time.
-Be warm, encouraging, and personalized.
-Keep responses concise (2-3 sentences max).
+    def _get_liftlink_system_prompt(self) -> str:
+        """The core LiftLink AI personality - Gen Z fluent, witty, results-obsessed"""
+        return """You are Liftlink AI: a Gen Z–fluent, witty, results-obsessed fitness operator.
+Your job is to set the user up for CONSISTENCY and measurable progress.
 
-You need to collect: fitness goal, experience level, available days per week, preferred workout time.
-Don't ask directly - have a conversation."""
+STYLE:
+- Sound like a sharp Gen Z friend: confident, humorous, light dark humor allowed.
+- Be concise. 1–3 short sentences per message.
+- Avoid corny inspiration and excessive praise.
+- No fake empathy. Be warm but direct.
+- Do NOT mirror user wording. Rephrase intelligently.
+
+THINKING RULES (anti-confirmation bias):
+- Do not automatically agree with the user.
+- If a goal or plan sounds unrealistic, say so and propose a better option.
+- Ask precise follow-ups to turn vague goals into measurable targets.
+- Act like a coach + product manager: optimize for adherence, not "perfect" plans.
+
+SAFETY:
+- Never provide medical diagnosis.
+- If user mentions injury/pain, recommend seeing a professional and design conservative training options.
+
+OUTPUT FORMAT:
+- Ask one question at a time.
+- Use multiple choice when possible.
+- Keep it tight. No essays.
+
+ENGAGEMENT:
+- Reduce decision fatigue: always offer a default option.
+- Use progression language: levels, streaks, unlocks, milestones.
+- Offer fallback plans: "No-time micro session" to protect consistency.
+- Reward commitment: when user commits, confirm with a short "deal" moment."""
+    
+    async def _generate_onboarding_message(self, session: Dict, phase: str) -> str:
+        """Generate onboarding conversation message - Gen Z style"""
+        system_message = self._get_liftlink_system_prompt() + """
+
+ONBOARDING OBJECTIVE:
+Collect the minimum info needed to create a plan the user will actually follow:
+1) goal + deadline (what are we building?)
+2) experience level (how long you been at this?)
+3) schedule + time per session (days/week, mins/session)
+4) equipment access (gym, home, both?)
+5) constraints/injuries (anything I should know?)
+6) motivation style + consistency blockers (what makes you skip?)
+
+After every 3 questions, show a short recap of what you've learned.
+End by summarizing: training split, weekly schedule, minimum commitment, first workout ready."""
 
         if phase == "start":
-            return f"Hey {session['user_name']}! 👋 I'm so excited to help you on your fitness journey. Before we match you with the perfect trainer, I'd love to know - what's the main thing you're hoping to achieve with your fitness? Whether it's getting stronger, losing weight, or just feeling better - I'm all ears!"
+            return f"Yo {session['user_name']} 👋 Let's build something. What are we going for: lean & aesthetic, big & strong, or athletic & functional?"
         
         elif phase == "complete":
             data = session["collected_data"]
-            return f"Amazing! I've got a great picture of what you're looking for. Based on everything you've shared - wanting to {data.get('fitness_goal', 'improve fitness')}, with your {data.get('experience_level', 'current')} experience, training {data.get('days_per_week', 'a few')} days a week - I'm going to find you the perfect trainer match. Let's do this! 💪"
+            goal = data.get('fitness_goal', 'gains').replace('_', ' ')
+            days = data.get('days_per_week', 3)
+            exp = data.get('experience_level', 'intermediate')
+            equipment = data.get('equipment', 'gym')
+            
+            return f"""Locked in. Here's your setup:
+
+🎯 Goal: {goal}
+📅 Schedule: {days}x/week
+💪 Level: {exp}
+🏋️ Equipment: {equipment}
+
+Your minimum is {days}/week. Your streak shield is 1 miss/week before we talk. First workout is ready when you are.
+
+Let's get it. 🔥"""
         
         else:
             # Generate contextual follow-up
             collected = list(session["collected_data"].keys())
             history = session["conversation_history"][-4:]  # Last 4 messages
+            step = session.get("step", 0)
+            
+            # Show recap every 3 questions
+            recap_needed = step > 0 and step % 3 == 0
+            
+            still_need = []
+            if "fitness_goal" not in collected:
+                still_need.append("goal")
+            if "experience_level" not in collected:
+                still_need.append("experience")
+            if "days_per_week" not in collected:
+                still_need.append("days/week")
+            if "session_duration" not in collected:
+                still_need.append("time per session")
+            if "equipment" not in collected:
+                still_need.append("equipment")
+            if "constraints" not in collected:
+                still_need.append("injuries/constraints")
             
             context = f"""
 Conversation so far: {json.dumps(history)}
 Already collected: {collected}
-Still need: {[f for f in ['fitness_goal', 'experience_level', 'days_per_week', 'preferred_time'] if f not in collected]}
+Still need: {still_need}
+Step: {step}
+Show recap: {recap_needed}
 
-Generate the next conversational question to collect missing info naturally."""
+Generate the next question. Be direct, offer multiple choice when possible.
+If user gave unrealistic answer (like 7 days/week for beginner), push back with a better option."""
 
             try:
                 chat = self._create_chat(
@@ -735,26 +808,36 @@ Generate the next conversational question to collect missing info naturally."""
                 return await chat.send_message(UserMessage(text=context))
             except Exception as e:
                 print(f"❌ Onboarding message error: {e}")
-                # Fallback questions
-                if "experience_level" not in collected:
-                    return "That's awesome! How would you describe your current fitness experience? Are you just getting started, been at it for a while, or a seasoned pro?"
+                # Fallback questions - Gen Z style
+                if "fitness_goal" not in collected:
+                    return "What's the vibe: lean & shredded, big & strong, or athletic & functional? Pick one."
+                elif "experience_level" not in collected:
+                    return "Real talk - how long you been training? Fresh start / Some experience / Been at it for years?"
                 elif "days_per_week" not in collected:
-                    return "Great! How many days a week can you realistically commit to working out? No judgment - even 2-3 days can get amazing results!"
-                elif "preferred_time" not in collected:
-                    return "And when do you prefer to work out? Morning person, lunchtime warrior, or evening exerciser?"
+                    return "How many days can you actually show up - not wishful thinking: 2 / 3 / 4 / 5+?"
+                elif "session_duration" not in collected:
+                    return "Time per session: 25 min (efficient) / 45 min (solid) / 60+ min (got time)?"
+                elif "equipment" not in collected:
+                    return "What are we working with: full gym / home setup / just bodyweight?"
+                elif "constraints" not in collected:
+                    return "Any injuries or things I should know before we build this? Be honest."
                 else:
-                    return "Tell me more about what you're looking for!"
+                    return "Almost there. What usually makes you skip workouts? Let's plan around it."
     
     async def _extract_onboarding_data(self, session: Dict, response: str) -> Dict:
         """Extract structured data from user's conversational response"""
         system_message = """Extract fitness onboarding data from the user's response.
 Return ONLY valid JSON with any of these fields if mentioned:
-- fitness_goal: "weight_loss", "muscle_gain", "strength", "endurance", "flexibility", "general_fitness"
+- fitness_goal: "lean_aesthetic", "muscle_gain", "strength", "athletic", "weight_loss", "general_fitness"
 - experience_level: "beginner", "intermediate", "advanced"
 - days_per_week: number (1-7)
+- session_duration: number in minutes (25, 45, 60, etc)
+- equipment: "full_gym", "home_gym", "bodyweight", "minimal"
+- constraints: string (any injuries or limitations mentioned)
 - preferred_time: "morning", "afternoon", "evening", "flexible"
 
-Only include fields that are clearly mentioned. Return {} if nothing relevant found."""
+Only include fields that are clearly mentioned. Return {} if nothing relevant found.
+If user says something unrealistic, still extract it - we'll push back in conversation."""
 
         try:
             chat = self._create_chat(
