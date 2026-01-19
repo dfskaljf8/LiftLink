@@ -328,7 +328,7 @@ cd /app/react-native-app
 ## 🚀 Deployment Readiness
 
 ### Backend Deployment ✅
-- **URL**: https://android-build-fix-3.preview.emergentagent.com/api
+- **URL**: https://fitcoach-ai-36.preview.emergentagent.com/api
 - **Status**: Running on Render
 - **Database**: MongoDB Atlas connected
 - **APIs**: All endpoints operational

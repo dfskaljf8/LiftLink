@@ -3,7 +3,7 @@ import requests
 import json
 import uuid
 
-BACKEND_URL = "https://android-build-fix-3.preview.emergentagent.com/api"
+BACKEND_URL = "https://fitcoach-ai-36.preview.emergentagent.com/api"
 
 def test_ai_endpoints():
     print("🤖 Testing LiftLink AI Agent Engine")

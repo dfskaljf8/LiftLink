@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime, timedelta
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://android-build-fix-3.preview.emergentagent.com/api"
+BACKEND_URL = "https://fitcoach-ai-36.preview.emergentagent.com/api"
 
 def test_notification_system_integration():
     """Test comprehensive notification system integration"""

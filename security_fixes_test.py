@@ -20,7 +20,7 @@ import uuid
 from datetime import datetime
 
 # Backend URL
-BACKEND_URL = "https://android-build-fix-3.preview.emergentagent.com/api"
+BACKEND_URL = "https://fitcoach-ai-36.preview.emergentagent.com/api"
 
 def print_section(title):
     print("\n" + "="*80)

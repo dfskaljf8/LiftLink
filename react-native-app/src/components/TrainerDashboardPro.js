@@ -20,7 +20,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 
 const { width } = Dimensions.get('window');
-const API_URL = 'https://android-build-fix-3.preview.emergentagent.com';
+const API_URL = 'https://fitcoach-ai-36.preview.emergentagent.com';
 
 const VIBE_COLORS = {
   dog_mode: '#ef4444',

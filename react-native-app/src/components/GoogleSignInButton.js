@@ -18,7 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 // API URL
-const API_BASE_URL = 'https://android-build-fix-3.preview.emergentagent.com';
+const API_BASE_URL = 'https://fitcoach-ai-36.preview.emergentagent.com';
 
 // Emergent Auth URL
 const EMERGENT_AUTH_URL = 'https://auth.emergentagent.com';
