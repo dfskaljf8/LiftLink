@@ -41,6 +41,9 @@ from ai_agent_engine import ai_agent, SuggestionType, SuggestionPriority, Sugges
 # Import payment service
 from payment_service import PaymentService
 
+# Import cash flow service
+from cashflow_service import cash_flow_service, TransactionType, TransactionStatus
+
 # Initialize rate limiter
 limiter = Limiter(key_func=get_remote_address)
 
