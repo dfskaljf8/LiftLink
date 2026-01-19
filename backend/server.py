@@ -6126,33 +6126,56 @@ async def api_health_check():
     return {
         "status": "healthy",
         "service": "LiftLink API",
-        "version": "2.0.0",
+        "version": "3.0.0",
+        "architecture": "AI-First Agentic Platform",
         "features": [
-            "AI Workout Generation",
+            # AI Agent Core - The Brain
+            "AI Agent Engine (GPT-5.2)",
+            "AI Client Monitoring & Analysis",
+            "AI Suggestion Generation",
+            "AI Conversational Onboarding",
+            "AI Program Generation",
+            # AI Coaching
             "AI Coaching Chat",
+            "AI Workout Adaptation",
+            "AI Progress Analysis",
+            "AI Pattern Detection",
+            # Automation
             "Behavior Automations", 
-            "Gamification",
             "Coaching Automation",
             "Program Delivery",
             "Auto Messages",
+            # Client Management
+            "Client Tracking",
             "Tasks & Habits",
             "Challenges & Leaderboards",
-            "Client Tracking",
-            "Onboarding Sequences",
+            "Gamification",
+            # Payments & Security
             "Payment Automation",
-            "Enhanced Security",
-            "Idempotency Support"
+            "Idempotency Support",
+            "Enhanced Security"
         ],
+        "ai_capabilities": {
+            "model": "GPT-5.2 via Emergent LLM",
+            "client_monitoring": True,
+            "suggestion_generation": True,
+            "conversational_onboarding": True,
+            "program_generation": True,
+            "human_in_the_loop": True,
+            "prompt_injection_protection": True
+        },
         "security": {
             "rate_limiting": True,
             "token_blacklist": True,
             "input_sanitization": True,
             "prompt_injection_protection": True,
             "idempotency_keys": True,
-            "audit_logging": True
+            "audit_logging": True,
+            "session_management": True,
+            "file_validation": True
         },
         "database": "connected" if db is not None else "disconnected",
-        "endpoints": 125,
+        "endpoints": 140,
         "timestamp": datetime.now().isoformat()
     }
 
