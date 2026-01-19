@@ -1,6 +1,7 @@
 """
-LiftLink AI Service - Powered by GPT-5
-Handles workout generation, coaching messages, behavior analysis, and automations
+LiftLink AI Service - Powered by GPT-5.2
+Handles workout generation, coaching messages, behavior analysis, automations, and AI chat
+With comprehensive prompt injection protection and cost management
 """
 
 import os
@@ -14,26 +15,207 @@ load_dotenv()
 
 from emergentintegrations.llm.chat import LlmChat, UserMessage
 
+# Import security modules
+from backend.security_middleware import (
+    PromptInjectionProtector,
+    InputSanitizer,
+    rate_limiter,
+    audit_logger
+)
+
 # Get API key
 EMERGENT_KEY = os.environ.get('EMERGENT_LLM_KEY')
 
+# AI Response Cache for cost management
+class AIResponseCache:
+    """Simple cache for common AI responses to reduce API costs"""
+    
+    def __init__(self, ttl_minutes: int = 60):
+        self._cache: Dict[str, Dict] = {}
+        self.ttl_minutes = ttl_minutes
+    
+    def _generate_key(self, prompt_type: str, params: Dict) -> str:
+        """Generate cache key from parameters"""
+        import hashlib
+        key_data = f"{prompt_type}:{json.dumps(params, sort_keys=True)}"
+        return hashlib.md5(key_data.encode()).hexdigest()
+    
+    def get(self, prompt_type: str, params: Dict) -> Optional[Dict]:
+        """Get cached response if available and not expired"""
+        key = self._generate_key(prompt_type, params)
+        cached = self._cache.get(key)
+        
+        if cached:
+            expiry = datetime.fromisoformat(cached["expires_at"])
+            if datetime.now() < expiry:
+                return cached["response"]
+            else:
+                del self._cache[key]
+        return None
+    
+    def set(self, prompt_type: str, params: Dict, response: Dict):
+        """Cache a response"""
+        key = self._generate_key(prompt_type, params)
+        self._cache[key] = {
+            "response": response,
+            "expires_at": (datetime.now() + timedelta(minutes=self.ttl_minutes)).isoformat()
+        }
+
+
+ai_cache = AIResponseCache()
+
+
 class LiftLinkAI:
-    """AI-powered coaching and workout generation service"""
+    """AI-powered coaching and workout generation service with security protections"""
     
     def __init__(self):
         self.api_key = EMERGENT_KEY
         if not self.api_key:
             print("⚠️ EMERGENT_LLM_KEY not found - AI features will be limited")
+        
+        # Rate limiting for AI requests (20/hour per user)
+        self.user_request_counts: Dict[str, List[datetime]] = {}
+        self.max_requests_per_hour = 20
+    
+    def _check_rate_limit(self, user_id: str) -> bool:
+        """Check if user has exceeded AI rate limit"""
+        now = datetime.now()
+        hour_ago = now - timedelta(hours=1)
+        
+        # Clean old requests
+        if user_id in self.user_request_counts:
+            self.user_request_counts[user_id] = [
+                t for t in self.user_request_counts[user_id] if t > hour_ago
+            ]
+        else:
+            self.user_request_counts[user_id] = []
+        
+        return len(self.user_request_counts[user_id]) < self.max_requests_per_hour
+    
+    def _record_request(self, user_id: str):
+        """Record an AI request for rate limiting"""
+        if user_id not in self.user_request_counts:
+            self.user_request_counts[user_id] = []
+        self.user_request_counts[user_id].append(datetime.now())
     
     def _create_chat(self, session_id: str, system_message: str) -> LlmChat:
-        """Create a new LLM chat instance"""
+        """Create a new LLM chat instance with GPT-5.2"""
         chat = LlmChat(
             api_key=self.api_key,
             session_id=session_id,
             system_message=system_message
         )
-        chat.with_model("openai", "gpt-5")
+        # Use GPT-5.2 (latest model)
+        chat.with_model("openai", "gpt-5.2")
         return chat
+    
+    def _sanitize_user_input(self, text: str, input_type: str = "user_message") -> tuple[str, bool]:
+        """
+        Sanitize user input for prompt injection protection
+        Returns (sanitized_text, is_safe)
+        """
+        # Check for injection attempts
+        is_safe, reason = PromptInjectionProtector.check_for_injection(text)
+        if not is_safe:
+            audit_logger.log_security_event(
+                "prompt_injection_attempt",
+                "unknown",
+                f"Blocked: {reason}",
+                "warning"
+            )
+            return "", False
+        
+        # Sanitize the input
+        sanitized = PromptInjectionProtector.sanitize_for_llm(text, input_type)
+        sanitized = InputSanitizer.sanitize_string(sanitized)
+        
+        return sanitized, True
+    
+    # ==================== AI CHAT ENDPOINT ====================
+    
+    async def chat(
+        self,
+        user_id: str,
+        message: str,
+        conversation_history: List[Dict] = None,
+        context: Dict = None
+    ) -> Dict:
+        """
+        General AI chat for coaching advice and fitness questions
+        """
+        # Rate limit check
+        if not self._check_rate_limit(user_id):
+            return {
+                "success": False,
+                "error": "Rate limit exceeded. Maximum 20 AI requests per hour.",
+                "retry_after": 3600
+            }
+        
+        # Sanitize input
+        safe_message, is_safe = self._sanitize_user_input(message, "user_message")
+        if not is_safe:
+            return {
+                "success": False,
+                "error": "Invalid input detected. Please rephrase your message."
+            }
+        
+        system_message = """You are LiftLink AI, a knowledgeable and supportive fitness coach assistant.
+You help users with:
+- Workout advice and exercise form tips
+- Nutrition guidance (general, not medical advice)
+- Motivation and mindset coaching
+- Progress tracking insights
+- Recovery and rest recommendations
+
+Rules:
+- Be encouraging but realistic
+- Give actionable advice
+- Acknowledge limitations (refer to medical professionals when needed)
+- Keep responses concise (under 200 words unless detailed explanation needed)
+- Never provide medical diagnoses or prescribe treatments
+- Focus on evidence-based fitness information
+
+Respond naturally and conversationally."""
+
+        try:
+            chat = self._create_chat(
+                session_id=f"chat_{user_id}_{datetime.now().timestamp()}",
+                system_message=system_message
+            )
+            
+            # Build context-aware prompt
+            prompt_parts = []
+            
+            if context:
+                if context.get("user_goal"):
+                    prompt_parts.append(f"User's fitness goal: {context['user_goal']}")
+                if context.get("experience_level"):
+                    prompt_parts.append(f"Experience level: {context['experience_level']}")
+                if context.get("recent_workouts"):
+                    prompt_parts.append(f"Recent activity: {context['recent_workouts']} workouts this week")
+            
+            if prompt_parts:
+                context_str = "\n".join(prompt_parts)
+                full_prompt = f"Context:\n{context_str}\n\nUser question: {safe_message}"
+            else:
+                full_prompt = safe_message
+            
+            response = await chat.send_message(UserMessage(text=full_prompt))
+            
+            self._record_request(user_id)
+            
+            return {
+                "success": True,
+                "response": response,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            print(f"❌ AI Chat error: {e}")
+            return {
+                "success": False,
+                "error": "AI service temporarily unavailable. Please try again."
+            }
     
     # ==================== WORKOUT GENERATION ====================
     
@@ -41,16 +223,43 @@ class LiftLinkAI:
         self,
         trainer_style: Dict,
         client_profile: Dict,
-        duration_weeks: int = 4
+        duration_weeks: int = 4,
+        user_id: str = None
     ) -> Dict:
         """
         Generate a personalized workout program based on trainer style and client needs
-        
-        Args:
-            trainer_style: Trainer's coaching style, preferences, sample workouts
-            client_profile: Client's goals, fitness level, available equipment, schedule
-            duration_weeks: Program length (default 4 weeks)
+        With caching and rate limiting for cost management
         """
+        # Rate limit check
+        if user_id and not self._check_rate_limit(user_id):
+            return {
+                "success": False,
+                "error": "Rate limit exceeded. Maximum 20 AI requests per hour.",
+                "retry_after": 3600
+            }
+        
+        # Check cache first
+        cache_params = {
+            "approach": trainer_style.get("approach"),
+            "goal": client_profile.get("goal"),
+            "experience": client_profile.get("experience"),
+            "days_per_week": client_profile.get("days_per_week"),
+            "duration_weeks": duration_weeks
+        }
+        
+        cached = ai_cache.get("workout_program", cache_params)
+        if cached:
+            return cached
+        
+        # Sanitize inputs
+        for key in ["approach", "methods", "session_structure"]:
+            if key in trainer_style and isinstance(trainer_style[key], str):
+                trainer_style[key], _ = self._sanitize_user_input(trainer_style[key], "workout_notes")
+        
+        for key in ["goal", "limitations"]:
+            if key in client_profile and isinstance(client_profile[key], str):
+                client_profile[key], _ = self._sanitize_user_input(client_profile[key], "workout_notes")
+        
         system_message = """You are an expert fitness program designer for LiftLink. 
 You create science-backed, progressive workout programs that are:
 - Personalized to the client's goals, fitness level, and available time
@@ -127,10 +336,18 @@ Generate a complete program in this JSON format:
             program['generated_at'] = datetime.now().isoformat()
             program['ai_generated'] = True
             
-            return {
+            result = {
                 'success': True,
                 'program': program
             }
+            
+            # Cache the result
+            ai_cache.set("workout_program", cache_params, result)
+            
+            if user_id:
+                self._record_request(user_id)
+            
+            return result
             
         except json.JSONDecodeError as e:
             print(f"❌ AI response parsing error: {e}")
@@ -152,19 +369,28 @@ Generate a complete program in this JSON format:
         self,
         trigger: str,
         client_data: Dict,
-        trainer_tone: str = "supportive"
+        trainer_tone: str = "supportive",
+        user_id: str = None
     ) -> Dict:
         """
         Generate personalized coaching messages based on behavior triggers
-        
-        Triggers:
-        - missed_workout: Client missed 1+ workouts
-        - streak_achieved: Client hit a streak milestone
-        - low_energy: Client reported low energy
-        - pr_achieved: Client hit a personal record
-        - weekly_checkin: Regular weekly check-in
-        - motivation_needed: General motivation boost
         """
+        # Rate limit check
+        if user_id and not self._check_rate_limit(user_id):
+            return {
+                "success": False,
+                "error": "Rate limit exceeded.",
+                "retry_after": 3600
+            }
+        
+        # Sanitize client data
+        safe_client_data = {}
+        for key, value in client_data.items():
+            if isinstance(value, str):
+                safe_value, _ = self._sanitize_user_input(value, "content_notes")
+                safe_client_data[key] = safe_value
+            else:
+                safe_client_data[key] = value
         
         tone_descriptions = {
             "dog_mode": "intense, no-excuses, drill-sergeant energy but still respectful",
@@ -184,22 +410,22 @@ Keep messages:
 Respond with JSON only: {{"message": "your message", "suggested_action": "one specific action"}}"""
 
         trigger_contexts = {
-            "missed_workout": f"Client {client_data.get('name', 'there')} has missed {client_data.get('missed_count', 2)} workouts. Their last workout was {client_data.get('days_since_last', 3)} days ago.",
-            "streak_achieved": f"Client {client_data.get('name', 'there')} just hit a {client_data.get('streak_days', 7)}-day streak! They've been consistent with {client_data.get('workout_type', 'their training')}.",
-            "low_energy": f"Client {client_data.get('name', 'there')} reported energy level {client_data.get('energy_level', 2)}/5 today. They mentioned: {client_data.get('energy_note', 'feeling tired')}.",
-            "pr_achieved": f"Client {client_data.get('name', 'there')} just hit a PR! {client_data.get('pr_details', 'New personal best')}.",
-            "weekly_checkin": f"Weekly check-in for {client_data.get('name', 'there')}. This week: {client_data.get('workouts_completed', 3)}/{client_data.get('workouts_planned', 4)} workouts. Overall adherence: {client_data.get('adherence_percent', 75)}%.",
-            "motivation_needed": f"Client {client_data.get('name', 'there')} seems to need some motivation. Goal: {client_data.get('goal', 'get stronger')}. Progress: {client_data.get('progress_note', 'on track')}."
+            "missed_workout": f"Client {safe_client_data.get('name', 'there')} has missed {safe_client_data.get('missed_count', 2)} workouts.",
+            "streak_achieved": f"Client {safe_client_data.get('name', 'there')} just hit a {safe_client_data.get('streak_days', 7)}-day streak!",
+            "low_energy": f"Client {safe_client_data.get('name', 'there')} reported low energy today.",
+            "pr_achieved": f"Client {safe_client_data.get('name', 'there')} just hit a PR! {safe_client_data.get('pr_details', 'New personal best')}.",
+            "weekly_checkin": f"Weekly check-in for {safe_client_data.get('name', 'there')}.",
+            "motivation_needed": f"Client {safe_client_data.get('name', 'there')} needs motivation."
         }
         
-        context = trigger_contexts.get(trigger, f"General message for {client_data.get('name', 'client')}")
+        context = trigger_contexts.get(trigger, f"General message for {safe_client_data.get('name', 'client')}")
         
         prompt = f"""Generate a coaching message for this situation:
 
 {context}
 
-Client's vibe preference: {client_data.get('vibe', 'soft_grind')}
-Client's current goal: {client_data.get('goal', 'general fitness')}"""
+Client's vibe preference: {safe_client_data.get('vibe', 'soft_grind')}
+Client's current goal: {safe_client_data.get('goal', 'general fitness')}"""
 
         try:
             chat = self._create_chat(
@@ -209,6 +435,9 @@ Client's current goal: {client_data.get('goal', 'general fitness')}"""
             
             response = await chat.send_message(UserMessage(text=prompt))
             result = json.loads(response)
+            
+            if user_id:
+                self._record_request(user_id)
             
             return {
                 'success': True,
@@ -231,13 +460,18 @@ Client's current goal: {client_data.get('goal', 'general fitness')}"""
         self,
         original_workout: Dict,
         adaptation_reason: str,
-        client_state: Dict
+        client_state: Dict,
+        user_id: str = None
     ) -> Dict:
         """
         Adapt a workout based on client's current state
-        
-        Reasons: low_energy, time_crunch, injury, mood, skip_pattern
         """
+        if user_id and not self._check_rate_limit(user_id):
+            return {
+                "success": False,
+                "error": "Rate limit exceeded.",
+                "retry_after": 3600
+            }
         
         system_message = """You are an expert at modifying workouts on-the-fly to match client needs.
 Your adaptations should:
@@ -283,6 +517,9 @@ Provide adapted workout in this format:
             response = await chat.send_message(UserMessage(text=prompt))
             result = json.loads(response)
             
+            if user_id:
+                self._record_request(user_id)
+            
             return {
                 'success': True,
                 'original_workout': original_workout,
@@ -299,16 +536,107 @@ Provide adapted workout in this format:
                 'error': str(e)
             }
     
+    # ==================== PROGRESS ANALYSIS ====================
+    
+    async def analyze_progress(
+        self,
+        user_id: str,
+        workout_history: List[Dict],
+        measurements: List[Dict] = None,
+        goals: Dict = None
+    ) -> Dict:
+        """
+        Analyze user's fitness progress and provide insights
+        """
+        if not self._check_rate_limit(user_id):
+            return {
+                "success": False,
+                "error": "Rate limit exceeded.",
+                "retry_after": 3600
+            }
+        
+        system_message = """You are a fitness data analyst providing progress insights.
+Focus on:
+- Positive trends and achievements
+- Areas for improvement
+- Specific, actionable recommendations
+- Realistic goal adjustments if needed
+
+Be encouraging but honest. Respond with JSON only."""
+
+        # Summarize data for prompt
+        workout_summary = {
+            "total_workouts": len(workout_history),
+            "this_week": len([w for w in workout_history if w.get("date", "")[:10] >= (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")]),
+            "workout_types": list(set(w.get("type", "general") for w in workout_history[-20:])),
+        }
+        
+        prompt = f"""Analyze this user's fitness progress:
+
+WORKOUT SUMMARY:
+- Total workouts logged: {workout_summary['total_workouts']}
+- This week: {workout_summary['this_week']}
+- Workout types: {workout_summary['workout_types']}
+
+USER GOALS:
+{json.dumps(goals, indent=2) if goals else 'General fitness improvement'}
+
+RECENT MEASUREMENTS:
+{json.dumps(measurements[-5:] if measurements else [], indent=2)}
+
+Provide analysis in this format:
+{{
+    "progress_score": 0-100,
+    "highlights": ["string"],
+    "areas_for_improvement": ["string"],
+    "recommendations": [
+        {{"action": "string", "priority": "high/medium/low", "reason": "string"}}
+    ],
+    "goal_status": "on_track/ahead/behind",
+    "motivational_note": "string"
+}}"""
+
+        try:
+            chat = self._create_chat(
+                session_id=f"progress_{user_id}_{datetime.now().timestamp()}",
+                system_message=system_message
+            )
+            
+            response = await chat.send_message(UserMessage(text=prompt))
+            result = json.loads(response)
+            
+            self._record_request(user_id)
+            
+            return {
+                'success': True,
+                'analysis': result,
+                'analyzed_at': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            print(f"❌ Progress analysis error: {e}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+    
     # ==================== PATTERN ANALYSIS ====================
     
     async def analyze_client_patterns(
         self,
         workout_history: List[Dict],
-        checkin_history: List[Dict]
+        checkin_history: List[Dict],
+        user_id: str = None
     ) -> Dict:
         """
         Analyze client behavior patterns and generate insights/recommendations
         """
+        if user_id and not self._check_rate_limit(user_id):
+            return {
+                "success": False,
+                "error": "Rate limit exceeded.",
+                "retry_after": 3600
+            }
         
         system_message = """You are a fitness data analyst identifying patterns in client behavior.
 Focus on actionable insights that can improve adherence and results.
@@ -362,6 +690,9 @@ Provide analysis in this format:
             response = await chat.send_message(UserMessage(text=prompt))
             result = json.loads(response)
             
+            if user_id:
+                self._record_request(user_id)
+            
             return {
                 'success': True,
                 'analysis': result,
@@ -377,16 +708,29 @@ Provide analysis in this format:
     
     # ==================== CONTENT GENERATION ====================
     
-    async def generate_content_from_notes(
+    async def generate_content(
         self,
         trainer_notes: str,
-        content_type: str = "tip"
+        content_type: str = "tip",
+        user_id: str = None
     ) -> Dict:
         """
         Transform trainer notes/ideas into polished content
-        
-        Types: tip, program_description, workout_intro, motivation_post
         """
+        if user_id and not self._check_rate_limit(user_id):
+            return {
+                "success": False,
+                "error": "Rate limit exceeded.",
+                "retry_after": 3600
+            }
+        
+        # Sanitize input
+        safe_notes, is_safe = self._sanitize_user_input(trainer_notes, "content_notes")
+        if not is_safe:
+            return {
+                "success": False,
+                "error": "Invalid input detected."
+            }
         
         system_message = """You are a fitness content writer helping coaches create engaging content.
 Your content should be:
@@ -407,7 +751,7 @@ Respond with JSON only."""
         prompt = f"""Transform these trainer notes into polished content.
 
 TRAINER NOTES:
-{trainer_notes}
+{safe_notes}
 
 CONTENT TYPE: {content_type}
 INSTRUCTIONS: {type_instructions.get(content_type, type_instructions['tip'])}
@@ -429,6 +773,9 @@ Provide content in this format:
             response = await chat.send_message(UserMessage(text=prompt))
             result = json.loads(response)
             
+            if user_id:
+                self._record_request(user_id)
+            
             return {
                 'success': True,
                 'content_type': content_type,
@@ -443,15 +790,9 @@ Provide content in this format:
                 'error': str(e)
             }
     
-    async def generate_content(
-        self,
-        trainer_notes: str,
-        content_type: str = "tip"
-    ) -> Dict:
-        """
-        Wrapper for content generation from trainer notes
-        """
-        return await self.generate_content_from_notes(trainer_notes, content_type)
+    # Alias for backward compatibility
+    async def generate_content_from_notes(self, trainer_notes: str, content_type: str = "tip") -> Dict:
+        return await self.generate_content(trainer_notes, content_type)
 
 
 # Singleton instance
