@@ -5756,7 +5756,7 @@ async def logout_all_devices(current_user: dict = Depends(get_current_user)):
     """
     Logout from all devices by invalidating all sessions
     """
-    from backend.security_middleware import session_manager
+    from security_middleware import session_manager
     
     session_manager.remove_all_sessions(current_user["id"])
     
@@ -5770,7 +5770,7 @@ async def get_active_sessions(current_user: dict = Depends(get_current_user)):
     """
     Get all active sessions for current user
     """
-    from backend.security_middleware import session_manager
+    from security_middleware import session_manager
     
     sessions = session_manager.get_sessions(current_user["id"])
     
@@ -5797,7 +5797,7 @@ async def validate_file_upload(
     Validate file upload before processing
     Checks file type, size, and content integrity
     """
-    from backend.security_middleware import FileUploadValidator
+    from security_middleware import FileUploadValidator
     import base64
     
     try:
