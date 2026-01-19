@@ -1517,6 +1517,24 @@ def test_content_locker_review(trainer_id, trainee_id):
         response = requests.post(f"{BACKEND_URL}/content", json=content_data)
         
         if response.status_code == 200:
+if __name__ == "__main__":
+    print("🚀 Starting LiftLink Backend API Security Testing")
+    print(f"Backend URL: {BACKEND_URL}")
+    print("="*80)
+    
+    # Run the comprehensive security features test
+    results = test_liftlink_security_features()
+    
+    print("\n" + "="*80)
+    print("🏁 TESTING COMPLETE")
+    print("="*80)
+    
+    if results["passed"] == results["total"]:
+        print("🎉 ALL TESTS PASSED!")
+        exit(0)
+    else:
+        print(f"⚠️  {results['total'] - results['passed']} TESTS FAILED")
+        exit(1)
             data = response.json()
             if "content_item" in data and "id" in data["content_item"]:
                 content_id = data["content_item"]["id"]
