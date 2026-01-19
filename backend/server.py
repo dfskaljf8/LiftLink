@@ -5669,6 +5669,269 @@ async def analyze_user_progress(
         print(f"❌ Progress Analysis Error: {e}")
         raise HTTPException(status_code=500, detail="Analysis failed")
 
+# ==================== AI AGENT ENGINE ENDPOINTS ====================
+# The brain of LiftLink - AI monitors, suggests, trainers approve
+
+# Initialize AI Agent with database
+@app.on_event("startup")
+async def init_ai_agent():
+    """Initialize AI Agent with database connection"""
+    ai_agent.set_db(db)
+    print("🤖 AI Agent Engine initialized")
+
+class OnboardingStartRequest(BaseModel):
+    user_name: str
+
+class OnboardingContinueRequest(BaseModel):
+    session_id: str
+    response: str
+
+class ApproveSuggestionRequest(BaseModel):
+    modifications: Optional[Dict] = None
+
+class RejectSuggestionRequest(BaseModel):
+    reason: Optional[str] = None
+
+class ProgramGenerationRequest(BaseModel):
+    client_id: str
+    duration_weeks: int = 4
+    days_per_week: int = 3
+    session_duration: int = 45
+    goal: Optional[str] = None
+
+@api_router.post("/ai/agent/monitor-clients")
+@limiter.limit("10/hour")
+async def ai_monitor_all_clients(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    AI Autopilot: Analyze all clients and generate suggestions
+    Trainers only - runs the AI monitoring engine
+    """
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Trainers only")
+    
+    result = await ai_agent.monitor_all_clients(current_user["id"])
+    return result
+
+@api_router.get("/ai/agent/suggestions")
+async def get_ai_suggestions(
+    priority: Optional[str] = None,
+    limit: int = 20,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get pending AI suggestions for trainer approval
+    """
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Trainers only")
+    
+    suggestions = await ai_agent.get_pending_suggestions(
+        trainer_id=current_user["id"],
+        limit=limit,
+        priority_filter=priority
+    )
+    
+    return {"suggestions": suggestions, "count": len(suggestions)}
+
+@api_router.post("/ai/agent/suggestions/{suggestion_id}/approve")
+async def approve_ai_suggestion(
+    suggestion_id: str,
+    request_body: ApproveSuggestionRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Approve an AI suggestion - executes the suggested action
+    """
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Trainers only")
+    
+    result = await ai_agent.approve_suggestion(
+        suggestion_id=suggestion_id,
+        trainer_id=current_user["id"],
+        modifications=request_body.modifications
+    )
+    
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    
+    return result
+
+@api_router.post("/ai/agent/suggestions/{suggestion_id}/reject")
+async def reject_ai_suggestion(
+    suggestion_id: str,
+    request_body: RejectSuggestionRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Reject an AI suggestion
+    """
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Trainers only")
+    
+    result = await ai_agent.reject_suggestion(
+        suggestion_id=suggestion_id,
+        trainer_id=current_user["id"],
+        reason=request_body.reason
+    )
+    
+    return result
+
+@api_router.get("/ai/agent/analyze-client/{client_id}")
+async def analyze_single_client(
+    client_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Deep AI analysis of a single client
+    """
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Trainers only")
+    
+    result = await ai_agent.analyze_client(client_id, current_user["id"])
+    
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    
+    return result
+
+@api_router.get("/ai/agent/stats")
+async def get_ai_agent_stats(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get AI agent statistics for trainer
+    """
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Trainers only")
+    
+    stats = await ai_agent.get_agent_stats(current_user["id"])
+    return stats
+
+# ==================== AI ONBOARDING ENDPOINTS ====================
+
+@api_router.post("/ai/onboarding/start")
+async def start_ai_onboarding(
+    request_body: OnboardingStartRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Start AI-powered conversational onboarding
+    """
+    result = await ai_agent.start_onboarding(
+        user_id=current_user["id"],
+        user_name=request_body.user_name
+    )
+    return result
+
+@api_router.post("/ai/onboarding/respond")
+async def continue_ai_onboarding(
+    request_body: OnboardingContinueRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Continue AI onboarding conversation
+    """
+    result = await ai_agent.continue_onboarding(
+        session_id=request_body.session_id,
+        user_response=request_body.response
+    )
+    
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    
+    return result
+
+@api_router.get("/ai/onboarding/status/{session_id}")
+async def get_onboarding_status(
+    session_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get current onboarding session status
+    """
+    session = await db.ai_onboarding_sessions.find_one(
+        {"id": session_id, "user_id": current_user["id"]},
+        {"_id": 0}
+    )
+    
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+    
+    return session
+
+# ==================== AI PROGRAM GENERATION ENDPOINTS ====================
+
+@api_router.post("/ai/agent/generate-program")
+@limiter.limit("10/hour")
+async def generate_ai_program(
+    request: Request,
+    request_body: ProgramGenerationRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    AI generates a workout program draft for trainer approval
+    """
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Trainers only")
+    
+    result = await ai_agent.generate_program_draft(
+        trainer_id=current_user["id"],
+        client_id=request_body.client_id,
+        parameters={
+            "duration_weeks": request_body.duration_weeks,
+            "days_per_week": request_body.days_per_week,
+            "session_duration": request_body.session_duration,
+            "goal": request_body.goal
+        }
+    )
+    
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    
+    return result
+
+@api_router.get("/ai/agent/program-drafts")
+async def get_program_drafts(
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Get all AI-generated program drafts awaiting approval
+    """
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Trainers only")
+    
+    drafts = await db.ai_program_drafts.find(
+        {"trainer_id": current_user["id"], "status": "draft"},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(50)
+    
+    return {"drafts": drafts}
+
+@api_router.post("/ai/agent/program-drafts/{draft_id}/approve")
+async def approve_program_draft(
+    draft_id: str,
+    modifications: Optional[Dict] = None,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Approve an AI-generated program draft
+    """
+    if current_user.get("role") != "trainer":
+        raise HTTPException(status_code=403, detail="Trainers only")
+    
+    result = await ai_agent.approve_program_draft(
+        draft_id=draft_id,
+        trainer_id=current_user["id"],
+        modifications=modifications
+    )
+    
+    if "error" in result:
+        raise HTTPException(status_code=404, detail=result["error"])
+    
+    return result
+
 # ==================== IDEMPOTENCY SUPPORT ====================
 
 class IdempotentPaymentRequest(BaseModel):
