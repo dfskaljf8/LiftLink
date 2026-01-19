@@ -5741,7 +5741,7 @@ async def refresh_token_endpoint(request: RefreshTokenRequest):
     Refresh access token using refresh token
     Access tokens expire in 15 minutes for security
     """
-    from backend.security_middleware import refresh_access_token
+    from security_middleware import refresh_access_token
     
     try:
         tokens = refresh_access_token(request.refresh_token)
