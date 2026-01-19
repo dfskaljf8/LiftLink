@@ -10,17 +10,19 @@ BACKEND_URL = "https://android-build-fix-3.preview.emergentagent.com/api"
 
 def test_liftlink_ai_agent_engine():
     """
-    TEST LIFTLINK BACKEND API WITH COMPREHENSIVE SECURITY FEATURES
+    TEST LIFTLINK AI AGENT ENGINE - THE BRAIN OF THE PLATFORM
     
-    Tests the LiftLink backend API endpoints as requested:
-    1. Health Check - GET /api/health
-    2. Auth Flow - POST /api/auth/register, POST /api/auth/login, GET /api/auth/sessions
-    3. AI Chat - POST /api/ai/chat (requires auth)
-    4. Idempotent Payment - POST /api/payments/create-intent-idempotent
-    5. Security Features - Rate limiting headers, security headers
+    Tests the AI Agent endpoints as requested:
+    1. AI Agent Stats - GET /api/ai/agent/stats (requires trainer auth)
+    2. AI Onboarding Start - POST /api/ai/onboarding/start
+    3. AI Onboarding Continue - POST /api/ai/onboarding/respond
+    4. AI Agent Suggestions - GET /api/ai/agent/suggestions (requires trainer auth)
+    5. AI Program Generation - POST /api/ai/agent/generate-program (requires trainer auth)
+    
+    First creates a trainer user and gets token for auth-required endpoints.
     """
     print("="*80)
-    print("🔐 TESTING LIFTLINK BACKEND API WITH COMPREHENSIVE SECURITY FEATURES")
+    print("🤖 TESTING LIFTLINK AI AGENT ENGINE - THE BRAIN OF THE PLATFORM")
     print("="*80)
     
     results = {"passed": 0, "total": 0, "tests": {}}
