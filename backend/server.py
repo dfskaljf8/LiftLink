@@ -5680,7 +5680,7 @@ async def create_payment_intent_idempotent(
     Create payment intent with idempotency support
     Prevents duplicate charges from network issues or retries
     """
-    from backend.security_middleware import check_idempotency, store_idempotent_response, audit_logger
+    from security_middleware import check_idempotency, store_idempotent_response, audit_logger
     
     # Check for existing response
     cached_response = check_idempotency(payment_request.idempotency_key)
