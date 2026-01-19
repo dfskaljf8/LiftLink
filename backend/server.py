@@ -35,6 +35,9 @@ load_dotenv()
 # Import AI service for chat functionality
 from ai_service import liftlink_ai
 
+# Import AI Agent Engine - The brain of LiftLink
+from ai_agent_engine import ai_agent, SuggestionType, SuggestionPriority, SuggestionStatus
+
 # Import payment service
 from payment_service import PaymentService
 
