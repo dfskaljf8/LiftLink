@@ -1,6 +1,7 @@
 /**
  * LiftLink Screens Index
  * Centralized exports for all screen components
+ * AI-powered fitness coaching platform
  */
 
 // Main Screens
@@ -12,8 +13,14 @@ export { default as SettingsScreen } from './SettingsScreen';
 export { default as TrainersScreen } from './TrainersScreen';
 export { default as TreeScreen } from './TreeScreen';
 
-// AI Features
+// AI Core Screens - The Brain of LiftLink
 export { default as AIChatScreen } from './AIChatScreen';
+export { default as AICommandCenter } from './AICommandCenter';
+export { default as AIOnboardingScreen } from './AIOnboardingScreen';
+
+// Legal & Compliance
+export { default as PrivacyPolicyScreen } from './PrivacyPolicyScreen';
+export { default as TermsOfServiceScreen } from './TermsOfServiceScreen';
 
 // Coaching Automation
 export { default as CoachingHubScreen } from './CoachingAutomation/CoachingHubScreen';
