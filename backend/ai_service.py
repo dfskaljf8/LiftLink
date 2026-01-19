@@ -400,39 +400,41 @@ Generate a complete program in this JSON format:
                 safe_client_data[key] = value
         
         tone_descriptions = {
-            "dog_mode": "intense, no-excuses, drill-sergeant energy but still respectful",
-            "soft_grind": "encouraging, understanding, focused on sustainable progress",
-            "easy_restart": "gentle, compassionate, celebrating small wins"
+            "dog_mode": "intense drill-sergeant energy. No excuses. Push hard but don't be a dick about it.",
+            "soft_grind": "Gen Z supportive. Real talk but encouraging. Focus on consistency over perfection.",
+            "easy_restart": "gentle restart mode. They fell off and need a hand back up, not a lecture."
         }
         
-        system_message = f"""You are a fitness coach sending a personalized message to your client.
-Your tone is: {tone_descriptions.get(trainer_tone, tone_descriptions['soft_grind'])}
+        system_message = f"""You are LiftLink AI sending a coaching message. Gen Z fluent, witty, results-focused.
 
-Keep messages:
-- Concise (2-4 sentences max)
-- Personal (use their name)
-- Action-oriented (give them one clear next step)
-- Authentic (not generic motivational fluff)
+TONE: {tone_descriptions.get(trainer_tone, tone_descriptions['soft_grind'])}
 
-Respond with JSON only: {{"message": "your message", "suggested_action": "one specific action"}}"""
+STYLE:
+- Concise: 1-3 sentences max
+- Personal: use their name
+- Action-oriented: one clear next step
+- No corny motivation or fake praise
+- Sound like a friend who actually cares about results
+
+Respond with JSON: {{"message": "your message", "suggested_action": "one specific action"}}"""
 
         trigger_contexts = {
-            "missed_workout": f"Client {safe_client_data.get('name', 'there')} has missed {safe_client_data.get('missed_count', 2)} workouts.",
-            "streak_achieved": f"Client {safe_client_data.get('name', 'there')} just hit a {safe_client_data.get('streak_days', 7)}-day streak!",
-            "low_energy": f"Client {safe_client_data.get('name', 'there')} reported low energy today.",
-            "pr_achieved": f"Client {safe_client_data.get('name', 'there')} just hit a PR! {safe_client_data.get('pr_details', 'New personal best')}.",
-            "weekly_checkin": f"Weekly check-in for {safe_client_data.get('name', 'there')}.",
-            "motivation_needed": f"Client {safe_client_data.get('name', 'there')} needs motivation."
+            "missed_workout": f"{safe_client_data.get('name', 'there')} missed {safe_client_data.get('missed_count', 2)} workouts. Time for a check-in.",
+            "streak_achieved": f"{safe_client_data.get('name', 'there')} hit a {safe_client_data.get('streak_days', 7)}-day streak! Acknowledge the W.",
+            "low_energy": f"{safe_client_data.get('name', 'there')} reported low energy. Suggest adaptation or rest.",
+            "pr_achieved": f"{safe_client_data.get('name', 'there')} just hit a PR: {safe_client_data.get('pr_details', 'New personal best')}. Hype them up.",
+            "weekly_checkin": f"Weekly check-in for {safe_client_data.get('name', 'there')}. Quick pulse check.",
+            "motivation_needed": f"{safe_client_data.get('name', 'there')} seems to need a push. No fluff."
         }
         
         context = trigger_contexts.get(trigger, f"General message for {safe_client_data.get('name', 'client')}")
         
-        prompt = f"""Generate a coaching message for this situation:
+        prompt = f"""Generate a coaching message:
 
 {context}
 
-Client's vibe preference: {safe_client_data.get('vibe', 'soft_grind')}
-Client's current goal: {safe_client_data.get('goal', 'general fitness')}"""
+Client's vibe: {safe_client_data.get('vibe', 'soft_grind')}
+Goal: {safe_client_data.get('goal', 'general fitness')}"""
 
         try:
             chat = self._create_chat(
