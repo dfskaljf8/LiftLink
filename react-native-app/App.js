@@ -1,21 +1,20 @@
+/**
+ * LiftLink Mobile App - Main Entry Point
+ * AI-Powered Fitness Coaching Platform
+ * 
+ * Architecture: Clean, modular structure with screens in /src/screens
+ */
+
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  TextInput,
-  Alert,
   SafeAreaView,
   StatusBar,
   ActivityIndicator,
-  Platform,
+  Alert,
   Dimensions,
-  Modal,
-  Image,
-  KeyboardAvoidingView,
-  Linking
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NavigationContainer } from '@react-navigation/native';
@@ -24,7 +23,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 
-// Import components
+// Import Components
 import DocumentVerification from './src/components/DocumentVerification';
 import PaymentScreen from './src/components/PaymentScreen';
 import TrainerDashboard from './src/components/TrainerDashboard';
@@ -41,26 +40,31 @@ import gestureManager from './src/components/MobileGestureManager';
 import SwipeTrainerDiscovery from './src/components/SwipeTrainerDiscovery';
 import VibeOnboarding from './src/components/VibeOnboarding';
 import ContentLocker from './src/components/ContentLocker';
-import CoachingHubScreen from './src/screens/CoachingAutomation/CoachingHubScreen';
 
-// Import security services
+// Import Screens
+import CoachingHubScreen from './src/screens/CoachingAutomation/CoachingHubScreen';
+import AIChatScreen from './src/screens/AIChatScreen';
+import AICommandCenter from './src/screens/AICommandCenter';
+import AIOnboardingScreen from './src/screens/AIOnboardingScreen';
+import PrivacyPolicyScreen from './src/screens/PrivacyPolicyScreen';
+import TermsOfServiceScreen from './src/screens/TermsOfServiceScreen';
+
+// Import Security Services
 import deviceSecurity, { checkDeviceSecurity, showSecurityWarning } from './src/services/DeviceSecurityManager';
 import certificatePinning from './src/services/CertificatePinningService';
 import { LoadingAnimation } from './src/components/Animations';
 
-// Import React Native styles (converted from CSS)
-import NativeAppStyles, { colors, deviceSize } from './src/styles/AppStyles';
+// Import Styles
+import NativeAppStyles, { colors as appColors, deviceSize } from './src/styles/AppStyles';
 
 // Constants
 const { width, height } = Dimensions.get('window');
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 if (!BACKEND_URL) {
-  console.error('❌ REACT_APP_BACKEND_URL is not set! Please configure environment variables.');
-  Alert.alert('Configuration Error', 'Backend URL is not configured. Please contact support.');
+  console.error('❌ REACT_APP_BACKEND_URL is not set!');
 }
 const API = `${BACKEND_URL}/api`;
-const STRIPE_PUBLISHABLE_KEY = process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY || 'YOUR_STRIPE_PUBLISHABLE_KEY_HERE';
 
 // Responsive breakpoints
 const isSmallScreen = width < 375;
@@ -68,7 +72,7 @@ const isMediumScreen = width >= 375 && width < 414;
 const isLargeScreen = width >= 414;
 const isTablet = width >= 768;
 
-// Responsive scaling function
+// Scale function
 const scale = (size) => {
   if (isSmallScreen) return size * 0.9;
   if (isMediumScreen) return size;
@@ -77,903 +81,39 @@ const scale = (size) => {
   return size;
 };
 
-// Context
-const AppContext = createContext();
+// Theme colors
+const darkColors = {
+  background: '#111827',
+  surface: '#1f2937',
+  surfaceLight: '#374151',
+  primary: '#4f46e5',
+  primaryDark: '#4338ca',
+  accent: '#10b981',
+  text: '#f9fafb',
+  textSecondary: '#9ca3af',
+  border: '#374151',
+  error: '#ef4444',
+  warning: '#f59e0b',
+  success: '#22c55e',
+};
 
-// Tab Navigator
+// Create Context - Export for screens to use
+export const AppContext = createContext();
+
+// Navigation
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-// Main App Component
-const App = () => {
-  // Create navigation ref for gesture manager
-  const navigationRef = React.useRef();
-  
-  // Initialize gesture manager
-  React.useEffect(() => {
-    if (navigationRef.current) {
-      gestureManager.initialize(navigationRef);
-    }
-    
-    return () => {
-      gestureManager.cleanup();
-    };
-  }, []);
+// ==================== INLINE SCREENS (Small) ====================
 
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [darkMode, setDarkMode] = useState(true);
-  const [treeProgress, setTreeProgress] = useState(null);
-  const [sessions, setSessions] = useState([]);
-  const [showPaymentScreen, setShowPaymentScreen] = useState(false);
-  const [selectedTrainer, setSelectedTrainer] = useState(null);
-  const [sessionDetails, setSessionDetails] = useState(null);
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [showFitnessIntegration, setShowFitnessIntegration] = useState(false);
-  const [securityCheckComplete, setSecurityCheckComplete] = useState(false);
-  const [deviceCompromised, setDeviceCompromised] = useState(false);
-
-  // Initialize app and perform security checks
-  useEffect(() => {
-    initializeApp();
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      fetchUserData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
-  const initializeApp = async () => {
-    try {
-      // Step 1: Perform device security check
-      console.log('🔒 Initializing security...');
-      const securityResult = await checkDeviceSecurity();
-      
-      setDeviceCompromised(securityResult.isCompromised);
-      setSecurityCheckComplete(true);
-      
-      // Show warning if device is compromised
-      if (securityResult.isCompromised) {
-        showSecurityWarning(securityResult);
-      }
-      
-      // Step 2: Initialize certificate pinning
-      console.log('📌 Certificate pinning initialized');
-      
-      // Step 3: Check stored authentication
-      const savedUser = await AsyncStorage.getItem('liftlink_user');
-      
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-        console.log('✅ Session restored successfully');
-      }
-    } catch (error) {
-      console.error('❌ App initialization error:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchUserData = async () => {
-    if (!user) return;
-    
-    try {
-      // Fetch tree progress
-      const treeResponse = await axios.get(`${API}/users/${user.id}/tree-progress`);
-      setTreeProgress(treeResponse.data);
-
-      // Fetch sessions
-      const sessionsResponse = await axios.get(`${API}/users/${user.id}/sessions`);
-      setSessions(sessionsResponse.data.sessions || []);
-    } catch (error) {
-      console.error('Error fetching user data:', error);
-    }
-  };
-
-  const handleLogout = async () => {
-    await AsyncStorage.removeItem('liftlink_user');
-    setUser(null);
-    setTreeProgress(null);
-    setSessions([]);
-  };
-
-  // Payment and scheduling handling
-  const handleBookTrainer = (trainer) => {
-    setSelectedTrainer(trainer);
-    setShowCalendar(true);
-  };
-
-  const handleScheduleSession = (sessionData) => {
-    setSessionDetails({
-      type: sessionData.session_type,
-      duration: '60 minutes',
-      amount: parseInt(selectedTrainer.price.replace('$', '').replace('/session', '')) * 100,
-      location: selectedTrainer.location || 'LiftLink Gym',
-      date: sessionData.date,
-      time: sessionData.time
-    });
-    setShowCalendar(false);
-    setShowPaymentScreen(true);
-  };
-
-  const handlePaymentSuccess = (paymentData) => {
-    setShowPaymentScreen(false);
-    setSelectedTrainer(null);
-    setSessionDetails(null);
-    Alert.alert('Success', `Payment successful! Your session with ${selectedTrainer.name} has been booked.`);
-    fetchUserData(); // Refresh user data
-  };
-
-  const handlePaymentCancel = () => {
-    setShowPaymentScreen(false);
-    setSelectedTrainer(null);
-    setSessionDetails(null);
-  };
-
-  const handleCalendarCancel = () => {
-    setShowCalendar(false);
-    setSelectedTrainer(null);
-  };
-
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.loadingContainer}>
-        <LoadingAnimation size={100} />
-        <Text style={styles.loadingText}>Loading LiftLink...</Text>
-      </SafeAreaView>
-    );
-  }
-
-  if (!user) {
-    return (
-      <AppContext.Provider value={{ darkMode, setDarkMode, colors }}>
-        <AuthNavigator setUser={setUser} />
-      </AppContext.Provider>
-    );
-  }
-
-  return (
-    <AppContext.Provider value={{ 
-      darkMode, 
-      setDarkMode, 
-      colors, 
-      user, 
-      setUser, 
-      treeProgress, 
-      sessions,
-      fetchUserData,
-      handleLogout,
-      handleBookTrainer,
-      handleScheduleSession
-    }}>
-      <DynamicIslandSafeWrapper backgroundColor={colors.background}>
-        <NavigationContainer ref={navigationRef}>
-          <DynamicIslandStatusBar barStyle="light-content" backgroundColor={colors.background} />
-          <MainNavigator />
-        
-        {/* Modals */}
-        {showPaymentScreen && (
-          <PaymentScreen
-            trainer={selectedTrainer}
-            sessionDetails={sessionDetails}
-            onPaymentSuccess={handlePaymentSuccess}
-            onCancel={handlePaymentCancel}
-          />
-        )}
-        
-        <CalendarScheduling
-          user={user}
-          trainer={selectedTrainer}
-          visible={showCalendar}
-          onClose={handleCalendarCancel}
-          onScheduleConfirm={handleScheduleSession}
-        />
-        
-        {showFitnessIntegration && (
-          <GoogleFitIntegration
-            user={user}
-            visible={showFitnessIntegration}
-            onClose={() => setShowFitnessIntegration(false)}
-          />
-        )}
-      </NavigationContainer>
-      </DynamicIslandSafeWrapper>
-    </AppContext.Provider>
-  );
-};
-
-// Auth Navigator
-const AuthNavigator = ({ setUser }) => {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Auth" component={AuthScreen} initialParams={{ setUser }} />
-      <Stack.Screen name="DocumentVerification" component={DocumentVerification} />
-      <Stack.Screen name="VibeOnboarding">
-        {(props) => <VibeOnboarding {...props} onComplete={(vibeData) => {
-          // After vibe onboarding, user is set with their vibe preferences
-          console.log('Vibe onboarding completed:', vibeData);
-        }} />}
-      </Stack.Screen>
-    </Stack.Navigator>
-  );
-};
-
-// Tab icon mapping
-const TAB_ICONS = {
-  Dashboard: 'dashboard',
-  Trainers: 'search',
-  Discover: 'explore',
-  Clients: 'people',
-  Content: 'folder',
-  Coaching: 'auto-awesome',
-  Fitness: 'directions-run',
-  Tree: 'nature',
-  Sessions: 'event',
-  Settings: 'settings',
-};
-
-// Tab Icon Component - defined outside to avoid recreation
-const TabIcon = ({ routeName, color, size }) => (
-  <Icon name={TAB_ICONS[routeName] || 'help'} size={size} color={color} />
-);
-
-// Main Tab Navigator (wrapped in Stack for modals)
-const MainTabNavigator = () => {
-  const { user, colors } = useContext(AppContext);
-  
-  return (
-    <Tab.Navigator
-      screenOptions={({ route }) => ({
-        // eslint-disable-next-line react/no-unstable-nested-components
-        tabBarIcon: ({ color, size }) => (
-          <TabIcon routeName={route.name} color={color} size={size} />
-        ),
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textSecondary,
-        tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopWidth: 0,
-          elevation: 10,
-          shadowOpacity: 0.1,
-          shadowRadius: 4,
-          shadowOffset: { width: 0, height: -2 }
-        },
-        headerStyle: {
-          backgroundColor: colors.surface,
-        },
-        headerTitleStyle: {
-          color: colors.text,
-        },
-        headerShown: false
-      })}
-    >
-      <Tab.Screen name="Dashboard">
-        {(props) => <DashboardScreen {...props} />}
-      </Tab.Screen>
-      
-      {user.role === 'trainer' ? (
-        <>
-          <Tab.Screen name="Clients">
-            {(props) => <TrainerDashboard {...props} trainerId={user.id} />}
-          </Tab.Screen>
-          <Tab.Screen name="Content">
-            {(props) => <ContentLocker {...props} trainerId={user.id} />}
-          </Tab.Screen>
-          <Tab.Screen name="Coaching">
-            {(props) => <CoachingHubScreen {...props} trainerId={user.id} isTrainer={true} />}
-          </Tab.Screen>
-        </>
-      ) : (
-        <>
-          <Tab.Screen name="Trainers" component={TrainersScreen} />
-          <Tab.Screen name="Discover">
-            {(props) => <SwipeTrainerDiscovery {...props} />}
-          </Tab.Screen>
-          <Tab.Screen name="Coaching">
-            {(props) => <CoachingHubScreen {...props} trainerId={user.trainer_id} clientId={user.id} isTrainer={false} />}
-          </Tab.Screen>
-        </>
-      )}
-      
-      <Tab.Screen name="Fitness" component={FitnessScreen} />
-      <Tab.Screen name="Tree" component={TreeScreen} />
-      <Tab.Screen name="Sessions" component={SessionsScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
-    </Tab.Navigator>
-  );
-};
-
-// Main Navigator with Stack for modal screens
-const MainNavigator = () => {
-  const { user, colors } = useContext(AppContext);
-  
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MainTabs" component={MainTabNavigator} />
-      <Stack.Screen 
-        name="VibeOnboarding" 
-        options={{ presentation: 'modal' }}
-      >
-        {(props) => <VibeOnboarding {...props} userId={user?.id} onComplete={(vibeData) => {
-          console.log('Vibe updated:', vibeData);
-          props.navigation.goBack();
-        }} />}
-      </Stack.Screen>
-      <Stack.Screen 
-        name="SwipeDiscovery" 
-        options={{ presentation: 'modal' }}
-      >
-        {(props) => <SwipeTrainerDiscovery {...props} />}
-      </Stack.Screen>
-      <Stack.Screen 
-        name="Payment" 
-        options={{ presentation: 'modal' }}
-      >
-        {(props) => <PaymentScreen {...props} />}
-      </Stack.Screen>
-      <Stack.Screen 
-        name="Calendar" 
-        options={{ presentation: 'modal' }}
-      >
-        {(props) => <CalendarScheduling {...props} />}
-      </Stack.Screen>
-    </Stack.Navigator>
-  );
-};
-
-// Auth Screen
-const AuthScreen = ({ navigation, route }) => {
-  const { setUser } = route.params;
-  const { colors } = useContext(AppContext);
-  const [mode, setMode] = useState('email');
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [role, setRole] = useState('trainee');
-  const [fitnessGoals, setFitnessGoals] = useState([]);
-  const [experienceLevel, setExperienceLevel] = useState('beginner');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  // Certification states (for trainer registration)
-  const [certType, setCertType] = useState('');
-  const [certNumber, setCertNumber] = useState('');
-  const [specialties, setSpecialties] = useState([]);
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const handleEmailChange = (text) => {
-    setEmail(text);
-    setError(''); // Clear general errors
-    
-    if (text.length === 0) {
-      setEmailError('');
-    } else if (!validateEmail(text)) {
-      setEmailError('Please enter a valid email address');
-    } else {
-      setEmailError('');
-    }
-  };
-
-  const handleEmailSubmit = async () => {
-    if (!validateEmail(email)) {
-      setError('Please enter a valid email address');
-      setEmailError('Please enter a valid email address');
-      return;
-    }
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const response = await axios.post(`${API}/check-user`, { email });
-      if (response.data.exists) {
-        // User exists, try to login
-        await handleLogin();
-      } else {
-        // New user, continue with registration
-        setMode('name');
-      }
-    } catch (error) {
-      console.error('Email check failed:', error);
-      setError('Failed to check email. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogin = async () => {
-    try {
-      const response = await axios.post(`${API}/login`, { email });
-      await AsyncStorage.setItem('liftlink_user', JSON.stringify(response.data));
-      setUser(response.data);
-    } catch (error) {
-      if (error.response?.status === 403) {
-        // Need verification
-        const checkResponse = await axios.post(`${API}/check-user`, { email });
-        if (checkResponse.data.exists) {
-          navigation.navigate('DocumentVerification', {
-            user: { id: checkResponse.data.user_id, email, role: checkResponse.data.role || 'trainee' }
-          });
-        }
-      } else {
-        setError('Login failed. Please try again.');
-      }
-    }
-  };
-
-  const handleRegistration = async () => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const userData = {
-        email,
-        name,
-        role,
-        fitness_goals: fitnessGoals,
-        experience_level: experienceLevel
-      };
-
-      const response = await axios.post(`${API}/users`, userData);
-      
-      // Navigate to document verification
-      navigation.navigate('DocumentVerification', {
-        user: { id: response.data.id, email, role, name }
-      });
-    } catch (error) {
-      console.error('Registration failed:', error);
-      setError('Registration failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignInSuccess = async ({ user, token, isNewUser }) => {
-    console.log('Google Sign-In Success:', user.email, 'New user:', isNewUser);
-    
-    // User is already stored by GoogleSignInButton
-    setUser(user);
-    
-    if (isNewUser) {
-      // New user - optionally navigate to profile completion
-      Alert.alert(
-        'Welcome to LiftLink! 🎉',
-        `Hi ${user.name}! Your account has been created with Google.`,
-        [{ text: 'Get Started', style: 'default' }]
-      );
-    }
-  };
-
-  const handleGoogleSignInError = (errorMessage) => {
-    console.error('Google Sign-In Error:', errorMessage);
-    setError(errorMessage || 'Google Sign-In failed. Please try again.');
-  };
-
-  const renderEmailStep = () => (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.authContainer}>
-      <View style={styles.logoSection}>
-        <LiftLinkLogo size={120} showTagline={true} />
-      </View>
-      
-      <View style={styles.formSection}>
-        <Text style={styles.authTitle}>Welcome to LiftLink</Text>
-        <Text style={styles.authSubtitle}>Enter your email to get started</Text>
-        
-        <TextInput
-          style={[
-            styles.input,
-            emailError ? { borderColor: '#ff6b6b', borderWidth: 1 } : {}
-          ]}
-          placeholder="Enter your email"
-          placeholderTextColor={colors.textSecondary}
-          value={email}
-          onChangeText={handleEmailChange}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          autoCorrect={false}
-        />
-        
-        {emailError ? (
-          <Text style={styles.errorText}>{emailError}</Text>
-        ) : null}
-
-        {error ? (
-          <Text style={styles.errorText}>{error}</Text>
-        ) : null}
-        
-        <TouchableOpacity
-          style={[
-            styles.primaryButton,
-            (!validateEmail(email) || loading) ? { opacity: 0.6 } : {}
-          ]}
-          onPress={handleEmailSubmit}
-          disabled={!validateEmail(email) || loading}
-        >
-          {loading ? (
-            <ActivityIndicator color={colors.text} />
-          ) : (
-            <Text style={styles.primaryButtonText}>Continue with Email</Text>
-          )}
-        </TouchableOpacity>
-
-        {/* Divider */}
-        <View style={styles.dividerContainer}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>or</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
-        {/* Google Sign-In Button */}
-        <GoogleSignInButton
-          onSignInSuccess={handleGoogleSignInSuccess}
-          onSignInError={handleGoogleSignInError}
-          style={styles.googleButton}
-        />
-      </View>
-
-      {/* Apple Review Access */}
-      <AppleReviewLogin onReviewLogin={setUser} />
-    </KeyboardAvoidingView>
-  );
-
-  const renderNameStep = () => (
-    <View style={styles.authContainer}>
-      <Text style={[styles.title, { color: colors.text }]}>What&apos;s your name?</Text>
-      
-      <TextInput
-        style={[styles.input, { color: colors.text, borderColor: colors.textSecondary }]}
-        placeholder="Enter your name"
-        placeholderTextColor={colors.textSecondary}
-        value={name}
-        onChangeText={setName}
-      />
-      
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: colors.primary }]}
-        onPress={() => setMode('role')}
-        disabled={!name.trim()}
-      >
-        <Text style={[styles.buttonText, { color: colors.text }]}>Continue</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  const renderRoleStep = () => (
-    <View style={styles.authContainer}>
-      <Text style={[styles.title, { color: colors.text }]}>I am a...</Text>
-      
-      <TouchableOpacity
-        style={[styles.roleButton, { 
-          backgroundColor: role === 'trainee' ? colors.primary : colors.surface,
-          borderColor: colors.primary
-        }]}
-        onPress={() => setRole('trainee')}
-      >
-        <Text style={[styles.roleButtonText, { color: colors.text }]}>💪 Fitness Enthusiast (Trainee)</Text>
-        <Text style={[styles.roleDescription, { color: colors.textSecondary }]}>
-          Find trainers, track progress, grow your tree
-        </Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={[styles.roleButton, { 
-          backgroundColor: role === 'trainer' ? colors.primary : colors.surface,
-          borderColor: colors.primary
-        }]}
-        onPress={() => setRole('trainer')}
-      >
-        <Text style={[styles.roleButtonText, { color: colors.text }]}>🏋️ Fitness Trainer</Text>
-        <Text style={[styles.roleDescription, { color: colors.textSecondary }]}>
-          Manage clients, schedule sessions, earn money
-        </Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={[styles.button, { backgroundColor: colors.primary }]}
-        onPress={() => {
-          if (role === 'trainee') {
-            setMode('goals');
-          } else {
-            setMode('certifications');
-          }
-        }}
-      >
-        <Text style={[styles.buttonText, { color: colors.text }]}>Continue</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  const renderGoalsStep = () => {
-    const goalOptions = [
-      { id: 'weight_loss', label: '🏃 Weight Loss', icon: '🏃' },
-      { id: 'muscle_building', label: '💪 Muscle Building', icon: '💪' },
-      { id: 'cardio', label: '❤️ Cardio Fitness', icon: '❤️' },
-      { id: 'strength', label: '🏋️ Strength Training', icon: '🏋️' },
-      { id: 'flexibility', label: '🧘 Flexibility', icon: '🧘' },
-      { id: 'general_fitness', label: '⚡ General Fitness', icon: '⚡' },
-      { id: 'sports', label: '⚽ Sports Performance', icon: '⚽' },
-      { id: 'rehabilitation', label: '🩹 Rehabilitation', icon: '🩹' }
-    ];
-
-    const toggleGoal = (goalId) => {
-      if (fitnessGoals.includes(goalId)) {
-        setFitnessGoals(fitnessGoals.filter(g => g !== goalId));
-      } else {
-        setFitnessGoals([...fitnessGoals, goalId]);
-      }
-    };
-
-    return (
-      <ScrollView style={styles.authContainer}>
-        <Text style={[styles.title, { color: colors.text }]}>What are your fitness goals?</Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Select all that apply
-        </Text>
-        
-        <View style={styles.goalsGrid}>
-          {goalOptions.map((goal) => (
-            <TouchableOpacity
-              key={goal.id}
-              style={[styles.goalOption, {
-                backgroundColor: fitnessGoals.includes(goal.id) ? colors.primary : colors.surface,
-                borderColor: fitnessGoals.includes(goal.id) ? colors.primary : colors.textSecondary
-              }]}
-              onPress={() => toggleGoal(goal.id)}
-            >
-              <Text style={styles.goalIcon}>{goal.icon}</Text>
-              <Text style={[styles.goalLabel, { color: colors.text }]}>
-                {goal.label.replace(goal.icon + ' ', '')}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-        
-        <TouchableOpacity
-          style={[styles.button, { 
-            backgroundColor: colors.primary,
-            opacity: fitnessGoals.length > 0 ? 1 : 0.5
-          }]}
-          onPress={() => setMode('experience')}
-          disabled={fitnessGoals.length === 0}
-        >
-          <Text style={[styles.buttonText, { color: colors.text }]}>Continue</Text>
-        </TouchableOpacity>
-      </ScrollView>
-    );
-  };
-
-  const renderExperienceStep = () => {
-    const experienceOptions = [
-      { 
-        value: 'beginner', 
-        label: '🌱 Beginner',
-        description: 'Just starting my fitness journey'
-      },
-      { 
-        value: 'intermediate', 
-        label: '💪 Intermediate',
-        description: 'Been working out for a while'
-      },
-      { 
-        value: 'advanced', 
-        label: '🏆 Advanced',
-        description: 'Experienced fitness enthusiast'
-      }
-    ];
-
-    return (
-      <View style={styles.authContainer}>
-        <Text style={[styles.title, { color: colors.text }]}>What&apos;s your experience level?</Text>
-        
-        {experienceOptions.map((option) => (
-          <TouchableOpacity
-            key={option.value}
-            style={[styles.experienceOption, {
-              backgroundColor: experienceLevel === option.value ? colors.primary : colors.surface,
-              borderColor: experienceLevel === option.value ? colors.primary : colors.textSecondary
-            }]}
-            onPress={() => setExperienceLevel(option.value)}
-          >
-            <Text style={[styles.experienceLabel, { color: colors.text }]}>
-              {option.label}
-            </Text>
-            <Text style={[styles.experienceDescription, { color: colors.textSecondary }]}>
-              {option.description}
-            </Text>
-          </TouchableOpacity>
-        ))}
-        
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: colors.primary }]}
-          onPress={handleRegistration}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color={colors.text} />
-          ) : (
-            <Text style={[styles.buttonText, { color: colors.text }]}>Complete Signup</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
-  const renderCertificationsStep = () => {
-    const certificationTypes = [
-      'NASM - National Academy of Sports Medicine',
-      'ACE - American Council on Exercise',
-      'ACSM - American College of Sports Medicine',
-      'NSCA - National Strength & Conditioning Association',
-      'ISSA - International Sports Sciences Association',
-      'NCSF - National Council on Strength & Fitness',
-      'Other Certification'
-    ];
-
-    const specialtyOptions = [
-      'Personal Training',
-      'Group Fitness',
-      'Strength & Conditioning',
-      'Nutrition Coaching',
-      'Yoga Instruction',
-      'Pilates',
-      'CrossFit',
-      'Rehabilitation',
-      'Sports Performance',
-      'Senior Fitness'
-    ];
-
-    const toggleSpecialty = (specialty) => {
-      if (specialties.includes(specialty)) {
-        setSpecialties(specialties.filter(s => s !== specialty));
-      } else {
-        setSpecialties([...specialties, specialty]);
-      }
-    };
-
-    return (
-      <ScrollView style={styles.authContainer}>
-        <Text style={[styles.title, { color: colors.text }]}>Trainer Certification</Text>
-        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-          Tell us about your qualifications
-        </Text>
-        
-        <Text style={[styles.inputLabel, { color: colors.text }]}>Certification Type</Text>
-        <View style={styles.pickerContainer}>
-          {certificationTypes.map((cert) => (
-            <TouchableOpacity
-              key={cert}
-              style={[styles.certOption, {
-                backgroundColor: certType === cert ? colors.primary : colors.surface,
-                borderColor: colors.textSecondary
-              }]}
-              onPress={() => setCertType(cert)}
-            >
-              <Text style={[styles.certText, { color: colors.text }]}>{cert}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <Text style={[styles.inputLabel, { color: colors.text, marginTop: 16 }]}>
-          Certification Number (Optional)
-        </Text>
-        <TextInput
-          style={[styles.input, { color: colors.text, borderColor: colors.textSecondary }]}
-          placeholder="Enter certification number"
-          placeholderTextColor={colors.textSecondary}
-          value={certNumber}
-          onChangeText={setCertNumber}
-        />
-
-        <Text style={[styles.inputLabel, { color: colors.text, marginTop: 16 }]}>
-          Specialties (Select all that apply)
-        </Text>
-        <View style={styles.specialtiesGrid}>
-          {specialtyOptions.map((specialty) => (
-            <TouchableOpacity
-              key={specialty}
-              style={[styles.specialtyChip, {
-                backgroundColor: specialties.includes(specialty) ? colors.secondary : colors.surface,
-                borderColor: colors.textSecondary
-              }]}
-              onPress={() => toggleSpecialty(specialty)}
-            >
-              <Text style={[styles.specialtyText, { color: colors.text }]}>
-                {specialty}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <TouchableOpacity
-          style={[styles.button, { 
-            backgroundColor: colors.primary,
-            marginTop: 24,
-            opacity: certType && specialties.length > 0 ? 1 : 0.5
-          }]}
-          onPress={() => {
-            // Store certification info temporarily
-            setFitnessGoals(specialties); // Reuse fitnessGoals field for specialties
-            handleRegistration();
-          }}
-          disabled={!certType || specialties.length === 0 || loading}
-        >
-          {loading ? (
-            <ActivityIndicator color={colors.text} />
-          ) : (
-            <Text style={[styles.buttonText, { color: colors.text }]}>Complete Signup</Text>
-          )}
-        </TouchableOpacity>
-      </ScrollView>
-    );
-  };
-
-  // Render appropriate step
-  switch (mode) {
-    case 'email':
-      return renderEmailStep();
-    case 'name':
-      return renderNameStep();
-    case 'role':
-      return renderRoleStep();
-    case 'goals':
-      return renderGoalsStep();
-    case 'experience':
-      return renderExperienceStep();
-    case 'certifications':
-      return renderCertificationsStep();
-    default:
-      return renderEmailStep();
-  }
-};
-
-// LiftLink Logo Component for React Native
-const LiftLinkLogo = ({ size = 60, showTagline = true }) => {
-  const colors = {
-    primary: '#4f46e5',
-    secondary: '#10b981',
-    background: '#111827',
-    surface: '#1f2937',
-    text: '#f9fafb',
-    textSecondary: '#9ca3af',
-    error: '#ef4444',
-    success: '#10b981',
-    warning: '#f59e0b'
-  };
-
-  return (
-    <View style={[styles.logoContainer, { alignItems: 'center' }]}>
-      <View style={[styles.logoIcon, { width: size, height: size }]}>
-        <Text style={[styles.logoText, { fontSize: size * 0.4, color: colors.warning }]}>
-          🏋️
-        </Text>
-      </View>
-      <Text style={[styles.logoTitle, { fontSize: size * 0.3, color: colors.text }]}>
-        LiftLink
-      </Text>
-      {showTagline && (
-        <Text style={[styles.logoTagline, { fontSize: size * 0.15, color: colors.textSecondary }]}>
-          Beginners to Believers
-        </Text>
-      )}
-    </View>
-  );
-};
-
-// Dashboard Screen - Role-based
+// Dashboard Screen - Role-based routing
 const DashboardScreen = ({ navigation }) => {
   const { user, colors, treeProgress, sessions } = useContext(AppContext);
   
-  // Render role-specific dashboard
-  if (user.role === 'trainer') {
+  if (user?.role === 'trainer') {
     return <TrainerDashboard trainerId={user.id} navigation={navigation} />;
-  } else {
-    return <TraineeDashboard user={user} navigation={navigation} />;
   }
+  return <TraineeDashboard user={user} navigation={navigation} />;
 };
 
 // Fitness Screen
@@ -987,188 +127,24 @@ const FitnessScreen = () => {
   );
 };
 
-// Trainers Screen
-const TrainersScreen = () => {
-  const { colors, handleBookTrainer } = useContext(AppContext);
-  const [trainers, setTrainers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('list'); // 'list', 'map', or 'swipe'
-  const [likedTrainers, setLikedTrainers] = useState([]);
-
-  useEffect(() => {
-    fetchTrainers();
-  }, []);
-
-  const fetchTrainers = async () => {
-    try {
-      // Fetch real trainers from backend API
-      const response = await axios.get(`${API}/trainers/all`);
-      
-      if (response.data && response.data.trainers) {
-        setTrainers(response.data.trainers);
-      } else {
-        // If no trainers found, set empty array
-        setTrainers([]);
-      }
-    } catch (error) {
-      console.error('Error fetching trainers:', error);
-      // Set empty array on error instead of mock data
-      setTrainers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const renderTrainerCard = (trainer) => (
-    <View key={trainer.id} style={[styles.trainerCard, { backgroundColor: colors.surface }]}>
-      <View style={styles.trainerHeader}>
-        <View style={styles.trainerInfo}>
-          <Text style={[styles.trainerName, { color: colors.text }]}>{trainer.name}</Text>
-          <View style={styles.ratingContainer}>
-            <Text style={[styles.rating, { color: colors.warning }]}>⭐ {trainer.rating}</Text>
-            <Text style={[styles.availability, { color: colors.textSecondary }]}>{trainer.availability}</Text>
-          </View>
-        </View>
-        <TouchableOpacity
-          style={[styles.bookButton, { backgroundColor: colors.primary }]}
-          onPress={() => handleBookTrainer(trainer)}
-        >
-          <Text style={[styles.bookButtonText, { color: colors.text }]}>Book</Text>
-        </TouchableOpacity>
-      </View>
-      
-      <Text style={[styles.trainerBio, { color: colors.textSecondary }]}>{trainer.bio}</Text>
-      
-      <View style={styles.trainerDetails}>
-        <Text style={[styles.trainerSpecialties, { color: colors.secondary }]}>
-          {trainer.specialties.join(', ')}
-        </Text>
-        <Text style={[styles.trainerPrice, { color: colors.primary }]}>
-          {trainer.price}
-        </Text>
-      </View>
-      
-      <Text style={[styles.trainerLocation, { color: colors.textSecondary }]}>
-        📍 {trainer.location}
-      </Text>
-    </View>
-  );
-
-  const renderViewModeSelector = () => (
-    <View style={styles.viewModeSelector}>
-      <TouchableOpacity
-        style={[styles.viewModeButton, {
-          backgroundColor: viewMode === 'swipe' ? colors.primary : colors.surface
-        }]}
-        onPress={() => setViewMode('swipe')}
-      >
-        <Icon name="swipe" size={18} color={colors.text} />
-        <Text style={[styles.viewModeText, { color: colors.text }]}>Swipe</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={[styles.viewModeButton, {
-          backgroundColor: viewMode === 'list' ? colors.primary : colors.surface
-        }]}
-        onPress={() => setViewMode('list')}
-      >
-        <Icon name="list" size={18} color={colors.text} />
-        <Text style={[styles.viewModeText, { color: colors.text }]}>List</Text>
-      </TouchableOpacity>
-      
-      <TouchableOpacity
-        style={[styles.viewModeButton, {
-          backgroundColor: viewMode === 'map' ? colors.primary : colors.surface
-        }]}
-        onPress={() => setViewMode('map')}
-      >
-        <Icon name="map" size={18} color={colors.text} />
-        <Text style={[styles.viewModeText, { color: colors.text }]}>Map</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  const handleTrainerLiked = (trainer) => {
-    console.log('Liked trainer:', trainer.name);
-    setLikedTrainers([...likedTrainers, trainer]);
-    // Could save to backend or local storage
-  };
-
-  const handleTrainerPassed = (trainer) => {
-    console.log('Passed trainer:', trainer.name);
-  };
-
-  if (loading) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <ActivityIndicator size="large" color={colors.primary} />
-      </SafeAreaView>
-    );
-  }
-
-  // Swipe Mode - Full Screen
-  if (viewMode === 'swipe') {
-    return (
-      <SwipeTrainerDiscovery
-        trainers={trainers}
-        onTrainerLiked={handleTrainerLiked}
-        onTrainerPassed={handleTrainerPassed}
-        onExit={() => setViewMode('list')}
-        onBookSession={handleBookTrainer}
-      />
-    );
-  }
-
-  return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={styles.header}>
-        <Text style={[styles.screenTitle, { color: colors.text }]}>Find Trainers</Text>
-        {renderViewModeSelector()}
-      </View>
-      
-      {viewMode === 'list' ? (
-        <ScrollView style={styles.content}>
-          {trainers.length > 0 ? (
-            trainers.map(renderTrainerCard)
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={[styles.emptyStateTitle, { color: colors.text }]}>
-                No Trainers Available
-              </Text>
-              <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
-                We&apos;re working on connecting you with amazing trainers in your area. Check back soon!
-              </Text>
-            </View>
-          )}
-        </ScrollView>
-      ) : (
-        <TrainerMapView 
-          trainers={trainers} 
-          onTrainerSelect={handleBookTrainer}
-        />
-      )}
-    </SafeAreaView>
-  );
-};
-
 // Tree Screen
 const TreeScreen = () => {
   const { colors, treeProgress } = useContext(AppContext);
   
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.content}>
+      <View style={styles.content}>
         <Text style={[styles.screenTitle, { color: colors.text }]}>My Tree</Text>
-        
         <View style={[styles.card, { backgroundColor: colors.surface }]}>
           <Text style={[styles.cardTitle, { color: colors.text }]}>
-            Current Level: {treeProgress?.current_level?.replace('_', ' ') || 'Seed'}
+            Level: {treeProgress?.current_level?.replace('_', ' ') || 'Seed'}
           </Text>
           <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>
             Complete sessions to grow your tree!
           </Text>
+          <TreeSVG stage={treeProgress?.current_level || 'seed'} size={200} />
         </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };
@@ -1179,7 +155,7 @@ const SessionsScreen = () => {
   
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.content}>
+      <View style={styles.content}>
         <Text style={[styles.screenTitle, { color: colors.text }]}>My Sessions</Text>
         
         {sessions.length === 0 ? (
@@ -1201,357 +177,440 @@ const SessionsScreen = () => {
             </View>
           ))
         )}
-      </ScrollView>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+// Trainers Screen
+const TrainersScreen = () => {
+  const { colors, handleBookTrainer } = useContext(AppContext);
+  const [trainers, setTrainers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('swipe');
+
+  useEffect(() => {
+    fetchTrainers();
+  }, []);
+
+  const fetchTrainers = async () => {
+    try {
+      const response = await axios.get(`${API}/trainers/all`);
+      setTrainers(response.data?.trainers || []);
+    } catch (error) {
+      console.error('Error fetching trainers:', error);
+      setTrainers([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      {viewMode === 'swipe' ? (
+        <SwipeTrainerDiscovery 
+          trainers={trainers} 
+          onMatch={(trainer) => handleBookTrainer(trainer)}
+        />
+      ) : viewMode === 'map' ? (
+        <TrainerMapView trainers={trainers} />
+      ) : (
+        <View style={styles.content}>
+          <Text style={[styles.screenTitle, { color: colors.text }]}>Find Trainers</Text>
+          {trainers.map((trainer) => (
+            <View key={trainer.id} style={[styles.card, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.cardTitle, { color: colors.text }]}>{trainer.name}</Text>
+            </View>
+          ))}
+        </View>
+      )}
     </SafeAreaView>
   );
 };
 
 // Settings Screen
 const SettingsScreen = ({ navigation }) => {
-  const { colors, user, setUser, handleLogout } = useContext(AppContext);
-  const [editing, setEditing] = useState(false);
-  const [editedName, setEditedName] = useState(user.name || '');
-  const [editedGoals, setEditedGoals] = useState(user.fitness_goals || []);
-  const [editedExperienceLevel, setEditedExperienceLevel] = useState(user.experience_level || 'beginner');
+  const { colors, user, handleLogout } = useContext(AppContext);
+
+  return (
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={styles.content}>
+        <Text style={[styles.screenTitle, { color: colors.text }]}>Settings</Text>
+        
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <Text style={[styles.cardTitle, { color: colors.text }]}>{user?.name}</Text>
+          <Text style={[styles.cardDescription, { color: colors.textSecondary }]}>{user?.email}</Text>
+        </View>
+
+        {/* AI Features for Trainers */}
+        {user?.role === 'trainer' && (
+          <View style={[styles.card, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.cardTitle, { color: colors.text }]}>AI Features</Text>
+            <TouchableOpacity 
+              style={styles.settingsItem}
+              onPress={() => navigation.navigate('AICommandCenter')}
+            >
+              <Icon name="psychology" size={24} color={colors.primary} />
+              <Text style={[styles.settingsItemText, { color: colors.text }]}>AI Command Center</Text>
+              <Icon name="chevron-right" size={24} color={colors.textSecondary} />
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.settingsItem}
+              onPress={() => navigation.navigate('CoachingHub')}
+            >
+              <Icon name="auto-awesome" size={24} color={colors.primary} />
+              <Text style={[styles.settingsItemText, { color: colors.text }]}>Coaching Hub</Text>
+              <Icon name="chevron-right" size={24} color={colors.textSecondary} />
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {/* AI Chat for Everyone */}
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <TouchableOpacity 
+            style={styles.settingsItem}
+            onPress={() => navigation.navigate('AIChat')}
+          >
+            <Icon name="chat" size={24} color={colors.accent} />
+            <Text style={[styles.settingsItemText, { color: colors.text }]}>AI Coach Chat</Text>
+            <Icon name="chevron-right" size={24} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Legal */}
+        <View style={[styles.card, { backgroundColor: colors.surface }]}>
+          <TouchableOpacity 
+            style={styles.settingsItem}
+            onPress={() => navigation.navigate('PrivacyPolicy')}
+          >
+            <Icon name="privacy-tip" size={24} color={colors.textSecondary} />
+            <Text style={[styles.settingsItemText, { color: colors.text }]}>Privacy Policy</Text>
+            <Icon name="chevron-right" size={24} color={colors.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.settingsItem}
+            onPress={() => navigation.navigate('TermsOfService')}
+          >
+            <Icon name="description" size={24} color={colors.textSecondary} />
+            <Text style={[styles.settingsItemText, { color: colors.text }]}>Terms of Service</Text>
+            <Icon name="chevron-right" size={24} color={colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Logout */}
+        <TouchableOpacity 
+          style={[styles.logoutButton, { backgroundColor: colors.error }]}
+          onPress={handleLogout}
+        >
+          <Text style={styles.logoutButtonText}>Log Out</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
+  );
+};
+
+// Import TouchableOpacity for Settings screen
+import { TouchableOpacity, ScrollView } from 'react-native';
+
+// Auth Screen (simplified - full version in screens/AuthScreen.js)
+const AuthScreen = ({ navigation, route }) => {
+  const { setUser } = route.params;
+  const { colors } = useContext(AppContext);
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [darkMode, setDarkMode] = useState(true);
+  const [error, setError] = useState('');
 
-  const fitnessGoals = [
-    'Weight Loss',
-    'Muscle Building',
-    'Cardio',
-    'Strength Training',
-    'Flexibility',
-    'General Fitness',
-    'Sports Performance',
-    'Rehabilitation'
-  ];
-
-  const experienceLevels = [
-    { value: 'beginner', label: 'Beginner' },
-    { value: 'intermediate', label: 'Intermediate' },
-    { value: 'advanced', label: 'Advanced' }
-  ];
-
-  const handleSaveProfile = async () => {
+  const handleLogin = async () => {
+    if (!email.includes('@')) {
+      setError('Please enter a valid email');
+      return;
+    }
+    
     setLoading(true);
     try {
-      const updatedProfile = {
-        name: editedName,
-        fitness_goals: editedGoals,
-        experience_level: editedExperienceLevel,
-        dark_mode: darkMode
-      };
-
-      const response = await axios.put(`${API}/users/${user.id}`, updatedProfile);
+      // Check if user exists
+      const checkResponse = await axios.post(`${API}/check-user`, { email });
       
-      if (response.data) {
-        const updatedUser = { ...user, ...updatedProfile };
-        setUser(updatedUser);
-        await AsyncStorage.setItem('liftlink_user', JSON.stringify(updatedUser));
-        setEditing(false);
-        Alert.alert('Success', 'Profile updated successfully!');
+      if (checkResponse.data.exists) {
+        // Login
+        const response = await axios.post(`${API}/login`, { email });
+        await AsyncStorage.setItem('liftlink_user', JSON.stringify(response.data));
+        setUser(response.data);
+      } else {
+        // New user - start AI onboarding
+        navigation.navigate('AIOnboarding', { email });
       }
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      Alert.alert('Error', 'Failed to update profile. Please try again.');
+    } catch (err) {
+      setError('Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoalToggle = (goal) => {
-    setEditedGoals(prev => 
-      prev.includes(goal) 
-        ? prev.filter(g => g !== goal)
-        : [...prev, goal]
-    );
+  const handleGoogleSuccess = async ({ user }) => {
+    setUser(user);
   };
-
-  const renderProfileSection = () => (
-    <View style={[styles.settingsCard, { backgroundColor: colors.surface }]}>
-      <Text style={[styles.settingsCardTitle, { color: colors.text }]}>Profile Information</Text>
-      
-      {editing ? (
-        <View style={styles.editingContainer}>
-          <View style={styles.inputContainer}>
-            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Name</Text>
-            <TextInput
-              style={[styles.textInput, { 
-                backgroundColor: colors.background, 
-                color: colors.text,
-                borderColor: colors.textSecondary
-              }]}
-              value={editedName}
-              onChangeText={setEditedName}
-              placeholder="Enter your name"
-              placeholderTextColor={colors.textSecondary}
-            />
-          </View>
-          
-          <View style={styles.inputContainer}>
-            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Fitness Goals</Text>
-            <View style={styles.goalsContainer}>
-              {fitnessGoals.map((goal) => (
-                <TouchableOpacity
-                  key={goal}
-                  style={[styles.goalChip, {
-                    backgroundColor: editedGoals.includes(goal) ? colors.primary : colors.background,
-                    borderColor: colors.primary
-                  }]}
-                  onPress={() => handleGoalToggle(goal)}
-                >
-                  <Text style={[styles.goalChipText, { color: colors.text }]}>
-                    {goal}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-          
-          <View style={styles.inputContainer}>
-            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>Experience Level</Text>
-            <View style={styles.experienceContainer}>
-              {experienceLevels.map((level) => (
-                <TouchableOpacity
-                  key={level.value}
-                  style={[styles.experienceButton, {
-                    backgroundColor: editedExperienceLevel === level.value ? colors.primary : colors.background,
-                    borderColor: colors.primary
-                  }]}
-                  onPress={() => setEditedExperienceLevel(level.value)}
-                >
-                  <Text style={[styles.experienceButtonText, { color: colors.text }]}>
-                    {level.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-          
-          <View style={styles.editButtonsContainer}>
-            <TouchableOpacity
-              style={[styles.saveButton, { backgroundColor: colors.success }]}
-              onPress={handleSaveProfile}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color={colors.text} size="small" />
-              ) : (
-                <Text style={[styles.saveButtonText, { color: colors.text }]}>Save Changes</Text>
-              )}
-            </TouchableOpacity>
-            
-            <TouchableOpacity
-              style={[styles.cancelButton, { backgroundColor: colors.textSecondary }]}
-              onPress={() => {
-                setEditing(false);
-                setEditedName(user.name || '');
-                setEditedGoals(user.fitness_goals || []);
-                setEditedExperienceLevel(user.experience_level || 'beginner');
-              }}
-            >
-              <Text style={[styles.cancelButtonText, { color: colors.text }]}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      ) : (
-        <View style={styles.profileContainer}>
-          <View style={styles.profileRow}>
-            <Text style={[styles.profileLabel, { color: colors.textSecondary }]}>Name:</Text>
-            <Text style={[styles.profileValue, { color: colors.text }]}>{user.name}</Text>
-          </View>
-          
-          <View style={styles.profileRow}>
-            <Text style={[styles.profileLabel, { color: colors.textSecondary }]}>Email:</Text>
-            <Text style={[styles.profileValue, { color: colors.text }]}>{user.email}</Text>
-          </View>
-          
-          <View style={styles.profileRow}>
-            <Text style={[styles.profileLabel, { color: colors.textSecondary }]}>Role:</Text>
-            <Text style={[styles.profileValue, { color: colors.text }]}>
-              {user.role === 'trainer' ? 'Fitness Trainer' : 'Fitness Enthusiast'}
-            </Text>
-          </View>
-          
-          <View style={styles.profileRow}>
-            <Text style={[styles.profileLabel, { color: colors.textSecondary }]}>Experience:</Text>
-            <Text style={[styles.profileValue, { color: colors.text }]}>
-              {user.experience_level?.charAt(0).toUpperCase() + user.experience_level?.slice(1)}
-            </Text>
-          </View>
-          
-          <View style={styles.profileColumn}>
-            <Text style={[styles.profileLabel, { color: colors.textSecondary }]}>Fitness Goals:</Text>
-            <View style={styles.goalsDisplay}>
-              {(user.fitness_goals || []).map((goal, index) => (
-                <View key={index} style={[styles.goalBadge, { backgroundColor: colors.secondary }]}>
-                  <Text style={[styles.goalBadgeText, { color: colors.text }]}>{goal}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-          
-          <TouchableOpacity
-            style={[styles.editButton, { backgroundColor: colors.primary }]}
-            onPress={() => setEditing(true)}
-          >
-            <Text style={[styles.editButtonText, { color: colors.text }]}>Edit Profile</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
-  );
-
-  const renderAppearanceSection = () => (
-    <View style={[styles.settingsCard, { backgroundColor: colors.surface }]}>
-      <Text style={[styles.settingsCardTitle, { color: colors.text }]}>Appearance</Text>
-      
-      <View style={styles.settingRow}>
-        <Text style={[styles.settingLabel, { color: colors.text }]}>Dark Mode</Text>
-        <TouchableOpacity
-          style={[styles.toggleButton, { 
-            backgroundColor: darkMode ? colors.primary : colors.textSecondary 
-          }]}
-          onPress={() => setDarkMode(!darkMode)}
-        >
-          <Text style={[styles.toggleButtonText, { color: colors.text }]}>
-            {darkMode ? 'ON' : 'OFF'}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
-
-  const renderAccountSection = () => (
-    <View style={[styles.settingsCard, { backgroundColor: colors.surface }]}>
-      <Text style={[styles.settingsCardTitle, { color: colors.text }]}>Account</Text>
-      
-      <View style={styles.accountInfo}>
-        <View style={styles.accountRow}>
-          <Text style={[styles.accountLabel, { color: colors.textSecondary }]}>Member Since:</Text>
-          <Text style={[styles.accountValue, { color: colors.text }]}>
-            {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
-          </Text>
-        </View>
-        
-        <View style={styles.accountRow}>
-          <Text style={[styles.accountLabel, { color: colors.textSecondary }]}>Verification Status:</Text>
-          <Text style={[styles.accountValue, { 
-            color: user.age_verified ? colors.success : colors.warning 
-          }]}>
-            {user.age_verified ? 'Verified' : 'Pending'}
-          </Text>
-        </View>
-      </View>
-      
-      <TouchableOpacity
-        style={[styles.logoutButton, { backgroundColor: colors.error }]}
-        onPress={() => {
-          Alert.alert(
-            'Logout',
-            'Are you sure you want to logout?',
-            [
-              { text: 'Cancel', style: 'cancel' },
-              { text: 'Logout', style: 'destructive', onPress: handleLogout }
-            ]
-          );
-        }}
-      >
-        <Text style={[styles.logoutButtonText, { color: colors.text }]}>Logout</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  const renderFeaturesSection = () => (
-    <View style={[styles.settingsCard, { backgroundColor: colors.surface }]}>
-      <Text style={[styles.settingsCardTitle, { color: colors.text }]}>LiftLink 2.0 Features</Text>
-      
-      {user.role !== 'trainer' && (
-        <>
-          <TouchableOpacity
-            style={[styles.featureRow, { borderBottomColor: colors.textSecondary + '30' }]}
-            onPress={() => navigation?.navigate('VibeOnboarding')}
-          >
-            <View style={styles.featureIcon}>
-              <Icon name="mood" size={24} color={colors.primary} />
-            </View>
-            <View style={styles.featureInfo}>
-              <Text style={[styles.featureName, { color: colors.text }]}>Change Your Vibe</Text>
-              <Text style={[styles.featureDesc, { color: colors.textSecondary }]}>
-                Update your coaching style preference
-              </Text>
-            </View>
-            <Icon name="chevron-right" size={24} color={colors.textSecondary} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.featureRow, { borderBottomColor: colors.textSecondary + '30' }]}
-            onPress={() => navigation?.navigate('SwipeDiscovery')}
-          >
-            <View style={styles.featureIcon}>
-              <Icon name="swipe" size={24} color="#ec4899" />
-            </View>
-            <View style={styles.featureInfo}>
-              <Text style={[styles.featureName, { color: colors.text }]}>Discover Trainers</Text>
-              <Text style={[styles.featureDesc, { color: colors.textSecondary }]}>
-                Swipe to find your perfect coach
-              </Text>
-            </View>
-            <Icon name="chevron-right" size={24} color={colors.textSecondary} />
-          </TouchableOpacity>
-        </>
-      )}
-
-      <TouchableOpacity
-        style={[styles.featureRow, { borderBottomColor: colors.textSecondary + '30' }]}
-        onPress={() => navigation?.navigate('Calendar')}
-      >
-        <View style={styles.featureIcon}>
-          <Icon name="event" size={24} color="#3b82f6" />
-        </View>
-        <View style={styles.featureInfo}>
-          <Text style={[styles.featureName, { color: colors.text }]}>Calendar Scheduling</Text>
-          <Text style={[styles.featureDesc, { color: colors.textSecondary }]}>
-            Schedule and manage your sessions
-          </Text>
-        </View>
-        <Icon name="chevron-right" size={24} color={colors.textSecondary} />
-      </TouchableOpacity>
-
-      <TouchableOpacity
-        style={[styles.featureRow, { borderBottomWidth: 0 }]}
-        onPress={() => navigation?.navigate('Payment')}
-      >
-        <View style={styles.featureIcon}>
-          <Icon name="payment" size={24} color="#10b981" />
-        </View>
-        <View style={styles.featureInfo}>
-          <Text style={[styles.featureName, { color: colors.text }]}>Payment Methods</Text>
-          <Text style={[styles.featureDesc, { color: colors.textSecondary }]}>
-            Manage your payment options
-          </Text>
-        </View>
-        <Icon name="chevron-right" size={24} color={colors.textSecondary} />
-      </TouchableOpacity>
-    </View>
-  );
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.content}>
-        <Text style={[styles.screenTitle, { color: colors.text }]}>Settings</Text>
-        
-        {renderProfileSection()}
-        {renderFeaturesSection()}
-        {renderAppearanceSection()}
-        {renderAccountSection()}
-      </ScrollView>
+      <View style={styles.authContainer}>
+        <View style={styles.logoSection}>
+          <Text style={styles.logoEmoji}>🏋️</Text>
+          <Text style={[styles.logoTitle, { color: colors.text }]}>LiftLink</Text>
+          <Text style={[styles.logoTagline, { color: colors.textSecondary }]}>
+            AI-Powered Coaching
+          </Text>
+        </View>
+
+        <View style={styles.formSection}>
+          <TextInput
+            style={[styles.input, { backgroundColor: colors.surface, color: colors.text }]}
+            placeholder="Enter your email"
+            placeholderTextColor={colors.textSecondary}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+
+          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+          <TouchableOpacity
+            style={[styles.primaryButton, loading && { opacity: 0.6 }]}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.primaryButtonText}>Continue</Text>
+            )}
+          </TouchableOpacity>
+
+          <View style={styles.dividerContainer}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>or</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          <GoogleSignInButton
+            onSuccess={handleGoogleSuccess}
+            onError={(msg) => setError(msg)}
+          />
+        </View>
+      </View>
     </SafeAreaView>
   );
 };
 
-// Styles
+// Import TextInput
+import { TextInput } from 'react-native';
+
+// ==================== NAVIGATORS ====================
+
+// Main Tab Navigator
+const MainTabNavigator = () => {
+  const { user, colors } = useContext(AppContext);
+  
+  return (
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarStyle: {
+          backgroundColor: colors.surface,
+          borderTopColor: colors.border,
+          height: 60,
+          paddingBottom: 8,
+        },
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
+        tabBarIcon: ({ color, size }) => {
+          const icons = {
+            Dashboard: 'dashboard',
+            Trainers: 'people',
+            Fitness: 'fitness-center',
+            Tree: 'park',
+            Sessions: 'event',
+            Settings: 'settings',
+          };
+          return <Icon name={icons[route.name]} size={size} color={color} />;
+        },
+      })}
+    >
+      <Tab.Screen name="Dashboard" component={DashboardScreen} />
+      <Tab.Screen name="Trainers" component={TrainersScreen} />
+      <Tab.Screen name="Fitness" component={FitnessScreen} />
+      <Tab.Screen name="Tree" component={TreeScreen} />
+      <Tab.Screen name="Sessions" component={SessionsScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
+    </Tab.Navigator>
+  );
+};
+
+// Main Stack Navigator
+const MainNavigator = () => {
+  const { user, colors } = useContext(AppContext);
+  
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainTabs" component={MainTabNavigator} />
+      
+      {/* AI Screens */}
+      <Stack.Screen name="AIChat" component={AIChatScreen} />
+      <Stack.Screen name="AICommandCenter" component={AICommandCenter} />
+      <Stack.Screen name="CoachingHub" component={CoachingHubScreen} />
+      
+      {/* Legal Screens */}
+      <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+      <Stack.Screen name="TermsOfService" component={TermsOfServiceScreen} />
+      
+      {/* Modal Screens */}
+      <Stack.Screen name="VibeOnboarding" options={{ presentation: 'modal' }}>
+        {(props) => (
+          <VibeOnboarding 
+            {...props} 
+            userId={user?.id} 
+            onComplete={() => props.navigation.goBack()} 
+          />
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="Payment" options={{ presentation: 'modal' }}>
+        {(props) => <PaymentScreen {...props} />}
+      </Stack.Screen>
+      <Stack.Screen name="Calendar" options={{ presentation: 'modal' }}>
+        {(props) => <CalendarScheduling {...props} />}
+      </Stack.Screen>
+    </Stack.Navigator>
+  );
+};
+
+// ==================== MAIN APP ====================
+
+const App = () => {
+  const navigationRef = React.useRef();
+  
+  // State
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(true);
+  const [treeProgress, setTreeProgress] = useState(null);
+  const [sessions, setSessions] = useState([]);
+  const [securityCheckComplete, setSecurityCheckComplete] = useState(false);
+
+  const colors = darkColors;
+
+  // Initialize
+  useEffect(() => {
+    initializeApp();
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserData();
+    }
+  }, [user]);
+
+  const initializeApp = async () => {
+    try {
+      // Security check
+      const isSecure = await checkDeviceSecurity();
+      setSecurityCheckComplete(true);
+
+      // Check for saved user
+      const savedUser = await AsyncStorage.getItem('liftlink_user');
+      if (savedUser) {
+        setUser(JSON.parse(savedUser));
+      }
+    } catch (error) {
+      console.error('Init error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchUserData = async () => {
+    try {
+      const [treeRes, sessionsRes] = await Promise.all([
+        axios.get(`${API}/tree-progress/${user.id}`).catch(() => ({ data: null })),
+        axios.get(`${API}/sessions/user/${user.id}`).catch(() => ({ data: { sessions: [] } })),
+      ]);
+      
+      setTreeProgress(treeRes.data);
+      setSessions(sessionsRes.data?.sessions || []);
+    } catch (error) {
+      console.error('Fetch user data error:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('liftlink_user');
+    setUser(null);
+    setTreeProgress(null);
+    setSessions([]);
+  };
+
+  const handleBookTrainer = (trainer) => {
+    // Handle trainer booking
+    console.log('Book trainer:', trainer);
+  };
+
+  // Context value
+  const contextValue = {
+    user,
+    setUser,
+    colors,
+    darkMode,
+    setDarkMode,
+    treeProgress,
+    sessions,
+    handleLogout,
+    handleBookTrainer,
+  };
+
+  // Loading state
+  if (loading) {
+    return (
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <LoadingAnimation />
+        <Text style={[styles.loadingText, { color: colors.text }]}>Loading LiftLink...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <AppContext.Provider value={contextValue}>
+      <StatusBar barStyle="light-content" backgroundColor={colors.background} />
+      <NavigationContainer ref={navigationRef}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          {user ? (
+            <Stack.Screen name="Main" component={MainNavigator} />
+          ) : (
+            <>
+              <Stack.Screen name="Auth">
+                {(props) => <AuthScreen {...props} route={{ ...props.route, params: { setUser } }} />}
+              </Stack.Screen>
+              <Stack.Screen name="AIOnboarding">
+                {(props) => <AIOnboardingScreen {...props} />}
+              </Stack.Screen>
+              <Stack.Screen name="DocumentVerification" component={DocumentVerification} />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </AppContext.Provider>
+  );
+};
+
+// ==================== STYLES ====================
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -1564,165 +623,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#111827',
   },
   loadingText: {
-    color: '#f9fafb',
     marginTop: 16,
     fontSize: 16,
   },
-  authContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#111827',
-  },
-  title: {
-    fontSize: 24,
+  screenTitle: {
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    marginBottom: 32,
-    textAlign: 'center',
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    fontSize: 16,
-  },
-  button: {
-    width: '100%',
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  roleButton: {
-    width: '100%',
-    minHeight: 80,
-    borderRadius: 8,
-    borderWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-    padding: 16,
-  },
-  roleButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  roleDescription: {
-    fontSize: 14,
-    textAlign: 'center',
-    marginTop: 4,
-  },
-  goalsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
     marginBottom: 24,
-    marginTop: 16,
-  },
-  goalOption: {
-    width: '48%',
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 2,
-    marginBottom: 12,
-    alignItems: 'center',
-    minHeight: 100,
-    justifyContent: 'center',
-  },
-  goalIcon: {
-    fontSize: 32,
-    marginBottom: 8,
-  },
-  goalLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  experienceOption: {
-    width: '100%',
-    padding: 20,
-    borderRadius: 12,
-    borderWidth: 2,
-    marginBottom: 16,
-    alignItems: 'center',
-  },
-  experienceLabel: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  experienceDescription: {
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  inputLabelSmall: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  pickerContainer: {
-    marginBottom: 16,
-  },
-  certOption: {
-    padding: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    marginBottom: 8,
-  },
-  certText: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  specialtiesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 8,
-  },
-  specialtyChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  specialtyText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  errorText: {
-    fontSize: 14,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  headerSimple: {
-    marginBottom: 24,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  headerSubtitle: {
-    fontSize: 16,
   },
   card: {
     padding: 16,
@@ -1734,431 +643,63 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 8,
   },
-  cardValue: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
   cardDescription: {
     fontSize: 14,
   },
-  treeProgressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  progressInfo: {
+  // Auth styles
+  authContainer: {
     flex: 1,
-    marginLeft: 16,
-  },
-  progressLevel: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  progressSessions: {
-    fontSize: 14,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  statCard: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-    marginHorizontal: 4,
-  },
-  statValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  statLabel: {
-    fontSize: 14,
-  },
-  actionButton: {
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 12,
-  },
-  actionButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  quickActionsContainer: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  screenTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 24,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 12,
-  },
-  viewModeSelector: {
-    flexDirection: 'row',
-    backgroundColor: '#374151',
-    borderRadius: 8,
-    padding: 2,
-    gap: 4,
-  },
-  viewModeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  viewModeText: {
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  trainerCard: {
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    marginHorizontal: 16,
-  },
-  trainerHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  trainerInfo: {
-    flex: 1,
-  },
-  trainerName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  rating: {
-    fontSize: 14,
-    marginRight: 8,
-  },
-  availability: {
-    fontSize: 12,
-  },
-  trainerBio: {
-    fontSize: 14,
-    marginBottom: 12,
-    lineHeight: 20,
-  },
-  trainerDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  trainerSpecialties: {
-    fontSize: 14,
-    flex: 1,
-  },
-  trainerPrice: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  trainerLocation: {
-    fontSize: 12,
-    marginBottom: 8,
-  },
-  bookButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  bookButtonText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  logoutButton: {
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  logoutButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  // Enhanced Settings Styles
-  settingsCard: {
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  settingsCardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  editingContainer: {
-    marginTop: 8,
-  },
-  inputContainer: {
-    marginBottom: 16,
-  },
-  inputLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  textInput: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-  },
-  goalsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 8,
-  },
-  goalChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    marginRight: 8,
-    marginBottom: 8,
-  },
-  goalChipText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  experienceContainer: {
-    flexDirection: 'row',
-    marginTop: 8,
-  },
-  experienceButton: {
-    flex: 1,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 1,
-    marginRight: 8,
-    alignItems: 'center',
-  },
-  experienceButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  editButtonsContainer: {
-    flexDirection: 'row',
-    marginTop: 16,
-  },
-  saveButton: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginRight: 8,
-  },
-  saveButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  cancelButton: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  profileContainer: {
-    marginTop: 8,
-  },
-  profileRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  profileColumn: {
-    marginBottom: 12,
-  },
-  profileLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-    flex: 1,
-  },
-  profileValue: {
-    fontSize: 14,
-    flex: 2,
-    textAlign: 'right',
-  },
-  goalsDisplay: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 8,
-  },
-  goalBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-    marginRight: 6,
-    marginBottom: 6,
-  },
-  goalBadgeText: {
-    fontSize: 12,
-    fontWeight: '600',
-  },
-  editButton: {
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  editButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  settingRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  settingLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  toggleButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    minWidth: 50,
-    alignItems: 'center',
-  },
-  toggleButtonText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  accountInfo: {
-    marginBottom: 16,
-  },
-  accountRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  accountLabel: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  accountValue: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  // Feature Row Styles
-  featureRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-  },
-  featureIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: '#374151',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 14,
+    padding: 24,
   },
-  featureInfo: {
-    flex: 1,
-  },
-  featureName: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  featureDesc: {
-    fontSize: 13,
-  },
-  // Logo Styles
   logoSection: {
     alignItems: 'center',
-    paddingVertical: 20,
+    marginBottom: 48,
+  },
+  logoEmoji: {
+    fontSize: 64,
     marginBottom: 16,
   },
-  logoContainer: {
-    alignItems: 'center',
-  },
-  logoIcon: {
-    borderRadius: 12,
-    backgroundColor: '#1f2937',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  logoText: {
-    fontWeight: 'bold',
-  },
   logoTitle: {
+    fontSize: 36,
     fontWeight: 'bold',
-    marginBottom: 4,
   },
   logoTagline: {
-    fontStyle: 'italic',
+    fontSize: 16,
+    marginTop: 8,
   },
-  // Auth form styles
   formSection: {
     width: '100%',
-    paddingHorizontal: 20,
   },
-  authTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#f9fafb',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  authSubtitle: {
+  input: {
+    height: 56,
+    borderRadius: 12,
+    paddingHorizontal: 16,
     fontSize: 16,
-    color: '#9ca3af',
-    textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 16,
   },
   primaryButton: {
     backgroundColor: '#4f46e5',
-    paddingVertical: 16,
-    borderRadius: 8,
+    height: 56,
+    borderRadius: 12,
+    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
   },
   primaryButtonText: {
-    color: '#f9fafb',
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
-  // Divider styles for auth screen
+  errorText: {
+    color: '#ef4444',
+    fontSize: 14,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 20,
-    paddingHorizontal: 10,
+    marginVertical: 24,
   },
   dividerLine: {
     flex: 1,
@@ -2167,33 +708,32 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     color: '#9ca3af',
-    fontSize: 14,
     marginHorizontal: 16,
-    fontWeight: '500',
   },
-  // Google Sign-In button override styles
-  googleButton: {
-    marginTop: 4,
-    marginBottom: 16,
+  // Settings styles
+  settingsItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#374151',
   },
-  // Empty state styles
-  emptyState: {
+  settingsItemText: {
     flex: 1,
+    fontSize: 16,
+    marginLeft: 12,
+  },
+  logoutButton: {
+    height: 50,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 32,
-    paddingVertical: 64,
+    marginTop: 24,
   },
-  emptyStateTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  emptyStateText: {
+  logoutButtonText: {
+    color: '#fff',
     fontSize: 16,
-    textAlign: 'center',
-    lineHeight: 24,
+    fontWeight: 'bold',
   },
 });
 
