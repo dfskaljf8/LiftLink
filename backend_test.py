@@ -315,20 +315,23 @@ def test_liftlink_ai_agent_engine():
     return results
 
 if __name__ == "__main__":
-    print("🚀 Starting LiftLink Backend API Security Testing")
+    print("🚀 Starting LiftLink AI Agent Engine Testing")
     print(f"Backend URL: {BACKEND_URL}")
     print("="*80)
     
-    # Run the comprehensive security features test
-    results = test_liftlink_security_features()
+    # Run the AI Agent Engine test
+    results = test_liftlink_ai_agent_engine()
     
     print("\n" + "="*80)
     print("🏁 TESTING COMPLETE")
     print("="*80)
     
-    if results["passed"] == results["total"]:
-        print("🎉 ALL TESTS PASSED!")
+    if results.get("error"):
+        print(f"❌ SETUP ERROR: {results['error']}")
+        exit(1)
+    elif results["passed"] == results["total"]:
+        print("🎉 ALL AI AGENT TESTS PASSED!")
         exit(0)
     else:
-        print(f"⚠️  {results['total'] - results['passed']} TESTS FAILED")
+        print(f"⚠️  {results['total'] - results['passed']} AI AGENT TESTS FAILED")
         exit(1)
