@@ -5484,6 +5484,367 @@ async def get_payment_followups(trainer_id: str, status: str = "active"):
 # ==================== END LIFTLINK 2.0 ENDPOINTS ====================
 
 # API Health endpoint (for /api/health route) - MUST be before include_router
+# ==================== AI CHAT ENDPOINT ====================
+
+class AIChatRequest(BaseModel):
+    message: str = Field(..., max_length=2000)
+    conversation_id: Optional[str] = None
+    context: Optional[Dict] = None
+
+class AIChatResponse(BaseModel):
+    success: bool
+    response: Optional[str] = None
+    conversation_id: str
+    error: Optional[str] = None
+    timestamp: str
+
+@api_router.post("/ai/chat", response_model=AIChatResponse)
+@limiter.limit("20/hour")
+async def ai_chat(
+    request: Request,
+    chat_request: AIChatRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    AI-powered fitness coaching chat
+    Rate limited to 20 requests per hour per user
+    """
+    try:
+        # Generate or use existing conversation ID
+        conversation_id = chat_request.conversation_id or str(uuid4())
+        
+        # Build context from user profile
+        user = await db.users.find_one({"id": current_user["id"]}, {"_id": 0})
+        context = chat_request.context or {}
+        
+        if user:
+            context.update({
+                "user_goal": user.get("fitness_goals", ["general fitness"])[0] if user.get("fitness_goals") else "general fitness",
+                "experience_level": user.get("experience_level", "beginner"),
+            })
+            
+            # Get recent workout count
+            recent_sessions = await db.sessions.count_documents({
+                "user_id": current_user["id"],
+                "created_at": {"$gte": (datetime.now() - timedelta(days=7)).isoformat()}
+            })
+            context["recent_workouts"] = recent_sessions
+        
+        # Call AI service
+        result = await liftlink_ai.chat(
+            user_id=current_user["id"],
+            message=chat_request.message,
+            context=context
+        )
+        
+        if result["success"]:
+            # Store conversation in database
+            await db.ai_conversations.update_one(
+                {"conversation_id": conversation_id},
+                {
+                    "$push": {
+                        "messages": {
+                            "role": "user",
+                            "content": chat_request.message,
+                            "timestamp": datetime.now().isoformat()
+                        }
+                    },
+                    "$set": {
+                        "user_id": current_user["id"],
+                        "updated_at": datetime.now().isoformat()
+                    },
+                    "$setOnInsert": {
+                        "created_at": datetime.now().isoformat()
+                    }
+                },
+                upsert=True
+            )
+            
+            await db.ai_conversations.update_one(
+                {"conversation_id": conversation_id},
+                {
+                    "$push": {
+                        "messages": {
+                            "role": "assistant",
+                            "content": result["response"],
+                            "timestamp": result["timestamp"]
+                        }
+                    }
+                }
+            )
+            
+            return AIChatResponse(
+                success=True,
+                response=result["response"],
+                conversation_id=conversation_id,
+                timestamp=result["timestamp"]
+            )
+        else:
+            return AIChatResponse(
+                success=False,
+                error=result.get("error", "AI service unavailable"),
+                conversation_id=conversation_id,
+                timestamp=datetime.now().isoformat()
+            )
+            
+    except Exception as e:
+        print(f"❌ AI Chat Error: {e}")
+        return AIChatResponse(
+            success=False,
+            error="An error occurred. Please try again.",
+            conversation_id=chat_request.conversation_id or str(uuid4()),
+            timestamp=datetime.now().isoformat()
+        )
+
+@api_router.get("/ai/conversations/{user_id}")
+async def get_ai_conversations(
+    user_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Get user's AI conversation history"""
+    # Users can only access their own conversations
+    if current_user["id"] != user_id:
+        raise HTTPException(status_code=403, detail="Access denied")
+    
+    conversations = await db.ai_conversations.find(
+        {"user_id": user_id},
+        {"_id": 0}
+    ).sort("updated_at", -1).limit(20).to_list(20)
+    
+    return {"conversations": conversations}
+
+@api_router.post("/ai/analyze-progress")
+@limiter.limit("10/hour")
+async def analyze_user_progress(
+    request: Request,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    AI-powered progress analysis
+    Rate limited to 10 requests per hour
+    """
+    try:
+        # Get user's workout history
+        sessions = await db.sessions.find(
+            {"user_id": current_user["id"]},
+            {"_id": 0}
+        ).sort("created_at", -1).limit(100).to_list(100)
+        
+        # Get measurements if any
+        measurements = await db.measurements.find(
+            {"user_id": current_user["id"]},
+            {"_id": 0}
+        ).sort("date", -1).limit(30).to_list(30)
+        
+        # Get user's goals
+        user = await db.users.find_one({"id": current_user["id"]}, {"_id": 0})
+        goals = {
+            "fitness_goals": user.get("fitness_goals", []),
+            "experience_level": user.get("experience_level", "beginner")
+        }
+        
+        # Call AI analysis
+        result = await liftlink_ai.analyze_progress(
+            user_id=current_user["id"],
+            workout_history=sessions,
+            measurements=measurements,
+            goals=goals
+        )
+        
+        return result
+        
+    except Exception as e:
+        print(f"❌ Progress Analysis Error: {e}")
+        raise HTTPException(status_code=500, detail="Analysis failed")
+
+# ==================== IDEMPOTENCY SUPPORT ====================
+
+class IdempotentPaymentRequest(BaseModel):
+    amount: int
+    trainer_id: str
+    session_type: str = "personal_training"
+    idempotency_key: str = Field(..., min_length=16, max_length=64)
+
+@api_router.post("/payments/create-intent-idempotent")
+async def create_payment_intent_idempotent(
+    payment_request: IdempotentPaymentRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Create payment intent with idempotency support
+    Prevents duplicate charges from network issues or retries
+    """
+    from backend.security_middleware import check_idempotency, store_idempotent_response, audit_logger
+    
+    # Check for existing response
+    cached_response = check_idempotency(payment_request.idempotency_key)
+    if cached_response:
+        return cached_response
+    
+    try:
+        # Create the payment intent
+        payment_service = PaymentService()
+        result = payment_service.create_payment_intent(
+            amount=payment_request.amount,
+            trainer_id=payment_request.trainer_id,
+            client_id=current_user["id"],
+            session_id=str(uuid4())
+        )
+        
+        if result:
+            response = {
+                "success": True,
+                "payment_intent": result,
+                "idempotency_key": payment_request.idempotency_key
+            }
+            
+            # Store for future idempotent requests
+            store_idempotent_response(payment_request.idempotency_key, response, 200)
+            
+            # Audit log
+            audit_logger.log_payment_event(
+                current_user["id"],
+                "create_intent",
+                payment_request.amount / 100,
+                True,
+                payment_request.idempotency_key
+            )
+            
+            return response
+        else:
+            raise HTTPException(status_code=500, detail="Payment creation failed")
+            
+    except Exception as e:
+        audit_logger.log_payment_event(
+            current_user["id"],
+            "create_intent_failed",
+            payment_request.amount / 100,
+            False,
+            payment_request.idempotency_key
+        )
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ==================== ENHANCED TOKEN MANAGEMENT ====================
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
+@api_router.post("/auth/refresh")
+async def refresh_token_endpoint(request: RefreshTokenRequest):
+    """
+    Refresh access token using refresh token
+    Access tokens expire in 15 minutes for security
+    """
+    from backend.security_middleware import refresh_access_token
+    
+    try:
+        tokens = refresh_access_token(request.refresh_token)
+        return tokens
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Token refresh failed")
+
+@api_router.post("/auth/logout-all")
+async def logout_all_devices(current_user: dict = Depends(get_current_user)):
+    """
+    Logout from all devices by invalidating all sessions
+    """
+    from backend.security_middleware import session_manager
+    
+    session_manager.remove_all_sessions(current_user["id"])
+    
+    return {
+        "success": True,
+        "message": "Logged out from all devices"
+    }
+
+@api_router.get("/auth/sessions")
+async def get_active_sessions(current_user: dict = Depends(get_current_user)):
+    """
+    Get all active sessions for current user
+    """
+    from backend.security_middleware import session_manager
+    
+    sessions = session_manager.get_sessions(current_user["id"])
+    
+    return {
+        "sessions": sessions,
+        "count": len(sessions)
+    }
+
+# ==================== FILE UPLOAD VALIDATION ====================
+
+class FileUploadResponse(BaseModel):
+    success: bool
+    filename: Optional[str] = None
+    error: Optional[str] = None
+
+@api_router.post("/upload/validate")
+async def validate_file_upload(
+    file_content: str,  # Base64 encoded
+    filename: str,
+    file_type: str = "image",
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Validate file upload before processing
+    Checks file type, size, and content integrity
+    """
+    from backend.security_middleware import FileUploadValidator
+    import base64
+    
+    try:
+        # Decode base64 content
+        file_bytes = base64.b64decode(file_content)
+        
+        # Validate file
+        is_valid, error_message = FileUploadValidator.validate_file(
+            file_bytes,
+            filename,
+            file_type
+        )
+        
+        if not is_valid:
+            return FileUploadResponse(
+                success=False,
+                error=error_message
+            )
+        
+        # Generate safe filename
+        safe_filename = FileUploadValidator.generate_safe_filename(filename)
+        
+        return FileUploadResponse(
+            success=True,
+            filename=safe_filename
+        )
+        
+    except Exception as e:
+        return FileUploadResponse(
+            success=False,
+            error="Invalid file data"
+        )
+
+# ==================== SECURITY AUDIT ENDPOINTS ====================
+
+@api_router.get("/security/audit-log")
+async def get_audit_log(
+    current_user: dict = Depends(get_current_user),
+    limit: int = 50
+):
+    """
+    Get security audit log for user (admin only in production)
+    """
+    # In production, this should be admin-only
+    # For now, users can see their own events
+    
+    events = await db.audit_log.find(
+        {"user_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("timestamp", -1).limit(limit).to_list(limit)
+    
+    return {"events": events}
+
 @api_router.get("/health")
 async def api_health_check():
     """API Health check endpoint"""
@@ -5493,6 +5854,7 @@ async def api_health_check():
         "version": "2.0.0",
         "features": [
             "AI Workout Generation",
+            "AI Coaching Chat",
             "Behavior Automations", 
             "Gamification",
             "Coaching Automation",
@@ -5502,10 +5864,20 @@ async def api_health_check():
             "Challenges & Leaderboards",
             "Client Tracking",
             "Onboarding Sequences",
-            "Payment Automation"
+            "Payment Automation",
+            "Enhanced Security",
+            "Idempotency Support"
         ],
+        "security": {
+            "rate_limiting": True,
+            "token_blacklist": True,
+            "input_sanitization": True,
+            "prompt_injection_protection": True,
+            "idempotency_keys": True,
+            "audit_logging": True
+        },
         "database": "connected" if db is not None else "disconnected",
-        "endpoints": 110,
+        "endpoints": 125,
         "timestamp": datetime.now().isoformat()
     }
 
