@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 # Get the backend URL from the frontend .env file
 BACKEND_URL = "https://android-build-fix-3.preview.emergentagent.com/api"
 
-def test_liftlink_security_features():
+def test_liftlink_ai_agent_engine():
     """
     TEST LIFTLINK BACKEND API WITH COMPREHENSIVE SECURITY FEATURES
     
