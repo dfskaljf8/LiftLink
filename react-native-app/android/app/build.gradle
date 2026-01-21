@@ -85,21 +85,9 @@ android {
         versionCode 1
         versionName "1.0"
         
-        // Support 16KB page sizes for Android 15+ compatibility
-        ndk {
-            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-        }
-        
         // BuildConfig fields for React Native
         buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false"
         buildConfigField "boolean", "IS_HERMES_ENABLED", "true"
-        
-        // 16KB page alignment linker flags
-        externalNativeBuild {
-            cmake {
-                arguments "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
-            }
-        }
     }
     
     buildFeatures {
@@ -118,23 +106,16 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            // Caution! In production, you need to generate your own keystore file.
-            // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.debug
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
     
-    // 16KB page size alignment - critical for Android 15+ devices
     packagingOptions {
         jniLibs {
-            // Keep libs uncompressed and page-aligned
-            useLegacyPackaging = false
-            keepDebugSymbols += ['**/*.so']
+            useLegacyPackaging = true
         }
-        // Exclude conflicting files
-        pickFirst '**/*.so'
     }
 }
 
