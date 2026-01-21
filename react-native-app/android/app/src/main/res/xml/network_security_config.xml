@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  Network Security Configuration for LiftLink
-  Enforces HTTPS-only connections and certificate pinning for sensitive domains
--->
 <network-security-config>
     <!-- Default configuration: Disallow cleartext traffic -->
     <base-config cleartextTrafficPermitted="false">
@@ -11,7 +7,7 @@
         </trust-anchors>
     </base-config>
 
-    <!-- Debug builds only - Allow localhost for Metro bundler -->
+    <!-- Debug builds - Allow localhost and 10.0.2.2 for emulator/Metro bundler -->
     <debug-overrides>
         <trust-anchors>
             <certificates src="user" />
@@ -19,18 +15,32 @@
         </trust-anchors>
     </debug-overrides>
 
-    <!-- LiftLink API Server - Certificate Pinning -->
+    <!-- Allow cleartext for localhost/emulator in debug -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <domain includeSubdomains="false">10.0.3.2</domain>
+    </domain-config>
+
+    <!-- Emergent Preview Domains -->
     <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="true">liftlink-ra6t.onrender.com</domain>
-        <domain includeSubdomains="true">onrender.com</domain>
-        <domain includeSubdomains="true">trainer-match-14.preview.emergentagent.com</domain>
+        <domain includeSubdomains="true">emergentagent.com</domain>
+        <domain includeSubdomains="true">fitcoach-ai-36.preview.emergentagent.com</domain>
         <trust-anchors>
             <certificates src="system" />
         </trust-anchors>
-        <!-- Certificate pins will be validated programmatically via react-native-ssl-pinning -->
     </domain-config>
 
-    <!-- Stripe API - Certificate Pinning -->
+    <!-- LiftLink API Server -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">liftlink-ra6t.onrender.com</domain>
+        <domain includeSubdomains="true">onrender.com</domain>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+
+    <!-- Stripe API -->
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">stripe.com</domain>
         <domain includeSubdomains="true">api.stripe.com</domain>
@@ -39,12 +49,11 @@
         </trust-anchors>
     </domain-config>
 
-    <!-- Google APIs (Google Fit, Maps, Calendar) -->
+    <!-- Google APIs -->
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="true">googleapis.com</domain>
         <domain includeSubdomains="true">google.com</domain>
         <domain includeSubdomains="true">gstatic.com</domain>
-        <domain includeSubdomains="true">maps.google.com</domain>
         <trust-anchors>
             <certificates src="system" />
         </trust-anchors>
