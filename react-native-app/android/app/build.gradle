@@ -89,6 +89,14 @@ android {
         ndk {
             abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
         }
+        
+        // BuildConfig fields for React Native
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false"
+        buildConfigField "boolean", "IS_HERMES_ENABLED", "true"
+    }
+    
+    buildFeatures {
+        buildConfig = true
     }
     signingConfigs {
         debug {
