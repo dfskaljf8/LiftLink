@@ -10,12 +10,6 @@ import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
 import java.util.List;
 
-/**
- * MainApplication for LiftLink Android App
- * 
- * This class initializes the React Native application and configures
- * the React Native host with all necessary packages and settings.
- */
 public class MainApplication extends Application implements ReactApplication {
 
     private final ReactNativeHost mReactNativeHost =
@@ -29,8 +23,6 @@ public class MainApplication extends Application implements ReactApplication {
             protected List<ReactPackage> getPackages() {
                 @SuppressWarnings("UnnecessaryLocalVariable")
                 List<ReactPackage> packages = new PackageList(this).getPackages();
-                // Packages that cannot be autolinked yet can be added manually here:
-                // packages.add(new MyReactNativePackage());
                 return packages;
             }
 
@@ -58,20 +50,10 @@ public class MainApplication extends Application implements ReactApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+        SoLoader.init(this, false);
         
-        // Initialize SoLoader for loading native libraries
-        SoLoader.init(this, /* native exopackage */ false);
-        
-        // Initialize the new architecture if enabled
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {
-            // If you opted-in for the New Architecture, we load the native entry point for this app.
             DefaultNewArchitectureEntryPoint.load();
         }
-        
-        // Initialize React Native Gesture Handler
-        // This is required for gesture-based navigation
-        com.facebook.react.modules.i18nmanager.I18nUtil sharedI18nUtilInstance = 
-            com.facebook.react.modules.i18nmanager.I18nUtil.getInstance();
-        sharedI18nUtilInstance.allowRTL(getApplicationContext(), false);
     }
 }
