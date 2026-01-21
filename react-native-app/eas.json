@@ -24,10 +24,7 @@
         "APP_ENV": "preview"
       },
       "android": {
-        "buildType": "apk",
-        "image": "latest",
-        "ndk": "27.0.12077973",
-        "gradleCommand": ":app:assembleRelease"
+        "buildType": "apk"
       },
       "ios": {
         "simulator": false
@@ -38,9 +35,7 @@
         "APP_ENV": "production"
       },
       "android": {
-        "buildType": "app-bundle",
-        "image": "latest",
-        "ndk": "27.0.12077973"
+        "buildType": "app-bundle"
       },
       "ios": {
         "autoIncrement": true
