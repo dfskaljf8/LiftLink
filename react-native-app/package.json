@@ -4,20 +4,18 @@
   "description": "LiftLink mobile fitness application - AI-powered coaching platform",
   "main": "index.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
     "test": "jest",
     "lint": "eslint .",
-    "build:android": "eas build --platform android",
-    "build:ios": "eas build --platform ios",
-    "build:android:local": "cd android && ./gradlew assembleRelease",
+    "build:android": "cd android && ./gradlew assembleRelease",
     "build:android:debug": "cd android && ./gradlew assembleDebug",
+    "build:ios": "cd ios && xcodebuild -workspace LiftLink.xcworkspace -scheme LiftLink -configuration Release",
     "bundle:android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
     "bundle:ios": "react-native bundle --platform ios --dev false --entry-file index.js --bundle-output ios/main.jsbundle --assets-dest ios",
-    "clean": "cd android && ./gradlew clean",
-    "prebuild": "expo prebuild",
-    "doctor": "expo doctor"
+    "clean": "cd android && ./gradlew clean && rm -rf app/build",
+    "clean:all": "rm -rf node_modules android/app/build android/.gradle ios/build && yarn install"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
