@@ -1,6 +1,64 @@
 workflows:
-  android-build:
-    name: Android Build
+  android-debug:
+    name: Android Debug APK
+    max_build_duration: 120
+    instance_type: mac_mini_m1
+    
+    environment:
+      vars:
+        PACKAGE_NAME: "com.liftlinkapp"
+      node: 18
+      java: 17
+    
+    scripts:
+      - name: Install npm dependencies
+        script: |
+          cd react-native-app
+          yarn install --frozen-lockfile || yarn install
+      
+      - name: Create assets directory
+        script: |
+          mkdir -p react-native-app/android/app/src/main/assets
+      
+      - name: Bundle JavaScript
+        script: |
+          cd react-native-app
+          npx react-native bundle \
+            --platform android \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output android/app/src/main/assets/index.android.bundle \
+            --assets-dest android/app/src/main/res
+          
+          echo "=== JS Bundle created ==="
+          ls -la android/app/src/main/assets/
+      
+      - name: Set SDK location
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > react-native-app/android/local.properties
+      
+      - name: Build Debug APK
+        script: |
+          cd react-native-app/android
+          ./gradlew assembleDebug --no-daemon --stacktrace
+      
+      - name: List outputs
+        script: |
+          echo "=== APK Files ==="
+          find react-native-app/android/app/build/outputs -name "*.apk" -exec ls -la {} \;
+          
+          echo ""
+          echo "=== Verify native libs in APK ==="
+          APK=$(find react-native-app/android/app/build/outputs -name "*debug*.apk" | head -1)
+          if [ -f "$APK" ]; then
+            unzip -l "$APK" | grep "\.so" | head -20
+          fi
+    
+    artifacts:
+      - react-native-app/android/app/build/outputs/**/*.apk
+
+  android-release:
+    name: Android Release APK
     max_build_duration: 120
     instance_type: mac_mini_m1
     
@@ -13,19 +71,18 @@ workflows:
       java: 17
     
     scripts:
-      - name: Install dependencies
+      - name: Install npm dependencies
         script: |
           cd react-native-app
-          yarn install
+          yarn install --frozen-lockfile || yarn install
       
-      - name: Set Android SDK
+      - name: Create assets directory
         script: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > react-native-app/android/local.properties
+          mkdir -p react-native-app/android/app/src/main/assets
       
-      - name: Bundle JS
+      - name: Bundle JavaScript for release
         script: |
           cd react-native-app
-          mkdir -p android/app/src/main/assets
           npx react-native bundle \
             --platform android \
             --dev false \
@@ -33,15 +90,9 @@ workflows:
             --bundle-output android/app/src/main/assets/index.android.bundle \
             --assets-dest android/app/src/main/res
       
-      - name: Clean build
+      - name: Set SDK location
         script: |
-          cd react-native-app/android
-          ./gradlew clean
-      
-      - name: Build Debug APK
-        script: |
-          cd react-native-app/android
-          ./gradlew assembleDebug --no-daemon --stacktrace
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > react-native-app/android/local.properties
       
       - name: Build Release APK
         script: |
@@ -50,72 +101,14 @@ workflows:
       
       - name: Verify APK
         script: |
-          echo "=== Built APKs ==="
-          find react-native-app/android/app/build/outputs -name "*.apk" -ls
-          
-          echo "=== Checking for Hermes libraries ==="
           APK=$(find react-native-app/android/app/build/outputs -name "*release*.apk" | head -1)
-          if [ -n "$APK" ]; then
-            unzip -l "$APK" | grep -E "libhermes|libjsc" || echo "No JS engine libs found!"
-          fi
+          echo "Built APK: $APK"
+          ls -la "$APK"
+          
+          echo ""
+          echo "=== Native libraries in APK ==="
+          unzip -l "$APK" | grep -E "lib.*\.so" | head -30
     
     artifacts:
       - react-native-app/android/app/build/outputs/**/*.apk
       - react-native-app/android/app/build/outputs/**/*.aab
-
-  android-release:
-    name: Android Release (AAB)
-    max_build_duration: 120
-    instance_type: mac_mini_m1
-    
-    environment:
-      android_signing:
-        - liftlink_keystore
-      groups:
-        - google_play
-      vars:
-        PACKAGE_NAME: "com.liftlinkapp"
-      node: 18
-      java: 17
-    
-    triggering:
-      events:
-        - tag
-      tag_patterns:
-        - pattern: 'v*'
-          include: true
-    
-    scripts:
-      - name: Install dependencies
-        script: |
-          cd react-native-app
-          yarn install
-      
-      - name: Set Android SDK
-        script: |
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > react-native-app/android/local.properties
-      
-      - name: Bundle JS for release
-        script: |
-          cd react-native-app
-          mkdir -p android/app/src/main/assets
-          npx react-native bundle \
-            --platform android \
-            --dev false \
-            --entry-file index.js \
-            --bundle-output android/app/src/main/assets/index.android.bundle \
-            --assets-dest android/app/src/main/res
-      
-      - name: Build Release AAB
-        script: |
-          cd react-native-app/android
-          ./gradlew bundleRelease --no-daemon
-    
-    artifacts:
-      - react-native-app/android/app/build/outputs/**/*.aab
-    
-    publishing:
-      google_play:
-        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
-        track: internal
-        submit_as_draft: true
