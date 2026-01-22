@@ -8,7 +8,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -20,22 +20,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.liftlinkapp",
-      "buildNumber": "1.0.0",
-      "config": {
-        "googleSignIn": {
-          "reservedClientId": "com.googleusercontent.apps.464466068216-e1qq893h44vejoau0vddk93ev2tih0f3"
-        }
-      },
-      "infoPlist": {
-        "NSCameraUsageDescription": "LiftLink needs access to your camera to capture workout videos and verify your identity.",
-        "NSPhotoLibraryUsageDescription": "LiftLink needs access to your photos to upload profile pictures and workout media.",
-        "NSLocationWhenInUseUsageDescription": "LiftLink needs your location to find trainers near you.",
-        "NSMotionUsageDescription": "LiftLink uses motion data to track your workouts.",
-        "NSHealthShareUsageDescription": "LiftLink reads your health data to track your fitness progress.",
-        "NSHealthUpdateUsageDescription": "LiftLink writes workout data to Apple Health.",
-        "UIBackgroundModes": ["fetch", "remote-notification"],
-        "ITSAppUsesNonExemptEncryption": false
-      }
+      "buildNumber": "1.0.0"
     },
     "android": {
       "adaptiveIcon": {
@@ -45,44 +30,27 @@
       "package": "com.liftlinkapp",
       "versionCode": 1,
       "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.READ_EXTERNAL_STORAGE",
-        "android.permission.WRITE_EXTERNAL_STORAGE",
-        "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACTIVITY_RECOGNITION",
-        "android.permission.RECEIVE_BOOT_COMPLETED",
-        "android.permission.VIBRATE",
-        "android.permission.INTERNET",
-        "android.permission.ACCESS_NETWORK_STATE"
-      ],
-      "googleServicesFile": "./google-services.json"
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "VIBRATE",
+        "INTERNET",
+        "ACCESS_NETWORK_STATE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-secure-store",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 34,
-            "buildToolsVersion": "35.0.0"
-          },
-          "ios": {
-            "deploymentTarget": "15.1"
-          }
-        }
-      ]
+      "expo-secure-store"
     ],
     "extra": {
       "eas": {
         "projectId": "d0caa059-83cd-42b2-8dea-2e803fd46d7d"
       }
     },
-    "owner": "liftlink",
     "scheme": "liftlink"
   }
 }
