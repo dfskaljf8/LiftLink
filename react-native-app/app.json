@@ -1,6 +1,4 @@
 {
-  "name": "LiftLinkMobile",
-  "displayName": "LiftLink",
   "expo": {
     "name": "LiftLink",
     "slug": "liftlink",
