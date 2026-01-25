@@ -114,11 +114,27 @@ export default function DocumentVerificationScreen() {
       return;
     }
 
+    // Make sure we have userId - if not, try to get it
+    let userId = params.userId;
+    if (!userId && params.email) {
+      try {
+        const checkRes = await axios.post(`${API_URL}/check-user`, { email: params.email });
+        userId = checkRes.data.user_id;
+      } catch (e) {
+        console.error('Could not get user ID:', e);
+      }
+    }
+
+    if (!userId) {
+      Alert.alert('Error', 'User information not found. Please go back and try again.');
+      return;
+    }
+
     setLoading(true);
 
     try {
       const response = await axios.post(`${API_URL}/verify-government-id`, {
-        user_id: params.userId,
+        user_id: userId,
         user_email: params.email,
         image_data: image.base64,
       });
