@@ -179,12 +179,12 @@ export default function AIOnboardingScreen() {
 
   const handleComplete = async (collectedData) => {
     try {
-      // Create user account
-      const response = await axios.post(`${API_URL}/register`, {
+      // Create user account - endpoint is /users not /register
+      const response = await axios.post(`${API_URL}/users`, {
         email: params.email,
         name: params.name || params.email?.split('@')[0],
-        role: collectedData?.role || 'trainee',
-        fitness_goals: [collectedData?.goal || 'general_fitness'],
+        role: collectedData?.role === 'Become a trainer' ? 'trainer' : 'fitness_enthusiast',
+        fitness_goals: [collectedData?.goal?.toLowerCase().replace(/ /g, '_') || 'general_fitness'],
         experience_level: collectedData?.experience?.toLowerCase() || 'beginner',
       });
 
@@ -193,7 +193,7 @@ export default function AIOnboardingScreen() {
       // Now go to age verification (user needs to verify before they can use the app)
       setTimeout(() => {
         setMessages(prev => [...prev, {
-          id: (Date.now() + 2).toString(),
+          id: (Date.now() + 1).toString(),
           text: "Account created! 🎉\n\nOne last step - we need to verify your age (18+) to comply with fitness industry regulations.\n\nThis is a quick one-time verification.",
           isAI: true,
         }]);
@@ -203,7 +203,7 @@ export default function AIOnboardingScreen() {
             pathname: '/(auth)/document-verification',
             params: { 
               email: params.email,
-              userId: response.data.user?.id || response.data.id,
+              userId: response.data?.id,
               name: params.name,
             }
           });
@@ -214,15 +214,27 @@ export default function AIOnboardingScreen() {
       console.error('Registration error:', error);
       
       // If user already exists, go to age verification
-      if (error.response?.status === 409 || error.response?.data?.detail?.includes('already exists')) {
-        router.replace({
-          pathname: '/(auth)/document-verification',
-          params: { email: params.email }
-        });
+      if (error.response?.status === 400 && error.response?.data?.detail?.includes('already exists')) {
+        // User exists but not verified - get their ID and go to verification
+        try {
+          const checkRes = await axios.post(`${API_URL}/check-user`, { email: params.email });
+          router.replace({
+            pathname: '/(auth)/document-verification',
+            params: { 
+              email: params.email,
+              userId: checkRes.data.user_id,
+            }
+          });
+        } catch (e) {
+          router.replace({
+            pathname: '/(auth)/document-verification',
+            params: { email: params.email }
+          });
+        }
       } else {
         setMessages(prev => [...prev, {
           id: (Date.now() + 1).toString(),
-          text: "Hmm, something went wrong. Let's try again!",
+          text: `Hmm, something went wrong: ${error.response?.data?.detail || 'Please try again.'}`,
           isAI: true,
         }]);
         setComplete(false);
