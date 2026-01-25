@@ -1,129 +1,75 @@
 /**
  * Main Tabs Layout
- * Cartoonish animated bottom tab navigation
+ * Duolingo-style: Clean, minimal bottom navigation
  */
 
 import { Tabs } from 'expo-router';
-import { View, StyleSheet, Dimensions } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
-import Svg, { Path, Circle, G, Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
+import { View, StyleSheet } from 'react-native';
+import Svg, { Path, Circle, Rect, G } from 'react-native-svg';
 
-const { width } = Dimensions.get('window');
+// Clean, modern tab icons
+const TabIcon = ({ name, focused }) => {
+  const activeColor = '#6366f1';
+  const inactiveColor = '#64748b';
+  const color = focused ? activeColor : inactiveColor;
 
-// Custom tab bar icons with cartoonish style
-const TabIcon = ({ name, focused, color }) => {
   const icons = {
     home: (
-      <Svg width={28} height={28} viewBox="0 0 24 24">
+      <Svg width={24} height={24} viewBox="0 0 24 24">
         <Path
-          d="M12 3L4 9V21H9V14H15V21H20V9L12 3Z"
-          fill={focused ? '#6366f1' : '#64748b'}
-          stroke={focused ? '#818cf8' : 'transparent'}
-          strokeWidth="1"
+          d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"
+          fill={color}
         />
-        {focused && <Circle cx="12" cy="10" r="2" fill="#fcd34d" />}
       </Svg>
     ),
     trainers: (
-      <Svg width={28} height={28} viewBox="0 0 24 24">
-        <Circle cx="12" cy="8" r="4" fill={focused ? '#10b981' : '#64748b'} />
+      <Svg width={24} height={24} viewBox="0 0 24 24">
+        <Circle cx="12" cy="8" r="4" fill={color} />
         <Path
-          d="M4 20C4 16 8 14 12 14C16 14 20 16 20 20"
-          stroke={focused ? '#10b981' : '#64748b'}
-          strokeWidth="3"
-          strokeLinecap="round"
-          fill="none"
+          d="M12 14C7.58 14 4 15.79 4 18V20H20V18C20 15.79 16.42 14 12 14Z"
+          fill={color}
         />
-        {focused && (
-          <>
-            <Circle cx="6" cy="10" r="2" fill="#10b981" opacity="0.5" />
-            <Circle cx="18" cy="10" r="2" fill="#10b981" opacity="0.5" />
-          </>
-        )}
       </Svg>
     ),
     fitness: (
-      <Svg width={28} height={28} viewBox="0 0 24 24">
-        <Rect x="3" y="10" width="4" height="8" rx="1" fill={focused ? '#ef4444' : '#64748b'} />
-        <Rect x="17" y="10" width="4" height="8" rx="1" fill={focused ? '#ef4444' : '#64748b'} />
-        <Rect x="7" y="11" width="10" height="6" rx="1" fill={focused ? '#f87171' : '#94a3b8'} />
-        {focused && (
-          <>
-            <Circle cx="5" cy="8" r="2" fill="#fcd34d" />
-            <Circle cx="19" cy="8" r="2" fill="#fcd34d" />
-          </>
-        )}
+      <Svg width={24} height={24} viewBox="0 0 24 24">
+        <Path
+          d="M20.57 14.86L22 13.43L20.57 12L17 15.57L8.43 7L12 3.43L10.57 2L9.14 3.43L7.71 2L5.57 4.14L4.14 2.71L2.71 4.14L4.14 5.57L2 7.71L3.43 9.14L2 10.57L3.43 12L7 8.43L15.57 17L12 20.57L13.43 22L14.86 20.57L16.29 22L18.43 19.86L19.86 21.29L21.29 19.86L19.86 18.43L22 16.29L20.57 14.86Z"
+          fill={color}
+        />
       </Svg>
     ),
     tree: (
-      <Svg width={28} height={28} viewBox="0 0 24 24">
+      <Svg width={24} height={24} viewBox="0 0 24 24">
         <Path
-          d="M12 2L6 10H9L5 18H10V22H14V18H19L15 10H18L12 2Z"
-          fill={focused ? '#22c55e' : '#64748b'}
+          d="M12 2L6 9H9L4 17H11V22H13V17H20L15 9H18L12 2Z"
+          fill={color}
         />
-        <Rect x="11" y="18" width="2" height="4" fill={focused ? '#a16207' : '#64748b'} />
-        {focused && (
-          <>
-            <Circle cx="9" cy="8" r="1" fill="#fcd34d" />
-            <Circle cx="14" cy="10" r="1" fill="#fcd34d" />
-            <Circle cx="11" cy="13" r="1" fill="#fcd34d" />
-          </>
-        )}
       </Svg>
     ),
     sessions: (
-      <Svg width={28} height={28} viewBox="0 0 24 24">
-        <Rect x="4" y="5" width="16" height="16" rx="3" fill={focused ? '#8b5cf6' : '#64748b'} />
-        <Rect x="8" y="2" width="2" height="5" rx="1" fill={focused ? '#a78bfa' : '#94a3b8'} />
-        <Rect x="14" y="2" width="2" height="5" rx="1" fill={focused ? '#a78bfa' : '#94a3b8'} />
-        <Rect x="7" y="10" width="10" height="2" rx="1" fill="white" opacity="0.5" />
-        <Rect x="7" y="14" width="6" height="2" rx="1" fill="white" opacity="0.5" />
-        {focused && <Circle cx="16" cy="15" r="2" fill="#fcd34d" />}
+      <Svg width={24} height={24} viewBox="0 0 24 24">
+        <Path
+          d="M19 3H18V1H16V3H8V1H6V3H5C3.89 3 3 3.9 3 5V19C3 20.1 3.89 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V8H19V19ZM9 17H7V10H9V17ZM13 17H11V13H13V17ZM17 17H15V11H17V17Z"
+          fill={color}
+        />
       </Svg>
     ),
     settings: (
-      <Svg width={28} height={28} viewBox="0 0 24 24">
+      <Svg width={24} height={24} viewBox="0 0 24 24">
         <Path
-          d="M12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15Z"
-          fill={focused ? '#f59e0b' : '#64748b'}
+          d="M19.14 12.94C19.18 12.64 19.2 12.33 19.2 12C19.2 11.67 19.18 11.36 19.13 11.06L21.16 9.48C21.34 9.34 21.39 9.07 21.28 8.87L19.36 5.55C19.24 5.33 18.99 5.26 18.77 5.33L16.38 6.29C15.88 5.91 15.35 5.59 14.76 5.35L14.4 2.81C14.36 2.57 14.16 2.4 13.92 2.4H10.08C9.84 2.4 9.65 2.57 9.61 2.81L9.25 5.35C8.66 5.59 8.12 5.92 7.63 6.29L5.24 5.33C5.02 5.25 4.77 5.33 4.65 5.55L2.74 8.87C2.62 9.08 2.66 9.34 2.86 9.48L4.89 11.06C4.84 11.36 4.8 11.69 4.8 12C4.8 12.31 4.82 12.64 4.87 12.94L2.84 14.52C2.66 14.66 2.61 14.93 2.72 15.13L4.64 18.45C4.76 18.67 5.01 18.74 5.23 18.67L7.62 17.71C8.12 18.09 8.65 18.41 9.24 18.65L9.6 21.19C9.65 21.43 9.84 21.6 10.08 21.6H13.92C14.16 21.6 14.36 21.43 14.39 21.19L14.75 18.65C15.34 18.41 15.88 18.09 16.37 17.71L18.76 18.67C18.98 18.75 19.23 18.67 19.35 18.45L21.27 15.13C21.39 14.91 21.34 14.66 21.15 14.52L19.14 12.94ZM12 15.6C10.02 15.6 8.4 13.98 8.4 12C8.4 10.02 10.02 8.4 12 8.4C13.98 8.4 15.6 10.02 15.6 12C15.6 13.98 13.98 15.6 12 15.6Z"
+          fill={color}
         />
-        <Path
-          d="M19.14 12.94C19.18 12.64 19.2 12.33 19.2 12C19.2 11.67 19.18 11.36 19.13 11.06L21.16 9.48C21.34 9.34 21.39 9.07 21.28 8.87L19.36 5.55C19.24 5.33 18.99 5.26 18.77 5.33L16.38 6.29C15.88 5.91 15.35 5.59 14.76 5.35L14.4 2.81C14.36 2.57 14.16 2.4 13.92 2.4H10.08C9.84 2.4 9.65 2.57 9.61 2.81L9.25 5.35C8.66 5.59 8.12 5.92 7.63 6.29L5.24 5.33C5.02 5.25 4.77 5.33 4.65 5.55L2.74 8.87C2.62 9.08 2.66 9.34 2.86 9.48L4.89 11.06C4.84 11.36 4.8 11.69 4.8 12C4.8 12.31 4.82 12.64 4.87 12.94L2.85 14.52C2.67 14.66 2.62 14.93 2.73 15.13L4.65 18.45C4.77 18.67 5.02 18.74 5.24 18.67L7.63 17.71C8.13 18.09 8.66 18.41 9.25 18.65L9.61 21.19C9.65 21.43 9.84 21.6 10.08 21.6H13.92C14.16 21.6 14.36 21.43 14.39 21.19L14.75 18.65C15.34 18.41 15.88 18.09 16.37 17.71L18.76 18.67C18.98 18.75 19.23 18.67 19.35 18.45L21.27 15.13C21.39 14.91 21.34 14.66 21.15 14.52L19.14 12.94Z"
-          stroke={focused ? '#f59e0b' : '#64748b'}
-          strokeWidth="1.5"
-          fill="none"
-        />
-        {focused && (
-          <>
-            <Circle cx="12" cy="12" r="2" fill="white" opacity="0.5" />
-          </>
-        )}
       </Svg>
     ),
   };
 
   return (
-    <View style={[styles.iconContainer, focused && styles.iconContainerFocused]}>
+    <View style={[styles.iconContainer, focused && styles.iconContainerActive]}>
       {icons[name]}
-      {focused && <View style={[styles.focusDot, { backgroundColor: getColorForTab(name) }]} />}
     </View>
   );
-};
-
-const getColorForTab = (name) => {
-  const colors = {
-    home: '#6366f1',
-    trainers: '#10b981',
-    fitness: '#ef4444',
-    tree: '#22c55e',
-    sessions: '#8b5cf6',
-    settings: '#f59e0b',
-  };
-  return colors[name] || '#6366f1';
 };
 
 export default function TabsLayout() {
@@ -133,8 +79,8 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarStyle: styles.tabBar,
         tabBarShowLabel: true,
-        tabBarLabelStyle: styles.tabBarLabel,
-        tabBarActiveTintColor: '#fff',
+        tabBarLabelStyle: styles.tabLabel,
+        tabBarActiveTintColor: '#6366f1',
         tabBarInactiveTintColor: '#64748b',
       }}
     >
@@ -162,7 +108,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="tree"
         options={{
-          title: 'Tree',
+          title: 'Growth',
           tabBarIcon: ({ focused }) => <TabIcon name="tree" focused={focused} />,
         }}
       />
@@ -187,41 +133,24 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 80,
     backgroundColor: '#0f172a',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.1)',
-    paddingBottom: 20,
-    paddingTop: 10,
-    elevation: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
+    borderTopColor: '#1e293b',
+    height: 70,
+    paddingBottom: 10,
+    paddingTop: 8,
   },
-  tabBarLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    marginTop: 4,
+  tabLabel: {
+    fontSize: 11,
+    fontWeight: '600',
   },
   iconContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 40,
+    height: 32,
   },
-  iconContainerFocused: {
-    backgroundColor: 'rgba(99, 102, 241, 0.15)',
-  },
-  focusDot: {
-    position: 'absolute',
-    bottom: -8,
-    width: 4,
-    height: 4,
-    borderRadius: 2,
+  iconContainerActive: {
+    // Active state styling if needed
   },
 });
