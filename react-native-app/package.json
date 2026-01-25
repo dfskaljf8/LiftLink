@@ -77,6 +77,13 @@
       "exclude": [
         "react-native-safe-area-context"
       ]
+    },
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "crypto-js"
+        ]
+      }
     }
   }
 }
