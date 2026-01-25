@@ -1,6 +1,6 @@
 /**
  * Dashboard Screen
- * Duolingo-style: Clean stats, smooth animations, professional gamification
+ * Dark theme with lime green accents - Inspired by LiftLink design
  */
 
 import React, { useEffect, useState } from 'react';
@@ -11,7 +11,7 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
-  Dimensions,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -22,28 +22,23 @@ import Animated, {
   withDelay,
   withTiming,
   FadeInDown,
-  FadeInRight,
 } from 'react-native-reanimated';
 import { useApp } from '../../src/context/AppContext';
 import {
-  MiniMascot,
-  ProgressTree,
-  FlameIcon,
-  HeartIcon,
-  TargetIcon,
+  COLORS,
+  LiftLinkLogo,
+  DumbbellIcon,
+  FireIcon,
   TrophyIcon,
-  ChatBubbleIcon,
-  SearchIcon,
+  ChatIcon,
+  SearchPersonIcon,
   CalendarIcon,
-  BoltIcon,
-  FloatingDots,
+  StarIcon,
 } from '../../src/components/CustomIllustrations';
-import { Button, ActionButton, IconButton } from '../../src/components/AnimatedButton';
+import { Button } from '../../src/components/AnimatedButton';
 
-const { width } = Dimensions.get('window');
-
-// Stat card component
-const StatCard = ({ icon, value, label, color, delay = 0 }) => {
+// Stat Card
+const StatCard = ({ icon, value, label, delay = 0 }) => {
   const scale = useSharedValue(0.8);
   const opacity = useSharedValue(0);
 
@@ -59,53 +54,58 @@ const StatCard = ({ icon, value, label, color, delay = 0 }) => {
 
   return (
     <Animated.View style={[styles.statCard, animStyle]}>
-      <View style={[styles.statIconBg, { backgroundColor: color + '15' }]}>
-        {icon}
-      </View>
+      <View style={styles.statIcon}>{icon}</View>
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
     </Animated.View>
   );
 };
 
-// Quick action card
-const QuickActionCard = ({ icon, title, subtitle, onPress, delay = 0 }) => {
-  const translateX = useSharedValue(30);
+// Quick Action Button
+const QuickAction = ({ icon, title, onPress, delay = 0 }) => {
+  const translateY = useSharedValue(30);
   const opacity = useSharedValue(0);
 
   useEffect(() => {
-    translateX.value = withDelay(delay, withSpring(0, { damping: 15 }));
+    translateY.value = withDelay(delay, withSpring(0, { damping: 15 }));
     opacity.value = withDelay(delay, withTiming(1, { duration: 300 }));
   }, []);
 
   const animStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: translateX.value }],
+    transform: [{ translateY: translateY.value }],
     opacity: opacity.value,
   }));
 
   return (
     <Animated.View style={animStyle}>
-      <TouchableOpacity 
-        style={styles.quickActionCard} 
-        onPress={onPress}
-        activeOpacity={0.7}
-      >
+      <TouchableOpacity style={styles.quickAction} onPress={onPress} activeOpacity={0.7}>
         <View style={styles.quickActionIcon}>{icon}</View>
-        <View style={styles.quickActionText}>
-          <Text style={styles.quickActionTitle}>{title}</Text>
-          <Text style={styles.quickActionSubtitle}>{subtitle}</Text>
-        </View>
-        <View style={styles.quickActionArrow}>
-          <Text style={styles.arrowText}>→</Text>
-        </View>
+        <Text style={styles.quickActionTitle}>{title}</Text>
       </TouchableOpacity>
     </Animated.View>
   );
 };
 
+// Mentor Card
+const MentorCard = ({ name, specialty, rating, image }) => (
+  <TouchableOpacity style={styles.mentorCard} activeOpacity={0.8}>
+    <View style={styles.mentorAvatar}>
+      <Text style={styles.mentorAvatarText}>{name?.charAt(0) || 'M'}</Text>
+    </View>
+    <View style={styles.mentorInfo}>
+      <Text style={styles.mentorName}>{name}</Text>
+      <Text style={styles.mentorSpecialty}>{specialty}</Text>
+    </View>
+    <View style={styles.mentorRating}>
+      <StarIcon size={14} color={COLORS.primary} />
+      <Text style={styles.ratingText}>{rating}</Text>
+    </View>
+  </TouchableOpacity>
+);
+
 export default function DashboardScreen() {
   const router = useRouter();
-  const { user, treeProgress, sessions } = useApp();
+  const { user, sessions } = useApp();
   const [refreshing, setRefreshing] = useState(false);
 
   const isTrainer = user?.role === 'trainer';
@@ -115,10 +115,14 @@ export default function DashboardScreen() {
     setTimeout(() => setRefreshing(false), 1000);
   };
 
+  // Mock data for mentors
+  const mentors = [
+    { name: 'Herbert Lindsey', specialty: 'Strength Training', rating: '4.9' },
+    { name: 'Sarah Chen', specialty: 'HIIT & Cardio', rating: '4.8' },
+  ];
+
   return (
     <View style={styles.container}>
-      <FloatingDots count={4} />
-      
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -127,166 +131,127 @@ export default function DashboardScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#6366f1"
+              tintColor={COLORS.primary}
             />
           }
         >
           {/* Header */}
           <View style={styles.header}>
-            <View style={styles.headerLeft}>
-              <MiniMascot size={44} />
-              <View style={styles.headerText}>
-                <Text style={styles.greeting}>Welcome back</Text>
-                <Text style={styles.userName}>{user?.name || 'Champion'}</Text>
-              </View>
+            <View>
+              <Text style={styles.greeting}>Welcome back,</Text>
+              <Text style={styles.userName}>{user?.name || 'Champion'}</Text>
             </View>
-            <IconButton
-              icon={<Text style={styles.bellIcon}>🔔</Text>}
-              size={44}
-              backgroundColor="#1e293b"
-            />
+            <TouchableOpacity style={styles.profileButton}>
+              <View style={styles.profileAvatar}>
+                <Text style={styles.profileAvatarText}>
+                  {user?.name?.charAt(0) || 'U'}
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>
 
-          {/* Progress Section */}
-          <Animated.View entering={FadeInDown.delay(100)} style={styles.progressSection}>
-            <View style={styles.progressCard}>
-              <View style={styles.progressLeft}>
-                <Text style={styles.progressTitle}>Your Growth</Text>
-                <View style={styles.levelBadge}>
-                  <Text style={styles.levelText}>
-                    {(treeProgress?.current_level || 'seed').replace('_', ' ')}
-                  </Text>
-                </View>
-                <Text style={styles.progressSubtext}>
-                  {sessions?.length || 0} sessions completed
-                </Text>
-                <View style={styles.progressBar}>
-                  <View style={[styles.progressFill, { width: `${Math.min((sessions?.length || 0) * 10, 100)}%` }]} />
-                </View>
-              </View>
-              <View style={styles.progressRight}>
-                <ProgressTree stage={treeProgress?.current_level || 'seed'} size={120} />
+          {/* Today's Workout Card */}
+          <Animated.View entering={FadeInDown.delay(100)} style={styles.workoutCard}>
+            <View style={styles.workoutHeader}>
+              <Text style={styles.workoutTitle}>Today's Workout</Text>
+              <View style={styles.workoutBadge}>
+                <Text style={styles.workoutBadgeText}>In Progress</Text>
               </View>
             </View>
+            
+            <View style={styles.workoutStats}>
+              <View style={styles.workoutStat}>
+                <DumbbellIcon size={28} color={COLORS.primary} />
+                <Text style={styles.workoutStatValue}>45 min</Text>
+                <Text style={styles.workoutStatLabel}>Duration</Text>
+              </View>
+              <View style={styles.workoutStatDivider} />
+              <View style={styles.workoutStat}>
+                <FireIcon size={28} color={COLORS.primary} />
+                <Text style={styles.workoutStatValue}>320</Text>
+                <Text style={styles.workoutStatLabel}>Calories</Text>
+              </View>
+              <View style={styles.workoutStatDivider} />
+              <View style={styles.workoutStat}>
+                <TrophyIcon size={28} color={COLORS.primary} />
+                <Text style={styles.workoutStatValue}>5</Text>
+                <Text style={styles.workoutStatLabel}>Exercises</Text>
+              </View>
+            </View>
+
+            <Button
+              title="Continue Workout"
+              onPress={() => {}}
+              variant="primary"
+              size="medium"
+              style={{ marginTop: 16 }}
+            />
           </Animated.View>
 
-          {/* Stats Row */}
+          {/* Quick Stats */}
+          <Text style={styles.sectionTitle}>Your Progress</Text>
           <View style={styles.statsRow}>
             <StatCard
-              icon={<FlameIcon size={24} />}
-              value={sessions?.length || 0}
-              label="Streak"
-              color="#f59e0b"
+              icon={<FireIcon size={24} color={COLORS.primary} />}
+              value={sessions?.length || 7}
+              label="Day Streak"
               delay={200}
             />
             <StatCard
-              icon={<HeartIcon size={24} />}
-              value={sessions?.length || 0}
-              label="Sessions"
-              color="#ef4444"
+              icon={<DumbbellIcon size={24} color={COLORS.primary} />}
+              value={sessions?.length || 12}
+              label="Workouts"
               delay={300}
             />
             <StatCard
-              icon={<TrophyIcon size={24} />}
-              value={isTrainer ? '12' : '3'}
-              label={isTrainer ? 'Clients' : 'Goals'}
-              color="#f59e0b"
+              icon={<TrophyIcon size={24} color={COLORS.primary} />}
+              value="Level 3"
+              label="Rank"
               delay={400}
             />
           </View>
 
           {/* Quick Actions */}
           <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.quickActionsRow}>
+            <QuickAction
+              icon={<ChatIcon size={28} color={COLORS.primary} />}
+              title="AI Coach"
+              onPress={() => router.push('/ai-chat')}
+              delay={500}
+            />
+            <QuickAction
+              icon={<SearchPersonIcon size={28} color={COLORS.primary} />}
+              title="Find Mentor"
+              onPress={() => router.push('/(tabs)/trainers')}
+              delay={600}
+            />
+            <QuickAction
+              icon={<CalendarIcon size={28} color={COLORS.primary} />}
+              title="Schedule"
+              onPress={() => router.push('/(tabs)/sessions')}
+              delay={700}
+            />
+          </View>
+
+          {/* Top Mentors */}
+          <View style={styles.mentorsHeader}>
+            <Text style={styles.sectionTitle}>Top Mentors</Text>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/trainers')}>
+              <Text style={styles.seeAllText}>See All</Text>
+            </TouchableOpacity>
+          </View>
           
-          <QuickActionCard
-            icon={<ChatBubbleIcon size={28} color="#6366f1" />}
-            title="AI Coach"
-            subtitle="Get personalized advice"
-            onPress={() => router.push('/ai-chat')}
-            delay={500}
-          />
-          
-          <QuickActionCard
-            icon={<SearchIcon size={28} color="#10b981" />}
-            title="Find Trainers"
-            subtitle="Browse trainers near you"
-            onPress={() => router.push('/(tabs)/trainers')}
-            delay={600}
-          />
+          {mentors.map((mentor, index) => (
+            <MentorCard key={index} {...mentor} />
+          ))}
 
-          {isTrainer && (
-            <>
-              <QuickActionCard
-                icon={<BoltIcon size={28} color="#f59e0b" />}
-                title="AI Command Center"
-                subtitle="Manage suggestions & insights"
-                onPress={() => router.push('/ai-command-center')}
-                delay={700}
-              />
-              <QuickActionCard
-                icon={<TargetIcon size={28} color="#8b5cf6" />}
-                title="Coaching Hub"
-                subtitle="Automate your coaching"
-                onPress={() => router.push('/coaching-hub')}
-                delay={800}
-              />
-            </>
-          )}
-
-          {/* Recent Activity */}
-          <Text style={styles.sectionTitle}>Recent Activity</Text>
-          <Animated.View entering={FadeInDown.delay(700)} style={styles.activityCard}>
-            {sessions?.length > 0 ? (
-              sessions.slice(0, 3).map((session, index) => (
-                <View 
-                  key={index} 
-                  style={[
-                    styles.activityItem,
-                    index < 2 && styles.activityItemBorder
-                  ]}
-                >
-                  <View style={styles.activityIconBg}>
-                    <BoltIcon size={20} color="#8b5cf6" />
-                  </View>
-                  <View style={styles.activityInfo}>
-                    <Text style={styles.activityTitle}>
-                      {session.session_type || 'Training Session'}
-                    </Text>
-                    <Text style={styles.activitySubtitle}>
-                      {session.duration_minutes || 60} min
-                    </Text>
-                  </View>
-                  <View style={styles.xpBadge}>
-                    <Text style={styles.xpText}>+10 XP</Text>
-                  </View>
-                </View>
-              ))
-            ) : (
-              <View style={styles.emptyActivity}>
-                <Text style={styles.emptyIcon}>🎯</Text>
-                <Text style={styles.emptyTitle}>No sessions yet</Text>
-                <Text style={styles.emptySubtitle}>
-                  Start your fitness journey today!
-                </Text>
-                <Button
-                  title="Find a Trainer"
-                  onPress={() => router.push('/(tabs)/trainers')}
-                  variant="success"
-                  size="medium"
-                  fullWidth={false}
-                  style={{ marginTop: 16 }}
-                />
-              </View>
-            )}
-          </Animated.View>
-
-          {/* Motivational Card */}
-          <Animated.View entering={FadeInDown.delay(900)} style={styles.motivationCard}>
-            <Text style={styles.motivationQuote}>
-              "The only bad workout is the one that didn't happen."
+          {/* Motivational Quote */}
+          <View style={styles.quoteCard}>
+            <Text style={styles.quoteText}>
+              "Wherever You Are, Health Is Number One"
             </Text>
-            <Text style={styles.motivationAuthor}>— Keep pushing! 💪</Text>
-          </Animated.View>
+          </View>
         </ScrollView>
       </SafeAreaView>
     </View>
@@ -296,7 +261,7 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: COLORS.background,
   },
   safeArea: {
     flex: 1,
@@ -311,254 +276,220 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
   },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerText: {
-    marginLeft: 12,
-  },
   greeting: {
     fontSize: 14,
-    color: '#64748b',
-    fontWeight: '500',
+    color: COLORS.textSecondary,
   },
   userName: {
-    fontSize: 20,
-    color: '#fff',
-    fontWeight: '700',
-    marginTop: 2,
+    fontSize: 24,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginTop: 4,
   },
-  bellIcon: {
-    fontSize: 20,
+  profileButton: {
+    padding: 2,
   },
-  progressSection: {
-    marginBottom: 24,
-  },
-  progressCard: {
-    flexDirection: 'row',
-    backgroundColor: '#1e293b',
-    borderRadius: 20,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: '#334155',
-  },
-  progressLeft: {
-    flex: 1,
+  profileAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.primary,
+    alignItems: 'center',
     justifyContent: 'center',
   },
-  progressTitle: {
-    fontSize: 14,
-    color: '#64748b',
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  profileAvatarText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.background,
   },
-  levelBadge: {
-    backgroundColor: '#6366f1',
+  workoutCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  workoutHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  workoutTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.text,
+  },
+  workoutBadge: {
+    backgroundColor: COLORS.primary + '20',
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-    marginTop: 8,
+    borderRadius: 20,
   },
-  levelText: {
-    color: '#fff',
-    fontSize: 14,
+  workoutBadgeText: {
+    color: COLORS.primary,
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  workoutStats: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+  },
+  workoutStat: {
+    alignItems: 'center',
+  },
+  workoutStatValue: {
+    fontSize: 20,
     fontWeight: '700',
-    textTransform: 'capitalize',
-  },
-  progressSubtext: {
-    color: '#94a3b8',
-    fontSize: 13,
-    marginTop: 12,
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: '#334155',
-    borderRadius: 3,
+    color: COLORS.text,
     marginTop: 8,
-    overflow: 'hidden',
   },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#10b981',
-    borderRadius: 3,
+  workoutStatLabel: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 4,
   },
-  progressRight: {
-    marginLeft: 10,
+  workoutStatDivider: {
+    width: 1,
+    height: 50,
+    backgroundColor: COLORS.border,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginBottom: 16,
   },
   statsRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 24,
   },
   statCard: {
     flex: 1,
-    backgroundColor: '#1e293b',
+    backgroundColor: COLORS.surface,
     borderRadius: 16,
     padding: 16,
     marginHorizontal: 4,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: COLORS.border,
   },
-  statIconBg: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+  statIcon: {
     marginBottom: 8,
   },
   statValue: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '800',
-    color: '#fff',
+    color: COLORS.text,
   },
   statLabel: {
-    fontSize: 12,
-    color: '#64748b',
-    fontWeight: '600',
+    fontSize: 11,
+    color: COLORS.textSecondary,
     marginTop: 4,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#fff',
+  quickActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  quickAction: {
+    alignItems: 'center',
+    width: '30%',
+  },
+  quickActionIcon: {
+    width: 64,
+    height: 64,
+    borderRadius: 20,
+    backgroundColor: COLORS.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: 8,
+  },
+  quickActionTitle: {
+    fontSize: 12,
+    color: COLORS.text,
+    fontWeight: '600',
+  },
+  mentorsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
   },
-  quickActionCard: {
+  seeAllText: {
+    color: COLORS.primary,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  mentorCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1e293b',
+    backgroundColor: COLORS.surface,
     borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: '#334155',
+    borderColor: COLORS.border,
   },
-  quickActionIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
-    backgroundColor: '#0f172a',
+  mentorAvatar: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  quickActionText: {
+  mentorAvatarText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.background,
+  },
+  mentorInfo: {
     flex: 1,
     marginLeft: 14,
   },
-  quickActionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  quickActionSubtitle: {
-    fontSize: 13,
-    color: '#64748b',
-    marginTop: 2,
-  },
-  quickActionArrow: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#334155',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  arrowText: {
-    color: '#94a3b8',
+  mentorName: {
     fontSize: 16,
     fontWeight: '600',
+    color: COLORS.text,
   },
-  activityCard: {
-    backgroundColor: '#1e293b',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: '#334155',
+  mentorSpecialty: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginTop: 2,
   },
-  activityItem: {
+  mentorRating: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
-  },
-  activityItemBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#334155',
-  },
-  activityIconBg: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: '#8b5cf615',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activityInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  activityTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#fff',
-  },
-  activitySubtitle: {
-    fontSize: 13,
-    color: '#64748b',
-    marginTop: 2,
-  },
-  xpBadge: {
-    backgroundColor: '#10b98120',
+    backgroundColor: COLORS.background,
     paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingVertical: 6,
+    borderRadius: 12,
   },
-  xpText: {
-    color: '#10b981',
-    fontSize: 12,
-    fontWeight: '700',
-  },
-  emptyActivity: {
-    alignItems: 'center',
-    paddingVertical: 24,
-  },
-  emptyIcon: {
-    fontSize: 40,
-    marginBottom: 12,
-  },
-  emptyTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#fff',
-  },
-  emptySubtitle: {
+  ratingText: {
+    color: COLORS.text,
     fontSize: 14,
-    color: '#64748b',
-    marginTop: 4,
+    fontWeight: '600',
+    marginLeft: 4,
   },
-  motivationCard: {
-    backgroundColor: '#6366f115',
+  quoteCard: {
+    backgroundColor: COLORS.primary + '15',
     borderRadius: 16,
     padding: 20,
-    borderWidth: 1,
-    borderColor: '#6366f130',
-  },
-  motivationQuote: {
-    fontSize: 15,
-    color: '#a5b4fc',
-    fontStyle: 'italic',
-    lineHeight: 22,
-    textAlign: 'center',
-  },
-  motivationAuthor: {
-    fontSize: 13,
-    color: '#6366f1',
     marginTop: 8,
-    textAlign: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.primary + '30',
+  },
+  quoteText: {
+    fontSize: 16,
+    color: COLORS.primary,
     fontWeight: '600',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });
