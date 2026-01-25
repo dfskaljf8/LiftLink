@@ -1,6 +1,6 @@
 /**
  * LiftLink - Auth Screen
- * Duolingo-style: Clean, modern, friendly but professional
+ * Fixed authentication flow with proper error handling
  */
 
 import React, { useState, useEffect } from 'react';
@@ -11,9 +11,8 @@ import {
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  Dimensions,
   Keyboard,
-  TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -24,15 +23,12 @@ import Animated, {
   withTiming,
   withDelay,
   FadeIn,
-  FadeInDown,
-  SlideInUp,
 } from 'react-native-reanimated';
 import { useApp } from '../../src/context/AppContext';
 import { LiftLinkMascot, FloatingDots } from '../../src/components/CustomIllustrations';
 import { Button } from '../../src/components/AnimatedButton';
 import axios from 'axios';
 
-const { width, height } = Dimensions.get('window');
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://deploy-savior-1.preview.emergentagent.com/api';
 
 export default function AuthScreen() {
@@ -70,7 +66,13 @@ export default function AuthScreen() {
   }));
 
   const handleLogin = async () => {
-    if (!email.includes('@')) {
+    // Basic validation
+    if (!email.trim()) {
+      setError('Please enter your email address');
+      return;
+    }
+    
+    if (!email.includes('@') || !email.includes('.')) {
       setError('Please enter a valid email address');
       return;
     }
@@ -79,21 +81,133 @@ export default function AuthScreen() {
     setError('');
 
     try {
-      const checkResponse = await axios.post(`${API_URL}/check-user`, { email });
+      console.log('Checking user:', email);
+      
+      // Step 1: Check if user exists
+      const checkResponse = await axios.post(`${API_URL}/check-user`, { 
+        email: email.toLowerCase().trim() 
+      });
+      
+      console.log('Check response:', checkResponse.data);
 
       if (checkResponse.data.exists) {
-        const response = await axios.post(`${API_URL}/login`, { email });
-        setUser(response.data);
-        router.replace('/(tabs)');
+        // User exists - try to login
+        try {
+          const loginResponse = await axios.post(`${API_URL}/login`, { 
+            email: email.toLowerCase().trim() 
+          });
+          
+          console.log('Login response:', loginResponse.data);
+          
+          // Success! Store user and navigate
+          const userData = {
+            ...loginResponse.data.user,
+            token: loginResponse.data.access_token,
+          };
+          
+          await setUser(userData);
+          router.replace('/(tabs)');
+          
+        } catch (loginError) {
+          console.log('Login error:', loginError.response?.data);
+          
+          // Handle specific error cases
+          const errorMessage = loginError.response?.data?.detail || 'Login failed';
+          
+          if (errorMessage.includes('Age verification required')) {
+            // User needs to verify age
+            Alert.alert(
+              'Age Verification Required',
+              'You need to verify your age (18+) before you can use LiftLink. Would you like to verify now?',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { 
+                  text: 'Verify Now', 
+                  onPress: () => router.push({
+                    pathname: '/(auth)/document-verification',
+                    params: { email: email.toLowerCase().trim(), userId: checkResponse.data.user_id }
+                  })
+                }
+              ]
+            );
+          } else if (errorMessage.includes('certification verification required')) {
+            // Trainer needs certification
+            Alert.alert(
+              'Certification Required',
+              'Trainers must verify their fitness certification before accessing the app.',
+              [
+                { text: 'OK' },
+                { 
+                  text: 'Verify Now', 
+                  onPress: () => router.push({
+                    pathname: '/(auth)/document-verification',
+                    params: { email: email.toLowerCase().trim(), userId: checkResponse.data.user_id, type: 'certification' }
+                  })
+                }
+              ]
+            );
+          } else {
+            setError(errorMessage);
+          }
+        }
       } else {
+        // New user - go to onboarding
+        console.log('New user, going to onboarding');
         router.push({
           pathname: '/(auth)/ai-onboarding',
-          params: { email },
+          params: { email: email.toLowerCase().trim() },
         });
       }
     } catch (err) {
-      console.error('Login error:', err);
-      setError('Something went wrong. Please try again.');
+      console.error('Auth error:', err);
+      
+      if (err.response) {
+        // Server responded with error
+        const errorDetail = err.response.data?.detail || 'Something went wrong';
+        setError(errorDetail);
+      } else if (err.request) {
+        // Network error
+        setError('Network error. Please check your connection.');
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = () => {
+    Alert.alert('Coming Soon', 'Google Sign-In will be available in the next update!');
+  };
+
+  // For testing - create a test user that's pre-verified
+  const handleTestLogin = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      // Create test user endpoint
+      const response = await axios.post(`${API_URL}/create-test-user`, {
+        email: `test_${Date.now()}@liftlink.app`,
+        name: 'Test User',
+        role: 'trainee',
+        fitness_goals: ['weight_loss'],
+        experience_level: 'beginner'
+      });
+      
+      console.log('Test user created:', response.data);
+      
+      const userData = {
+        ...response.data.user,
+        token: response.data.access_token,
+      };
+      
+      await setUser(userData);
+      router.replace('/(tabs)');
+      
+    } catch (err) {
+      console.error('Test login error:', err);
+      setError('Could not create test user');
     } finally {
       setLoading(false);
     }
@@ -175,10 +289,19 @@ export default function AuthScreen() {
               {/* Google Button */}
               <Button
                 title="Continue with Google"
-                onPress={() => setError('Google Sign-In coming soon!')}
+                onPress={handleGoogleSignIn}
                 variant="secondary"
                 size="large"
                 icon={<Text style={styles.googleIcon}>G</Text>}
+              />
+              
+              {/* Test Login Button - For Development */}
+              <Button
+                title="Quick Test Login"
+                onPress={handleTestLogin}
+                variant="ghost"
+                size="small"
+                style={{ marginTop: 12 }}
               />
             </View>
 
