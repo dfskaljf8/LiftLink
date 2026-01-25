@@ -119,7 +119,23 @@ export default function AuthScreen() {
         });
         
         if (checkResponse.data.exists) {
-          // User exists - try to login
+          const { age_verified, user_id } = checkResponse.data;
+          
+          if (!age_verified) {
+            // User exists but not age verified - go to verification
+            router.push({
+              pathname: '/(auth)/document-verification',
+              params: { 
+                email: googleUser.email,
+                userId: user_id,
+                name: googleUser.name,
+                fromGoogle: 'true'
+              }
+            });
+            return;
+          }
+          
+          // User exists and is verified - try to login
           try {
             const loginResponse = await axios.post(`${API_URL}/login`, { 
               email: googleUser.email 
@@ -133,13 +149,14 @@ export default function AuthScreen() {
             await setUser(userData);
             router.replace('/(tabs)');
           } catch (loginErr) {
-            // Login failed - probably needs age verification
+            // Login failed - probably needs age verification (backup check)
             const errorMsg = loginErr.response?.data?.detail || '';
             if (errorMsg.includes('Age verification')) {
               router.push({
                 pathname: '/(auth)/document-verification',
                 params: { 
                   email: googleUser.email,
+                  userId: user_id,
                   name: googleUser.name,
                   fromGoogle: 'true'
                 }
