@@ -15,7 +15,7 @@
         "simulator": true
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://deploy-savior-1.preview.emergentagent.com/api"
+        "EXPO_PUBLIC_API_URL": "https://swiftauth-1.preview.emergentagent.com/api"
       }
     },
     "development-device": {
@@ -28,7 +28,7 @@
         "simulator": false
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://deploy-savior-1.preview.emergentagent.com/api"
+        "EXPO_PUBLIC_API_URL": "https://swiftauth-1.preview.emergentagent.com/api"
       }
     },
     "preview": {
@@ -40,7 +40,7 @@
         "simulator": false
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://deploy-savior-1.preview.emergentagent.com/api"
+        "EXPO_PUBLIC_API_URL": "https://swiftauth-1.preview.emergentagent.com/api"
       }
     },
     "production": {
@@ -52,7 +52,7 @@
         "autoIncrement": true
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://deploy-savior-1.preview.emergentagent.com/api"
+        "EXPO_PUBLIC_API_URL": "https://swiftauth-1.preview.emergentagent.com/api"
       }
     }
   },

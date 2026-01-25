@@ -5,7 +5,7 @@
 ### AI Agent Engine - The Brain of LiftLink
 
 **Test Environment:**
-- Backend URL: https://deploy-savior-1.preview.emergentagent.com/api
+- Backend URL: https://swiftauth-1.preview.emergentagent.com/api
 - AI Agent Engine: GPT-5.2 powered
 - Architecture: Human-in-the-loop (AI suggests, trainers approve)
 

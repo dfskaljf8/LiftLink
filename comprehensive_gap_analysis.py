@@ -12,7 +12,7 @@ import time
 import base64
 from datetime import datetime
 
-BACKEND_URL = "https://deploy-savior-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://swiftauth-1.preview.emergentagent.com/api"
 
 def create_mock_image_data():
     """Create mock base64 image data for verification"""

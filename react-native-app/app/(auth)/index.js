@@ -41,7 +41,7 @@ import axios from 'axios';
 // Required for Google OAuth
 WebBrowser.maybeCompleteAuthSession();
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://deploy-savior-1.preview.emergentagent.com/api';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://swiftauth-1.preview.emergentagent.com/api';
 
 export default function AuthScreen() {
   const router = useRouter();

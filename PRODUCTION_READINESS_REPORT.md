@@ -328,7 +328,7 @@ cd /app/react-native-app
 ## 🚀 Deployment Readiness
 
 ### Backend Deployment ✅
-- **URL**: https://deploy-savior-1.preview.emergentagent.com/api
+- **URL**: https://swiftauth-1.preview.emergentagent.com/api
 - **Status**: Running on Render
 - **Database**: MongoDB Atlas connected
 - **APIs**: All endpoints operational

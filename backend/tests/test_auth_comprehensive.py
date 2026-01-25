@@ -29,7 +29,7 @@ from datetime import datetime, timedelta
 import base64
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://deploy-savior-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://swiftauth-1.preview.emergentagent.com/api"
 
 class LiftLinkAuthTester:
     def __init__(self):

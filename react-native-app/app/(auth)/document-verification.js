@@ -23,7 +23,7 @@ import { COLORS, LiftLinkLogo } from '../../src/components/CustomIllustrations';
 import axios from 'axios';
 import Svg, { Path, Circle, Rect } from 'react-native-svg';
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://deploy-savior-1.preview.emergentagent.com/api';
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://swiftauth-1.preview.emergentagent.com/api';
 
 // ID Card Icon
 const IdCardIcon = ({ size = 80 }) => (

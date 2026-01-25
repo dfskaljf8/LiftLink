@@ -40,8 +40,8 @@ Visit [Google Cloud Console](https://console.cloud.google.com/) and enable:
    - iOS: `464466068216-e1qq893h44vejoau0vddk93ev2tih0f3.apps.googleusercontent.com`
    - Android: `464466068216-4sfg6htsflfler6ri9f9hqbsvgl7n7ij.apps.googleusercontent.com`
 3. Add authorized redirect URIs:
-   - `https://deploy-savior-1.preview.emergentagent.com/api/google-fit/callback`
-   - `https://deploy-savior-1.preview.emergentagent.com/api/google-calendar/callback`
+   - `https://swiftauth-1.preview.emergentagent.com/api/google-fit/callback`
+   - `https://swiftauth-1.preview.emergentagent.com/api/google-calendar/callback`
 
 ### 4. Enable Billing
 Some Google APIs require billing to be enabled:

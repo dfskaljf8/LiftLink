@@ -3,7 +3,7 @@ import requests
 import json
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://deploy-savior-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://swiftauth-1.preview.emergentagent.com/api"
 
 def test_authentication_flow():
     """Test the complete authentication flow to get real JWT tokens"""

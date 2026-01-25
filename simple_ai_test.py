@@ -3,7 +3,7 @@ import requests
 import json
 import uuid
 
-BACKEND_URL = "https://deploy-savior-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://swiftauth-1.preview.emergentagent.com/api"
 
 def test_ai_endpoints():
     print("🤖 Testing LiftLink AI Agent Engine")

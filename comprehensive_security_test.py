@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 import html
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://deploy-savior-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://swiftauth-1.preview.emergentagent.com/api"
 WS_URL = "wss://fitness-hub-29.preview.emergentagent.com/ws"
 
 class SecurityTestResults:

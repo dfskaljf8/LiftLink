@@ -18,7 +18,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 // API URL
-const API_BASE_URL = 'https://deploy-savior-1.preview.emergentagent.com';
+const API_BASE_URL = 'https://swiftauth-1.preview.emergentagent.com';
 
 // Emergent Auth URL
 const EMERGENT_AUTH_URL = 'https://auth.emergentagent.com';

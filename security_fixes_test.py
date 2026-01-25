@@ -20,7 +20,7 @@ import uuid
 from datetime import datetime
 
 # Backend URL
-BACKEND_URL = "https://deploy-savior-1.preview.emergentagent.com/api"
+BACKEND_URL = "https://swiftauth-1.preview.emergentagent.com/api"
 
 def print_section(title):
     print("\n" + "="*80)
