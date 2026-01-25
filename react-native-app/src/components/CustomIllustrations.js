@@ -1,30 +1,66 @@
 /**
- * Custom Illustrations - Duolingo-style clean graphics
- * Modern, friendly, professional - not childish
+ * Custom Illustrations - LiftLink Design System
+ * Dark theme with lime/neon green accents
  */
 
 import React, { useEffect } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Svg, { 
   Path, Circle, Rect, G, Defs, LinearGradient, Stop, 
-  Ellipse, ClipPath
+  Ellipse, Line
 } from 'react-native-svg';
 import Animated, { 
   useSharedValue, useAnimatedStyle, withRepeat, 
-  withTiming, withSequence, withSpring, withDelay,
-  Easing, interpolate
+  withTiming, withSequence, withSpring,
+  Easing
 } from 'react-native-reanimated';
 
-// ==================== LIFTLINK MASCOT (Duolingo-style) ====================
-// A friendly, clean fitness character - think Duo owl but for fitness
-export const LiftLinkMascot = ({ size = 120, expression = 'happy' }) => {
+// Brand Colors
+export const COLORS = {
+  background: '#000000',
+  surface: '#111111',
+  surfaceLight: '#1a1a1a',
+  primary: '#ADFF00', // Lime/neon green
+  primaryDark: '#8BC700',
+  text: '#FFFFFF',
+  textSecondary: '#888888',
+  border: '#333333',
+  error: '#FF4444',
+  success: '#00FF88',
+};
+
+// ==================== LIFTLINK LOGO ====================
+export const LiftLinkLogo = ({ size = 60 }) => (
+  <Svg width={size} height={size} viewBox="0 0 60 60">
+    <Defs>
+      <LinearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor="#ADFF00" />
+        <Stop offset="100%" stopColor="#8BC700" />
+      </LinearGradient>
+    </Defs>
+    {/* Dumbbell icon stylized */}
+    <G>
+      {/* Center bar */}
+      <Rect x="20" y="27" width="20" height="6" rx="3" fill="url(#logoGrad)" />
+      {/* Left weight */}
+      <Rect x="8" y="20" width="14" height="20" rx="3" fill="url(#logoGrad)" />
+      <Line x1="15" y1="22" x2="15" y2="38" stroke="#000" strokeWidth="2" opacity="0.2" />
+      {/* Right weight */}
+      <Rect x="38" y="20" width="14" height="20" rx="3" fill="url(#logoGrad)" />
+      <Line x1="45" y1="22" x2="45" y2="38" stroke="#000" strokeWidth="2" opacity="0.2" />
+    </G>
+  </Svg>
+);
+
+// ==================== MASCOT (Simplified, Modern) ====================
+export const LiftLinkMascot = ({ size = 120 }) => {
   const bounce = useSharedValue(0);
 
   useEffect(() => {
     bounce.value = withRepeat(
       withSequence(
-        withTiming(-3, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 1200, easing: Easing.inOut(Easing.ease) })
+        withTiming(-4, { duration: 1000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 1000, easing: Easing.inOut(Easing.ease) })
       ),
       -1,
       true
@@ -39,382 +75,225 @@ export const LiftLinkMascot = ({ size = 120, expression = 'happy' }) => {
     <Animated.View style={[{ width: size, height: size }, animStyle]}>
       <Svg width={size} height={size} viewBox="0 0 120 120">
         <Defs>
-          <LinearGradient id="bodyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <Stop offset="0%" stopColor="#818cf8" />
-            <Stop offset="100%" stopColor="#6366f1" />
-          </LinearGradient>
-          <LinearGradient id="faceGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <Stop offset="0%" stopColor="#fef3c7" />
-            <Stop offset="100%" stopColor="#fde68a" />
+          <LinearGradient id="mascotBody" x1="0%" y1="0%" x2="0%" y2="100%">
+            <Stop offset="0%" stopColor="#ADFF00" />
+            <Stop offset="100%" stopColor="#8BC700" />
           </LinearGradient>
         </Defs>
 
-        {/* Body - Clean rounded shape */}
-        <Ellipse cx="60" cy="70" rx="38" ry="42" fill="url(#bodyGradient)" />
+        {/* Body - Simple circle */}
+        <Circle cx="60" cy="65" r="35" fill="url(#mascotBody)" />
         
-        {/* Body highlight */}
-        <Ellipse cx="60" cy="65" rx="28" ry="30" fill="rgba(255,255,255,0.1)" />
-
-        {/* Face */}
-        <Circle cx="60" cy="45" r="32" fill="url(#faceGradient)" />
-
-        {/* Eyes - Clean, expressive */}
-        <G>
-          {/* Left eye */}
-          <Ellipse cx="48" cy="42" rx="7" ry="8" fill="#1e293b" />
-          <Circle cx="50" cy="40" r="2.5" fill="white" />
-          
-          {/* Right eye */}
-          <Ellipse cx="72" cy="42" rx="7" ry="8" fill="#1e293b" />
-          <Circle cx="74" cy="40" r="2.5" fill="white" />
-        </G>
-
-        {/* Friendly smile */}
+        {/* Face plate */}
+        <Circle cx="60" cy="55" r="25" fill="#111" />
+        
+        {/* Eyes */}
+        <Circle cx="50" cy="52" r="5" fill="#ADFF00" />
+        <Circle cx="70" cy="52" r="5" fill="#ADFF00" />
+        <Circle cx="51" cy="51" r="2" fill="#fff" />
+        <Circle cx="71" cy="51" r="2" fill="#fff" />
+        
+        {/* Smile */}
         <Path
-          d="M 48 55 Q 60 65 72 55"
-          stroke="#1e293b"
+          d="M 48 62 Q 60 72 72 62"
+          stroke="#ADFF00"
           strokeWidth="3"
           strokeLinecap="round"
           fill="none"
         />
 
-        {/* Subtle blush */}
-        <Ellipse cx="38" cy="50" rx="5" ry="3" fill="#fca5a5" opacity="0.4" />
-        <Ellipse cx="82" cy="50" rx="5" ry="3" fill="#fca5a5" opacity="0.4" />
-
-        {/* Arms with small dumbbells */}
+        {/* Arms holding dumbbells */}
         {/* Left arm */}
         <Path
-          d="M 25 65 L 15 55"
-          stroke="url(#bodyGradient)"
-          strokeWidth="12"
+          d="M 30 60 L 15 50"
+          stroke="url(#mascotBody)"
+          strokeWidth="8"
           strokeLinecap="round"
         />
         {/* Left dumbbell */}
-        <Rect x="8" y="48" width="16" height="6" rx="3" fill="#64748b" />
-        <Rect x="5" y="45" width="6" height="12" rx="2" fill="#475569" />
-        <Rect x="21" y="45" width="6" height="12" rx="2" fill="#475569" />
+        <Rect x="5" y="42" width="16" height="6" rx="2" fill="#666" />
+        <Rect x="3" y="38" width="5" height="14" rx="2" fill="#888" />
+        <Rect x="18" y="38" width="5" height="14" rx="2" fill="#888" />
 
         {/* Right arm */}
         <Path
-          d="M 95 65 L 105 55"
-          stroke="url(#bodyGradient)"
-          strokeWidth="12"
+          d="M 90 60 L 105 50"
+          stroke="url(#mascotBody)"
+          strokeWidth="8"
           strokeLinecap="round"
         />
         {/* Right dumbbell */}
-        <Rect x="96" y="48" width="16" height="6" rx="3" fill="#64748b" />
-        <Rect x="93" y="45" width="6" height="12" rx="2" fill="#475569" />
-        <Rect x="109" y="45" width="6" height="12" rx="2" fill="#475569" />
+        <Rect x="99" y="42" width="16" height="6" rx="2" fill="#666" />
+        <Rect x="97" y="38" width="5" height="14" rx="2" fill="#888" />
+        <Rect x="112" y="38" width="5" height="14" rx="2" fill="#888" />
 
-        {/* Headband */}
-        <Path
-          d="M 30 30 Q 60 22 90 30"
-          stroke="#10b981"
-          strokeWidth="5"
-          strokeLinecap="round"
-          fill="none"
-        />
+        {/* Legs */}
+        <Rect x="48" y="95" width="10" height="15" rx="5" fill="url(#mascotBody)" />
+        <Rect x="62" y="95" width="10" height="15" rx="5" fill="url(#mascotBody)" />
       </Svg>
     </Animated.View>
   );
 };
 
-// ==================== MINI MASCOT (For cards/headers) ====================
-export const MiniMascot = ({ size = 40 }) => (
-  <View style={{ width: size, height: size }}>
-    <Svg width={size} height={size} viewBox="0 0 40 40">
-      <Defs>
-        <LinearGradient id="miniBg" x1="0%" y1="0%" x2="0%" y2="100%">
-          <Stop offset="0%" stopColor="#818cf8" />
-          <Stop offset="100%" stopColor="#6366f1" />
-        </LinearGradient>
-      </Defs>
-      <Circle cx="20" cy="20" r="18" fill="url(#miniBg)" />
-      <Circle cx="20" cy="16" r="10" fill="#fde68a" />
-      <Circle cx="16" cy="14" r="2" fill="#1e293b" />
-      <Circle cx="24" cy="14" r="2" fill="#1e293b" />
-      <Path d="M 16 19 Q 20 23 24 19" stroke="#1e293b" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-    </Svg>
-  </View>
-);
-
-// ==================== PROGRESS TREE (Clean, modern) ====================
-export const ProgressTree = ({ stage = 'seed', size = 160 }) => {
-  const sway = useSharedValue(0);
-
-  const stages = {
-    seed: { crown: 0, trunk: 15, color: '#a16207' },
-    sprout: { crown: 20, trunk: 25, color: '#65a30d' },
-    sapling: { crown: 35, trunk: 35, color: '#22c55e' },
-    young_tree: { crown: 50, trunk: 45, color: '#16a34a' },
-    mature_tree: { crown: 65, trunk: 55, color: '#15803d' },
-  };
-
-  const current = stages[stage] || stages.seed;
-
-  useEffect(() => {
-    if (current.crown > 0) {
-      sway.value = withRepeat(
-        withSequence(
-          withTiming(2, { duration: 2500, easing: Easing.inOut(Easing.ease) }),
-          withTiming(-2, { duration: 2500, easing: Easing.inOut(Easing.ease) })
-        ),
-        -1,
-        true
-      );
-    }
-  }, [stage]);
-
-  return (
-    <View style={{ width: size, height: size }}>
-      <Svg width={size} height={size} viewBox="0 0 160 160">
-        <Defs>
-          <LinearGradient id="trunkGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <Stop offset="0%" stopColor="#92400e" />
-            <Stop offset="50%" stopColor="#b45309" />
-            <Stop offset="100%" stopColor="#92400e" />
-          </LinearGradient>
-          <LinearGradient id="crownGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <Stop offset="0%" stopColor={current.color} />
-            <Stop offset="100%" stopColor={current.color + 'cc'} />
-          </LinearGradient>
-          <LinearGradient id="groundGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-            <Stop offset="0%" stopColor="#84cc16" />
-            <Stop offset="100%" stopColor="#65a30d" />
-          </LinearGradient>
-        </Defs>
-
-        {/* Ground */}
-        <Ellipse cx="80" cy="145" rx="60" ry="12" fill="url(#groundGrad)" />
-
-        {/* Trunk */}
-        {current.trunk > 0 && (
-          <Path
-            d={`M 72 145 
-                Q 70 ${145 - current.trunk / 2} 75 ${145 - current.trunk}
-                L 85 ${145 - current.trunk}
-                Q 90 ${145 - current.trunk / 2} 88 145 Z`}
-            fill="url(#trunkGrad)"
-          />
-        )}
-
-        {/* Crown */}
-        {current.crown > 0 && (
-          <G>
-            <Circle 
-              cx="80" 
-              cy={145 - current.trunk - current.crown / 2} 
-              r={current.crown / 1.8} 
-              fill="url(#crownGrad)" 
-            />
-            {current.crown > 30 && (
-              <>
-                <Circle 
-                  cx={80 - current.crown / 2.5} 
-                  cy={145 - current.trunk - current.crown / 3} 
-                  r={current.crown / 2.5} 
-                  fill="url(#crownGrad)" 
-                />
-                <Circle 
-                  cx={80 + current.crown / 2.5} 
-                  cy={145 - current.trunk - current.crown / 3} 
-                  r={current.crown / 2.5} 
-                  fill="url(#crownGrad)" 
-                />
-              </>
-            )}
-            {/* Highlight */}
-            <Circle 
-              cx={80 - current.crown / 4} 
-              cy={145 - current.trunk - current.crown / 1.5} 
-              r={current.crown / 6} 
-              fill="rgba(255,255,255,0.2)" 
-            />
-          </G>
-        )}
-
-        {/* Seed */}
-        {stage === 'seed' && (
-          <Ellipse cx="80" cy="138" rx="8" ry="5" fill="#a16207" />
-        )}
-      </Svg>
-    </View>
-  );
-};
-
-// ==================== CLEAN STAT ICONS ====================
-export const FlameIcon = ({ size = 24, color = '#f59e0b' }) => (
+// ==================== ICONS ====================
+export const UserIcon = ({ size = 24, color = '#ADFF00' }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Circle cx="12" cy="8" r="4" stroke={color} strokeWidth="2" fill="none" />
     <Path
-      d="M12 2C12 2 7.5 7 7.5 12C7.5 15.5 9.5 18 12 18C14.5 18 16.5 15.5 16.5 12C16.5 7 12 2 12 2Z"
-      fill={color}
-    />
-    <Path
-      d="M12 18C10.5 18 9.5 16.5 9.5 15C9.5 13 11 11.5 12 11C13 11.5 14.5 13 14.5 15C14.5 16.5 13.5 18 12 18Z"
-      fill="#fcd34d"
+      d="M4 20C4 16 8 14 12 14C16 14 20 16 20 20"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      fill="none"
     />
   </Svg>
 );
 
-export const HeartIcon = ({ size = 24, color = '#ef4444' }) => (
+export const LockIcon = ({ size = 24, color = '#ADFF00' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Rect x="5" y="11" width="14" height="10" rx="2" stroke={color} strokeWidth="2" fill="none" />
+    <Path
+      d="M8 11V7C8 4.79 9.79 3 12 3C14.21 3 16 4.79 16 7V11"
+      stroke={color}
+      strokeWidth="2"
+      strokeLinecap="round"
+      fill="none"
+    />
+    <Circle cx="12" cy="16" r="1.5" fill={color} />
+  </Svg>
+);
+
+export const EmailIcon = ({ size = 24, color = '#ADFF00' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Rect x="3" y="5" width="18" height="14" rx="2" stroke={color} strokeWidth="2" fill="none" />
+    <Path d="M3 7L12 13L21 7" stroke={color} strokeWidth="2" strokeLinecap="round" fill="none" />
+  </Svg>
+);
+
+export const GoogleIcon = ({ size = 24 }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Path
-      d="M12 21.35L10.55 20.03C5.4 15.36 2 12.27 2 8.5C2 5.41 4.42 3 7.5 3C9.24 3 10.91 3.81 12 5.08C13.09 3.81 14.76 3 16.5 3C19.58 3 22 5.41 22 8.5C22 12.27 18.6 15.36 13.45 20.03L12 21.35Z"
+      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+      fill="#4285F4"
+    />
+    <Path
+      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+      fill="#34A853"
+    />
+    <Path
+      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+      fill="#FBBC05"
+    />
+    <Path
+      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+      fill="#EA4335"
+    />
+  </Svg>
+);
+
+export const AppleIcon = ({ size = 24, color = '#fff' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"
       fill={color}
     />
   </Svg>
 );
 
-export const TargetIcon = ({ size = 24, color = '#10b981' }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="12" cy="12" r="10" stroke={color} strokeWidth="2" fill="none" />
-    <Circle cx="12" cy="12" r="6" stroke={color} strokeWidth="2" fill="none" />
-    <Circle cx="12" cy="12" r="2" fill={color} />
-  </Svg>
-);
-
-export const BoltIcon = ({ size = 24, color = '#8b5cf6' }) => (
+export const HomeIcon = ({ size = 24, color = '#ADFF00', filled = false }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Path
-      d="M13 2L4 14H11L10 22L20 10H13L13 2Z"
-      fill={color}
+      d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"
+      fill={filled ? color : 'none'}
+      stroke={color}
+      strokeWidth={filled ? 0 : 2}
     />
   </Svg>
 );
 
-export const TrophyIcon = ({ size = 24, color = '#f59e0b' }) => (
+export const SearchPersonIcon = ({ size = 24, color = '#ADFF00' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Circle cx="10" cy="8" r="3" stroke={color} strokeWidth="2" fill="none" />
+    <Path d="M4 18C4 15 7 13 10 13" stroke={color} strokeWidth="2" strokeLinecap="round" fill="none" />
+    <Circle cx="17" cy="17" r="4" stroke={color} strokeWidth="2" fill="none" />
+    <Path d="M20 20L22 22" stroke={color} strokeWidth="2" strokeLinecap="round" />
+  </Svg>
+);
+
+export const LocationIcon = ({ size = 24, color = '#ADFF00' }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Path
-      d="M19 5H17V3H7V5H5C3.9 5 3 5.9 3 7V8C3 10.55 4.92 12.63 7.39 12.94C8.02 14.44 9.37 15.57 11 15.9V19H7V21H17V19H13V15.9C14.63 15.57 15.98 14.44 16.61 12.94C19.08 12.63 21 10.55 21 8V7C21 5.9 20.1 5 19 5ZM5 8V7H7V10.82C5.84 10.4 5 9.3 5 8ZM19 8C19 9.3 18.16 10.4 17 10.82V7H19V8Z"
-      fill={color}
-    />
-  </Svg>
-);
-
-export const ChatBubbleIcon = ({ size = 24, color = '#6366f1' }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H5.17L4 17.17V4H20V16Z"
-      fill={color}
-    />
-    <Path d="M7 9H17V11H7V9ZM7 12H14V14H7V12Z" fill={color} opacity="0.5" />
-  </Svg>
-);
-
-export const SearchIcon = ({ size = 24, color = '#10b981' }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="11" cy="11" r="7" stroke={color} strokeWidth="2.5" fill="none" />
-    <Path d="M16 16L21 21" stroke={color} strokeWidth="2.5" strokeLinecap="round" />
-  </Svg>
-);
-
-export const CalendarIcon = ({ size = 24, color = '#8b5cf6' }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Rect x="3" y="4" width="18" height="18" rx="3" stroke={color} strokeWidth="2" fill="none" />
-    <Path d="M3 10H21" stroke={color} strokeWidth="2" />
-    <Path d="M8 2V6" stroke={color} strokeWidth="2" strokeLinecap="round" />
-    <Path d="M16 2V6" stroke={color} strokeWidth="2" strokeLinecap="round" />
-    <Circle cx="8" cy="15" r="1.5" fill={color} />
-    <Circle cx="12" cy="15" r="1.5" fill={color} />
-    <Circle cx="16" cy="15" r="1.5" fill={color} />
-  </Svg>
-);
-
-export const GearIcon = ({ size = 24, color = '#64748b' }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="12" cy="12" r="3" fill={color} />
-    <Path
-      d="M19.4 15C19.2 15.3 19.1 15.7 19.1 16.1L21 17.9L19.3 20.6L16.8 19.8C16.4 20 16 20.2 15.6 20.3L15 23H11L10.4 20.3C10 20.2 9.6 20 9.2 19.8L6.7 20.6L5 17.9L6.9 16.1C6.9 15.7 6.8 15.3 6.6 15L4.7 13.2L6.4 10.5L8.9 11.3C9.3 11.1 9.7 10.9 10.1 10.8L10.7 8H14.3L14.9 10.7C15.3 10.8 15.7 11 16.1 11.2L18.6 10.4L20.3 13.1L18.4 14.9C18.6 15.3 18.7 15.7 18.9 16.1"
+      d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z"
       stroke={color}
       strokeWidth="2"
       fill="none"
-      strokeLinecap="round"
     />
+    <Circle cx="12" cy="9" r="2.5" fill={color} />
   </Svg>
 );
 
-export const DumbbellIcon = ({ size = 24, color = '#6366f1' }) => (
+export const DumbbellIcon = ({ size = 24, color = '#ADFF00' }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Rect x="3" y="9" width="4" height="6" rx="1" fill={color} />
-    <Rect x="17" y="9" width="4" height="6" rx="1" fill={color} />
-    <Rect x="6" y="10" width="12" height="4" rx="1" fill={color} opacity="0.7" />
-    <Rect x="1" y="10" width="3" height="4" rx="1" fill={color} opacity="0.5" />
-    <Rect x="20" y="10" width="3" height="4" rx="1" fill={color} opacity="0.5" />
+    <Rect x="6" y="9" width="12" height="6" rx="1" fill={color} opacity="0.7" />
+    <Rect x="2" y="7" width="5" height="10" rx="1" fill={color} />
+    <Rect x="17" y="7" width="5" height="10" rx="1" fill={color} />
   </Svg>
 );
 
-export const LeafIcon = ({ size = 24, color = '#22c55e' }) => (
+export const CalendarIcon = ({ size = 24, color = '#ADFF00' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Rect x="3" y="4" width="18" height="18" rx="2" stroke={color} strokeWidth="2" fill="none" />
+    <Path d="M3 10H21" stroke={color} strokeWidth="2" />
+    <Path d="M8 2V6" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    <Path d="M16 2V6" stroke={color} strokeWidth="2" strokeLinecap="round" />
+  </Svg>
+);
+
+export const StarIcon = ({ size = 16, color = '#ADFF00', filled = true }) => (
   <Svg width={size} height={size} viewBox="0 0 24 24">
     <Path
-      d="M17 8C8 10 5.9 16.17 3.82 21.34L5.71 22L6.66 19.97C7.14 19.69 7.64 19.4 8.16 19.12C9.72 18.31 11.45 17.63 13.23 17.3C13.09 18 13 18.65 13 19C13 21.21 14.79 23 17 23C19.21 23 21 21.21 21 19C21 18.65 20.91 18 20.77 17.3C22.55 17.63 24.28 18.31 25.84 19.12C26.36 19.4 26.86 19.69 27.34 19.97L28.29 22L30.18 21.34C28.1 16.17 26 10 17 8Z"
-      fill={color}
-      transform="translate(-3, -3) scale(0.85)"
+      d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+      fill={filled ? color : 'none'}
+      stroke={color}
+      strokeWidth="2"
     />
   </Svg>
 );
 
-// ==================== FLOATING DOTS (Subtle background) ====================
-export const FloatingDots = ({ count = 6 }) => {
-  return (
-    <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      {Array.from({ length: count }).map((_, i) => (
-        <FloatingDot key={i} index={i} />
-      ))}
-    </View>
-  );
-};
-
-const FloatingDot = ({ index }) => {
-  const translateY = useSharedValue(0);
-  const opacity = useSharedValue(0.15);
-
-  const colors = ['#6366f1', '#10b981', '#f59e0b', '#8b5cf6'];
-  const color = colors[index % colors.length];
-  const size = 6 + (index % 3) * 2;
-  const startX = (index * 53 + 10) % 90;
-  const startY = (index * 37 + 15) % 80;
-
-  useEffect(() => {
-    translateY.value = withRepeat(
-      withSequence(
-        withTiming(-30, { duration: 4000 + index * 500, easing: Easing.inOut(Easing.ease) }),
-        withTiming(0, { duration: 4000 + index * 500, easing: Easing.inOut(Easing.ease) })
-      ),
-      -1,
-      true
-    );
-    opacity.value = withRepeat(
-      withSequence(
-        withTiming(0.25, { duration: 3000 }),
-        withTiming(0.1, { duration: 3000 })
-      ),
-      -1,
-      true
-    );
-  }, []);
-
-  const animStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-    opacity: opacity.value,
-  }));
-
-  return (
-    <Animated.View
-      style={[
-        {
-          position: 'absolute',
-          left: `${startX}%`,
-          top: `${startY}%`,
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          backgroundColor: color,
-        },
-        animStyle,
-      ]}
+export const ChatIcon = ({ size = 24, color = '#ADFF00' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      d="M21 11.5C21 16.19 16.97 20 12 20C10.64 20 9.34 19.75 8.14 19.29L3 21L4.71 16.86C3.64 15.36 3 13.5 3 11.5C3 6.81 7.03 3 12 3C16.97 3 21 6.81 21 11.5Z"
+      stroke={color}
+      strokeWidth="2"
+      fill="none"
     />
-  );
-};
+  </Svg>
+);
+
+export const TrophyIcon = ({ size = 24, color = '#ADFF00' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      d="M12 15C15 15 17 12 17 8V4H7V8C7 12 9 15 12 15Z"
+      stroke={color}
+      strokeWidth="2"
+      fill="none"
+    />
+    <Path d="M7 4H4V8C4 10 5 11 7 11" stroke={color} strokeWidth="2" fill="none" />
+    <Path d="M17 4H20V8C20 10 19 11 17 11" stroke={color} strokeWidth="2" fill="none" />
+    <Path d="M12 15V18" stroke={color} strokeWidth="2" />
+    <Path d="M8 21H16" stroke={color} strokeWidth="2" strokeLinecap="round" />
+    <Path d="M9 18H15" stroke={color} strokeWidth="2" strokeLinecap="round" />
+  </Svg>
+);
+
+export const FireIcon = ({ size = 24, color = '#ADFF00' }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      d="M12 22C8 22 5 18.5 5 15C5 11.5 7 9 9 7C9 9 10 10 12 10C12 7 11 4 14 2C14 5 17 7 17 11C19 11 19 14 19 15C19 18.5 16 22 12 22Z"
+      fill={color}
+    />
+  </Svg>
+);
 
 const styles = StyleSheet.create({});
