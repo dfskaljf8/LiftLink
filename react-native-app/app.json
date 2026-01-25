@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "LiftLink",
-    "slug": "liftlink",
+    "slug": "liftlink-appflow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
