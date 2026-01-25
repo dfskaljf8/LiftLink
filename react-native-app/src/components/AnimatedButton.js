@@ -1,148 +1,152 @@
 /**
- * Animated Button Component
- * Cartoonish bouncy button with press animations
+ * Animated Button - Duolingo-style
+ * Clean, satisfying press feedback
  */
 
 import React from 'react';
-import { StyleSheet, Text, Pressable, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, Pressable, ActivityIndicator, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
   withTiming,
-  interpolateColor,
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-const AnimatedLinearGradient = Animated.createAnimatedComponent(LinearGradient);
 
-export const CartoonButton = ({
+export const Button = ({
   onPress,
   title,
   loading = false,
   disabled = false,
-  variant = 'primary', // 'primary' | 'secondary' | 'success' | 'danger'
-  size = 'large', // 'small' | 'medium' | 'large'
+  variant = 'primary',
+  size = 'large',
   icon,
+  fullWidth = true,
   style,
 }) => {
-  const scale = useSharedValue(1);
   const translateY = useSharedValue(0);
+  const scale = useSharedValue(1);
 
   const variants = {
-    primary: ['#6366f1', '#4f46e5'],
-    secondary: ['#374151', '#1f2937'],
-    success: ['#10b981', '#059669'],
-    danger: ['#ef4444', '#dc2626'],
-    warning: ['#f59e0b', '#d97706'],
+    primary: { bg: '#6366f1', shadow: '#4338ca', text: '#fff' },
+    success: { bg: '#10b981', shadow: '#059669', text: '#fff' },
+    danger: { bg: '#ef4444', shadow: '#dc2626', text: '#fff' },
+    warning: { bg: '#f59e0b', shadow: '#d97706', text: '#fff' },
+    secondary: { bg: '#1e293b', shadow: '#0f172a', text: '#fff' },
+    ghost: { bg: 'transparent', shadow: 'transparent', text: '#6366f1' },
   };
 
   const sizes = {
-    small: { height: 44, fontSize: 14, paddingHorizontal: 16 },
-    medium: { height: 52, fontSize: 16, paddingHorizontal: 24 },
-    large: { height: 60, fontSize: 18, paddingHorizontal: 32 },
+    small: { height: 44, fontSize: 14, px: 16, shadowHeight: 3 },
+    medium: { height: 52, fontSize: 16, px: 20, shadowHeight: 4 },
+    large: { height: 56, fontSize: 17, px: 24, shadowHeight: 4 },
   };
 
-  const currentSize = sizes[size];
-  const colors = variants[variant];
+  const v = variants[variant];
+  const s = sizes[size];
 
-  const animatedStyle = useAnimatedStyle(() => ({
+  const buttonStyle = useAnimatedStyle(() => ({
     transform: [
-      { scale: scale.value },
       { translateY: translateY.value },
+      { scale: scale.value },
     ],
   }));
 
   const shadowStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: 4 - translateY.value }],
-    opacity: 1 - (translateY.value / 4),
+    opacity: 1 - translateY.value / s.shadowHeight,
   }));
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.95, { damping: 15 });
-    translateY.value = withTiming(4, { duration: 100 });
+    translateY.value = withTiming(s.shadowHeight, { duration: 80 });
+    scale.value = withTiming(0.98, { duration: 80 });
   };
 
   const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 10 });
-    translateY.value = withTiming(0, { duration: 100 });
+    translateY.value = withSpring(0, { damping: 15, stiffness: 300 });
+    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
   };
 
+  const isDisabled = disabled || loading;
+
   return (
-    <AnimatedPressable
-      onPress={onPress}
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      disabled={disabled || loading}
-      style={[{ marginVertical: 8 }, style]}
-    >
-      {/* Shadow */}
-      <Animated.View
-        style={[
-          styles.shadow,
-          {
-            height: currentSize.height,
-            backgroundColor: colors[1],
-          },
-          shadowStyle,
-        ]}
-      />
+    <View style={[styles.container, fullWidth && styles.fullWidth, style]}>
+      {/* Shadow layer */}
+      {variant !== 'ghost' && (
+        <Animated.View
+          style={[
+            styles.shadow,
+            {
+              backgroundColor: v.shadow,
+              height: s.height,
+              bottom: -s.shadowHeight,
+            },
+            shadowStyle,
+          ]}
+        />
+      )}
 
       {/* Button */}
-      <Animated.View style={animatedStyle}>
-        <LinearGradient
-          colors={disabled ? ['#6b7280', '#4b5563'] : colors}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[
-            styles.button,
-            {
-              height: currentSize.height,
-              paddingHorizontal: currentSize.paddingHorizontal,
-            },
-          ]}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" size="small" />
-          ) : (
-            <>
-              {icon}
-              <Text
-                style={[
-                  styles.buttonText,
-                  { fontSize: currentSize.fontSize, marginLeft: icon ? 8 : 0 },
-                ]}
-              >
-                {title}
-              </Text>
-            </>
-          )}
-        </LinearGradient>
-      </Animated.View>
-    </AnimatedPressable>
+      <AnimatedPressable
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={isDisabled}
+        style={[
+          styles.button,
+          {
+            backgroundColor: isDisabled ? '#475569' : v.bg,
+            height: s.height,
+            paddingHorizontal: s.px,
+            borderWidth: variant === 'ghost' ? 2 : 0,
+            borderColor: variant === 'ghost' ? '#6366f1' : 'transparent',
+          },
+          buttonStyle,
+        ]}
+      >
+        {loading ? (
+          <ActivityIndicator color={v.text} size="small" />
+        ) : (
+          <View style={styles.content}>
+            {icon && <View style={styles.iconWrapper}>{icon}</View>}
+            <Text
+              style={[
+                styles.text,
+                {
+                  fontSize: s.fontSize,
+                  color: isDisabled ? '#94a3b8' : v.text,
+                },
+              ]}
+            >
+              {title}
+            </Text>
+          </View>
+        )}
+      </AnimatedPressable>
+    </View>
   );
 };
 
-export const CartoonIconButton = ({
+// Compact action button for cards
+export const ActionButton = ({
   onPress,
   icon,
-  size = 48,
+  label,
   color = '#6366f1',
   disabled = false,
 }) => {
   const scale = useSharedValue(1);
 
-  const animatedStyle = useAnimatedStyle(() => ({
+  const animStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.85, { damping: 15 });
+    scale.value = withSpring(0.92, { damping: 15 });
   };
 
   const handlePressOut = () => {
-    scale.value = withSpring(1, { damping: 10 });
+    scale.value = withSpring(1, { damping: 12 });
   };
 
   return (
@@ -151,49 +155,102 @@ export const CartoonIconButton = ({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={disabled}
-      style={animatedStyle}
+      style={[styles.actionButton, animStyle]}
     >
-      <LinearGradient
-        colors={[color, color + 'cc']}
-        style={[
-          styles.iconButton,
-          { width: size, height: size, borderRadius: size / 2 },
-        ]}
-      >
+      <View style={[styles.actionIconBg, { backgroundColor: color + '15' }]}>
         {icon}
-      </LinearGradient>
+      </View>
+      {label && <Text style={[styles.actionLabel, { color }]}>{label}</Text>}
+    </AnimatedPressable>
+  );
+};
+
+// Icon-only button
+export const IconButton = ({
+  onPress,
+  icon,
+  size = 48,
+  backgroundColor = 'rgba(255,255,255,0.1)',
+  disabled = false,
+}) => {
+  const scale = useSharedValue(1);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <AnimatedPressable
+      onPress={onPress}
+      onPressIn={() => {
+        scale.value = withSpring(0.9, { damping: 15 });
+      }}
+      onPressOut={() => {
+        scale.value = withSpring(1, { damping: 12 });
+      }}
+      disabled={disabled}
+      style={[
+        styles.iconButton,
+        { width: size, height: size, borderRadius: size / 2, backgroundColor },
+        animStyle,
+      ]}
+    >
+      {icon}
     </AnimatedPressable>
   );
 };
 
 const styles = StyleSheet.create({
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 16,
-    borderWidth: 3,
-    borderColor: 'rgba(255,255,255,0.2)',
+  container: {
+    position: 'relative',
+    marginVertical: 6,
+  },
+  fullWidth: {
+    width: '100%',
   },
   shadow: {
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: -4,
-    borderRadius: 16,
+    borderRadius: 14,
   },
-  buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+  button: {
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  content: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  iconWrapper: {
+    marginRight: 8,
+  },
+  text: {
+    fontWeight: '700',
+    letterSpacing: 0.3,
+  },
+  actionButton: {
+    alignItems: 'center',
+    padding: 8,
+  },
+  actionIconBg: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  actionLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 6,
   },
   iconButton: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 3,
-    borderColor: 'rgba(255,255,255,0.2)',
   },
 });
 
-export default CartoonButton;
+export default Button;
