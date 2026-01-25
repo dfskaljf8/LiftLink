@@ -1,6 +1,6 @@
 /**
  * LiftLink - Auth Screen
- * Cartoonish animated login with custom illustrations
+ * Duolingo-style: Clean, modern, friendly but professional
  */
 
 import React, { useState, useEffect } from 'react';
@@ -13,26 +13,23 @@ import {
   Platform,
   Dimensions,
   Keyboard,
+  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withRepeat,
-  withSequence,
   withTiming,
   withDelay,
-  Easing,
   FadeIn,
   FadeInDown,
-  FadeInUp,
+  SlideInUp,
 } from 'react-native-reanimated';
 import { useApp } from '../../src/context/AppContext';
-import { LiftLinkMascot, FloatingParticles, AnimatedDumbbell } from '../../src/components/CustomIllustrations';
-import { CartoonButton } from '../../src/components/AnimatedButton';
+import { LiftLinkMascot, FloatingDots } from '../../src/components/CustomIllustrations';
+import { Button } from '../../src/components/AnimatedButton';
 import axios from 'axios';
 
 const { width, height } = Dimensions.get('window');
@@ -44,22 +41,17 @@ export default function AuthScreen() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [focused, setFocused] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   // Animations
-  const titleScale = useSharedValue(0.8);
-  const titleOpacity = useSharedValue(0);
-  const mascotY = useSharedValue(50);
-  const formY = useSharedValue(100);
+  const mascotScale = useSharedValue(0.8);
+  const contentOpacity = useSharedValue(0);
 
   useEffect(() => {
-    // Initial animations
-    titleScale.value = withSpring(1, { damping: 12 });
-    titleOpacity.value = withTiming(1, { duration: 800 });
-    mascotY.value = withSpring(0, { damping: 15 });
-    formY.value = withDelay(300, withSpring(0, { damping: 15 }));
+    mascotScale.value = withSpring(1, { damping: 12, stiffness: 100 });
+    contentOpacity.value = withDelay(200, withTiming(1, { duration: 500 }));
 
-    // Keyboard listeners
     const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
     const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
     
@@ -69,22 +61,17 @@ export default function AuthScreen() {
     };
   }, []);
 
-  const titleStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: titleScale.value }],
-    opacity: titleOpacity.value,
-  }));
-
   const mascotStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: mascotY.value }],
+    transform: [{ scale: mascotScale.value }],
   }));
 
-  const formStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: formY.value }],
+  const contentStyle = useAnimatedStyle(() => ({
+    opacity: contentOpacity.value,
   }));
 
   const handleLogin = async () => {
     if (!email.includes('@')) {
-      setError('Oops! That doesn\'t look like an email 😅');
+      setError('Please enter a valid email address');
       return;
     }
 
@@ -106,111 +93,110 @@ export default function AuthScreen() {
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError('Connection hiccup! Try again? 🔄');
+      setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setError('Google Sign-In coming soon! 🚀');
-  };
-
   return (
-    <LinearGradient
-      colors={['#0f172a', '#1e1b4b', '#0f172a']}
-      style={styles.container}
-    >
-      <FloatingParticles count={12} />
+    <View style={styles.container}>
+      <FloatingDots count={5} />
       
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardView}
         >
-          {/* Mascot - Hidden when keyboard visible */}
+          {/* Mascot */}
           {!keyboardVisible && (
             <Animated.View style={[styles.mascotContainer, mascotStyle]}>
-              <LiftLinkMascot size={180} />
+              <LiftLinkMascot size={140} />
             </Animated.View>
           )}
 
-          {/* Title */}
-          <Animated.View style={[styles.titleContainer, titleStyle]}>
-            <Text style={styles.title}>LiftLink</Text>
-            <Text style={styles.subtitle}>Your AI Fitness Buddy!</Text>
-          </Animated.View>
+          {/* Content */}
+          <Animated.View style={[styles.content, contentStyle]}>
+            {/* Title */}
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>LiftLink</Text>
+              <Text style={styles.subtitle}>Your personal fitness journey starts here</Text>
+            </View>
 
-          {/* Floating dumbbells decoration */}
-          <View style={styles.dumbbellLeft}>
-            <AnimatedDumbbell size={50} />
-          </View>
-          <View style={styles.dumbbellRight}>
-            <AnimatedDumbbell size={40} />
-          </View>
-
-          {/* Form */}
-          <Animated.View style={[styles.formContainer, formStyle]}>
-            <View style={styles.inputWrapper}>
-              <View style={styles.inputIconContainer}>
-                <Text style={styles.inputIcon}>📧</Text>
+            {/* Form Card */}
+            <View style={styles.card}>
+              {/* Email Input */}
+              <View style={styles.inputContainer}>
+                <Text style={styles.inputLabel}>Email</Text>
+                <View style={[
+                  styles.inputWrapper,
+                  focused && styles.inputWrapperFocused,
+                  error && styles.inputWrapperError,
+                ]}>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="your@email.com"
+                    placeholderTextColor="#64748b"
+                    value={email}
+                    onChangeText={(text) => {
+                      setEmail(text);
+                      setError('');
+                    }}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => setFocused(false)}
+                  />
+                </View>
+                {error ? (
+                  <Animated.Text entering={FadeIn} style={styles.errorText}>
+                    {error}
+                  </Animated.Text>
+                ) : null}
               </View>
-              <TextInput
-                style={styles.input}
-                placeholder="your@email.com"
-                placeholderTextColor="rgba(255,255,255,0.4)"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
+
+              {/* Continue Button */}
+              <Button
+                title="Continue"
+                onPress={handleLogin}
+                loading={loading}
+                variant="primary"
+                size="large"
+              />
+
+              {/* Divider */}
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>or</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              {/* Google Button */}
+              <Button
+                title="Continue with Google"
+                onPress={() => setError('Google Sign-In coming soon!')}
+                variant="secondary"
+                size="large"
+                icon={<Text style={styles.googleIcon}>G</Text>}
               />
             </View>
 
-            {error ? (
-              <Animated.View entering={FadeIn} style={styles.errorContainer}>
-                <Text style={styles.errorText}>{error}</Text>
-              </Animated.View>
-            ) : null}
-
-            <CartoonButton
-              title="Let's Go!"
-              onPress={handleLogin}
-              loading={loading}
-              variant="primary"
-              size="large"
-            />
-
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <CartoonButton
-              title="Continue with Google"
-              onPress={handleGoogleSignIn}
-              variant="secondary"
-              size="medium"
-              icon={<Text style={{ fontSize: 20 }}>🌐</Text>}
-            />
-          </Animated.View>
-
-          {/* Bottom decoration */}
-          <View style={styles.bottomDecoration}>
-            <Text style={styles.bottomText}>
-              Get fit. Stay motivated. Level up! 💪
+            {/* Footer */}
+            <Text style={styles.footerText}>
+              By continuing, you agree to our Terms & Privacy Policy
             </Text>
-          </View>
+          </Animated.View>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0f172a',
   },
   safeArea: {
     flex: 1,
@@ -222,88 +208,69 @@ const styles = StyleSheet.create({
   },
   mascotContainer: {
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 24,
+  },
+  content: {
+    width: '100%',
   },
   titleContainer: {
     alignItems: 'center',
     marginBottom: 32,
   },
   title: {
-    fontSize: 48,
-    fontWeight: '900',
+    fontSize: 42,
+    fontWeight: '800',
     color: '#fff',
-    textShadowColor: '#6366f1',
-    textShadowOffset: { width: 0, height: 4 },
-    textShadowRadius: 20,
-    letterSpacing: 2,
+    letterSpacing: -1,
   },
   subtitle: {
-    fontSize: 18,
-    color: '#a5b4fc',
+    fontSize: 16,
+    color: '#94a3b8',
     marginTop: 8,
-    fontWeight: '600',
+    textAlign: 'center',
   },
-  dumbbellLeft: {
-    position: 'absolute',
-    top: '15%',
-    left: 10,
-    opacity: 0.6,
-  },
-  dumbbellRight: {
-    position: 'absolute',
-    top: '20%',
-    right: 10,
-    opacity: 0.6,
-    transform: [{ rotate: '-15deg' }],
-  },
-  formContainer: {
-    backgroundColor: 'rgba(255,255,255,0.08)',
-    borderRadius: 24,
+  card: {
+    backgroundColor: '#1e293b',
+    borderRadius: 20,
     padding: 24,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: '#334155',
+  },
+  inputContainer: {
+    marginBottom: 20,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#94a3b8',
+    marginBottom: 8,
+    marginLeft: 4,
   },
   inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    borderRadius: 16,
-    marginBottom: 16,
+    backgroundColor: '#0f172a',
+    borderRadius: 12,
     borderWidth: 2,
-    borderColor: 'rgba(99, 102, 241, 0.3)',
+    borderColor: '#334155',
   },
-  inputIconContainer: {
-    width: 50,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRightWidth: 1,
-    borderRightColor: 'rgba(255,255,255,0.1)',
+  inputWrapperFocused: {
+    borderColor: '#6366f1',
   },
-  inputIcon: {
-    fontSize: 24,
+  inputWrapperError: {
+    borderColor: '#ef4444',
   },
   input: {
-    flex: 1,
-    height: 56,
+    height: 52,
     paddingHorizontal: 16,
     fontSize: 16,
     color: '#fff',
     fontWeight: '500',
   },
-  errorContainer: {
-    backgroundColor: 'rgba(239, 68, 68, 0.2)',
-    padding: 12,
-    borderRadius: 12,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-  },
   errorText: {
-    color: '#fca5a5',
-    textAlign: 'center',
-    fontSize: 14,
-    fontWeight: '600',
+    color: '#ef4444',
+    fontSize: 13,
+    marginTop: 8,
+    marginLeft: 4,
+    fontWeight: '500',
   },
   divider: {
     flexDirection: 'row',
@@ -313,21 +280,24 @@ const styles = StyleSheet.create({
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: '#334155',
   },
   dividerText: {
-    color: 'rgba(255,255,255,0.5)',
+    color: '#64748b',
     paddingHorizontal: 16,
     fontSize: 14,
-    fontWeight: '600',
-  },
-  bottomDecoration: {
-    marginTop: 24,
-    alignItems: 'center',
-  },
-  bottomText: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 14,
     fontWeight: '500',
+  },
+  googleIcon: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  footerText: {
+    color: '#64748b',
+    fontSize: 12,
+    textAlign: 'center',
+    marginTop: 24,
+    lineHeight: 18,
   },
 });
