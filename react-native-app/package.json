@@ -80,9 +80,7 @@
     },
     "doctor": {
       "reactNativeDirectoryCheck": {
-        "exclude": [
-          "crypto-js"
-        ]
+        "exclude": []
       }
     }
   }
