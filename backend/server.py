@@ -490,6 +490,7 @@ class CheckUserResponse(BaseModel):
     exists: bool
     user_id: Optional[str] = None
     role: Optional[str] = None
+    age_verified: Optional[bool] = None
 
 class LoginRequest(BaseModel):
     email: str = Field(..., description="User email address")
