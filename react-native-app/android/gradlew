@@ -1,8 +1,0 @@
-#!/bin/sh
-DIRNAME=$(dirname "$0")
-APP_BASE_NAME=$(basename "$0")
-APP_HOME=$(cd "$DIRNAME" && pwd -P)
-CLASSPATH="$APP_HOME/gradle/wrapper/gradle-wrapper.jar"
-JAVA_HOME=${JAVA_HOME:-/usr/lib/jvm/java-17-openjdk-arm64}
-JAVACMD="$JAVA_HOME/bin/java"
-exec "$JAVACMD" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
