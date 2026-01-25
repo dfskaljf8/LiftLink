@@ -76,12 +76,6 @@
           "merchantIdentifier": "merchant.com.liftlinkapp",
           "enableGooglePay": true
         }
-      ],
-      [
-        "react-native-maps",
-        {
-          "locationAlwaysAndWhenInUsePermission": "Allow LiftLink to use your location to show nearby trainers on the map."
-        }
       ]
     ],
     "experiments": {
