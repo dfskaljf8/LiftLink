@@ -1036,7 +1036,8 @@ async def check_user_exists(check_request: CheckUserRequest, request: Request):
     user = await get_user_by_email(check_request.email)
     if user:
         user_role = user["role"].value if hasattr(user["role"], 'value') else user["role"]
-        return CheckUserResponse(exists=True, user_id=user["id"], role=user_role)
+        age_verified = user.get("age_verified", False)
+        return CheckUserResponse(exists=True, user_id=user["id"], role=user_role, age_verified=age_verified)
     return CheckUserResponse(exists=False)
 
 @api_router.post("/login", response_model=LoginResponse)
