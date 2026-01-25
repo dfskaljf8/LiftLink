@@ -1,6 +1,6 @@
 /**
  * LiftLink - Auth Screen
- * Dark theme with lime green accents - Google OAuth implemented
+ * Dark theme with lime green accents - Fixed auth flow
  */
 
 import React, { useState, useEffect } from 'react';
@@ -13,13 +13,11 @@ import {
   Platform,
   Keyboard,
   Alert,
-  TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import { makeRedirectUri } from 'expo-auth-session';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -27,7 +25,6 @@ import Animated, {
   withTiming,
   withDelay,
   FadeIn,
-  FadeInDown,
 } from 'react-native-reanimated';
 import { useApp } from '../../src/context/AppContext';
 import { 
@@ -58,9 +55,7 @@ export default function AuthScreen() {
 
   // Google OAuth configuration
   const [request, response, promptAsync] = Google.useAuthRequest({
-    // You'll need to create these in Google Cloud Console
-    // For now, we'll use Expo's proxy for development
-    expoClientId: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+    expoClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
     androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
     webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
@@ -117,68 +112,76 @@ export default function AuthScreen() {
       
       console.log('Google user:', googleUser);
 
-      // Send to our backend for registration/login
-      const response = await axios.post(`${API_URL}/auth/google`, {
-        email: googleUser.email,
-        name: googleUser.name,
-        google_id: googleUser.id,
-        picture: googleUser.picture,
-      });
-
-      const userData = {
-        ...response.data.user,
-        token: response.data.access_token,
-      };
-
-      await setUser(userData);
-      router.replace('/(tabs)');
-      
-    } catch (err) {
-      console.error('Google auth error:', err);
-      
-      // If backend doesn't have google auth endpoint, try regular flow
-      if (err.response?.status === 404) {
-        // Fallback: Check if user exists and login/register
-        try {
-          const checkResponse = await axios.post(`${API_URL}/check-user`, { 
-            email: googleUser?.email 
-          });
-          
-          if (checkResponse.data.exists) {
+      // Check if user exists in our system
+      try {
+        const checkResponse = await axios.post(`${API_URL}/check-user`, { 
+          email: googleUser.email 
+        });
+        
+        if (checkResponse.data.exists) {
+          // User exists - try to login
+          try {
             const loginResponse = await axios.post(`${API_URL}/login`, { 
-              email: googleUser?.email 
+              email: googleUser.email 
             });
+            
             const userData = {
               ...loginResponse.data.user,
               token: loginResponse.data.access_token,
             };
+            
             await setUser(userData);
             router.replace('/(tabs)');
-          } else {
-            // New user from Google - go to onboarding
-            router.push({
-              pathname: '/(auth)/ai-onboarding',
-              params: { 
-                email: googleUser?.email,
-                name: googleUser?.name,
-                fromGoogle: 'true'
-              },
-            });
+          } catch (loginErr) {
+            // Login failed - probably needs age verification
+            const errorMsg = loginErr.response?.data?.detail || '';
+            if (errorMsg.includes('Age verification')) {
+              router.push({
+                pathname: '/(auth)/document-verification',
+                params: { 
+                  email: googleUser.email,
+                  name: googleUser.name,
+                  fromGoogle: 'true'
+                }
+              });
+            } else {
+              Alert.alert('Error', errorMsg || 'Could not sign in');
+            }
           }
-        } catch (fallbackErr) {
-          console.error('Fallback auth error:', fallbackErr);
-          Alert.alert('Error', 'Unable to complete sign-in. Please try again.');
+        } else {
+          // New user from Google - go to onboarding
+          router.push({
+            pathname: '/(auth)/ai-onboarding',
+            params: { 
+              email: googleUser.email,
+              name: googleUser.name,
+              picture: googleUser.picture,
+              fromGoogle: 'true'
+            },
+          });
         }
-      } else {
-        Alert.alert('Error', err.response?.data?.detail || 'Google sign-in failed.');
+      } catch (checkErr) {
+        console.error('Check user error:', checkErr);
+        // If check fails, assume new user
+        router.push({
+          pathname: '/(auth)/ai-onboarding',
+          params: { 
+            email: googleUser.email,
+            name: googleUser.name,
+            fromGoogle: 'true'
+          },
+        });
       }
+    } catch (err) {
+      console.error('Google auth error:', err);
+      Alert.alert('Error', 'Could not complete Google sign-in');
     } finally {
       setGoogleLoading(false);
     }
   };
 
-  // Handle email login
-  const handleEmailLogin = async () => {
+  // Handle email login/signup
+  const handleEmailContinue = async () => {
     if (!email.trim()) {
       setError('Please enter your email');
       return;
@@ -192,16 +195,27 @@ export default function AuthScreen() {
     setLoading(true);
     setError('');
 
+    const cleanEmail = email.toLowerCase().trim();
+
     try {
+      // Step 1: Check if user exists
+      console.log('Checking user:', cleanEmail);
       const checkResponse = await axios.post(`${API_URL}/check-user`, { 
-        email: email.toLowerCase().trim() 
+        email: cleanEmail 
       });
+      
+      console.log('Check response:', checkResponse.data);
 
       if (checkResponse.data.exists) {
+        // EXISTING USER - try to login
+        console.log('User exists, attempting login...');
+        
         try {
           const loginResponse = await axios.post(`${API_URL}/login`, { 
-            email: email.toLowerCase().trim() 
+            email: cleanEmail 
           });
+          
+          console.log('Login successful!');
           
           const userData = {
             ...loginResponse.data.user,
@@ -212,36 +226,55 @@ export default function AuthScreen() {
           router.replace('/(tabs)');
           
         } catch (loginError) {
+          console.log('Login error:', loginError.response?.data);
+          
           const errorMessage = loginError.response?.data?.detail || 'Login failed';
           
-          if (errorMessage.includes('Age verification required')) {
+          // Check for age verification requirement
+          if (errorMessage.toLowerCase().includes('age verification')) {
             Alert.alert(
               'Age Verification Required',
-              'You need to verify your age (18+) before using LiftLink.',
+              'You need to verify your age (18+) to use LiftLink. This is a one-time verification.',
               [
                 { text: 'Cancel', style: 'cancel' },
                 { 
                   text: 'Verify Now', 
                   onPress: () => router.push({
                     pathname: '/(auth)/document-verification',
-                    params: { email: email.toLowerCase().trim() }
+                    params: { email: cleanEmail }
                   })
                 }
               ]
+            );
+          } else if (errorMessage.toLowerCase().includes('certification')) {
+            // Trainer needs certification
+            Alert.alert(
+              'Certification Required',
+              'Trainers must verify their fitness certification.',
+              [{ text: 'OK' }]
             );
           } else {
             setError(errorMessage);
           }
         }
       } else {
+        // NEW USER - go to onboarding (NO age check yet!)
+        console.log('New user, going to onboarding...');
         router.push({
           pathname: '/(auth)/ai-onboarding',
-          params: { email: email.toLowerCase().trim() },
+          params: { email: cleanEmail },
         });
       }
     } catch (err) {
       console.error('Auth error:', err);
-      setError(err.response?.data?.detail || 'Something went wrong');
+      
+      if (err.response) {
+        setError(err.response.data?.detail || 'Something went wrong');
+      } else if (err.request) {
+        setError('Network error. Check your connection.');
+      } else {
+        setError('Something went wrong. Try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -249,6 +282,15 @@ export default function AuthScreen() {
 
   // Handle Google button press
   const handleGoogleSignIn = async () => {
+    if (!request) {
+      Alert.alert(
+        'Google Sign-In Not Configured',
+        'Google Sign-In requires OAuth credentials. Please use email to continue.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+    
     setGoogleLoading(true);
     try {
       await promptAsync();
@@ -332,6 +374,8 @@ export default function AuthScreen() {
                     autoCorrect={false}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
+                    onSubmitEditing={handleEmailContinue}
+                    returnKeyType="go"
                   />
                 </View>
                 {error ? (
@@ -344,7 +388,7 @@ export default function AuthScreen() {
               {/* Continue Button */}
               <Button
                 title="Continue with Email"
-                onPress={handleEmailLogin}
+                onPress={handleEmailContinue}
                 loading={loading}
                 variant="primary"
                 size="large"
