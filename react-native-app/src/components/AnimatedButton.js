@@ -1,6 +1,6 @@
 /**
- * Animated Button - Duolingo-style
- * Clean, satisfying press feedback
+ * Button Components - LiftLink Design System
+ * Lime green accent buttons
  */
 
 import React from 'react';
@@ -11,6 +11,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
+import { COLORS } from './CustomIllustrations';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -25,152 +26,84 @@ export const Button = ({
   fullWidth = true,
   style,
 }) => {
-  const translateY = useSharedValue(0);
   const scale = useSharedValue(1);
 
   const variants = {
-    primary: { bg: '#6366f1', shadow: '#4338ca', text: '#fff' },
-    success: { bg: '#10b981', shadow: '#059669', text: '#fff' },
-    danger: { bg: '#ef4444', shadow: '#dc2626', text: '#fff' },
-    warning: { bg: '#f59e0b', shadow: '#d97706', text: '#fff' },
-    secondary: { bg: '#1e293b', shadow: '#0f172a', text: '#fff' },
-    ghost: { bg: 'transparent', shadow: 'transparent', text: '#6366f1' },
+    primary: { bg: COLORS.primary, text: '#000', border: COLORS.primary },
+    secondary: { bg: 'transparent', text: '#fff', border: '#333' },
+    outline: { bg: 'transparent', text: COLORS.primary, border: COLORS.primary },
+    ghost: { bg: 'transparent', text: COLORS.primary, border: 'transparent' },
+    dark: { bg: '#1a1a1a', text: '#fff', border: '#333' },
   };
 
   const sizes = {
-    small: { height: 44, fontSize: 14, px: 16, shadowHeight: 3 },
-    medium: { height: 52, fontSize: 16, px: 20, shadowHeight: 4 },
-    large: { height: 56, fontSize: 17, px: 24, shadowHeight: 4 },
+    small: { height: 44, fontSize: 14, px: 16 },
+    medium: { height: 52, fontSize: 15, px: 20 },
+    large: { height: 56, fontSize: 16, px: 24 },
   };
 
   const v = variants[variant];
   const s = sizes[size];
-
-  const buttonStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
-  }));
-
-  const shadowStyle = useAnimatedStyle(() => ({
-    opacity: 1 - translateY.value / s.shadowHeight,
-  }));
-
-  const handlePressIn = () => {
-    translateY.value = withTiming(s.shadowHeight, { duration: 80 });
-    scale.value = withTiming(0.98, { duration: 80 });
-  };
-
-  const handlePressOut = () => {
-    translateY.value = withSpring(0, { damping: 15, stiffness: 300 });
-    scale.value = withSpring(1, { damping: 15, stiffness: 300 });
-  };
-
-  const isDisabled = disabled || loading;
-
-  return (
-    <View style={[styles.container, fullWidth && styles.fullWidth, style]}>
-      {/* Shadow layer */}
-      {variant !== 'ghost' && (
-        <Animated.View
-          style={[
-            styles.shadow,
-            {
-              backgroundColor: v.shadow,
-              height: s.height,
-              bottom: -s.shadowHeight,
-            },
-            shadowStyle,
-          ]}
-        />
-      )}
-
-      {/* Button */}
-      <AnimatedPressable
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        disabled={isDisabled}
-        style={[
-          styles.button,
-          {
-            backgroundColor: isDisabled ? '#475569' : v.bg,
-            height: s.height,
-            paddingHorizontal: s.px,
-            borderWidth: variant === 'ghost' ? 2 : 0,
-            borderColor: variant === 'ghost' ? '#6366f1' : 'transparent',
-          },
-          buttonStyle,
-        ]}
-      >
-        {loading ? (
-          <ActivityIndicator color={v.text} size="small" />
-        ) : (
-          <View style={styles.content}>
-            {icon && <View style={styles.iconWrapper}>{icon}</View>}
-            <Text
-              style={[
-                styles.text,
-                {
-                  fontSize: s.fontSize,
-                  color: isDisabled ? '#94a3b8' : v.text,
-                },
-              ]}
-            >
-              {title}
-            </Text>
-          </View>
-        )}
-      </AnimatedPressable>
-    </View>
-  );
-};
-
-// Compact action button for cards
-export const ActionButton = ({
-  onPress,
-  icon,
-  label,
-  color = '#6366f1',
-  disabled = false,
-}) => {
-  const scale = useSharedValue(1);
 
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
 
   const handlePressIn = () => {
-    scale.value = withSpring(0.92, { damping: 15 });
+    scale.value = withSpring(0.96, { damping: 15 });
   };
 
   const handlePressOut = () => {
     scale.value = withSpring(1, { damping: 12 });
   };
 
+  const isDisabled = disabled || loading;
+
   return (
     <AnimatedPressable
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      disabled={disabled}
-      style={[styles.actionButton, animStyle]}
+      disabled={isDisabled}
+      style={[
+        styles.button,
+        {
+          backgroundColor: isDisabled ? '#333' : v.bg,
+          height: s.height,
+          paddingHorizontal: s.px,
+          borderColor: isDisabled ? '#333' : v.border,
+          borderWidth: variant === 'ghost' ? 0 : 2,
+          opacity: isDisabled ? 0.6 : 1,
+        },
+        fullWidth && styles.fullWidth,
+        animStyle,
+        style,
+      ]}
     >
-      <View style={[styles.actionIconBg, { backgroundColor: color + '15' }]}>
-        {icon}
-      </View>
-      {label && <Text style={[styles.actionLabel, { color }]}>{label}</Text>}
+      {loading ? (
+        <ActivityIndicator color={v.text} size="small" />
+      ) : (
+        <View style={styles.content}>
+          {icon && <View style={styles.iconWrapper}>{icon}</View>}
+          <Text
+            style={[
+              styles.text,
+              { fontSize: s.fontSize, color: isDisabled ? '#666' : v.text },
+            ]}
+          >
+            {title}
+          </Text>
+        </View>
+      )}
     </AnimatedPressable>
   );
 };
 
-// Icon-only button
 export const IconButton = ({
   onPress,
   icon,
   size = 48,
-  backgroundColor = 'rgba(255,255,255,0.1)',
+  backgroundColor = '#1a1a1a',
   disabled = false,
 }) => {
   const scale = useSharedValue(1);
@@ -182,12 +115,8 @@ export const IconButton = ({
   return (
     <AnimatedPressable
       onPress={onPress}
-      onPressIn={() => {
-        scale.value = withSpring(0.9, { damping: 15 });
-      }}
-      onPressOut={() => {
-        scale.value = withSpring(1, { damping: 12 });
-      }}
+      onPressIn={() => { scale.value = withSpring(0.9, { damping: 15 }); }}
+      onPressOut={() => { scale.value = withSpring(1, { damping: 12 }); }}
       disabled={disabled}
       style={[
         styles.iconButton,
@@ -200,56 +129,83 @@ export const IconButton = ({
   );
 };
 
+export const SocialButton = ({
+  onPress,
+  title,
+  icon,
+  loading = false,
+  style,
+}) => {
+  const scale = useSharedValue(1);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <AnimatedPressable
+      onPress={onPress}
+      onPressIn={() => { scale.value = withSpring(0.96, { damping: 15 }); }}
+      onPressOut={() => { scale.value = withSpring(1, { damping: 12 }); }}
+      disabled={loading}
+      style={[styles.socialButton, animStyle, style]}
+    >
+      {loading ? (
+        <ActivityIndicator color="#fff" size="small" />
+      ) : (
+        <>
+          <View style={styles.socialIcon}>{icon}</View>
+          <Text style={styles.socialText}>{title}</Text>
+        </>
+      )}
+    </AnimatedPressable>
+  );
+};
+
 const styles = StyleSheet.create({
-  container: {
-    position: 'relative',
-    marginVertical: 6,
-  },
-  fullWidth: {
-    width: '100%',
-  },
-  shadow: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    borderRadius: 14,
-  },
   button: {
-    borderRadius: 14,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     flexDirection: 'row',
+  },
+  fullWidth: {
+    width: '100%',
   },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   iconWrapper: {
-    marginRight: 8,
+    marginRight: 10,
   },
   text: {
     fontWeight: '700',
-    letterSpacing: 0.3,
-  },
-  actionButton: {
-    alignItems: 'center',
-    padding: 8,
-  },
-  actionIconBg: {
-    width: 52,
-    height: 52,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  actionLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    marginTop: 6,
   },
   iconButton: {
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#333',
+  },
+  socialButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 56,
+    borderRadius: 12,
+    backgroundColor: '#1a1a1a',
+    borderWidth: 1,
+    borderColor: '#333',
+    width: '100%',
+  },
+  socialIcon: {
+    marginRight: 12,
+  },
+  socialText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
