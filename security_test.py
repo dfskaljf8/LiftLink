@@ -13,7 +13,7 @@ import jwt
 from datetime import datetime, timedelta
 
 # Get the backend URL from environment
-BACKEND_URL = "https://fitcoach-ai-36.preview.emergentagent.com/api"
+BACKEND_URL = "https://deploy-savior-1.preview.emergentagent.com/api"
 
 # Test results tracking
 security_test_results = {

@@ -10,7 +10,7 @@ import uuid
 import time
 
 # Backend URL
-BACKEND_URL = "https://fitcoach-ai-36.preview.emergentagent.com/api"
+BACKEND_URL = "https://deploy-savior-1.preview.emergentagent.com/api"
 
 def print_section(title):
     print(f"\n🎯 {title}")

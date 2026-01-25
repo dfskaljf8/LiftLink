@@ -4,7 +4,7 @@ import json
 import uuid
 
 # Get the backend URL from the frontend .env file
-BACKEND_URL = "https://fitcoach-ai-36.preview.emergentagent.com/api"
+BACKEND_URL = "https://deploy-savior-1.preview.emergentagent.com/api"
 
 def create_verified_user():
     """Create a user and complete the verification process to get a valid JWT token"""

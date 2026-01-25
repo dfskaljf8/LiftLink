@@ -20,7 +20,7 @@ import concurrent.futures
 from datetime import datetime, timedelta
 
 # Backend URL from frontend .env
-BACKEND_URL = "https://fitcoach-ai-36.preview.emergentagent.com/api"
+BACKEND_URL = "https://deploy-savior-1.preview.emergentagent.com/api"
 WEBSOCKET_URL = "wss://fitness-hub-29.preview.emergentagent.com/ws"
 
 # Global test results

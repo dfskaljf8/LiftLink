@@ -98,7 +98,7 @@ Removed all hardcoded fallback URLs and replaced with environment variable check
 #### Deprecated Frontend (1 file):
 
 12. **`/app/frontend/src/App.js`**
-    - **Before**: `const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://fitcoach-ai-36.preview.emergentagent.com';`
+    - **Before**: `const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'https://deploy-savior-1.preview.emergentagent.com';`
     - **After**: 
     ```javascript
     const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
