@@ -1,6 +1,6 @@
 /**
  * Dashboard Screen
- * Cartoonish animated dashboard with custom graphics
+ * Duolingo-style: Clean stats, smooth animations, professional gamification
  */
 
 import React, { useEffect, useState } from 'react';
@@ -15,159 +15,97 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withSpring,
-  withRepeat,
-  withSequence,
-  withTiming,
   withDelay,
+  withTiming,
   FadeInDown,
   FadeInRight,
-  ZoomIn,
 } from 'react-native-reanimated';
 import { useApp } from '../../src/context/AppContext';
 import {
-  LiftLinkMascot,
-  AnimatedTree,
-  FireIcon,
+  MiniMascot,
+  ProgressTree,
+  FlameIcon,
   HeartIcon,
+  TargetIcon,
   TrophyIcon,
-  LightningIcon,
-  TrainerAvatar,
+  ChatBubbleIcon,
+  SearchIcon,
+  CalendarIcon,
+  BoltIcon,
+  FloatingDots,
 } from '../../src/components/CustomIllustrations';
-import { CartoonButton, CartoonIconButton } from '../../src/components/AnimatedButton';
-import axios from 'axios';
-import Svg, { Path, Circle, G, Defs, LinearGradient as SvgGradient, Stop } from 'react-native-svg';
+import { Button, ActionButton, IconButton } from '../../src/components/AnimatedButton';
 
 const { width } = Dimensions.get('window');
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://deploy-savior-1.preview.emergentagent.com/api';
 
-// Custom animated stat card
-const StatCard = ({ icon, label, value, color, delay = 0 }) => {
-  const scale = useSharedValue(0);
+// Stat card component
+const StatCard = ({ icon, value, label, color, delay = 0 }) => {
+  const scale = useSharedValue(0.8);
+  const opacity = useSharedValue(0);
 
   useEffect(() => {
     scale.value = withDelay(delay, withSpring(1, { damping: 12 }));
+    opacity.value = withDelay(delay, withTiming(1, { duration: 300 }));
   }, []);
 
   const animStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
-  }));
-
-  return (
-    <Animated.View style={[styles.statCard, animStyle]}>
-      <LinearGradient
-        colors={[color + '30', color + '10']}
-        style={styles.statCardGradient}
-      >
-        <View style={[styles.statIconContainer, { backgroundColor: color + '40' }]}>
-          {icon}
-        </View>
-        <Text style={styles.statValue}>{value}</Text>
-        <Text style={styles.statLabel}>{label}</Text>
-      </LinearGradient>
-    </Animated.View>
-  );
-};
-
-// Quick action button with bounce
-const QuickAction = ({ icon, title, subtitle, color, onPress, delay = 0 }) => {
-  const translateY = useSharedValue(50);
-  const opacity = useSharedValue(0);
-
-  useEffect(() => {
-    translateY.value = withDelay(delay, withSpring(0, { damping: 15 }));
-    opacity.value = withDelay(delay, withTiming(1, { duration: 400 }));
-  }, []);
-
-  const animStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
     opacity: opacity.value,
   }));
 
   return (
-    <Animated.View style={[styles.quickAction, animStyle]}>
-      <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
-        <LinearGradient
-          colors={['#1e293b', '#0f172a']}
-          style={styles.quickActionGradient}
-        >
-          <View style={[styles.quickActionIcon, { backgroundColor: color + '30' }]}>
-            {icon}
-          </View>
+    <Animated.View style={[styles.statCard, animStyle]}>
+      <View style={[styles.statIconBg, { backgroundColor: color + '15' }]}>
+        {icon}
+      </View>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </Animated.View>
+  );
+};
+
+// Quick action card
+const QuickActionCard = ({ icon, title, subtitle, onPress, delay = 0 }) => {
+  const translateX = useSharedValue(30);
+  const opacity = useSharedValue(0);
+
+  useEffect(() => {
+    translateX.value = withDelay(delay, withSpring(0, { damping: 15 }));
+    opacity.value = withDelay(delay, withTiming(1, { duration: 300 }));
+  }, []);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+    opacity: opacity.value,
+  }));
+
+  return (
+    <Animated.View style={animStyle}>
+      <TouchableOpacity 
+        style={styles.quickActionCard} 
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
+        <View style={styles.quickActionIcon}>{icon}</View>
+        <View style={styles.quickActionText}>
           <Text style={styles.quickActionTitle}>{title}</Text>
           <Text style={styles.quickActionSubtitle}>{subtitle}</Text>
-          <View style={[styles.quickActionArrow, { backgroundColor: color }]}>
-            <Text style={styles.arrowText}>→</Text>
-          </View>
-        </LinearGradient>
+        </View>
+        <View style={styles.quickActionArrow}>
+          <Text style={styles.arrowText}>→</Text>
+        </View>
       </TouchableOpacity>
     </Animated.View>
   );
 };
 
-// Chat bubble icon
-const ChatIcon = ({ size = 24 }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2Z"
-      fill="#6366f1"
-    />
-    <Circle cx="8" cy="10" r="1.5" fill="white" />
-    <Circle cx="12" cy="10" r="1.5" fill="white" />
-    <Circle cx="16" cy="10" r="1.5" fill="white" />
-  </Svg>
-);
-
-// Trainer search icon
-const SearchIcon = ({ size = 24 }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Circle cx="10" cy="10" r="7" stroke="#10b981" strokeWidth="3" fill="none" />
-    <Path d="M15 15L21 21" stroke="#10b981" strokeWidth="3" strokeLinecap="round" />
-  </Svg>
-);
-
-// Robot/AI icon
-const RobotIcon = ({ size = 24 }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Defs>
-      <SvgGradient id="robotGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <Stop offset="0%" stopColor="#f59e0b" />
-        <Stop offset="100%" stopColor="#d97706" />
-      </SvgGradient>
-    </Defs>
-    <Path
-      d="M12 2C13.1 2 14 2.9 14 4V6H16C17.1 6 18 6.9 18 8V18C18 19.1 17.1 20 16 20H8C6.9 20 6 19.1 6 18V8C6 6.9 6.9 6 8 6H10V4C10 2.9 10.9 2 12 2Z"
-      fill="url(#robotGrad)"
-    />
-    <Circle cx="9" cy="12" r="2" fill="white" />
-    <Circle cx="15" cy="12" r="2" fill="white" />
-    <Path d="M9 16H15" stroke="white" strokeWidth="2" strokeLinecap="round" />
-    <Path d="M4 10V14" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
-    <Path d="M20 10V14" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" />
-  </Svg>
-);
-
-// Rocket icon
-const RocketIcon = ({ size = 24 }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
-    <Path
-      d="M12 2C12 2 7 6 7 12C7 14 8 16 9 18L12 17L15 18C16 16 17 14 17 12C17 6 12 2 12 2Z"
-      fill="#8b5cf6"
-    />
-    <Circle cx="12" cy="10" r="2" fill="white" />
-    <Path d="M9 18L7 22L10 20L9 18Z" fill="#f59e0b" />
-    <Path d="M15 18L17 22L14 20L15 18Z" fill="#f59e0b" />
-    <Path d="M12 17L12 22" stroke="#ef4444" strokeWidth="2" />
-  </Svg>
-);
-
 export default function DashboardScreen() {
   const router = useRouter();
-  const { user, colors, treeProgress, sessions } = useApp();
+  const { user, treeProgress, sessions } = useApp();
   const [refreshing, setRefreshing] = useState(false);
 
   const isTrainer = user?.role === 'trainer';
@@ -177,25 +115,10 @@ export default function DashboardScreen() {
     setTimeout(() => setRefreshing(false), 1000);
   };
 
-  const greetingBounce = useSharedValue(0);
-
-  useEffect(() => {
-    greetingBounce.value = withRepeat(
-      withSequence(
-        withTiming(-5, { duration: 1500 }),
-        withTiming(0, { duration: 1500 })
-      ),
-      -1,
-      true
-    );
-  }, []);
-
-  const greetingStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: greetingBounce.value }],
-  }));
-
   return (
-    <LinearGradient colors={['#0f172a', '#1e1b4b', '#0f172a']} style={styles.container}>
+    <View style={styles.container}>
+      <FloatingDots count={4} />
+      
       <SafeAreaView style={styles.safeArea}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -210,162 +133,170 @@ export default function DashboardScreen() {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Animated.View style={greetingStyle}>
-              <Text style={styles.greeting}>
-                {isTrainer ? 'Hey Coach! 🏆' : 'Hey Champ! 💪'}
-              </Text>
-              <Text style={styles.userName}>{user?.name || 'Fitness Star'}</Text>
-            </Animated.View>
-            
-            <TouchableOpacity style={styles.notificationBtn}>
-              <View style={styles.notificationDot} />
-              <Text style={styles.notificationIcon}>🔔</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Mini Mascot with Tree */}
-          <Animated.View entering={ZoomIn.delay(200)} style={styles.mascotSection}>
-            <View style={styles.mascotTreeContainer}>
-              <View style={styles.miniMascot}>
-                <LiftLinkMascot size={100} />
-              </View>
-              <View style={styles.treeContainer}>
-                <AnimatedTree stage={treeProgress?.current_level || 'seed'} size={120} />
+            <View style={styles.headerLeft}>
+              <MiniMascot size={44} />
+              <View style={styles.headerText}>
+                <Text style={styles.greeting}>Welcome back</Text>
+                <Text style={styles.userName}>{user?.name || 'Champion'}</Text>
               </View>
             </View>
-            <View style={styles.levelBadge}>
-              <Text style={styles.levelText}>
-                🌱 {(treeProgress?.current_level || 'seed').replace('_', ' ').toUpperCase()}
-              </Text>
+            <IconButton
+              icon={<Text style={styles.bellIcon}>🔔</Text>}
+              size={44}
+              backgroundColor="#1e293b"
+            />
+          </View>
+
+          {/* Progress Section */}
+          <Animated.View entering={FadeInDown.delay(100)} style={styles.progressSection}>
+            <View style={styles.progressCard}>
+              <View style={styles.progressLeft}>
+                <Text style={styles.progressTitle}>Your Growth</Text>
+                <View style={styles.levelBadge}>
+                  <Text style={styles.levelText}>
+                    {(treeProgress?.current_level || 'seed').replace('_', ' ')}
+                  </Text>
+                </View>
+                <Text style={styles.progressSubtext}>
+                  {sessions?.length || 0} sessions completed
+                </Text>
+                <View style={styles.progressBar}>
+                  <View style={[styles.progressFill, { width: `${Math.min((sessions?.length || 0) * 10, 100)}%` }]} />
+                </View>
+              </View>
+              <View style={styles.progressRight}>
+                <ProgressTree stage={treeProgress?.current_level || 'seed'} size={120} />
+              </View>
             </View>
           </Animated.View>
 
           {/* Stats Row */}
           <View style={styles.statsRow}>
             <StatCard
-              icon={<FireIcon size={28} />}
+              icon={<FlameIcon size={24} />}
+              value={sessions?.length || 0}
               label="Streak"
-              value={`${sessions?.length || 0}`}
               color="#f59e0b"
-              delay={100}
-            />
-            <StatCard
-              icon={<HeartIcon size={28} />}
-              label="Sessions"
-              value={`${sessions?.length || 0}`}
-              color="#ef4444"
               delay={200}
             />
             <StatCard
-              icon={<TrophyIcon size={28} />}
-              label={isTrainer ? 'Clients' : 'Goals'}
-              value={isTrainer ? '12' : '3'}
-              color="#f59e0b"
+              icon={<HeartIcon size={24} />}
+              value={sessions?.length || 0}
+              label="Sessions"
+              color="#ef4444"
               delay={300}
+            />
+            <StatCard
+              icon={<TrophyIcon size={24} />}
+              value={isTrainer ? '12' : '3'}
+              label={isTrainer ? 'Clients' : 'Goals'}
+              color="#f59e0b"
+              delay={400}
             />
           </View>
 
           {/* Quick Actions */}
-          <Text style={styles.sectionTitle}>Quick Actions ⚡</Text>
-          <View style={styles.quickActionsGrid}>
-            <QuickAction
-              icon={<ChatIcon size={32} />}
-              title="AI Coach"
-              subtitle="Chat now"
-              color="#6366f1"
-              onPress={() => router.push('/ai-chat')}
-              delay={400}
-            />
-            <QuickAction
-              icon={<SearchIcon size={32} />}
-              title="Find Trainer"
-              subtitle="Near you"
-              color="#10b981"
-              onPress={() => router.push('/(tabs)/trainers')}
-              delay={500}
-            />
-            {isTrainer && (
-              <>
-                <QuickAction
-                  icon={<RobotIcon size={32} />}
-                  title="AI Center"
-                  subtitle="Insights"
-                  color="#f59e0b"
-                  onPress={() => router.push('/ai-command-center')}
-                  delay={600}
-                />
-                <QuickAction
-                  icon={<RocketIcon size={32} />}
-                  title="Coaching"
-                  subtitle="Automate"
-                  color="#8b5cf6"
-                  onPress={() => router.push('/coaching-hub')}
-                  delay={700}
-                />
-              </>
-            )}
-          </View>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          
+          <QuickActionCard
+            icon={<ChatBubbleIcon size={28} color="#6366f1" />}
+            title="AI Coach"
+            subtitle="Get personalized advice"
+            onPress={() => router.push('/ai-chat')}
+            delay={500}
+          />
+          
+          <QuickActionCard
+            icon={<SearchIcon size={28} color="#10b981" />}
+            title="Find Trainers"
+            subtitle="Browse trainers near you"
+            onPress={() => router.push('/(tabs)/trainers')}
+            delay={600}
+          />
+
+          {isTrainer && (
+            <>
+              <QuickActionCard
+                icon={<BoltIcon size={28} color="#f59e0b" />}
+                title="AI Command Center"
+                subtitle="Manage suggestions & insights"
+                onPress={() => router.push('/ai-command-center')}
+                delay={700}
+              />
+              <QuickActionCard
+                icon={<TargetIcon size={28} color="#8b5cf6" />}
+                title="Coaching Hub"
+                subtitle="Automate your coaching"
+                onPress={() => router.push('/coaching-hub')}
+                delay={800}
+              />
+            </>
+          )}
 
           {/* Recent Activity */}
-          <Text style={styles.sectionTitle}>Recent Activity 📊</Text>
-          <Animated.View entering={FadeInDown.delay(600)} style={styles.activityCard}>
-            <LinearGradient
-              colors={['#1e293b', '#0f172a']}
-              style={styles.activityGradient}
-            >
-              {sessions?.length > 0 ? (
-                sessions.slice(0, 3).map((session, index) => (
-                  <View key={index} style={styles.activityItem}>
-                    <View style={styles.activityIcon}>
-                      <LightningIcon size={20} />
-                    </View>
-                    <View style={styles.activityInfo}>
-                      <Text style={styles.activityTitle}>
-                        {session.session_type || 'Training Session'}
-                      </Text>
-                      <Text style={styles.activitySubtitle}>
-                        {session.duration_minutes || 60} min • Completed
-                      </Text>
-                    </View>
-                    <View style={styles.activityBadge}>
-                      <Text style={styles.activityBadgeText}>+10 XP</Text>
-                    </View>
+          <Text style={styles.sectionTitle}>Recent Activity</Text>
+          <Animated.View entering={FadeInDown.delay(700)} style={styles.activityCard}>
+            {sessions?.length > 0 ? (
+              sessions.slice(0, 3).map((session, index) => (
+                <View 
+                  key={index} 
+                  style={[
+                    styles.activityItem,
+                    index < 2 && styles.activityItemBorder
+                  ]}
+                >
+                  <View style={styles.activityIconBg}>
+                    <BoltIcon size={20} color="#8b5cf6" />
                   </View>
-                ))
-              ) : (
-                <View style={styles.emptyActivity}>
-                  <Text style={styles.emptyEmoji}>🎯</Text>
-                  <Text style={styles.emptyTitle}>No sessions yet!</Text>
-                  <Text style={styles.emptySubtitle}>
-                    Book your first session to start growing your tree
-                  </Text>
-                  <CartoonButton
-                    title="Find a Trainer"
-                    onPress={() => router.push('/(tabs)/trainers')}
-                    variant="success"
-                    size="small"
-                  />
+                  <View style={styles.activityInfo}>
+                    <Text style={styles.activityTitle}>
+                      {session.session_type || 'Training Session'}
+                    </Text>
+                    <Text style={styles.activitySubtitle}>
+                      {session.duration_minutes || 60} min
+                    </Text>
+                  </View>
+                  <View style={styles.xpBadge}>
+                    <Text style={styles.xpText}>+10 XP</Text>
+                  </View>
                 </View>
-              )}
-            </LinearGradient>
+              ))
+            ) : (
+              <View style={styles.emptyActivity}>
+                <Text style={styles.emptyIcon}>🎯</Text>
+                <Text style={styles.emptyTitle}>No sessions yet</Text>
+                <Text style={styles.emptySubtitle}>
+                  Start your fitness journey today!
+                </Text>
+                <Button
+                  title="Find a Trainer"
+                  onPress={() => router.push('/(tabs)/trainers')}
+                  variant="success"
+                  size="medium"
+                  fullWidth={false}
+                  style={{ marginTop: 16 }}
+                />
+              </View>
+            )}
           </Animated.View>
 
-          {/* Motivational Quote */}
-          <Animated.View entering={FadeInDown.delay(800)} style={styles.quoteCard}>
-            <Text style={styles.quoteEmoji}>💬</Text>
-            <Text style={styles.quoteText}>
-              "The only bad workout is the one that didn't happen!"
+          {/* Motivational Card */}
+          <Animated.View entering={FadeInDown.delay(900)} style={styles.motivationCard}>
+            <Text style={styles.motivationQuote}>
+              "The only bad workout is the one that didn't happen."
             </Text>
+            <Text style={styles.motivationAuthor}>— Keep pushing! 💪</Text>
           </Animated.View>
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#0f172a',
   },
   safeArea: {
     flex: 1,
@@ -380,91 +311,101 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 24,
   },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerText: {
+    marginLeft: 12,
+  },
   greeting: {
-    fontSize: 16,
-    color: '#a5b4fc',
-    fontWeight: '600',
+    fontSize: 14,
+    color: '#64748b',
+    fontWeight: '500',
   },
   userName: {
-    fontSize: 28,
+    fontSize: 20,
     color: '#fff',
-    fontWeight: '800',
-    marginTop: 4,
+    fontWeight: '700',
+    marginTop: 2,
   },
-  notificationBtn: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.1)',
+  bellIcon: {
+    fontSize: 20,
   },
-  notificationIcon: {
-    fontSize: 24,
-  },
-  notificationDot: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: '#ef4444',
-    borderWidth: 2,
-    borderColor: '#0f172a',
-  },
-  mascotSection: {
-    alignItems: 'center',
+  progressSection: {
     marginBottom: 24,
   },
-  mascotTreeContainer: {
+  progressCard: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
+    backgroundColor: '#1e293b',
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#334155',
+  },
+  progressLeft: {
+    flex: 1,
     justifyContent: 'center',
   },
-  miniMascot: {
-    marginRight: -20,
-    zIndex: 1,
-  },
-  treeContainer: {
-    marginLeft: -20,
+  progressTitle: {
+    fontSize: 14,
+    color: '#64748b',
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   levelBadge: {
-    backgroundColor: 'rgba(99, 102, 241, 0.3)',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginTop: 12,
-    borderWidth: 2,
-    borderColor: 'rgba(99, 102, 241, 0.5)',
+    backgroundColor: '#6366f1',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    marginTop: 8,
   },
   levelText: {
-    color: '#a5b4fc',
-    fontWeight: '700',
+    color: '#fff',
     fontSize: 14,
+    fontWeight: '700',
+    textTransform: 'capitalize',
+  },
+  progressSubtext: {
+    color: '#94a3b8',
+    fontSize: 13,
+    marginTop: 12,
+  },
+  progressBar: {
+    height: 6,
+    backgroundColor: '#334155',
+    borderRadius: 3,
+    marginTop: 8,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: '#10b981',
+    borderRadius: 3,
+  },
+  progressRight: {
+    marginLeft: 10,
   },
   statsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     marginBottom: 24,
   },
   statCard: {
     flex: 1,
-    marginHorizontal: 4,
-  },
-  statCardGradient: {
-    padding: 16,
+    backgroundColor: '#1e293b',
     borderRadius: 16,
+    padding: 16,
+    marginHorizontal: 4,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: '#334155',
   },
-  statIconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  statIconBg: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 8,
@@ -476,39 +417,37 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontSize: 12,
-    color: '#94a3b8',
-    marginTop: 4,
+    color: '#64748b',
     fontWeight: '600',
+    marginTop: 4,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '800',
+    fontSize: 18,
+    fontWeight: '700',
     color: '#fff',
     marginBottom: 16,
   },
-  quickActionsGrid: {
+  quickActionCard: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 24,
-  },
-  quickAction: {
-    width: '48%',
-    marginBottom: 12,
-  },
-  quickActionGradient: {
-    padding: 16,
+    alignItems: 'center',
+    backgroundColor: '#1e293b',
     borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: '#334155',
   },
   quickActionIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 16,
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    backgroundColor: '#0f172a',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+  },
+  quickActionText: {
+    flex: 1,
+    marginLeft: 14,
   },
   quickActionTitle: {
     fontSize: 16,
@@ -516,46 +455,45 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
   quickActionSubtitle: {
-    fontSize: 12,
-    color: '#94a3b8',
-    marginTop: 4,
+    fontSize: 13,
+    color: '#64748b',
+    marginTop: 2,
   },
   quickActionArrow: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#334155',
     alignItems: 'center',
     justifyContent: 'center',
   },
   arrowText: {
-    color: '#fff',
+    color: '#94a3b8',
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '600',
   },
   activityCard: {
-    marginBottom: 24,
-  },
-  activityGradient: {
-    padding: 16,
+    backgroundColor: '#1e293b',
     borderRadius: 16,
+    padding: 16,
+    marginBottom: 24,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.1)',
+    borderColor: '#334155',
   },
   activityItem: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
   },
-  activityIcon: {
+  activityItemBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#334155',
+  },
+  activityIconBg: {
     width: 40,
     height: 40,
-    borderRadius: 12,
-    backgroundColor: 'rgba(139, 92, 246, 0.2)',
+    borderRadius: 10,
+    backgroundColor: '#8b5cf615',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -564,65 +502,63 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   activityTitle: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
     color: '#fff',
   },
   activitySubtitle: {
-    fontSize: 12,
-    color: '#94a3b8',
+    fontSize: 13,
+    color: '#64748b',
     marginTop: 2,
   },
-  activityBadge: {
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
+  xpBadge: {
+    backgroundColor: '#10b98120',
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 10,
+    borderRadius: 8,
   },
-  activityBadgeText: {
+  xpText: {
     color: '#10b981',
     fontSize: 12,
     fontWeight: '700',
   },
   emptyActivity: {
     alignItems: 'center',
-    padding: 24,
+    paddingVertical: 24,
   },
-  emptyEmoji: {
-    fontSize: 48,
+  emptyIcon: {
+    fontSize: 40,
     marginBottom: 12,
   },
   emptyTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
     color: '#fff',
   },
   emptySubtitle: {
     fontSize: 14,
-    color: '#94a3b8',
-    textAlign: 'center',
-    marginTop: 8,
-    marginBottom: 16,
+    color: '#64748b',
+    marginTop: 4,
   },
-  quoteCard: {
-    backgroundColor: 'rgba(99, 102, 241, 0.15)',
-    padding: 20,
+  motivationCard: {
+    backgroundColor: '#6366f115',
     borderRadius: 16,
+    padding: 20,
     borderWidth: 1,
-    borderColor: 'rgba(99, 102, 241, 0.3)',
-    flexDirection: 'row',
-    alignItems: 'center',
+    borderColor: '#6366f130',
   },
-  quoteEmoji: {
-    fontSize: 32,
-    marginRight: 12,
-  },
-  quoteText: {
-    flex: 1,
-    fontSize: 14,
+  motivationQuote: {
+    fontSize: 15,
     color: '#a5b4fc',
     fontStyle: 'italic',
-    fontWeight: '500',
-    lineHeight: 20,
+    lineHeight: 22,
+    textAlign: 'center',
+  },
+  motivationAuthor: {
+    fontSize: 13,
+    color: '#6366f1',
+    marginTop: 8,
+    textAlign: 'center',
+    fontWeight: '600',
   },
 });
