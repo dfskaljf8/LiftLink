@@ -207,8 +207,24 @@ export default function AuthScreen() {
       console.log('Check response:', checkResponse.data);
 
       if (checkResponse.data.exists) {
-        // EXISTING USER - try to login
-        console.log('User exists, attempting login...');
+        // EXISTING USER
+        const { age_verified, user_id } = checkResponse.data;
+        
+        if (!age_verified) {
+          // User exists but NOT age verified - send to verification
+          console.log('User exists but not age verified, going to verification...');
+          router.push({
+            pathname: '/(auth)/document-verification',
+            params: { 
+              email: cleanEmail,
+              userId: user_id,
+            }
+          });
+          return;
+        }
+        
+        // User is verified - try to login
+        console.log('User exists and verified, attempting login...');
         
         try {
           const loginResponse = await axios.post(`${API_URL}/login`, { 
@@ -230,22 +246,15 @@ export default function AuthScreen() {
           
           const errorMessage = loginError.response?.data?.detail || 'Login failed';
           
-          // Check for age verification requirement
+          // Check for age verification requirement (backup check)
           if (errorMessage.toLowerCase().includes('age verification')) {
-            Alert.alert(
-              'Age Verification Required',
-              'You need to verify your age (18+) to use LiftLink. This is a one-time verification.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                { 
-                  text: 'Verify Now', 
-                  onPress: () => router.push({
-                    pathname: '/(auth)/document-verification',
-                    params: { email: cleanEmail }
-                  })
-                }
-              ]
-            );
+            router.push({
+              pathname: '/(auth)/document-verification',
+              params: { 
+                email: cleanEmail,
+                userId: user_id,
+              }
+            });
           } else if (errorMessage.toLowerCase().includes('certification')) {
             // Trainer needs certification
             Alert.alert(
@@ -258,7 +267,7 @@ export default function AuthScreen() {
           }
         }
       } else {
-        // NEW USER - go to onboarding (NO age check yet!)
+        // NEW USER - go to onboarding
         console.log('New user, going to onboarding...');
         router.push({
           pathname: '/(auth)/ai-onboarding',
