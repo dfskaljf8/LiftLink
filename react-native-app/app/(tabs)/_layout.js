@@ -5,7 +5,6 @@
 
 import { Tabs } from 'expo-router';
 import { View, StyleSheet, Dimensions } from 'react-native';
-import { BlurView } from 'expo-blur';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
