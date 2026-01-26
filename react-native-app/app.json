@@ -8,10 +8,11 @@
     "scheme": "liftlink",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": false,
+    "jsEngine": "hermes",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#111827"
+      "backgroundColor": "#000000"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -28,7 +29,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#111827"
+        "backgroundColor": "#000000"
       },
       "package": "com.liftlinkapp",
       "permissions": [
@@ -67,14 +68,7 @@
         "expo-notifications",
         {
           "icon": "./assets/notification-icon.png",
-          "color": "#4f46e5"
-        }
-      ],
-      [
-        "@stripe/stripe-react-native",
-        {
-          "merchantIdentifier": "merchant.com.liftlinkapp",
-          "enableGooglePay": true
+          "color": "#00F0FF"
         }
       ]
     ],
