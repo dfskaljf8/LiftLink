@@ -1,6 +1,6 @@
 /**
- * Document Verification Screen
- * Age verification with ID upload - Lime green theme
+ * Document Verification Screen - Futuristic 2050 Design
+ * Cyber-organic age verification with holographic effects
  */
 
 import React, { useState } from 'react';
@@ -16,47 +16,147 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Svg, { Path, Circle, Rect, Defs, LinearGradient, Stop, G, Line } from 'react-native-svg';
+import Animated, { 
+  FadeInDown, 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withRepeat, 
+  withSequence, 
+  withTiming,
+} from 'react-native-reanimated';
 import { useApp } from '../../src/context/AppContext';
-import { Button } from '../../src/components/AnimatedButton';
-import { COLORS, LiftLinkLogo } from '../../src/components/CustomIllustrations';
+import { FUTURE_COLORS, FutureLogo, FutureButton, ParticleField } from '../../src/components/FuturisticUI';
 import axios from 'axios';
-import Svg, { Path, Circle, Rect } from 'react-native-svg';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://swiftauth-1.preview.emergentagent.com/api';
 
-// ID Card Icon
-const IdCardIcon = ({ size = 80 }) => (
-  <Svg width={size} height={size} viewBox="0 0 80 80">
-    <Rect x="5" y="15" width="70" height="50" rx="8" stroke={COLORS.primary} strokeWidth="3" fill="none" />
-    <Circle cx="28" cy="35" r="10" stroke={COLORS.primary} strokeWidth="2" fill="none" />
-    <Rect x="45" y="28" width="22" height="4" rx="2" fill={COLORS.primary} />
-    <Rect x="45" y="38" width="16" height="4" rx="2" fill={COLORS.primary} opacity="0.5" />
-    <Rect x="15" y="50" width="20" height="4" rx="2" fill={COLORS.primary} opacity="0.5" />
-  </Svg>
-);
+// Futuristic ID Card Icon
+const IdCardIcon = ({ size = 100 }) => {
+  const scanLine = useSharedValue(0);
+
+  React.useEffect(() => {
+    scanLine.value = withRepeat(
+      withSequence(
+        withTiming(1, { duration: 2000 }),
+        withTiming(0, { duration: 2000 })
+      ),
+      -1,
+      true
+    );
+  }, []);
+
+  return (
+    <View style={{ width: size, height: size * 0.7, alignItems: 'center', justifyContent: 'center' }}>
+      <Svg width={size} height={size * 0.7} viewBox="0 0 100 70">
+        <Defs>
+          <LinearGradient id="cardGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <Stop offset="0%" stopColor={FUTURE_COLORS.primary} />
+            <Stop offset="100%" stopColor={FUTURE_COLORS.accent} />
+          </LinearGradient>
+          <LinearGradient id="scanGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+            <Stop offset="0%" stopColor={FUTURE_COLORS.primary} stopOpacity="0" />
+            <Stop offset="50%" stopColor={FUTURE_COLORS.primary} stopOpacity="0.8" />
+            <Stop offset="100%" stopColor={FUTURE_COLORS.primary} stopOpacity="0" />
+          </LinearGradient>
+        </Defs>
+        
+        {/* Card outline */}
+        <Rect x="5" y="5" width="90" height="60" rx="8" 
+          stroke="url(#cardGrad)" strokeWidth="2" fill={FUTURE_COLORS.surface} />
+        
+        {/* Holographic shimmer lines */}
+        <Line x1="10" y1="15" x2="90" y2="15" stroke={FUTURE_COLORS.primary} strokeWidth="0.5" opacity="0.3" />
+        <Line x1="10" y1="25" x2="90" y2="25" stroke={FUTURE_COLORS.primary} strokeWidth="0.5" opacity="0.2" />
+        
+        {/* Photo placeholder */}
+        <Rect x="12" y="20" width="25" height="30" rx="4" fill={FUTURE_COLORS.elevated} stroke={FUTURE_COLORS.primary} strokeWidth="1" />
+        <Circle cx="24.5" cy="30" r="8" fill={FUTURE_COLORS.primary} opacity="0.3" />
+        <Circle cx="24.5" cy="28" r="5" fill={FUTURE_COLORS.primary} opacity="0.5" />
+        <Path d="M16 42 Q24.5 36 33 42" fill={FUTURE_COLORS.primary} opacity="0.3" />
+        
+        {/* Data lines */}
+        <Rect x="45" y="22" width="40" height="4" rx="2" fill={FUTURE_COLORS.primary} />
+        <Rect x="45" y="30" width="30" height="4" rx="2" fill={FUTURE_COLORS.primary} opacity="0.5" />
+        <Rect x="45" y="38" width="35" height="4" rx="2" fill={FUTURE_COLORS.primary} opacity="0.3" />
+        
+        {/* Barcode */}
+        <G transform="translate(12, 52)">
+          {[0, 4, 7, 10, 14, 17, 20, 24, 27, 30, 34, 37, 40, 44, 47, 50].map((x, i) => (
+            <Rect key={i} x={x} y="0" width={i % 2 === 0 ? 2 : 1} height="6" fill={FUTURE_COLORS.primary} opacity="0.6" />
+          ))}
+        </G>
+        
+        {/* Chip */}
+        <Rect x="70" y="48" width="18" height="12" rx="2" fill={FUTURE_COLORS.gold} opacity="0.8" />
+        <Line x1="74" y1="51" x2="74" y2="57" stroke={FUTURE_COLORS.void} strokeWidth="1" />
+        <Line x1="78" y1="51" x2="78" y2="57" stroke={FUTURE_COLORS.void} strokeWidth="1" />
+        <Line x1="82" y1="51" x2="82" y2="57" stroke={FUTURE_COLORS.void} strokeWidth="1" />
+        
+        {/* Corner accents */}
+        <Circle cx="10" cy="10" r="2" fill={FUTURE_COLORS.primary} />
+        <Circle cx="90" cy="10" r="2" fill={FUTURE_COLORS.accent} />
+        <Circle cx="10" cy="60" r="2" fill={FUTURE_COLORS.accent} />
+        <Circle cx="90" cy="60" r="2" fill={FUTURE_COLORS.primary} />
+      </Svg>
+    </View>
+  );
+};
 
 // Camera Icon
-const CameraIcon = ({ size = 32 }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
+const CameraIcon = ({ size = 36 }) => (
+  <Svg width={size} height={size} viewBox="0 0 36 36">
+    <Defs>
+      <LinearGradient id="camGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor={FUTURE_COLORS.primary} />
+        <Stop offset="100%" stopColor={FUTURE_COLORS.accent} />
+      </LinearGradient>
+    </Defs>
     <Path
-      d="M12 15.2C13.77 15.2 15.2 13.77 15.2 12C15.2 10.23 13.77 8.8 12 8.8C10.23 8.8 8.8 10.23 8.8 12C8.8 13.77 10.23 15.2 12 15.2Z"
-      fill={COLORS.primary}
+      d="M18 23C20.76 23 23 20.76 23 18C23 15.24 20.76 13 18 13C15.24 13 13 15.24 13 18C13 20.76 15.24 23 18 23Z"
+      fill="url(#camGrad)"
     />
     <Path
-      d="M9 2L7.17 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4H16.83L15 2H9ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17Z"
-      fill={COLORS.primary}
+      d="M13.5 6L11.12 9H6C4.35 9 3 10.35 3 12V27C3 28.65 4.35 30 6 30H30C31.65 30 33 28.65 33 27V12C33 10.35 31.65 9 30 9H24.88L22.5 6H13.5ZM18 26C13.58 26 10 22.42 10 18C10 13.58 13.58 10 18 10C22.42 10 26 13.58 26 18C26 22.42 22.42 26 18 26Z"
+      fill="url(#camGrad)"
     />
   </Svg>
 );
 
 // Gallery Icon
-const GalleryIcon = ({ size = 32 }) => (
-  <Svg width={size} height={size} viewBox="0 0 24 24">
+const GalleryIcon = ({ size = 36 }) => (
+  <Svg width={size} height={size} viewBox="0 0 36 36">
+    <Defs>
+      <LinearGradient id="galGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor={FUTURE_COLORS.primary} />
+        <Stop offset="100%" stopColor={FUTURE_COLORS.accent} />
+      </LinearGradient>
+    </Defs>
     <Path
-      d="M21 19V5C21 3.9 20.1 3 19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19ZM8.5 13.5L11 16.51L14.5 12L19 18H5L8.5 13.5Z"
-      fill={COLORS.primary}
+      d="M31.5 28.5V7.5C31.5 5.85 30.15 4.5 28.5 4.5H7.5C5.85 4.5 4.5 5.85 4.5 7.5V28.5C4.5 30.15 5.85 31.5 7.5 31.5H28.5C30.15 31.5 31.5 30.15 31.5 28.5ZM12.75 20.25L16.5 24.765L21.75 18L28.5 27H7.5L12.75 20.25Z"
+      fill="url(#galGrad)"
     />
+  </Svg>
+);
+
+// Lock Icon
+const LockIcon = ({ size = 24 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Defs>
+      <LinearGradient id="lockGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor={FUTURE_COLORS.accent} />
+        <Stop offset="100%" stopColor={FUTURE_COLORS.primary} />
+      </LinearGradient>
+    </Defs>
+    <Rect x="5" y="11" width="14" height="10" rx="2" stroke="url(#lockGrad)" strokeWidth="2" fill="none" />
+    <Path
+      d="M8 11V7C8 4.79 9.79 3 12 3C14.21 3 16 4.79 16 7V11"
+      stroke="url(#lockGrad)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      fill="none"
+    />
+    <Circle cx="12" cy="16" r="2" fill={FUTURE_COLORS.primary} />
   </Svg>
 );
 
@@ -114,7 +214,6 @@ export default function DocumentVerificationScreen() {
       return;
     }
 
-    // Make sure we have userId - if not, try to get it
     let userId = params.userId;
     if (!userId && params.email) {
       try {
@@ -143,10 +242,10 @@ export default function DocumentVerificationScreen() {
 
       if (response.data.age_verified) {
         Alert.alert(
-          'Verified! ✅',
-          'Your age has been verified. Welcome to LiftLink!',
+          'Verified!',
+          'Your identity has been confirmed. Welcome to LiftLink!',
           [{
-            text: 'Get Started',
+            text: 'Enter LiftLink',
             onPress: async () => {
               try {
                 const loginResponse = await axios.post(`${API_URL}/login`, {
@@ -187,29 +286,36 @@ export default function DocumentVerificationScreen() {
 
   return (
     <View style={styles.container}>
+      <ParticleField count={8} />
+      
+      <View style={styles.glowOrb1} pointerEvents="none" />
+      <View style={styles.glowOrb2} pointerEvents="none" />
+
       <SafeAreaView style={styles.safeArea}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <Text style={styles.backText}>←</Text>
+              <Svg width={24} height={24} viewBox="0 0 24 24">
+                <Path d="M15 18L9 12L15 6" stroke={FUTURE_COLORS.text} strokeWidth="2" strokeLinecap="round" />
+              </Svg>
             </TouchableOpacity>
             <View style={styles.headerCenter}>
-              <LiftLinkLogo size={28} />
+              <FutureLogo size={32} />
             </View>
             <View style={styles.placeholder} />
           </View>
 
           {/* Icon */}
           <Animated.View entering={FadeInDown.delay(100)} style={styles.iconContainer}>
-            <IdCardIcon size={100} />
+            <IdCardIcon size={140} />
           </Animated.View>
 
           {/* Info */}
           <Animated.View entering={FadeInDown.delay(200)} style={styles.infoContainer}>
-            <Text style={styles.title}>Verify Your Age</Text>
+            <Text style={styles.title}>Age Verification</Text>
             <Text style={styles.description}>
-              LiftLink requires users to be 18 or older. Please upload a photo of your government-issued ID.
+              LiftLink requires users to be 18+. Upload a photo of your government-issued ID for instant verification.
             </Text>
           </Animated.View>
 
@@ -222,29 +328,42 @@ export default function DocumentVerificationScreen() {
                   style={styles.removeButton}
                   onPress={() => setImage(null)}
                 >
-                  <Text style={styles.removeText}>✕</Text>
+                  <Svg width={20} height={20} viewBox="0 0 24 24">
+                    <Path d="M18 6L6 18M6 6L18 18" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+                  </Svg>
                 </TouchableOpacity>
+                {/* Scan effect overlay */}
+                <View style={styles.scanOverlay}>
+                  <View style={styles.scanCorner1} />
+                  <View style={styles.scanCorner2} />
+                  <View style={styles.scanCorner3} />
+                  <View style={styles.scanCorner4} />
+                </View>
               </View>
             ) : (
               <View style={styles.uploadOptions}>
                 <TouchableOpacity 
                   style={styles.uploadOption}
                   onPress={() => pickImage(true)}
+                  activeOpacity={0.8}
                 >
                   <View style={styles.uploadIconBg}>
-                    <CameraIcon size={36} />
+                    <CameraIcon size={40} />
                   </View>
                   <Text style={styles.uploadOptionText}>Take Photo</Text>
+                  <Text style={styles.uploadOptionHint}>Use camera</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity 
                   style={styles.uploadOption}
                   onPress={() => pickImage(false)}
+                  activeOpacity={0.8}
                 >
                   <View style={styles.uploadIconBg}>
-                    <GalleryIcon size={36} />
+                    <GalleryIcon size={40} />
                   </View>
                   <Text style={styles.uploadOptionText}>Choose Photo</Text>
+                  <Text style={styles.uploadOptionHint}>From gallery</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -252,17 +371,22 @@ export default function DocumentVerificationScreen() {
 
           {/* Privacy Note */}
           <Animated.View entering={FadeInDown.delay(400)} style={styles.privacyNote}>
-            <Text style={styles.lockIcon}>🔒</Text>
-            <Text style={styles.privacyText}>
-              Your ID is processed securely and NOT stored. We only verify your date of birth.
-            </Text>
+            <View style={styles.lockIconContainer}>
+              <LockIcon size={24} />
+            </View>
+            <View style={styles.privacyTextContainer}>
+              <Text style={styles.privacyTitle}>Secure & Private</Text>
+              <Text style={styles.privacyText}>
+                Your ID is processed securely using encryption and is NOT stored. We only verify your date of birth.
+              </Text>
+            </View>
           </Animated.View>
 
           {/* Buttons */}
           <View style={styles.buttons}>
             {image && (
-              <Button
-                title="Verify My ID"
+              <FutureButton
+                title="Verify Identity"
                 onPress={handleVerify}
                 loading={loading}
                 variant="primary"
@@ -270,7 +394,7 @@ export default function DocumentVerificationScreen() {
               />
             )}
             
-            <Button
+            <FutureButton
               title="Skip for Now"
               onPress={() => {
                 Alert.alert(
@@ -296,7 +420,27 @@ export default function DocumentVerificationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: FUTURE_COLORS.void,
+  },
+  glowOrb1: {
+    position: 'absolute',
+    top: -60,
+    left: -60,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: FUTURE_COLORS.primary,
+    opacity: 0.06,
+  },
+  glowOrb2: {
+    position: 'absolute',
+    bottom: 100,
+    right: -40,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: FUTURE_COLORS.accent,
+    opacity: 0.05,
   },
   safeArea: {
     flex: 1,
@@ -308,26 +452,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   backButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: COLORS.surface,
+    width: 48,
+    height: 48,
+    borderRadius: 16,
+    backgroundColor: FUTURE_COLORS.surface,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  backText: {
-    color: COLORS.text,
-    fontSize: 22,
+    borderWidth: 1,
+    borderColor: FUTURE_COLORS.border,
   },
   headerCenter: {
     flex: 1,
     alignItems: 'center',
   },
   placeholder: {
-    width: 44,
+    width: 48,
   },
   iconContainer: {
     alignItems: 'center',
@@ -340,14 +482,16 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: COLORS.text,
+    color: FUTURE_COLORS.text,
     marginBottom: 12,
+    letterSpacing: 0.5,
   },
   description: {
     fontSize: 15,
-    color: COLORS.textSecondary,
+    color: FUTURE_COLORS.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
+    paddingHorizontal: 10,
   },
   uploadSection: {
     marginBottom: 24,
@@ -355,27 +499,37 @@ const styles = StyleSheet.create({
   uploadOptions: {
     flexDirection: 'row',
     justifyContent: 'center',
-    gap: 24,
+    gap: 20,
   },
   uploadOption: {
     alignItems: 'center',
-    padding: 16,
+    padding: 20,
+    backgroundColor: FUTURE_COLORS.surface,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: FUTURE_COLORS.border,
+    width: 140,
   },
   uploadIconBg: {
-    width: 80,
-    height: 80,
+    width: 72,
+    height: 72,
     borderRadius: 20,
-    backgroundColor: COLORS.surface,
+    backgroundColor: FUTURE_COLORS.elevated,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 12,
-    borderWidth: 2,
-    borderColor: COLORS.border,
+    borderWidth: 1,
+    borderColor: FUTURE_COLORS.border,
   },
   uploadOptionText: {
-    color: COLORS.text,
+    color: FUTURE_COLORS.text,
     fontSize: 14,
     fontWeight: '600',
+  },
+  uploadOptionHint: {
+    color: FUTURE_COLORS.textMuted,
+    fontSize: 12,
+    marginTop: 4,
   },
   previewContainer: {
     position: 'relative',
@@ -383,43 +537,98 @@ const styles = StyleSheet.create({
   },
   preview: {
     width: '100%',
-    height: 200,
-    borderRadius: 16,
-    backgroundColor: COLORS.surface,
+    height: 220,
+    borderRadius: 20,
+    backgroundColor: FUTURE_COLORS.surface,
   },
   removeButton: {
     position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: COLORS.error,
+    top: 16,
+    right: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: FUTURE_COLORS.error,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  removeText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '700',
+  scanOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 20,
+  },
+  scanCorner1: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    width: 30,
+    height: 30,
+    borderTopWidth: 3,
+    borderLeftWidth: 3,
+    borderColor: FUTURE_COLORS.primary,
+    borderTopLeftRadius: 8,
+  },
+  scanCorner2: {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 30,
+    height: 30,
+    borderTopWidth: 3,
+    borderRightWidth: 3,
+    borderColor: FUTURE_COLORS.primary,
+    borderTopRightRadius: 8,
+  },
+  scanCorner3: {
+    position: 'absolute',
+    bottom: 12,
+    left: 12,
+    width: 30,
+    height: 30,
+    borderBottomWidth: 3,
+    borderLeftWidth: 3,
+    borderColor: FUTURE_COLORS.primary,
+    borderBottomLeftRadius: 8,
+  },
+  scanCorner4: {
+    position: 'absolute',
+    bottom: 12,
+    right: 12,
+    width: 30,
+    height: 30,
+    borderBottomWidth: 3,
+    borderRightWidth: 3,
+    borderColor: FUTURE_COLORS.primary,
+    borderBottomRightRadius: 8,
   },
   privacyNote: {
     flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.surface,
-    padding: 16,
-    borderRadius: 12,
+    alignItems: 'flex-start',
+    backgroundColor: FUTURE_COLORS.surface,
+    padding: 18,
+    borderRadius: 16,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: FUTURE_COLORS.border,
   },
-  lockIcon: {
-    fontSize: 24,
-    marginRight: 12,
+  lockIconContainer: {
+    marginRight: 14,
+    marginTop: 2,
+  },
+  privacyTextContainer: {
+    flex: 1,
+  },
+  privacyTitle: {
+    color: FUTURE_COLORS.accent,
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 4,
   },
   privacyText: {
-    flex: 1,
-    color: COLORS.textSecondary,
+    color: FUTURE_COLORS.textSecondary,
     fontSize: 13,
     lineHeight: 18,
   },
