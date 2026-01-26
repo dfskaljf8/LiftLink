@@ -10,35 +10,35 @@ import axios from 'axios';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://swiftauth-1.preview.emergentagent.com/api';
 
-// Theme colors
+// Theme colors - Futuristic 2050
 const darkColors = {
-  background: '#111827',
-  surface: '#1f2937',
-  surfaceLight: '#374151',
-  primary: '#4f46e5',
-  primaryDark: '#4338ca',
-  accent: '#10b981',
-  text: '#f9fafb',
-  textSecondary: '#9ca3af',
-  border: '#374151',
-  error: '#ef4444',
-  warning: '#f59e0b',
-  success: '#22c55e',
+  background: '#000000',
+  surface: '#0a0a0f',
+  surfaceLight: '#12121a',
+  primary: '#00F0FF',
+  primaryDark: '#00A8B8',
+  accent: '#00FF94',
+  text: '#ffffff',
+  textSecondary: '#8888AA',
+  border: '#1a1a2e',
+  error: '#FF4466',
+  warning: '#FFB800',
+  success: '#00FF94',
 };
 
 const lightColors = {
-  background: '#ffffff',
-  surface: '#f3f4f6',
-  surfaceLight: '#e5e7eb',
-  primary: '#4f46e5',
-  primaryDark: '#4338ca',
-  accent: '#10b981',
-  text: '#111827',
-  textSecondary: '#6b7280',
-  border: '#e5e7eb',
-  error: '#ef4444',
-  warning: '#f59e0b',
-  success: '#22c55e',
+  background: '#000000',
+  surface: '#0a0a0f',
+  surfaceLight: '#12121a',
+  primary: '#00F0FF',
+  primaryDark: '#00A8B8',
+  accent: '#00FF94',
+  text: '#ffffff',
+  textSecondary: '#8888AA',
+  border: '#1a1a2e',
+  error: '#FF4466',
+  warning: '#FFB800',
+  success: '#00FF94',
 };
 
 // Create context
