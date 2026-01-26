@@ -1,6 +1,6 @@
 /**
- * AI Onboarding Screen
- * Conversational onboarding with AI - then to age verification
+ * AI Onboarding Screen - Futuristic 2050 Design
+ * Cyber-organic conversational onboarding
  */
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -17,13 +17,59 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import Svg, { Path, Circle, Rect, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Animated, { 
+  FadeIn, 
+  FadeInDown, 
+  FadeInUp,
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { useApp } from '../../src/context/AppContext';
-import { COLORS, LiftLinkLogo } from '../../src/components/CustomIllustrations';
-import { Button } from '../../src/components/AnimatedButton';
+import { FUTURE_COLORS, FutureLogo, FutureButton, ParticleField } from '../../src/components/FuturisticUI';
 import axios from 'axios';
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://swiftauth-1.preview.emergentagent.com/api';
+
+// AI Avatar Component
+const AIAvatar = ({ size = 40 }) => {
+  const pulse = useSharedValue(1);
+
+  useEffect(() => {
+    pulse.value = withRepeat(
+      withSequence(
+        withTiming(1.1, { duration: 1000 }),
+        withTiming(1, { duration: 1000 })
+      ),
+      -1,
+      true
+    );
+  }, []);
+
+  const pulseStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: pulse.value }],
+  }));
+
+  return (
+    <Animated.View style={[{ width: size, height: size }, pulseStyle]}>
+      <Svg width={size} height={size} viewBox="0 0 40 40">
+        <Defs>
+          <LinearGradient id="avatarGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <Stop offset="0%" stopColor={FUTURE_COLORS.primary} />
+            <Stop offset="100%" stopColor={FUTURE_COLORS.accent} />
+          </LinearGradient>
+        </Defs>
+        <Circle cx="20" cy="20" r="18" fill={FUTURE_COLORS.surface} stroke="url(#avatarGrad)" strokeWidth="2" />
+        <Circle cx="14" cy="16" r="3" fill={FUTURE_COLORS.primary} />
+        <Circle cx="26" cy="16" r="3" fill={FUTURE_COLORS.primary} />
+        <Path d="M13 26 Q20 32 27 26" stroke={FUTURE_COLORS.accent} strokeWidth="2" fill="none" strokeLinecap="round" />
+      </Svg>
+    </Animated.View>
+  );
+};
 
 export default function AIOnboardingScreen() {
   const router = useRouter();
@@ -38,21 +84,20 @@ export default function AIOnboardingScreen() {
   const [complete, setComplete] = useState(false);
   const [step, setStep] = useState(0);
 
-  // Simple onboarding questions (fallback if AI fails)
   const questions = [
     { 
       id: 1, 
-      text: `Hey${params.name ? ` ${params.name.split(' ')[0]}` : ''}! 👋 Welcome to LiftLink!\n\nI'm here to personalize your fitness journey. First, are you looking to:`,
+      text: `Hey${params.name ? ` ${params.name.split(' ')[0]}` : ''}! Welcome to LiftLink.\n\nI'm your AI fitness companion. Let me personalize your experience.\n\nFirst, what brings you here?`,
       options: ['Find a trainer', 'Become a trainer']
     },
     { 
       id: 2, 
-      text: "Great choice! What's your main fitness goal?",
-      options: ['Lose weight', 'Build muscle', 'Stay healthy', 'Train for sports']
+      text: "Excellent choice! What's your primary fitness objective?",
+      options: ['Lose weight', 'Build muscle', 'Stay healthy', 'Athletic performance']
     },
     { 
       id: 3, 
-      text: "And what's your current fitness experience?",
+      text: "And where would you place your current fitness level?",
       options: ['Beginner', 'Intermediate', 'Advanced']
     },
   ];
@@ -64,7 +109,6 @@ export default function AIOnboardingScreen() {
   const startOnboarding = async () => {
     setLoading(true);
     
-    // Try to start AI onboarding
     try {
       const response = await axios.post(`${API_URL}/ai/onboarding/start`, {
         user_name: params.name || params.email?.split('@')[0] || 'Friend',
@@ -78,7 +122,6 @@ export default function AIOnboardingScreen() {
       }]);
     } catch (error) {
       console.log('AI onboarding not available, using simple flow');
-      // Fallback to simple questions
       setMessages([{
         id: '1',
         text: questions[0].text,
@@ -91,7 +134,6 @@ export default function AIOnboardingScreen() {
   };
 
   const handleOptionSelect = async (option) => {
-    // Add user message
     const userMessage = {
       id: Date.now().toString(),
       text: option,
@@ -103,7 +145,6 @@ export default function AIOnboardingScreen() {
     setStep(nextStep);
 
     if (nextStep < questions.length) {
-      // Show next question
       setTimeout(() => {
         setMessages(prev => [...prev, {
           id: (Date.now() + 1).toString(),
@@ -111,14 +152,12 @@ export default function AIOnboardingScreen() {
           isAI: true,
           options: questions[nextStep].options,
         }]);
-      }, 500);
+      }, 600);
     } else {
-      // Onboarding complete - create user
       setComplete(true);
       
-      // Gather data
       const userData = {
-        role: messages[1]?.text === 'Become a trainer' ? 'trainer' : 'trainee',
+        role: messages[1]?.text === 'Become a trainer' ? 'trainer' : 'fitness_enthusiast',
         goal: messages[3]?.text || 'Stay healthy',
         experience: option,
       };
@@ -126,11 +165,11 @@ export default function AIOnboardingScreen() {
       setTimeout(() => {
         setMessages(prev => [...prev, {
           id: (Date.now() + 1).toString(),
-          text: "Perfect! 🎉 Let me set up your account...",
+          text: "Perfect! Initializing your profile...",
           isAI: true,
         }]);
         handleComplete(userData);
-      }, 500);
+      }, 600);
     }
   };
 
@@ -179,7 +218,6 @@ export default function AIOnboardingScreen() {
 
   const handleComplete = async (collectedData) => {
     try {
-      // Create user account - endpoint is /users not /register
       const response = await axios.post(`${API_URL}/users`, {
         email: params.email,
         name: params.name || params.email?.split('@')[0],
@@ -190,11 +228,10 @@ export default function AIOnboardingScreen() {
 
       console.log('User registered:', response.data);
 
-      // Now go to age verification (user needs to verify before they can use the app)
       setTimeout(() => {
         setMessages(prev => [...prev, {
           id: (Date.now() + 1).toString(),
-          text: "Account created! 🎉\n\nOne last step - we need to verify your age (18+) to comply with fitness industry regulations.\n\nThis is a quick one-time verification.",
+          text: "Account created!\n\nOne final step - we need to verify you're 18+ to comply with fitness industry regulations.\n\nThis is a quick one-time process.",
           isAI: true,
         }]);
 
@@ -207,15 +244,13 @@ export default function AIOnboardingScreen() {
               name: params.name,
             }
           });
-        }, 2000);
+        }, 2500);
       }, 1000);
 
     } catch (error) {
       console.error('Registration error:', error);
       
-      // If user already exists, go to age verification
       if (error.response?.status === 400 && error.response?.data?.detail?.includes('already exists')) {
-        // User exists but not verified - get their ID and go to verification
         try {
           const checkRes = await axios.post(`${API_URL}/check-user`, { email: params.email });
           router.replace({
@@ -234,7 +269,7 @@ export default function AIOnboardingScreen() {
       } else {
         setMessages(prev => [...prev, {
           id: (Date.now() + 1).toString(),
-          text: `Hmm, something went wrong: ${error.response?.data?.detail || 'Please try again.'}`,
+          text: `Something went wrong: ${error.response?.data?.detail || 'Please try again.'}`,
           isAI: true,
         }]);
         setComplete(false);
@@ -244,47 +279,63 @@ export default function AIOnboardingScreen() {
 
   const renderMessage = ({ item, index }) => (
     <Animated.View
-      entering={FadeInDown.delay(index * 100)}
+      entering={FadeInDown.delay(index * 50).springify()}
       style={[
         styles.messageBubble,
         item.isAI ? styles.aiMessage : styles.userMessage,
       ]}
     >
-      <Text style={[
-        styles.messageText,
-        { color: item.isAI ? COLORS.text : COLORS.background }
-      ]}>
-        {item.text}
-      </Text>
-      
-      {/* Options */}
-      {item.options && !complete && (
-        <View style={styles.optionsContainer}>
-          {item.options.map((option, i) => (
-            <TouchableOpacity
-              key={i}
-              style={styles.optionButton}
-              onPress={() => handleOptionSelect(option)}
-            >
-              <Text style={styles.optionText}>{option}</Text>
-            </TouchableOpacity>
-          ))}
+      {item.isAI && (
+        <View style={styles.aiAvatarContainer}>
+          <AIAvatar size={32} />
         </View>
       )}
+      <View style={[
+        styles.messageContent,
+        item.isAI ? styles.aiMessageContent : styles.userMessageContent,
+      ]}>
+        <Text style={[
+          styles.messageText,
+          { color: item.isAI ? FUTURE_COLORS.text : FUTURE_COLORS.void }
+        ]}>
+          {item.text}
+        </Text>
+        
+        {item.options && !complete && (
+          <View style={styles.optionsContainer}>
+            {item.options.map((option, i) => (
+              <TouchableOpacity
+                key={i}
+                style={styles.optionButton}
+                onPress={() => handleOptionSelect(option)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.optionText}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+      </View>
     </Animated.View>
   );
 
   return (
     <View style={styles.container}>
+      <ParticleField count={8} />
+      
+      <View style={styles.glowOrb} pointerEvents="none" />
+
       <SafeAreaView style={styles.safeArea}>
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backText}>←</Text>
+            <Svg width={24} height={24} viewBox="0 0 24 24">
+              <Path d="M15 18L9 12L15 6" stroke={FUTURE_COLORS.text} strokeWidth="2" strokeLinecap="round" />
+            </Svg>
           </TouchableOpacity>
           <View style={styles.headerCenter}>
-            <LiftLinkLogo size={28} />
-            <Text style={styles.headerTitle}>LiftLink</Text>
+            <FutureLogo size={32} />
+            <Text style={styles.headerTitle}>LiftLink AI</Text>
           </View>
           <View style={styles.placeholder} />
         </View>
@@ -303,12 +354,16 @@ export default function AIOnboardingScreen() {
         {/* Typing Indicator */}
         {loading && (
           <View style={styles.typingIndicator}>
-            <ActivityIndicator size="small" color={COLORS.primary} />
-            <Text style={styles.typingText}>Thinking...</Text>
+            <AIAvatar size={24} />
+            <View style={styles.typingDots}>
+              <View style={[styles.dot, { animationDelay: '0ms' }]} />
+              <View style={[styles.dot, { animationDelay: '200ms' }]} />
+              <View style={[styles.dot, { animationDelay: '400ms' }]} />
+            </View>
           </View>
         )}
 
-        {/* Input (only show if using AI chat, not simple options) */}
+        {/* Input */}
         {sessionId && !complete && (
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -318,7 +373,7 @@ export default function AIOnboardingScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Type your response..."
-                placeholderTextColor="#666"
+                placeholderTextColor={FUTURE_COLORS.textMuted}
                 value={inputText}
                 onChangeText={setInputText}
                 multiline
@@ -332,7 +387,10 @@ export default function AIOnboardingScreen() {
                 onPress={sendMessage}
                 disabled={!inputText.trim() || loading}
               >
-                <Text style={styles.sendButtonText}>→</Text>
+                <Svg width={20} height={20} viewBox="0 0 24 24">
+                  <Path d="M22 2L11 13" stroke={FUTURE_COLORS.void} strokeWidth="2" strokeLinecap="round" />
+                  <Path d="M22 2L15 22L11 13L2 9L22 2Z" fill={FUTURE_COLORS.void} />
+                </Svg>
               </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>
@@ -341,8 +399,8 @@ export default function AIOnboardingScreen() {
         {/* Complete indicator */}
         {complete && (
           <View style={styles.completeIndicator}>
-            <ActivityIndicator size="small" color={COLORS.primary} />
-            <Text style={styles.completeText}>Setting up your account...</Text>
+            <ActivityIndicator size="small" color={FUTURE_COLORS.primary} />
+            <Text style={styles.completeText}>Setting up your profile...</Text>
           </View>
         )}
       </SafeAreaView>
@@ -353,7 +411,17 @@ export default function AIOnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: FUTURE_COLORS.void,
+  },
+  glowOrb: {
+    position: 'absolute',
+    top: -50,
+    right: -50,
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    backgroundColor: FUTURE_COLORS.primary,
+    opacity: 0.05,
   },
   safeArea: {
     flex: 1,
@@ -365,72 +433,85 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: FUTURE_COLORS.border,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: COLORS.surface,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: FUTURE_COLORS.surface,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  backText: {
-    color: COLORS.text,
-    fontSize: 20,
+    borderWidth: 1,
+    borderColor: FUTURE_COLORS.border,
   },
   headerCenter: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   headerTitle: {
-    color: COLORS.text,
+    color: FUTURE_COLORS.text,
     fontSize: 18,
     fontWeight: '700',
-    marginLeft: 8,
+    marginLeft: 10,
+    letterSpacing: 0.5,
   },
   placeholder: {
-    width: 40,
+    width: 44,
   },
   messagesList: {
     padding: 16,
     paddingBottom: 100,
   },
   messageBubble: {
-    maxWidth: '85%',
-    padding: 16,
-    borderRadius: 20,
-    marginBottom: 12,
+    flexDirection: 'row',
+    marginBottom: 16,
+    maxWidth: '90%',
   },
   aiMessage: {
     alignSelf: 'flex-start',
-    backgroundColor: COLORS.surface,
-    borderBottomLeftRadius: 4,
   },
   userMessage: {
     alignSelf: 'flex-end',
-    backgroundColor: COLORS.primary,
+  },
+  aiAvatarContainer: {
+    marginRight: 10,
+    marginTop: 4,
+  },
+  messageContent: {
+    padding: 16,
+    borderRadius: 20,
+    maxWidth: '85%',
+  },
+  aiMessageContent: {
+    backgroundColor: FUTURE_COLORS.surface,
+    borderWidth: 1,
+    borderColor: FUTURE_COLORS.border,
+    borderTopLeftRadius: 4,
+  },
+  userMessageContent: {
+    backgroundColor: FUTURE_COLORS.primary,
     borderBottomRightRadius: 4,
   },
   messageText: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: 15,
+    lineHeight: 22,
   },
   optionsContainer: {
     marginTop: 16,
   },
   optionButton: {
-    backgroundColor: COLORS.background,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    backgroundColor: FUTURE_COLORS.elevated,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
     borderRadius: 12,
     marginTop: 8,
     borderWidth: 1,
-    borderColor: COLORS.primary,
+    borderColor: FUTURE_COLORS.primary,
   },
   optionText: {
-    color: COLORS.primary,
-    fontSize: 15,
+    color: FUTURE_COLORS.primary,
+    fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -438,65 +519,68 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 8,
+    paddingVertical: 12,
   },
-  typingText: {
-    color: COLORS.textSecondary,
-    marginLeft: 8,
-    fontSize: 14,
+  typingDots: {
+    flexDirection: 'row',
+    marginLeft: 12,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: FUTURE_COLORS.primary,
+    marginHorizontal: 3,
+    opacity: 0.5,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
     padding: 12,
     paddingBottom: 24,
-    backgroundColor: COLORS.surface,
+    backgroundColor: FUTURE_COLORS.surface,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: FUTURE_COLORS.border,
   },
   input: {
     flex: 1,
-    minHeight: 44,
+    minHeight: 48,
     maxHeight: 100,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: COLORS.text,
-    backgroundColor: COLORS.background,
-    borderRadius: 22,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: FUTURE_COLORS.text,
+    backgroundColor: FUTURE_COLORS.elevated,
+    borderRadius: 24,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: FUTURE_COLORS.border,
   },
   sendButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: COLORS.primary,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: FUTURE_COLORS.primary,
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8,
+    marginLeft: 10,
   },
   sendButtonDisabled: {
-    opacity: 0.5,
-  },
-  sendButtonText: {
-    color: COLORS.background,
-    fontSize: 20,
-    fontWeight: 'bold',
+    opacity: 0.4,
   },
   completeIndicator: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 20,
-    backgroundColor: COLORS.surface,
+    backgroundColor: FUTURE_COLORS.surface,
     borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    borderTopColor: FUTURE_COLORS.border,
   },
   completeText: {
-    color: COLORS.primary,
+    color: FUTURE_COLORS.primary,
     marginLeft: 12,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
+    letterSpacing: 0.3,
   },
 });
