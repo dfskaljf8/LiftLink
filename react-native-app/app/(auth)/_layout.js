@@ -1,18 +1,17 @@
 /**
  * Auth Layout - Stack navigator for auth screens
+ * Futuristic 2050 theme
  */
 
 import { Stack } from 'expo-router';
-import { useApp } from '../../src/context/AppContext';
+import { FUTURE_COLORS } from '../../src/components/FuturisticUI';
 
 export default function AuthLayout() {
-  const { colors } = useApp();
-
   return (
     <Stack
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: colors.background },
+        contentStyle: { backgroundColor: FUTURE_COLORS.void },
         animation: 'slide_from_right',
       }}
     >
