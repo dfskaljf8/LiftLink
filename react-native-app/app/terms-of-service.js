@@ -1,73 +1,100 @@
 /**
- * Terms of Service Screen
+ * Terms of Service Screen - Futuristic 2050 Design
  */
 
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useApp } from '../src/context/AppContext';
+import Svg, { Path } from 'react-native-svg';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { FUTURE_COLORS, ParticleField, FutureLogo } from '../src/components/FuturisticUI';
+
+// Back Icon
+const BackIcon = ({ size = 24 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path d="M15 18L9 12L15 6" stroke={FUTURE_COLORS.text} strokeWidth="2" strokeLinecap="round" />
+  </Svg>
+);
 
 export default function TermsOfServiceScreen() {
   const router = useRouter();
-  const { colors } = useApp();
+
+  const Section = ({ title, content, delay = 0 }) => (
+    <Animated.View entering={FadeInDown.delay(delay)} style={styles.section}>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      <Text style={styles.sectionContent}>{content}</Text>
+    </Animated.View>
+  );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <View style={[styles.header, { borderBottomColor: colors.border }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
-        </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Terms of Service</Text>
-        <View style={styles.placeholder} />
-      </View>
+    <View style={styles.container}>
+      <ParticleField count={4} />
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={[styles.lastUpdated, { color: colors.textSecondary }]}>
-          Last updated: January 2025
-        </Text>
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <BackIcon />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Terms of Service</Text>
+          <View style={styles.placeholder} />
+        </View>
 
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>1. Acceptance of Terms</Text>
-        <Text style={[styles.paragraph, { color: colors.textSecondary }]}>
-          By accessing or using LiftLink, you agree to be bound by these Terms of Service.
-          If you do not agree to these terms, please do not use our services.
-        </Text>
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          <Animated.View entering={FadeInDown} style={styles.logoContainer}>
+            <FutureLogo size={40} />
+            <Text style={styles.lastUpdated}>Last updated: January 2025</Text>
+          </Animated.View>
 
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>2. Description of Service</Text>
-        <Text style={[styles.paragraph, { color: colors.textSecondary }]}>
-          LiftLink is an AI-powered fitness coaching platform that connects trainees with
-          certified personal trainers. Our services include workout planning, progress tracking,
-          and personalized fitness recommendations.
-        </Text>
+          <Section
+            title="1. Acceptance of Terms"
+            content="By accessing or using LiftLink, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our services."
+            delay={100}
+          />
 
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>3. User Accounts</Text>
-        <Text style={[styles.paragraph, { color: colors.textSecondary }]}>
-          You are responsible for maintaining the confidentiality of your account credentials
-          and for all activities that occur under your account. You must notify us immediately
-          of any unauthorized use.
-        </Text>
+          <Section
+            title="2. Age Requirements"
+            content="You must be at least 18 years old to use LiftLink. We verify user ages through government-issued ID verification to comply with fitness industry regulations."
+            delay={200}
+          />
 
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>4. User Conduct</Text>
-        <Text style={[styles.paragraph, { color: colors.textSecondary }]}>
-          You agree not to use the service for any unlawful purpose or in any way that could
-          damage, disable, or impair our services. You will not attempt to gain unauthorized
-          access to any part of the service.
-        </Text>
+          <Section
+            title="3. User Accounts"
+            content="You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. Please notify us immediately of any unauthorized use."
+            delay={300}
+          />
 
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>5. Limitation of Liability</Text>
-        <Text style={[styles.paragraph, { color: colors.textSecondary }]}>
-          LiftLink is not liable for any indirect, incidental, special, or consequential damages
-          arising out of your use of the service. Always consult with a healthcare professional
-          before beginning any fitness program.
-        </Text>
-      </ScrollView>
-    </SafeAreaView>
+          <Section
+            title="4. Fitness Disclaimer"
+            content="LiftLink provides fitness information and AI recommendations for educational purposes only. Always consult with a qualified healthcare provider before starting any new fitness program."
+            delay={400}
+          />
+
+          <Section
+            title="5. Trainer Services"
+            content="LiftLink connects users with independent fitness trainers. We are not responsible for the services provided by trainers. Users should verify trainer qualifications independently."
+            delay={500}
+          />
+
+          <Section
+            title="6. Termination"
+            content="We reserve the right to terminate or suspend your account at any time for violation of these terms or any other reason at our sole discretion."
+            delay={600}
+          />
+
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    backgroundColor: FUTURE_COLORS.void,
+  },
+  safeArea: {
     flex: 1,
   },
   header: {
@@ -77,32 +104,55 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
+    borderBottomColor: FUTURE_COLORS.border,
   },
   backButton: {
-    padding: 8,
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: FUTURE_COLORS.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: FUTURE_COLORS.border,
   },
   headerTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: '700',
+    color: FUTURE_COLORS.text,
   },
   placeholder: {
-    width: 40,
+    width: 44,
   },
   scrollContent: {
-    padding: 16,
+    padding: 20,
+  },
+  logoContainer: {
+    alignItems: 'center',
+    marginBottom: 28,
   },
   lastUpdated: {
     fontSize: 12,
-    marginBottom: 24,
+    color: FUTURE_COLORS.textMuted,
+    marginTop: 12,
+  },
+  section: {
+    backgroundColor: FUTURE_COLORS.surface,
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: FUTURE_COLORS.border,
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 16,
-    marginBottom: 8,
+    fontSize: 15,
+    fontWeight: '700',
+    color: FUTURE_COLORS.text,
+    marginBottom: 10,
   },
-  paragraph: {
+  sectionContent: {
     fontSize: 14,
     lineHeight: 22,
+    color: FUTURE_COLORS.textSecondary,
   },
 });
