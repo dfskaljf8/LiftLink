@@ -1,72 +1,19 @@
 /**
- * Main Tabs Layout
- * Dark theme with lime green accent navigation
+ * Main Tabs Layout - Futuristic 2050 Design
+ * Floating glass navigation with glow effects
  */
 
 import { Tabs } from 'expo-router';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
+import { BlurView } from 'expo-blur';
 import {
-  COLORS,
-  HomeIcon,
-  SearchPersonIcon,
-  DumbbellIcon,
-  CalendarIcon,
-  UserIcon,
-} from '../../src/components/CustomIllustrations';
-import Svg, { Path, Circle, Rect } from 'react-native-svg';
-
-// Tab Icons
-const TabHomeIcon = ({ focused }) => (
-  <Svg width={24} height={24} viewBox="0 0 24 24">
-    <Path
-      d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"
-      fill={focused ? COLORS.primary : '#666'}
-    />
-  </Svg>
-);
-
-const TabSearchIcon = ({ focused }) => (
-  <Svg width={24} height={24} viewBox="0 0 24 24">
-    <Circle cx="10" cy="8" r="3" stroke={focused ? COLORS.primary : '#666'} strokeWidth="2" fill="none" />
-    <Path d="M4 18C4 15 7 13 10 13" stroke={focused ? COLORS.primary : '#666'} strokeWidth="2" fill="none" />
-    <Circle cx="17" cy="17" r="4" stroke={focused ? COLORS.primary : '#666'} strokeWidth="2" fill="none" />
-    <Path d="M20 20L22 22" stroke={focused ? COLORS.primary : '#666'} strokeWidth="2" strokeLinecap="round" />
-  </Svg>
-);
-
-const TabLocationIcon = ({ focused }) => (
-  <Svg width={24} height={24} viewBox="0 0 24 24">
-    <Path
-      d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z"
-      stroke={focused ? COLORS.primary : '#666'}
-      strokeWidth="2"
-      fill={focused ? COLORS.primary : 'none'}
-    />
-    {!focused && <Circle cx="12" cy="9" r="2.5" fill="#666" />}
-  </Svg>
-);
-
-const TabCalendarIcon = ({ focused }) => (
-  <Svg width={24} height={24} viewBox="0 0 24 24">
-    <Rect x="3" y="4" width="18" height="18" rx="2" stroke={focused ? COLORS.primary : '#666'} strokeWidth="2" fill="none" />
-    <Path d="M3 10H21" stroke={focused ? COLORS.primary : '#666'} strokeWidth="2" />
-    <Path d="M8 2V6" stroke={focused ? COLORS.primary : '#666'} strokeWidth="2" strokeLinecap="round" />
-    <Path d="M16 2V6" stroke={focused ? COLORS.primary : '#666'} strokeWidth="2" strokeLinecap="round" />
-  </Svg>
-);
-
-const TabProfileIcon = ({ focused }) => (
-  <Svg width={24} height={24} viewBox="0 0 24 24">
-    <Circle cx="12" cy="8" r="4" stroke={focused ? COLORS.primary : '#666'} strokeWidth="2" fill={focused ? COLORS.primary : 'none'} />
-    <Path
-      d="M4 20C4 16 8 14 12 14C16 14 20 16 20 20"
-      stroke={focused ? COLORS.primary : '#666'}
-      strokeWidth="2"
-      strokeLinecap="round"
-      fill="none"
-    />
-  </Svg>
-);
+  FUTURE_COLORS,
+  FutureHomeIcon,
+  FutureSearchIcon,
+  FutureMapIcon,
+  FutureCalendarIcon,
+  FutureProfileIcon,
+} from '../../src/components/FuturisticUI';
 
 export default function TabsLayout() {
   return (
@@ -76,50 +23,55 @@ export default function TabsLayout() {
         tabBarStyle: styles.tabBar,
         tabBarShowLabel: true,
         tabBarLabelStyle: styles.tabLabel,
-        tabBarActiveTintColor: COLORS.primary,
-        tabBarInactiveTintColor: '#666',
+        tabBarActiveTintColor: FUTURE_COLORS.primary,
+        tabBarInactiveTintColor: FUTURE_COLORS.textMuted,
+        tabBarBackground: () => (
+          <View style={styles.tabBarBackground}>
+            <View style={styles.tabBarGlow} />
+          </View>
+        ),
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ focused }) => <TabHomeIcon focused={focused} />,
+          tabBarIcon: ({ focused }) => <FutureHomeIcon focused={focused} size={24} />,
         }}
       />
       <Tabs.Screen
         name="trainers"
         options={{
           title: 'Find',
-          tabBarIcon: ({ focused }) => <TabSearchIcon focused={focused} />,
+          tabBarIcon: ({ focused }) => <FutureSearchIcon focused={focused} size={24} />,
         }}
       />
       <Tabs.Screen
         name="fitness"
         options={{
           title: 'Map',
-          tabBarIcon: ({ focused }) => <TabLocationIcon focused={focused} />,
+          tabBarIcon: ({ focused }) => <FutureMapIcon focused={focused} size={24} />,
         }}
       />
       <Tabs.Screen
         name="sessions"
         options={{
           title: 'Sessions',
-          tabBarIcon: ({ focused }) => <TabCalendarIcon focused={focused} />,
+          tabBarIcon: ({ focused }) => <FutureCalendarIcon focused={focused} size={24} />,
         }}
       />
       <Tabs.Screen
         name="settings"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ focused }) => <TabProfileIcon focused={focused} />,
+          tabBarIcon: ({ focused }) => <FutureProfileIcon focused={focused} size={24} />,
         }}
       />
       {/* Hidden tabs */}
       <Tabs.Screen
         name="tree"
         options={{
-          href: null, // Hide from tab bar
+          href: null,
         }}
       />
     </Tabs>
@@ -129,15 +81,48 @@ export default function TabsLayout() {
 const styles = StyleSheet.create({
   tabBar: {
     position: 'absolute',
-    backgroundColor: COLORS.surface,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
+    bottom: Platform.OS === 'ios' ? 20 : 12,
+    left: 16,
+    right: 16,
     height: 70,
-    paddingBottom: 10,
-    paddingTop: 10,
+    borderRadius: 24,
+    backgroundColor: `${FUTURE_COLORS.surface}F0`,
+    borderTopWidth: 0,
+    borderWidth: 1,
+    borderColor: FUTURE_COLORS.border,
+    paddingBottom: 8,
+    paddingTop: 8,
+    // Glass effect shadow
+    shadowColor: FUTURE_COLORS.primary,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 20,
+    elevation: 20,
+  },
+  tabBarBackground: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 24,
+    overflow: 'hidden',
+  },
+  tabBarGlow: {
+    position: 'absolute',
+    top: -20,
+    left: '50%',
+    marginLeft: -50,
+    width: 100,
+    height: 4,
+    backgroundColor: FUTURE_COLORS.primary,
+    borderRadius: 2,
+    opacity: 0.5,
   },
   tabLabel: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: '600',
+    letterSpacing: 0.5,
+    marginTop: 2,
   },
 });
