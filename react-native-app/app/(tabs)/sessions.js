@@ -1,6 +1,6 @@
 /**
- * Sessions Screen
- * View and manage training sessions
+ * Sessions Screen - Futuristic 2050 Design
+ * View and manage training sessions with holographic UI
  */
 
 import React, { useState } from 'react';
@@ -14,18 +14,84 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import Svg, { Path, Circle, Rect, Defs, LinearGradient, Stop, G } from 'react-native-svg';
+import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
+import { FUTURE_COLORS, ParticleField, FutureButton } from '../../src/components/FuturisticUI';
 import { useApp } from '../../src/context/AppContext';
+
+// Icons
+const FitnessIcon = ({ size = 24 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Defs>
+      <LinearGradient id="fitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor={FUTURE_COLORS.primary} />
+        <Stop offset="100%" stopColor={FUTURE_COLORS.accent} />
+      </LinearGradient>
+    </Defs>
+    <Rect x="2" y="9" width="5" height="6" rx="1" fill="url(#fitGrad)" />
+    <Rect x="17" y="9" width="5" height="6" rx="1" fill="url(#fitGrad)" />
+    <Rect x="6" y="10" width="12" height="4" rx="1" fill="url(#fitGrad)" opacity="0.7" />
+  </Svg>
+);
+
+const CalendarIcon = ({ size = 16 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Rect x="3" y="4" width="18" height="18" rx="2" stroke={FUTURE_COLORS.textSecondary} strokeWidth="1.5" fill="none" />
+    <Path d="M3 10H21" stroke={FUTURE_COLORS.textSecondary} strokeWidth="1.5" />
+    <Path d="M8 2V6" stroke={FUTURE_COLORS.textSecondary} strokeWidth="1.5" strokeLinecap="round" />
+    <Path d="M16 2V6" stroke={FUTURE_COLORS.textSecondary} strokeWidth="1.5" strokeLinecap="round" />
+  </Svg>
+);
+
+const ClockIcon = ({ size = 16 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Circle cx="12" cy="12" r="9" stroke={FUTURE_COLORS.textSecondary} strokeWidth="1.5" fill="none" />
+    <Path d="M12 6V12L16 14" stroke={FUTURE_COLORS.textSecondary} strokeWidth="1.5" strokeLinecap="round" />
+  </Svg>
+);
+
+const LocationIcon = ({ size = 16 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path
+      d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z"
+      stroke={FUTURE_COLORS.textSecondary}
+      strokeWidth="1.5"
+      fill="none"
+    />
+    <Circle cx="12" cy="9" r="2" fill={FUTURE_COLORS.textSecondary} />
+  </Svg>
+);
+
+const PlusIcon = ({ size = 24 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Path d="M12 5V19M5 12H19" stroke={FUTURE_COLORS.void} strokeWidth="2.5" strokeLinecap="round" />
+  </Svg>
+);
+
+const EmptyCalendarIcon = ({ size = 80 }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24">
+    <Defs>
+      <LinearGradient id="emptyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <Stop offset="0%" stopColor={FUTURE_COLORS.primary} stopOpacity="0.3" />
+        <Stop offset="100%" stopColor={FUTURE_COLORS.accent} stopOpacity="0.3" />
+      </LinearGradient>
+    </Defs>
+    <Rect x="3" y="4" width="18" height="18" rx="3" stroke="url(#emptyGrad)" strokeWidth="1.5" fill="none" />
+    <Path d="M3 10H21" stroke="url(#emptyGrad)" strokeWidth="1.5" />
+    <Path d="M8 2V6" stroke="url(#emptyGrad)" strokeWidth="1.5" strokeLinecap="round" />
+    <Path d="M16 2V6" stroke="url(#emptyGrad)" strokeWidth="1.5" strokeLinecap="round" />
+    <Circle cx="12" cy="15" r="2" fill={FUTURE_COLORS.primary} opacity="0.5" />
+  </Svg>
+);
 
 export default function SessionsScreen() {
   const router = useRouter();
-  const { colors, sessions } = useApp();
+  const { sessions } = useApp();
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState('all'); // 'all' | 'upcoming' | 'completed'
+  const [filter, setFilter] = useState('all');
 
   const onRefresh = () => {
     setRefreshing(true);
-    // Simulating refresh
     setTimeout(() => setRefreshing(false), 1000);
   };
 
@@ -38,172 +104,176 @@ export default function SessionsScreen() {
 
   const FilterButton = ({ value, label }) => (
     <TouchableOpacity
-      style={[
-        styles.filterButton,
-        filter === value && { backgroundColor: colors.primary },
-      ]}
+      style={[styles.filterButton, filter === value && styles.filterButtonActive]}
       onPress={() => setFilter(value)}
     >
-      <Text
-        style={[
-          styles.filterButtonText,
-          { color: filter === value ? '#fff' : colors.textSecondary },
-        ]}
-      >
+      <Text style={[styles.filterButtonText, filter === value && styles.filterButtonTextActive]}>
         {label}
       </Text>
     </TouchableOpacity>
   );
 
-  const renderSession = ({ item }) => (
-    <TouchableOpacity style={[styles.sessionCard, { backgroundColor: colors.surface }]}>
-      <View style={styles.sessionHeader}>
-        <View style={[styles.sessionIcon, { backgroundColor: colors.primary + '20' }]}>
-          <Ionicons name="fitness-outline" size={24} color={colors.primary} />
-        </View>
-        <View style={styles.sessionInfo}>
-          <Text style={[styles.sessionType, { color: colors.text }]}>
-            {item.session_type || 'Training Session'}
-          </Text>
-          <Text style={[styles.sessionTrainer, { color: colors.textSecondary }]}>
-            with {item.trainer_name || 'Trainer'}
-          </Text>
-        </View>
-        <View
-          style={[
-            styles.statusBadge,
-            {
-              backgroundColor:
-                item.status === 'completed' ? colors.accent + '20' : colors.primary + '20',
-            },
-          ]}
-        >
-          <Text
-            style={[
-              styles.statusText,
-              { color: item.status === 'completed' ? colors.accent : colors.primary },
-            ]}
-          >
-            {item.status || 'Scheduled'}
-          </Text>
-        </View>
-      </View>
+  const renderSession = ({ item, index }) => {
+    const isCompleted = item.status === 'completed';
+    
+    return (
+      <Animated.View entering={FadeInRight.delay(index * 80)}>
+        <TouchableOpacity style={styles.sessionCard} activeOpacity={0.8}>
+          <View style={styles.sessionHeader}>
+            <View style={styles.sessionIconContainer}>
+              <FitnessIcon size={28} />
+            </View>
+            <View style={styles.sessionInfo}>
+              <Text style={styles.sessionType}>{item.session_type || 'Training Session'}</Text>
+              <Text style={styles.sessionTrainer}>with {item.trainer_name || 'Trainer'}</Text>
+            </View>
+            <View style={[styles.statusBadge, isCompleted ? styles.statusCompleted : styles.statusScheduled]}>
+              <Text style={[styles.statusText, isCompleted ? styles.statusTextCompleted : styles.statusTextScheduled]}>
+                {item.status || 'Scheduled'}
+              </Text>
+            </View>
+          </View>
 
-      <View style={[styles.sessionDetails, { borderTopColor: colors.border }]}>
-        <View style={styles.detailItem}>
-          <Ionicons name="calendar-outline" size={16} color={colors.textSecondary} />
-          <Text style={[styles.detailText, { color: colors.textSecondary }]}>
-            {item.date || 'TBD'}
-          </Text>
-        </View>
-        <View style={styles.detailItem}>
-          <Ionicons name="time-outline" size={16} color={colors.textSecondary} />
-          <Text style={[styles.detailText, { color: colors.textSecondary }]}>
-            {item.duration_minutes || 60} min
-          </Text>
-        </View>
-        <View style={styles.detailItem}>
-          <Ionicons name="location-outline" size={16} color={colors.textSecondary} />
-          <Text style={[styles.detailText, { color: colors.textSecondary }]}>
-            {item.location || 'Online'}
-          </Text>
-        </View>
-      </View>
-    </TouchableOpacity>
-  );
+          <View style={styles.sessionDetails}>
+            <View style={styles.detailItem}>
+              <CalendarIcon size={14} />
+              <Text style={styles.detailText}>{item.date || 'TBD'}</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <ClockIcon size={14} />
+              <Text style={styles.detailText}>{item.duration_minutes || 60} min</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <LocationIcon size={14} />
+              <Text style={styles.detailText}>{item.location || 'Online'}</Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      </Animated.View>
+    );
+  };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>My Sessions</Text>
-        <TouchableOpacity
-          style={[styles.addButton, { backgroundColor: colors.primary }]}
-          onPress={() => router.push('/calendar')}
-        >
-          <Ionicons name="add" size={24} color="#fff" />
-        </TouchableOpacity>
-      </View>
+    <View style={styles.container}>
+      <ParticleField count={6} />
 
-      {/* Filter Tabs */}
-      <View style={styles.filterRow}>
-        <FilterButton value="all" label="All" />
-        <FilterButton value="upcoming" label="Upcoming" />
-        <FilterButton value="completed" label="Completed" />
-      </View>
+      <SafeAreaView style={styles.safeArea}>
+        {/* Header */}
+        <Animated.View entering={FadeInDown} style={styles.header}>
+          <Text style={styles.title}>My Sessions</Text>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => router.push('/calendar')}
+          >
+            <PlusIcon size={22} />
+          </TouchableOpacity>
+        </Animated.View>
 
-      {/* Sessions List */}
-      <FlatList
-        data={filteredSessions}
-        renderItem={renderSession}
-        keyExtractor={(item, index) => item.id || index.toString()}
-        contentContainerStyle={styles.listContent}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
-        }
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="calendar-outline" size={64} color={colors.textSecondary} />
-            <Text style={[styles.emptyTitle, { color: colors.text }]}>No sessions yet</Text>
-            <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
-              Book a session with a trainer to get started!
-            </Text>
-            <TouchableOpacity
-              style={[styles.bookButton, { backgroundColor: colors.primary }]}
-              onPress={() => router.push('/(tabs)/trainers')}
-            >
-              <Text style={styles.bookButtonText}>Find a Trainer</Text>
-            </TouchableOpacity>
-          </View>
-        }
-      />
-    </SafeAreaView>
+        {/* Filter Tabs */}
+        <Animated.View entering={FadeInDown.delay(100)} style={styles.filterRow}>
+          <FilterButton value="all" label="All" />
+          <FilterButton value="upcoming" label="Upcoming" />
+          <FilterButton value="completed" label="Completed" />
+        </Animated.View>
+
+        {/* Sessions List */}
+        <FlatList
+          data={filteredSessions}
+          renderItem={renderSession}
+          keyExtractor={(item, index) => item.id || index.toString()}
+          contentContainerStyle={styles.listContent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={FUTURE_COLORS.primary} />
+          }
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <EmptyCalendarIcon size={100} />
+              <Text style={styles.emptyTitle}>No sessions yet</Text>
+              <Text style={styles.emptySubtitle}>
+                Book a session with a trainer to get started on your fitness journey!
+              </Text>
+              <TouchableOpacity
+                style={styles.findTrainerButton}
+                onPress={() => router.push('/(tabs)/trainers')}
+              >
+                <Text style={styles.findTrainerText}>Find a Trainer</Text>
+              </TouchableOpacity>
+            </View>
+          }
+        />
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: FUTURE_COLORS.void,
+  },
+  safeArea: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 28,
+    fontWeight: '800',
+    color: FUTURE_COLORS.text,
   },
   addButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: FUTURE_COLORS.primary,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: FUTURE_COLORS.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 15,
   },
   filterRow: {
     flexDirection: 'row',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     marginBottom: 16,
   },
   filterButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
     borderRadius: 20,
-    marginRight: 8,
+    marginRight: 10,
+    backgroundColor: FUTURE_COLORS.surface,
+    borderWidth: 1,
+    borderColor: FUTURE_COLORS.border,
+  },
+  filterButtonActive: {
+    backgroundColor: FUTURE_COLORS.primary,
+    borderColor: FUTURE_COLORS.primary,
   },
   filterButtonText: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 13,
+    fontWeight: '600',
+    color: FUTURE_COLORS.textSecondary,
+  },
+  filterButtonTextActive: {
+    color: FUTURE_COLORS.void,
   },
   listContent: {
-    padding: 16,
-    paddingBottom: 100,
+    paddingHorizontal: 20,
+    paddingBottom: 120,
   },
   sessionCard: {
-    borderRadius: 12,
+    backgroundColor: FUTURE_COLORS.surface,
+    borderRadius: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    borderColor: FUTURE_COLORS.border,
     overflow: 'hidden',
   },
   sessionHeader: {
@@ -211,73 +281,95 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 16,
   },
-  sessionIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  sessionIconContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    backgroundColor: FUTURE_COLORS.elevated,
     justifyContent: 'center',
     alignItems: 'center',
   },
   sessionInfo: {
     flex: 1,
-    marginLeft: 12,
+    marginLeft: 14,
   },
   sessionType: {
     fontSize: 16,
     fontWeight: '600',
+    color: FUTURE_COLORS.text,
   },
   sessionTrainer: {
-    fontSize: 14,
+    fontSize: 13,
+    color: FUTURE_COLORS.textSecondary,
     marginTop: 2,
   },
   statusBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
     borderRadius: 12,
   },
+  statusScheduled: {
+    backgroundColor: `${FUTURE_COLORS.primary}20`,
+  },
+  statusCompleted: {
+    backgroundColor: `${FUTURE_COLORS.accent}20`,
+  },
   statusText: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
     textTransform: 'capitalize',
   },
+  statusTextScheduled: {
+    color: FUTURE_COLORS.primary,
+  },
+  statusTextCompleted: {
+    color: FUTURE_COLORS.accent,
+  },
   sessionDetails: {
     flexDirection: 'row',
-    padding: 12,
+    padding: 14,
     borderTopWidth: 1,
+    borderTopColor: FUTURE_COLORS.border,
+    backgroundColor: FUTURE_COLORS.elevated,
   },
   detailItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 16,
+    marginRight: 18,
   },
   detailText: {
     fontSize: 12,
-    marginLeft: 4,
+    color: FUTURE_COLORS.textSecondary,
+    marginLeft: 6,
   },
   emptyState: {
     alignItems: 'center',
     paddingTop: 60,
+    paddingHorizontal: 40,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginTop: 16,
+    fontSize: 20,
+    fontWeight: '700',
+    color: FUTURE_COLORS.text,
+    marginTop: 20,
   },
   emptySubtitle: {
     fontSize: 14,
+    color: FUTURE_COLORS.textSecondary,
     textAlign: 'center',
     marginTop: 8,
-    paddingHorizontal: 32,
+    lineHeight: 20,
   },
-  bookButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+  findTrainerButton: {
+    backgroundColor: FUTURE_COLORS.primary,
+    paddingHorizontal: 28,
+    paddingVertical: 14,
     borderRadius: 24,
     marginTop: 24,
   },
-  bookButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+  findTrainerText: {
+    color: FUTURE_COLORS.void,
+    fontSize: 15,
+    fontWeight: '700',
   },
 });
