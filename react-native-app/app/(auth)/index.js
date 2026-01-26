@@ -1,6 +1,6 @@
 /**
  * LiftLink - Auth Screen
- * Dark theme with lime green accents - Fixed auth flow
+ * Futuristic 2050 UI - Buttery smooth & cyber-organic
  */
 
 import React, { useState, useEffect } from 'react';
@@ -13,6 +13,7 @@ import {
   Platform,
   Keyboard,
   Alert,
+  Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -24,19 +25,28 @@ import Animated, {
   withSpring,
   withTiming,
   withDelay,
+  withSequence,
   FadeIn,
+  FadeInDown,
+  FadeInUp,
+  Easing,
 } from 'react-native-reanimated';
 import { useApp } from '../../src/context/AppContext';
-import { 
-  LiftLinkLogo, 
-  LiftLinkMascot, 
-  EmailIcon, 
-  GoogleIcon,
-  AppleIcon,
-  COLORS 
-} from '../../src/components/CustomIllustrations';
-import { Button, SocialButton } from '../../src/components/AnimatedButton';
+import {
+  FUTURE_COLORS,
+  FutureLogo,
+  FutureMascot,
+  FutureButton,
+  FutureSocialButton,
+  FutureEmailIcon,
+  FutureGoogleIcon,
+  FutureAppleIcon,
+  ParticleField,
+  GlowRing,
+} from '../../src/components/FuturisticUI';
 import axios from 'axios';
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 // Required for Google OAuth
 WebBrowser.maybeCompleteAuthSession();
@@ -83,27 +93,41 @@ export default function AuthScreen() {
   }, []);
 
   // Animations
-  const logoScale = useSharedValue(0.8);
+  const logoScale = useSharedValue(0.5);
+  const logoOpacity = useSharedValue(0);
+  const contentTranslateY = useSharedValue(50);
   const contentOpacity = useSharedValue(0);
+  const glowOpacity = useSharedValue(0);
 
   useEffect(() => {
-    logoScale.value = withSpring(1, { damping: 12, stiffness: 100 });
-    contentOpacity.value = withDelay(200, withTiming(1, { duration: 500 }));
+    // Staggered entrance animation
+    logoOpacity.value = withDelay(200, withTiming(1, { duration: 800 }));
+    logoScale.value = withDelay(200, withSpring(1, { damping: 12, stiffness: 100 }));
+    
+    contentOpacity.value = withDelay(600, withTiming(1, { duration: 600 }));
+    contentTranslateY.value = withDelay(600, withSpring(0, { damping: 15, stiffness: 100 }));
+    
+    glowOpacity.value = withDelay(1000, withTiming(1, { duration: 1000 }));
   }, []);
 
   const logoStyle = useAnimatedStyle(() => ({
     transform: [{ scale: logoScale.value }],
+    opacity: logoOpacity.value,
   }));
 
   const contentStyle = useAnimatedStyle(() => ({
     opacity: contentOpacity.value,
+    transform: [{ translateY: contentTranslateY.value }],
+  }));
+
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: glowOpacity.value,
   }));
 
   // Handle Google sign-in success
   const handleGoogleSuccess = async (authentication) => {
     setGoogleLoading(true);
     try {
-      // Get user info from Google
       const userInfoResponse = await fetch(
         'https://www.googleapis.com/userinfo/v2/me',
         { headers: { Authorization: `Bearer ${authentication.accessToken}` } }
@@ -112,7 +136,6 @@ export default function AuthScreen() {
       
       console.log('Google user:', googleUser);
 
-      // Check if user exists in our system
       try {
         const checkResponse = await axios.post(`${API_URL}/check-user`, { 
           email: googleUser.email 
@@ -122,7 +145,6 @@ export default function AuthScreen() {
           const { age_verified, user_id } = checkResponse.data;
           
           if (!age_verified) {
-            // User exists but not age verified - go to verification
             router.push({
               pathname: '/(auth)/document-verification',
               params: { 
@@ -135,7 +157,6 @@ export default function AuthScreen() {
             return;
           }
           
-          // User exists and is verified - try to login
           try {
             const loginResponse = await axios.post(`${API_URL}/login`, { 
               email: googleUser.email 
@@ -149,7 +170,6 @@ export default function AuthScreen() {
             await setUser(userData);
             router.replace('/(tabs)');
           } catch (loginErr) {
-            // Login failed - probably needs age verification (backup check)
             const errorMsg = loginErr.response?.data?.detail || '';
             if (errorMsg.includes('Age verification')) {
               router.push({
@@ -166,7 +186,6 @@ export default function AuthScreen() {
             }
           }
         } else {
-          // New user from Google - go to onboarding
           router.push({
             pathname: '/(auth)/ai-onboarding',
             params: { 
@@ -179,7 +198,6 @@ export default function AuthScreen() {
         }
       } catch (checkErr) {
         console.error('Check user error:', checkErr);
-        // If check fails, assume new user
         router.push({
           pathname: '/(auth)/ai-onboarding',
           params: { 
@@ -215,7 +233,6 @@ export default function AuthScreen() {
     const cleanEmail = email.toLowerCase().trim();
 
     try {
-      // Step 1: Check if user exists
       console.log('Checking user:', cleanEmail);
       const checkResponse = await axios.post(`${API_URL}/check-user`, { 
         email: cleanEmail 
@@ -224,11 +241,9 @@ export default function AuthScreen() {
       console.log('Check response:', checkResponse.data);
 
       if (checkResponse.data.exists) {
-        // EXISTING USER
         const { age_verified, user_id } = checkResponse.data;
         
         if (!age_verified) {
-          // User exists but NOT age verified - send to verification
           console.log('User exists but not age verified, going to verification...');
           router.push({
             pathname: '/(auth)/document-verification',
@@ -240,7 +255,6 @@ export default function AuthScreen() {
           return;
         }
         
-        // User is verified - try to login
         console.log('User exists and verified, attempting login...');
         
         try {
@@ -263,7 +277,6 @@ export default function AuthScreen() {
           
           const errorMessage = loginError.response?.data?.detail || 'Login failed';
           
-          // Check for age verification requirement (backup check)
           if (errorMessage.toLowerCase().includes('age verification')) {
             router.push({
               pathname: '/(auth)/document-verification',
@@ -273,7 +286,6 @@ export default function AuthScreen() {
               }
             });
           } else if (errorMessage.toLowerCase().includes('certification')) {
-            // Trainer needs certification
             Alert.alert(
               'Certification Required',
               'Trainers must verify their fitness certification.',
@@ -284,7 +296,6 @@ export default function AuthScreen() {
           }
         }
       } else {
-        // NEW USER - go to onboarding
         console.log('New user, going to onboarding...');
         router.push({
           pathname: '/(auth)/ai-onboarding',
@@ -329,15 +340,26 @@ export default function AuthScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Background Effects */}
+      <ParticleField count={15} />
+      
+      {/* Ambient Glow */}
+      <Animated.View style={[styles.ambientGlow, glowStyle]} pointerEvents="none">
+        <View style={styles.glowOrb1} />
+        <View style={styles.glowOrb2} />
+      </Animated.View>
+
       <SafeAreaView style={styles.safeArea}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.keyboardView}
         >
-          {/* Logo & Mascot */}
+          {/* Logo & Mascot Section */}
           {!keyboardVisible && (
             <Animated.View style={[styles.logoSection, logoStyle]}>
-              <LiftLinkMascot size={120} />
+              <View style={styles.mascotContainer}>
+                <FutureMascot size={140} />
+              </View>
             </Animated.View>
           )}
 
@@ -346,25 +368,26 @@ export default function AuthScreen() {
             {/* Title */}
             <View style={styles.titleSection}>
               <View style={styles.logoRow}>
-                <LiftLinkLogo size={40} />
+                <FutureLogo size={44} />
                 <Text style={styles.title}>LiftLink</Text>
               </View>
-              <Text style={styles.tagline}>Beginners to Believers</Text>
+              <Text style={styles.tagline}>The Future of Fitness</Text>
+              <Text style={styles.subtagline}>Powered by AI • Built for You</Text>
             </View>
 
             {/* Form Card */}
             <View style={styles.card}>
               {/* Social Login Buttons */}
-              <SocialButton
+              <FutureSocialButton
                 title="Continue with Google"
-                icon={<GoogleIcon size={22} />}
+                icon={<FutureGoogleIcon size={22} />}
                 onPress={handleGoogleSignIn}
                 loading={googleLoading}
               />
 
-              <SocialButton
+              <FutureSocialButton
                 title="Continue with Apple"
-                icon={<AppleIcon size={22} />}
+                icon={<FutureAppleIcon size={22} />}
                 onPress={() => Alert.alert('Coming Soon', 'Apple Sign-In will be available soon!')}
                 style={{ marginTop: 12 }}
               />
@@ -384,12 +407,12 @@ export default function AuthScreen() {
                   error && styles.inputWrapperError,
                 ]}>
                   <View style={styles.inputIcon}>
-                    <EmailIcon size={20} color={focused ? COLORS.primary : '#666'} />
+                    <FutureEmailIcon size={20} color={focused ? FUTURE_COLORS.primary : FUTURE_COLORS.textMuted} />
                   </View>
                   <TextInput
                     style={styles.input}
                     placeholder="Email address"
-                    placeholderTextColor="#666"
+                    placeholderTextColor={FUTURE_COLORS.textMuted}
                     value={email}
                     onChangeText={(text) => {
                       setEmail(text);
@@ -412,8 +435,8 @@ export default function AuthScreen() {
               </View>
 
               {/* Continue Button */}
-              <Button
-                title="Continue with Email"
+              <FutureButton
+                title="Continue"
                 onPress={handleEmailContinue}
                 loading={loading}
                 variant="primary"
@@ -424,8 +447,8 @@ export default function AuthScreen() {
             {/* Footer */}
             <Text style={styles.footerText}>
               By continuing, you agree to our{' '}
-              <Text style={styles.footerLink}>Terms of Service</Text>
-              {' '}and{' '}
+              <Text style={styles.footerLink}>Terms</Text>
+              {' & '}
               <Text style={styles.footerLink}>Privacy Policy</Text>
             </Text>
           </Animated.View>
@@ -438,7 +461,34 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: FUTURE_COLORS.void,
+  },
+  ambientGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+  },
+  glowOrb1: {
+    position: 'absolute',
+    top: -100,
+    left: -100,
+    width: 300,
+    height: 300,
+    borderRadius: 150,
+    backgroundColor: FUTURE_COLORS.primary,
+    opacity: 0.08,
+  },
+  glowOrb2: {
+    position: 'absolute',
+    bottom: -50,
+    right: -100,
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: FUTURE_COLORS.accent,
+    opacity: 0.06,
   },
   safeArea: {
     flex: 1,
@@ -450,52 +500,72 @@ const styles = StyleSheet.create({
   },
   logoSection: {
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
+  },
+  mascotContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   content: {
     width: '100%',
   },
   titleSection: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 28,
   },
   logoRow: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   title: {
-    fontSize: 36,
+    fontSize: 38,
     fontWeight: '800',
-    color: COLORS.text,
+    color: FUTURE_COLORS.text,
     marginLeft: 12,
+    letterSpacing: 1,
   },
   tagline: {
     fontSize: 16,
-    color: COLORS.primary,
+    color: FUTURE_COLORS.primary,
     marginTop: 8,
-    fontWeight: '500',
+    fontWeight: '600',
+    letterSpacing: 2,
+    textTransform: 'uppercase',
+  },
+  subtagline: {
+    fontSize: 13,
+    color: FUTURE_COLORS.textSecondary,
+    marginTop: 6,
+    letterSpacing: 0.5,
   },
   card: {
-    backgroundColor: COLORS.surface,
-    borderRadius: 20,
+    backgroundColor: FUTURE_COLORS.surface,
+    borderRadius: 24,
     padding: 24,
     borderWidth: 1,
-    borderColor: COLORS.border,
+    borderColor: FUTURE_COLORS.border,
+    // Subtle glow effect
+    shadowColor: FUTURE_COLORS.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
   },
   divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: 20,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: FUTURE_COLORS.border,
   },
   dividerText: {
-    color: COLORS.textSecondary,
+    color: FUTURE_COLORS.textMuted,
     paddingHorizontal: 16,
-    fontSize: 14,
+    fontSize: 13,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
   },
   inputContainer: {
     marginBottom: 16,
@@ -503,16 +573,20 @@ const styles = StyleSheet.create({
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.background,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: COLORS.border,
+    backgroundColor: FUTURE_COLORS.elevated,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: FUTURE_COLORS.border,
   },
   inputWrapperFocused: {
-    borderColor: COLORS.primary,
+    borderColor: FUTURE_COLORS.primary,
+    shadowColor: FUTURE_COLORS.primary,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
   },
   inputWrapperError: {
-    borderColor: COLORS.error,
+    borderColor: FUTURE_COLORS.error,
   },
   inputIcon: {
     paddingLeft: 16,
@@ -522,22 +596,23 @@ const styles = StyleSheet.create({
     height: 56,
     paddingHorizontal: 12,
     fontSize: 16,
-    color: COLORS.text,
+    color: FUTURE_COLORS.text,
+    letterSpacing: 0.3,
   },
   errorText: {
-    color: COLORS.error,
+    color: FUTURE_COLORS.error,
     fontSize: 13,
     marginTop: 8,
     marginLeft: 4,
   },
   footerText: {
-    color: COLORS.textSecondary,
+    color: FUTURE_COLORS.textMuted,
     fontSize: 12,
     textAlign: 'center',
     marginTop: 24,
     lineHeight: 18,
   },
   footerLink: {
-    color: COLORS.primary,
+    color: FUTURE_COLORS.primary,
   },
 });
