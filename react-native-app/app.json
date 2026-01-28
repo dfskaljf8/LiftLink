@@ -30,9 +30,6 @@
       "googleServicesFile": "./google-services.json"
     },
     "extra": {
-      "eas": {
-        "projectId": "d0caa059-83cd-42b2-8dea-2e803fd46d7d"
-      },
       "googleClientId": {
         "android": "464466068216-4sfg6htsflfler6ri9f9hqbsvgl7n7ij.apps.googleusercontent.com",
         "ios": "464466068216-e1qq893h44vejoau0vddk93ev2tih0f3.apps.googleusercontent.com",
