@@ -14,19 +14,31 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.liftlinkapp"
+      "bundleIdentifier": "com.liftlinkapp",
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.464466068216-e1qq893h44vejoau0vddk93ev2tih0f3"
+        }
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#111827"
       },
-      "package": "com.liftlinkapp"
+      "package": "com.liftlinkapp",
+      "googleServicesFile": "./google-services.json"
     },
     "extra": {
       "eas": {
         "projectId": "d0caa059-83cd-42b2-8dea-2e803fd46d7d"
+      },
+      "googleClientId": {
+        "android": "464466068216-4sfg6htsflfler6ri9f9hqbsvgl7n7ij.apps.googleusercontent.com",
+        "ios": "464466068216-e1qq893h44vejoau0vddk93ev2tih0f3.apps.googleusercontent.com",
+        "web": "464466068216-e1qq893h44vejoau0vddk93ev2tih0f3.apps.googleusercontent.com"
       }
-    }
+    },
+    "scheme": "liftlink"
   }
 }
