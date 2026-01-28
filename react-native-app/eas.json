@@ -21,9 +21,6 @@
     "preview": {
       "extends": "base",
       "distribution": "internal",
-      "env": {
-        "EAS_NO_VCS": "1"
-      },
       "android": {
         "buildType": "apk",
         "gradleCommand": ":app:assembleRelease",
