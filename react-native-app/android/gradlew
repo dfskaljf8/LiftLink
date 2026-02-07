@@ -1,8 +1,38 @@
 #!/bin/sh
+
 DIRNAME=$(dirname "$0")
-APP_BASE_NAME=$(basename "$0")
 APP_HOME=$(cd "$DIRNAME" && pwd -P)
 CLASSPATH="$APP_HOME/gradle/wrapper/gradle-wrapper.jar"
-JAVA_HOME=${JAVA_HOME:-/usr/lib/jvm/java-17-openjdk-arm64}
-JAVACMD="$JAVA_HOME/bin/java"
+
+if [ -n "$JAVA_HOME" ] && [ -x "$JAVA_HOME/bin/java" ]; then
+  JAVACMD="$JAVA_HOME/bin/java"
+else
+  if [ -x "/usr/libexec/java_home" ]; then
+    JAVA17_HOME=$(/usr/libexec/java_home -v 17 2>/dev/null || true)
+    if [ -n "$JAVA17_HOME" ] && [ -x "$JAVA17_HOME/bin/java" ]; then
+      JAVACMD="$JAVA17_HOME/bin/java"
+    fi
+  fi
+fi
+
+if [ -z "$JAVACMD" ]; then
+  JAVACMD=$(command -v java 2>/dev/null)
+fi
+
+if [ ! -x "$JAVACMD" ]; then
+  echo "ERROR: Java not found. Set JAVA_HOME or add java to PATH." >&2
+  exit 1
+fi
+
+JAVA_VERSION=$("$JAVACMD" -version 2>&1 | awk -F\" '/version/ {print $2; exit}')
+JAVA_MAJOR=$(printf '%s' "$JAVA_VERSION" | cut -d. -f1)
+case "$JAVA_MAJOR" in
+  ''|*[!0-9]*) JAVA_MAJOR=0 ;;
+esac
+
+if [ "$JAVA_MAJOR" -lt 17 ] || [ "$JAVA_MAJOR" -gt 21 ]; then
+  echo "ERROR: Java $JAVA_VERSION is not supported. Use Java 17 (recommended) for Android builds." >&2
+  exit 1
+fi
+
 exec "$JAVACMD" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"

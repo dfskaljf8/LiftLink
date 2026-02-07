@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "LiftLink",
-    "slug": "liftlink",
+    "slug": "liftlink-appflow",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -11,7 +11,9 @@
       "resizeMode": "contain",
       "backgroundColor": "#111827"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.liftlinkapp",
@@ -30,6 +32,9 @@
       "googleServicesFile": "./google-services.json"
     },
     "extra": {
+      "eas": {
+        "projectId": "d0caa059-83cd-42b2-8dea-2e803fd46d7d"
+      },
       "googleClientId": {
         "android": "464466068216-4sfg6htsflfler6ri9f9hqbsvgl7n7ij.apps.googleusercontent.com",
         "ios": "464466068216-e1qq893h44vejoau0vddk93ev2tih0f3.apps.googleusercontent.com",

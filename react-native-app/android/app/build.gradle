@@ -2,20 +2,35 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
-/**
- * This is the configuration block to customize your React Native Android app.
- */
+def reactNativeDir = new File(
+    providers.exec {
+        workingDir(rootDir)
+        commandLine("node", "--print", "require.resolve('react-native/package.json')")
+    }.standardOutput.asText.get().trim()
+).getParentFile().absoluteFile
+
+def codegenDir = new File(
+    providers.exec {
+        workingDir(rootDir)
+        commandLine("node", "--print", "require.resolve('@react-native/codegen/package.json', { paths: [require.resolve('react-native/package.json')] })")
+    }.standardOutput.asText.get().trim()
+).getParentFile().absoluteFile
+
+def isNewArchitectureEnabled = project.hasProperty("newArchEnabled") && project.newArchEnabled == "true"
+def isHermesEnabled = project.hasProperty("hermesEnabled") ? project.hermesEnabled == "true" : true
+
 react {
+    reactNativeDir = reactNativeDir
+    codegenDir = codegenDir
+    cliFile = new File(reactNativeDir, "cli.js")
+    bundleCommand = "bundle"
     autolinkLibrariesWithApp()
-    
-    // Bundle JS during Gradle build (required for EAS)
-    bundleInDebug = false
-    bundleInRelease = true
-    hermesCommand = "node_modules/react-native/sdks/hermesc/%OS-BIN%/hermesc"
 }
 
-def enableProguardInReleaseBuilds = false
-def jscFlavor = 'org.webkit:android-jsc:+'
+def enableProguardInReleaseBuilds = (findProperty("android.enableProguardInReleaseBuilds") ?: false).toBoolean()
+def jscFlavor = "org.webkit:android-jsc:+"
+
+apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle")
 
 android {
     ndkVersion rootProject.ext.ndkVersion
@@ -23,44 +38,44 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace "com.liftlinkapp"
-    
+
     defaultConfig {
         applicationId "com.liftlinkapp"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
-        
-        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", "false"
-        buildConfigField "boolean", "IS_HERMES_ENABLED", hermesEnabled
+
+        buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled.toString()
+        buildConfigField "boolean", "IS_HERMES_ENABLED", isHermesEnabled.toString()
     }
-    
+
     buildFeatures {
         buildConfig = true
     }
-    
+
     signingConfigs {
         debug {
-            storeFile file('debug.keystore')
-            storePassword 'android'
-            keyAlias 'androiddebugkey'
-            keyPassword 'android'
+            storeFile file("debug.keystore")
+            storePassword "android"
+            keyAlias "androiddebugkey"
+            keyPassword "android"
         }
         release {
-            if (project.hasProperty('RELEASE_STORE_FILE')) {
+            if (project.hasProperty("RELEASE_STORE_FILE")) {
                 storeFile file(RELEASE_STORE_FILE)
                 storePassword RELEASE_STORE_PASSWORD
                 keyAlias RELEASE_KEY_ALIAS
                 keyPassword RELEASE_KEY_PASSWORD
             } else {
-                storeFile file('debug.keystore')
-                storePassword 'android'
-                keyAlias 'androiddebugkey'
-                keyPassword 'android'
+                storeFile file("debug.keystore")
+                storePassword "android"
+                keyAlias "androiddebugkey"
+                keyPassword "android"
             }
         }
     }
-    
+
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
@@ -76,11 +91,9 @@ android {
 }
 
 dependencies {
-    // React Native core
     implementation("com.facebook.react:react-android")
-    
-    // Hermes JavaScript engine (standard React Native toggle)
-    if (hermesEnabled.toBoolean()) {
+
+    if (isHermesEnabled) {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor

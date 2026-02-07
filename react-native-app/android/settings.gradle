@@ -1,6 +1,51 @@
-pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
+pluginManagement {
+  includeBuild("../node_modules/@react-native/gradle-plugin")
+  resolutionStrategy {
+    eachPlugin { details ->
+      if (details.requested.id.id.startsWith("org.jetbrains.kotlin")) {
+        details.useVersion("1.9.25")
+      }
+    }
+  }
+}
 plugins { id("com.facebook.react.settings") }
-extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
-rootProject.name = 'LiftLink'
-include ':app'
-includeBuild('../node_modules/@react-native/gradle-plugin')
+
+extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
+  if (System.getenv("EXPO_USE_COMMUNITY_AUTOLINKING") == "1") {
+    ex.autolinkLibrariesFromCommand()
+  } else {
+    def command = [
+      "node",
+      "--no-warnings",
+      "--eval",
+      "require(require.resolve('expo-modules-autolinking', { paths: [require.resolve('expo/package.json')] }))(process.argv.slice(1))",
+      "react-native-config",
+      "--json",
+      "--platform",
+      "android"
+    ]
+    ex.autolinkLibrariesFromCommand(command)
+  }
+}
+
+rootProject.name = "LiftLink"
+
+dependencyResolutionManagement {
+  versionCatalogs {
+    reactAndroidLibs {
+      from(files(new File(
+        providers.exec {
+          workingDir(rootDir)
+          commandLine("node", "--print", "require.resolve('react-native/package.json')")
+        }.standardOutput.asText.get().trim(),
+        "../gradle/libs.versions.toml"
+      )))
+    }
+  }
+}
+
+apply from: new File(["node", "--print", "require.resolve('expo/package.json')"].execute(null, rootDir).text.trim(), "../scripts/autolinking.gradle")
+useExpoModules()
+
+include(":app")
+includeBuild(new File(["node", "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim()).getParentFile())

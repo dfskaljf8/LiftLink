@@ -4,6 +4,7 @@ import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
+import expo.modules.ReactActivityDelegateWrapper;
 
 public class MainActivity extends ReactActivity {
 
@@ -14,10 +15,14 @@ public class MainActivity extends ReactActivity {
 
     @Override
     protected ReactActivityDelegate createReactActivityDelegate() {
-        return new DefaultReactActivityDelegate(
+        return new ReactActivityDelegateWrapper(
             this,
-            getMainComponentName(),
-            DefaultNewArchitectureEntryPoint.getFabricEnabled()
+            BuildConfig.IS_NEW_ARCHITECTURE_ENABLED,
+            new DefaultReactActivityDelegate(
+                this,
+                getMainComponentName(),
+                DefaultNewArchitectureEntryPoint.getFabricEnabled()
+            )
         );
     }
 }
