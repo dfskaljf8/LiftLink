@@ -1,4 +1,14 @@
 {
   "name": "LiftLinkMobile",
-  "displayName": "LiftLink"
+  "displayName": "LiftLink",
+  "extra": {
+    "eas": {
+      "projectId": "1f5f3a17-a5da-4f16-b94b-e8695ef2d507"
+    }
+  },
+  "expo": {
+    "android": {
+      "package": "com.ksurepalli.liftlinkmobile"
+    }
+  }
 }
