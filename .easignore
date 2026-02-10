@@ -1,0 +1,21 @@
+# Exclude generated/build artifacts from EAS upload
+.git/
+.github/
+.emergent/
+
+node_modules/
+**/node_modules/
+
+ios/Pods/
+react-native-app/ios/Pods/
+ios/build/
+react-native-app/ios/build/
+
+android/.gradle/
+react-native-app/android/.gradle/
+react-native-app/android/.gradle-home/
+android/build/
+react-native-app/android/build/
+
+*.log
+.DS_Store

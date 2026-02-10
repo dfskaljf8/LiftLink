@@ -1,0 +1,14 @@
+# Exclude generated native artifacts and local caches from EAS upload
+.git/
+node_modules/
+
+ios/Pods/
+ios/build/
+
+android/.gradle/
+android/.gradle-home/
+android/build/
+android/local.properties
+
+*.log
+.DS_Store

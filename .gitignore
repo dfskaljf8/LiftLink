@@ -226,6 +226,15 @@ backend/firebase-service-account.json
 *.env
 *.env.*
 -e 
+
+# Native build artifacts (must never be committed)
+ios/Pods/
+react-native-app/ios/Pods/
+android/.gradle/
+android/local.properties
+react-native-app/android/.gradle/
+react-native-app/android/.gradle-home/
+react-native-app/android/local.properties
 # Environment files
 *.env
 *.env.*
